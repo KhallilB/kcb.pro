@@ -1,6 +1,6 @@
 import { createBrowserRouter } from 'react-router'
 
-import { Home } from '@/pages/Home'
+import { Home } from '@app/pages/Home'
 
 const router = createBrowserRouter([
   {

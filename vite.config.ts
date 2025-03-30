@@ -7,7 +7,8 @@ export default defineConfig({
   plugins: [react(), tailwind()],
   resolve: {
     alias: {
-      '@': '/app',
+      '@app': '/app',
+      '@server': '/server',
     },
   },
   build: {
