@@ -26,5 +26,7 @@ jobs:
           bun run build:server
 
       - name: Deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
         run: |
           bun run deploy:server
