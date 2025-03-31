@@ -13,7 +13,6 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
-    "jsxImportSource": "hono/jsx",
     "rootDir": ".",
     "outDir": "build",
     "paths": {
