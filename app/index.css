@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Geist+Mono:wght@100..900&display=swap');
-
 @import 'tailwindcss';
 
 :root {
@@ -12,5 +10,13 @@
 }
 
 @theme {
-  --font-display: 'Comic Neue', 'cursive';
+  --font-header: 'ka1';
+}
+
+@font-face {
+  font-family: 'ka1';
+  font-style: normal;
+  font-weight: 200 700;
+  font-display: swap;
+  src: url('/app/assets/fonts/ka1.ttf') format('truetype');
 }
