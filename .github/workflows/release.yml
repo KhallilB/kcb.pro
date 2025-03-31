@@ -36,7 +36,7 @@ jobs:
           git config --global user.name "KhallilB"
           git config --global user.email "khallilbailey@gmail.com"
 
-      - name: Create Release Draft
+      - name: Create Release Draftt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
