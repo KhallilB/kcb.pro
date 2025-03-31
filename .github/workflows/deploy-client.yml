@@ -1,4 +1,4 @@
-name: Build Prod Client
+name: Build & Merge Prod Client
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - prod-client
 
 jobs:
-  deploy:
+  client:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
