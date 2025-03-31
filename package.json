@@ -43,5 +43,36 @@
     "typescript-eslint": "^8.24.1",
     "vite": "^6.2.0",
     "wrangler": "^4.4.0"
+  },
+  "release-it": {
+    "$schema": "https://unpkg.com/release-it/schema/release-it.json",
+    "git": {
+      "commitMessage": "chore: release v${version}",
+      "tagName": "v${version}",
+      "requireCleanWorkingDir": true
+    },
+    "github": {
+      "release": true,
+      "autoGenerate": true,
+      "releaseName": "Release v${version}",
+      "tokenRef": "${{ secrets.GITHUB_TOKEN }}"
+    },
+    "plugins": {
+      "@release-it/bumper": {
+        "in": "package.json",
+        "preCommit": true,
+        "commitMessage": "chore: bump version to ${version}"
+      },
+      "@release-it/conventional-changelog": {
+        "preset": "angular",
+        "infile": "CHANGELOG.md",
+        "header": "# Changelog\n\n",
+        "template": "# 🚀 Release v{{version}} ({{date}})\n\n{{#each commitGroups}}\n## {{title}}\n{{#each commits}}\n- {{> commit root=@root}}\n{{/each}}\n{{/each}}\n\n{{#if noteGroups}}\n{{#each noteGroups}}\n## {{title}}\n{{#each notes}}\n- {{#if commit.scope}}**{{commit.scope}}:** {{/if}}{{text}}\n{{/each}}\n{{/each}}\n{{/if}}\n\n## 📦 Package Information\n- **Version:** {{version}}\n- **Released:** {{date}}\n- **Commit Count:** {{commitCount}}\n\n<details>\n<summary>🔍 View Detailed Commit Information</summary>\n\n{{#each commits}}\n### {{header}}\n{{#if hash}}**Commit:** [{{shortHash}}]({{@root.repoUrl}}/commit/{{hash}})<br>{{/if}}\n{{#if author}}**Author:** {{author.name}} <{{author.email}}><br>{{/if}}\n{{#if committerDate}}**Date:** {{committerDate}}<br>{{/if}}\n{{#if body}}**Details:**\n```\n{{body}}\n```\n{{/if}}\n{{/each}}\n</details>"
+      }
+    },
+    "hooks": {
+      "after:bump": "npm run build",
+      "after:release": "echo 'Released version ${version}'"
+    }
   }
 }
