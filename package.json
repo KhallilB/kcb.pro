@@ -10,7 +10,7 @@
     "build:server": "tsc -b && cd server && bun build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "deploy:server": "wrangler deploy --minify",
+    "deploy:server": "wrangler deploy --config wrangler.server.jsonc  --minify",
     "release": "release-it"
   },
   "dependencies": {
