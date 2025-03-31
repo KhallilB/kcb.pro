@@ -2,6 +2,13 @@
 
 
 
+# [0.2.0](https://github.com/KhallilB/kcb.pro/compare/v0.1.0...v0.2.0) (2025-03-31)
+
+
+### Features
+
+* add changelog ([d306f88](https://github.com/KhallilB/kcb.pro/commit/d306f88e26432964c4530ff65c19f6f945e72b55))
+
 # [0.1.0](https://github.com/KhallilB/kcb.pro/compare/0.0.17...v0.1.0) (2025-03-31)
 
 
