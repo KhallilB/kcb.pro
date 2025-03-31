@@ -28,6 +28,7 @@
     "@cloudflare/workers-types": "^4.20250214.0",
     "@eslint/js": "^9.21.0",
     "@release-it/bumper": "^7.0.2",
+    "@release-it/conventional-changelog": "^10.0.0",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react-swc": "^3.8.0",
@@ -47,6 +48,12 @@
     "@release-it/bumper": {
       "in": "package.json",
       "out": "package.json"
+    },
+    "@release-it/conventional-changelog": {
+      "preset": {
+        "name": "angular"
+      },
+      "infile": "CHANGELOG.md"
     }
   }
 }
