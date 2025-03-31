@@ -56,7 +56,8 @@
       "release": true,
       "autoGenerate": true,
       "releaseName": "Release v${version}",
-      "tokenRef": "${{ secrets.GITHUB_TOKEN }}"
+      "tokenRef": "${{ secrets.GITHUB_TOKEN }}",
+      "useChangelog": true
     },
     "plugins": {
       "@release-it/bumper": {
