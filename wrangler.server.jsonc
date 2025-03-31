@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "kcb-pro-server",
-  "main": "server/src/index.ts",
+  "main": "server/src/index.",
   "compatibility_date": "2025-03-30",
   // "compatibility_flags": [
   //   "nodejs_compat"

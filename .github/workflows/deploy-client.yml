@@ -1,0 +1,30 @@
+name: Deploy Client
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  server:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.release.draft == false }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Build
+        run: |
+          bun install
+          bun run build:client
+
+      - name: Deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
+        run: |
+          bun run deploy:client

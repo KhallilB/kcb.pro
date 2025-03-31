@@ -8,9 +8,10 @@
     "dev:server": "wrangler dev",
     "build:client": "tsc -b && vite build",
     "build:server": "tsc -b && cd server && bun build --minify --no-bundle src/index.ts",
+    "deploy:client": "wrangler pages deploy ./build --project-name kcb-pro",
+    "deploy:server": "wrangler deploy --config wrangler.server.jsonc  --minify",
     "lint": "eslint .",
     "preview": "vite preview",
-    "deploy:server": "wrangler deploy --config wrangler.server.jsonc  --minify",
     "release": "release-it"
   },
   "dependencies": {
