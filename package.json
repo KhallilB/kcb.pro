@@ -43,17 +43,5 @@
     "typescript-eslint": "^8.24.1",
     "vite": "^6.2.0",
     "wrangler": "^4.4.0"
-  },
-  "plugins": {
-    "@release-it/bumper": {
-      "in": "package.json",
-      "out": "package.json"
-    },
-    "@release-it/conventional-changelog": {
-      "preset": {
-        "name": "angular"
-      },
-      "infile": "CHANGELOG.md"
-    }
   }
 }
