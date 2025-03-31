@@ -40,4 +40,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: bun run release -- --ci --github.release --github.releaseName="Release v${{ steps.version.outputs.version }}" --github.autoGenerate
+        run: bun run release -- --ci --github.release --github.draft --github.releaseName="Release v${{ steps.version.outputs.version }}" --github.autoGenerate
