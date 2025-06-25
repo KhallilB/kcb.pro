@@ -2,12 +2,5 @@
   "extends": "./tsconfig.base.json",
   "compileOnSave": false,
   "files": [],
-  "references": [
-    {
-      "path": "./apps/kcb.pro-e2e"
-    },
-    {
-      "path": "./apps/kcb.pro"
-    }
-  ]
+  "references": []
 }
