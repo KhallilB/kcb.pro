@@ -1,0 +1,10 @@
+{
+  "name": "@kcb.pro/kcb.pro-e2e",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "implicitDependencies": [
+      "@kcb.pro/kcb.pro"
+    ]
+  }
+}
