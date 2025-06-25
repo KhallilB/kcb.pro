@@ -17,6 +17,7 @@
     "strict": true,
     "target": "es2022",
     "customConditions": ["development"],
+    "baseUrl": "./",
     "paths": {
       "@kcb.pro/*": ["apps/*/src/index.ts", "packages/*/src/index.ts"]
     }

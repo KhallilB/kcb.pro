@@ -2,7 +2,9 @@
   "name": "@kcb.pro/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "dev": "nx serve shell"
+  },
   "private": true,
   "dependencies": {
     "react": "19.0.0",
