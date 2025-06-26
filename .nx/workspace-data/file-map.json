@@ -1,0 +1,51 @@
+{
+  "version": "6.0",
+  "nxVersion": "21.2.1",
+  "pathMappings": {},
+  "nxJsonPlugins": [],
+  "fileMap": {
+    "nonProjectFiles": [
+      {
+        "file": ".nx/workspace-data/d/server-process.json",
+        "hash": "17311472951000001227"
+      },
+      {
+        "file": ".nx/workspace-data/project-graph.json",
+        "hash": "13905530192789458212"
+      },
+      {
+        "file": ".nx/workspace-data/source-maps.json",
+        "hash": "1389868326933519382"
+      },
+      {
+        "file": ".nx/workspace-data/lockfile.hash",
+        "hash": "6200424519039440402"
+      },
+      {
+        "file": ".nx/workspace-data/file-map.json",
+        "hash": "8618686208409386974"
+      },
+      {
+        "file": "package-lock.json",
+        "hash": "15807836432404998871"
+      },
+      {
+        "file": ".nx/workspace-data/nx_files.nxt",
+        "hash": "17687625018306158587"
+      },
+      {
+        "file": "nx.json",
+        "hash": "18336426213955174907"
+      },
+      {
+        "file": "package.json",
+        "hash": "2936165522036344444"
+      },
+      {
+        "file": ".nx/workspace-data/parsed-lock-file.json",
+        "hash": "12036089449807723598"
+      }
+    ],
+    "projectFileMap": {}
+  }
+}
