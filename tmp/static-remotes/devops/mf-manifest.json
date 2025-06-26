@@ -1,0 +1,49 @@
+{
+  "id": "devops",
+  "name": "devops",
+  "metaData": {
+    "name": "devops",
+    "type": "app",
+    "buildInfo": {
+      "buildVersion": "local"
+    },
+    "remoteEntry": {
+      "name": "remoteEntry.js",
+      "path": "",
+      "type": "global"
+    },
+    "types": {
+      "path": "",
+      "name": "",
+      "zip": "",
+      "api": ""
+    },
+    "globalName": "devops",
+    "pluginVersion": "0.9.1",
+    "prefetchInterface": false,
+    "publicPath": "auto"
+  },
+  "shared": [],
+  "remotes": [],
+  "exposes": [
+    {
+      "id": "devops:Module",
+      "name": "Module",
+      "assets": {
+        "js": {
+          "sync": [
+            "__federation_expose_Module.js"
+          ],
+          "async": []
+        },
+        "css": {
+          "sync": [
+            "__federation_expose_Module.css"
+          ],
+          "async": []
+        }
+      },
+      "path": "./Module"
+    }
+  ]
+}

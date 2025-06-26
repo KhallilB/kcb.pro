@@ -1,0 +1,22 @@
+[36m[ Module Federation Manifest Plugin ][39m Manifest will use absolute path resolution via its host at runtime, reason: publicPath='auto'
+<i> [1m[32m[webpack-dev-server] Project is running at:[39m[22m
+<i> [1m[32m[webpack-dev-server] Loopback: [36mhttp://localhost:4200/[39m, [36mhttp://[::1]:4200/[39m[39m[22m
+<i> [1m[32m[webpack-dev-server] 404s will fallback to '[36m/index.html[39m'[39m[22m
+(node:7732) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+[7m[1m[36m NX [39m[22m[27m [1mStarting module federation dev-server for [1mshell[22m[1m with 5 remotes[22m
+
+NX Building 5 static remotes...
+node:internal/process/promises:392
+      new UnhandledPromiseRejection(reason);
+      ^
+
+UnhandledPromiseRejection: This error originated either by throwing inside of an async function without a catch block, or by rejecting a promise which was not handled with .catch(). The promise rejected with the reason "Remote failed to start. A complete log can be found in: /Users/khallilbailey/dev/kcb.pro/.nx/workspace-data/2025-06-26T19_21_41_824Z-build.log".
+[90m    at throwUnhandledRejectionsMode (node:internal/process/promises:392:7)[39m
+[90m    at processPromiseRejections (node:internal/process/promises:475:17)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:106:32)[39m {
+  code: [32m'ERR_UNHANDLED_REJECTION'[39m
+}
+
+Node.js v22.13.0

@@ -1,51 +1,1338 @@
 {
   "version": "6.0",
   "nxVersion": "21.2.1",
-  "pathMappings": {},
-  "nxJsonPlugins": [],
+  "pathMappings": {
+    "backend/Module": [
+      "apps/backend/src/remote-entry.ts"
+    ],
+    "design/Module": [
+      "apps/design/src/remote-entry.ts"
+    ],
+    "devops/Module": [
+      "apps/devops/src/remote-entry.ts"
+    ],
+    "frontend/Module": [
+      "apps/frontend/src/remote-entry.ts"
+    ],
+    "home/Module": [
+      "apps/home/src/remote-entry.ts"
+    ]
+  },
+  "nxJsonPlugins": [
+    {
+      "name": "@nx/react/router-plugin",
+      "options": {
+        "buildTargetName": "build",
+        "devTargetName": "dev",
+        "startTargetName": "start",
+        "watchDepsTargetName": "watch-deps",
+        "buildDepsTargetName": "build-deps",
+        "typecheckTargetName": "typecheck"
+      }
+    },
+    {
+      "name": "@nx/rspack/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "serveTargetName": "serve",
+        "previewTargetName": "preview",
+        "buildDepsTargetName": "build-deps",
+        "watchDepsTargetName": "watch-deps"
+      }
+    },
+    {
+      "name": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
+      }
+    },
+    {
+      "name": "@nx/jest/plugin",
+      "options": {
+        "targetName": "test"
+      }
+    }
+  ],
   "fileMap": {
     "nonProjectFiles": [
       {
-        "file": ".nx/workspace-data/d/server-process.json",
-        "hash": "17311472951000001227"
+        "file": "tmp/static-remotes/home/remoteEntry.js",
+        "hash": "3424482458734748474"
       },
       {
-        "file": ".nx/workspace-data/project-graph.json",
-        "hash": "13905530192789458212"
+        "file": "tmp/static-remotes/home/mf-stats.json",
+        "hash": "695632277445200900"
       },
       {
-        "file": ".nx/workspace-data/source-maps.json",
-        "hash": "1389868326933519382"
+        "file": "tmp/static-remotes/frontend/src_bootstrap_tsx.js.map",
+        "hash": "6590328577968739555"
       },
       {
-        "file": ".nx/workspace-data/lockfile.hash",
-        "hash": "6200424519039440402"
+        "file": "tmp/static-remotes/home/favicon.ico",
+        "hash": "9303420814833116677"
       },
       {
-        "file": ".nx/workspace-data/file-map.json",
-        "hash": "8618686208409386974"
+        "file": "tmp/static-remotes/home/src_bootstrap_tsx.css",
+        "hash": "9896272063618815090"
       },
       {
-        "file": "package-lock.json",
-        "hash": "15807836432404998871"
+        "file": "dist/apps/design/__federation_expose_Module.js.map",
+        "hash": "7827818713465138751"
       },
       {
-        "file": ".nx/workspace-data/nx_files.nxt",
-        "hash": "17687625018306158587"
+        "file": "tmp/static-remotes/design/remoteEntry.js",
+        "hash": "5580215535640394821"
+      },
+      {
+        "file": "tmp/static-remotes/devops/src_bootstrap_tsx.js",
+        "hash": "3000897931830392061"
+      },
+      {
+        "file": "tmp/static-remotes/frontend/favicon.ico",
+        "hash": "9303420814833116677"
+      },
+      {
+        "file": "tmp/static-remotes/design/src_bootstrap_tsx.js.map",
+        "hash": "4356246016466630160"
+      },
+      {
+        "file": "dist/apps/devops/remoteEntry.js",
+        "hash": "10959422970284816642"
+      },
+      {
+        "file": "dist/apps/home/remoteEntry.js.map",
+        "hash": "7386021496134540239"
+      },
+      {
+        "file": "tmp/static-remotes/design/main.js.map",
+        "hash": "14879939412731595321"
+      },
+      {
+        "file": "dist/apps/frontend/src_bootstrap_tsx.js",
+        "hash": "13839412853693279687"
+      },
+      {
+        "file": "dist/apps/frontend/__federation_expose_Module.css",
+        "hash": "9318636411757896799"
+      },
+      {
+        "file": "tmp/static-remotes/backend/src_bootstrap_tsx.js",
+        "hash": "6246518690610565130"
+      },
+      {
+        "file": "tmp/static-remotes/backend/remoteEntry.js",
+        "hash": "9654064434363858105"
+      },
+      {
+        "file": "dist/apps/backend/remoteEntry.js.map",
+        "hash": "11968366451894057181"
+      },
+      {
+        "file": "dist/apps/frontend/mf-stats.json",
+        "hash": "1688472703092596471"
+      },
+      {
+        "file": "tmp/static-remotes/devops/src_bootstrap_tsx.js.map",
+        "hash": "4983812395900310123"
+      },
+      {
+        "file": "dist/apps/devops/__federation_expose_Module.css",
+        "hash": "9318636411757896799"
+      },
+      {
+        "file": "dist/apps/devops/index.html",
+        "hash": "2135813823755071798"
+      },
+      {
+        "file": "dist/apps/backend/assets/.gitkeep",
+        "hash": "3244421341483603138"
+      },
+      {
+        "file": "dist/apps/devops/favicon.ico",
+        "hash": "9303420814833116677"
+      },
+      {
+        "file": "tmp/static-remotes/devops/favicon.ico",
+        "hash": "9303420814833116677"
+      },
+      {
+        "file": "dist/apps/design/src_bootstrap_tsx.js.map",
+        "hash": "4356246016466630160"
+      },
+      {
+        "file": "tmp/static-remotes/devops/mf-stats.json",
+        "hash": "6907126348072732061"
+      },
+      {
+        "file": "tmp/static-remotes/home/__federation_expose_Module.css.map",
+        "hash": "10622667386093357170"
+      },
+      {
+        "file": "dist/apps/backend/main.js",
+        "hash": "14934421798533440719"
+      },
+      {
+        "file": "tmp/static-remotes/design/mf-stats.json",
+        "hash": "4220208677973778255"
+      },
+      {
+        "file": "tmp/static-remotes/frontend/remoteEntry.js",
+        "hash": "5274345072164099936"
+      },
+      {
+        "file": "dist/apps/backend/__federation_expose_Module.js.map",
+        "hash": "1088112933243782741"
+      },
+      {
+        "file": "tmp/static-remotes/design/src_bootstrap_tsx.css",
+        "hash": "9896272063618815090"
+      },
+      {
+        "file": "tmp/static-remotes/devops/mf-manifest.json",
+        "hash": "11126316110832612621"
+      },
+      {
+        "file": "dist/apps/design/mf-manifest.json",
+        "hash": "7881836229164923718"
+      },
+      {
+        "file": "tmp/static-remotes/home/mf-manifest.json",
+        "hash": "11917366059958401594"
+      },
+      {
+        "file": "tmp/static-remotes/design/__federation_expose_Module.js.map",
+        "hash": "7827818713465138751"
+      },
+      {
+        "file": "tmp/static-remotes/devops/__federation_expose_Module.css",
+        "hash": "9318636411757896799"
+      },
+      {
+        "file": "tmp/static-remotes/backend/__federation_expose_Module.css.map",
+        "hash": "3477929909014781886"
+      },
+      {
+        "file": "dist/apps/devops/src_bootstrap_tsx.js",
+        "hash": "3000897931830392061"
+      },
+      {
+        "file": "tmp/static-remotes/backend/favicon.ico",
+        "hash": "9303420814833116677"
+      },
+      {
+        "file": "dist/apps/frontend/assets/.gitkeep",
+        "hash": "3244421341483603138"
+      },
+      {
+        "file": "tmp/static-remotes/devops/main.js",
+        "hash": "7716354590560459933"
+      },
+      {
+        "file": "tmp/static-remotes/backend/assets/.gitkeep",
+        "hash": "3244421341483603138"
+      },
+      {
+        "file": "tmp/static-remotes/backend/__federation_expose_Module.js",
+        "hash": "16293468950116830353"
+      },
+      {
+        "file": "dist/apps/design/remoteEntry.js",
+        "hash": "5580215535640394821"
+      },
+      {
+        "file": "tmp/static-remotes/devops/main.js.map",
+        "hash": "10280671090219158181"
+      },
+      {
+        "file": "dist/apps/frontend/__federation_expose_Module.js.map",
+        "hash": "6436592023045398932"
+      },
+      {
+        "file": "tmp/static-remotes/devops/assets/.gitkeep",
+        "hash": "3244421341483603138"
+      },
+      {
+        "file": "dist/apps/backend/src_bootstrap_tsx.js.map",
+        "hash": "14420348108172186042"
+      },
+      {
+        "file": "tsconfig.base.json",
+        "hash": "9485795991500711589"
+      },
+      {
+        "file": "dist/apps/backend/src_bootstrap_tsx.css",
+        "hash": "9896272063618815090"
+      },
+      {
+        "file": "tmp/static-remotes/frontend/__federation_expose_Module.css.map",
+        "hash": "3743444230945331362"
+      },
+      {
+        "file": "tmp/static-remotes/frontend/index.html",
+        "hash": "9269873011508345272"
+      },
+      {
+        "file": "tmp/static-remotes/frontend/__federation_expose_Module.js.map",
+        "hash": "6436592023045398932"
+      },
+      {
+        "file": "dist/apps/design/remoteEntry.js.map",
+        "hash": "5322729944494093812"
+      },
+      {
+        "file": "tmp/static-remotes/devops/src_bootstrap_tsx.css.map",
+        "hash": "1627176115478136918"
+      },
+      {
+        "file": "tmp/static-remotes/devops/remoteEntry.js.map",
+        "hash": "5222792040178935837"
+      },
+      {
+        "file": "dist/apps/home/src_bootstrap_tsx.css",
+        "hash": "9896272063618815090"
+      },
+      {
+        "file": "tmp/static-remotes/design/src_bootstrap_tsx.css.map",
+        "hash": "18370210117637578312"
+      },
+      {
+        "file": "tmp/static-remotes/design/__federation_expose_Module.css",
+        "hash": "9318636411757896799"
+      },
+      {
+        "file": "dist/apps/home/src_bootstrap_tsx.js.map",
+        "hash": "11675620617204565422"
+      },
+      {
+        "file": "dist/apps/design/assets/.gitkeep",
+        "hash": "3244421341483603138"
+      },
+      {
+        "file": "dist/apps/home/__federation_expose_Module.js.map",
+        "hash": "7148355478851424551"
+      },
+      {
+        "file": "tmp/static-remotes/devops/index.html",
+        "hash": "2135813823755071798"
+      },
+      {
+        "file": "jest.preset.js",
+        "hash": "9430166341120122740"
+      },
+      {
+        "file": "dist/apps/frontend/mf-manifest.json",
+        "hash": "16108823366031271004"
+      },
+      {
+        "file": "dist/apps/devops/__federation_expose_Module.js",
+        "hash": "15734057772450670114"
+      },
+      {
+        "file": "tmp/static-remotes/design/__federation_expose_Module.css.map",
+        "hash": "17522278434921655221"
+      },
+      {
+        "file": "tmp/static-remotes/backend/mf-stats.json",
+        "hash": "6281941743680316196"
+      },
+      {
+        "file": "dist/apps/devops/src_bootstrap_tsx.css.map",
+        "hash": "1627176115478136918"
+      },
+      {
+        "file": "dist/apps/devops/main.js.map",
+        "hash": "10280671090219158181"
+      },
+      {
+        "file": "tmp/static-remotes/design/mf-manifest.json",
+        "hash": "7881836229164923718"
+      },
+      {
+        "file": "tmp/static-remotes/devops/remoteEntry.js",
+        "hash": "10959422970284816642"
+      },
+      {
+        "file": "tmp/static-remotes/backend/mf-manifest.json",
+        "hash": "7371569199848357567"
+      },
+      {
+        "file": "tmp/static-remotes/devops/__federation_expose_Module.css.map",
+        "hash": "14225861388721901023"
       },
       {
         "file": "nx.json",
-        "hash": "18336426213955174907"
+        "hash": "2510582247748849679"
+      },
+      {
+        "file": "dist/apps/design/src_bootstrap_tsx.css.map",
+        "hash": "18370210117637578312"
+      },
+      {
+        "file": "dist/apps/home/__federation_expose_Module.js",
+        "hash": "3447512486482605441"
+      },
+      {
+        "file": "dist/apps/devops/src_bootstrap_tsx.css",
+        "hash": "9896272063618815090"
+      },
+      {
+        "file": "dist/apps/home/favicon.ico",
+        "hash": "9303420814833116677"
+      },
+      {
+        "file": "tmp/static-remotes/frontend/assets/.gitkeep",
+        "hash": "3244421341483603138"
+      },
+      {
+        "file": "dist/apps/devops/assets/.gitkeep",
+        "hash": "3244421341483603138"
+      },
+      {
+        "file": "tmp/static-remotes/devops/__federation_expose_Module.js.map",
+        "hash": "1576771325254483017"
+      },
+      {
+        "file": "tmp/static-remotes/backend/main.js.map",
+        "hash": "12750255148132510949"
+      },
+      {
+        "file": "dist/apps/devops/mf-stats.json",
+        "hash": "6907126348072732061"
+      },
+      {
+        "file": "dist/apps/frontend/main.js.map",
+        "hash": "1232030433197674986"
+      },
+      {
+        "file": "dist/apps/devops/main.js",
+        "hash": "7716354590560459933"
+      },
+      {
+        "file": "dist/apps/home/__federation_expose_Module.css",
+        "hash": "9318636411757896799"
+      },
+      {
+        "file": "tmp/static-remotes/frontend/src_bootstrap_tsx.css",
+        "hash": "9896272063618815090"
+      },
+      {
+        "file": "tmp/static-remotes/frontend/src_bootstrap_tsx.css.map",
+        "hash": "972207561435873442"
+      },
+      {
+        "file": "dist/apps/frontend/favicon.ico",
+        "hash": "9303420814833116677"
+      },
+      {
+        "file": "tmp/static-remotes/backend/index.html",
+        "hash": "6404519038154513754"
+      },
+      {
+        "file": "dist/apps/frontend/src_bootstrap_tsx.css.map",
+        "hash": "972207561435873442"
+      },
+      {
+        "file": "dist/apps/home/mf-stats.json",
+        "hash": "695632277445200900"
+      },
+      {
+        "file": "dist/apps/home/__federation_expose_Module.css.map",
+        "hash": "10622667386093357170"
+      },
+      {
+        "file": "tmp/static-remotes/devops/src_bootstrap_tsx.css",
+        "hash": "9896272063618815090"
+      },
+      {
+        "file": "tmp/static-remotes/frontend/main.js",
+        "hash": "5416576003172318733"
       },
       {
         "file": "package.json",
-        "hash": "2936165522036344444"
+        "hash": "6376901490542536468"
       },
       {
-        "file": ".nx/workspace-data/parsed-lock-file.json",
-        "hash": "12036089449807723598"
+        "file": "package-lock.json",
+        "hash": "16260183329803900077"
+      },
+      {
+        "file": "tmp/static-remotes/home/main.js",
+        "hash": "9652446517976674960"
+      },
+      {
+        "file": "tmp/static-remotes/home/__federation_expose_Module.js",
+        "hash": "3447512486482605441"
+      },
+      {
+        "file": "tmp/static-remotes/design/assets/.gitkeep",
+        "hash": "3244421341483603138"
+      },
+      {
+        "file": "dist/apps/home/assets/.gitkeep",
+        "hash": "3244421341483603138"
+      },
+      {
+        "file": "tmp/static-remotes/frontend/mf-stats.json",
+        "hash": "1688472703092596471"
+      },
+      {
+        "file": "dist/apps/design/__federation_expose_Module.css",
+        "hash": "9318636411757896799"
+      },
+      {
+        "file": "tmp/static-remotes/home/__federation_expose_Module.js.map",
+        "hash": "7148355478851424551"
+      },
+      {
+        "file": "tmp/static-remotes/home/assets/.gitkeep",
+        "hash": "3244421341483603138"
+      },
+      {
+        "file": "dist/apps/devops/__federation_expose_Module.css.map",
+        "hash": "14225861388721901023"
+      },
+      {
+        "file": "dist/apps/frontend/__federation_expose_Module.css.map",
+        "hash": "3743444230945331362"
+      },
+      {
+        "file": "dist/apps/frontend/remoteEntry.js.map",
+        "hash": "1784160073512138574"
+      },
+      {
+        "file": "tmp/static-remotes/home/main.js.map",
+        "hash": "13304988618335660103"
+      },
+      {
+        "file": "tmp/static-remotes/home/src_bootstrap_tsx.js.map",
+        "hash": "11675620617204565422"
+      },
+      {
+        "file": "dist/apps/design/main.js",
+        "hash": "17496024498669841101"
+      },
+      {
+        "file": ".gitignore",
+        "hash": "14355019175916691955"
+      },
+      {
+        "file": "dist/apps/devops/src_bootstrap_tsx.js.map",
+        "hash": "4983812395900310123"
+      },
+      {
+        "file": "tmp/static-remotes/backend/__federation_expose_Module.css",
+        "hash": "9318636411757896799"
+      },
+      {
+        "file": "dist/apps/home/index.html",
+        "hash": "10483450005787899308"
+      },
+      {
+        "file": "dist/apps/devops/mf-manifest.json",
+        "hash": "11126316110832612621"
+      },
+      {
+        "file": "dist/apps/frontend/remoteEntry.js",
+        "hash": "5274345072164099936"
+      },
+      {
+        "file": "dist/apps/home/remoteEntry.js",
+        "hash": "3424482458734748474"
+      },
+      {
+        "file": "dist/apps/design/main.js.map",
+        "hash": "14879939412731595321"
+      },
+      {
+        "file": "tmp/static-remotes/backend/__federation_expose_Module.js.map",
+        "hash": "1088112933243782741"
+      },
+      {
+        "file": "dist/apps/backend/__federation_expose_Module.css.map",
+        "hash": "3477929909014781886"
+      },
+      {
+        "file": "dist/apps/design/favicon.ico",
+        "hash": "9303420814833116677"
+      },
+      {
+        "file": "dist/apps/backend/__federation_expose_Module.js",
+        "hash": "16293468950116830353"
+      },
+      {
+        "file": "dist/apps/devops/__federation_expose_Module.js.map",
+        "hash": "1576771325254483017"
+      },
+      {
+        "file": "eslint.config.mjs",
+        "hash": "10770449096712831357"
+      },
+      {
+        "file": "tmp/static-remotes/home/remoteEntry.js.map",
+        "hash": "7386021496134540239"
+      },
+      {
+        "file": ".prettierignore",
+        "hash": "14688272390704683536"
+      },
+      {
+        "file": "jest.config.ts",
+        "hash": "6870352021923392442"
+      },
+      {
+        "file": "dist/apps/devops/remoteEntry.js.map",
+        "hash": "5222792040178935837"
+      },
+      {
+        "file": "dist/apps/home/main.js.map",
+        "hash": "13304988618335660103"
+      },
+      {
+        "file": "dist/apps/frontend/__federation_expose_Module.js",
+        "hash": "11242787022074964492"
+      },
+      {
+        "file": "tmp/static-remotes/devops/__federation_expose_Module.js",
+        "hash": "15734057772450670114"
+      },
+      {
+        "file": "dist/apps/design/index.html",
+        "hash": "15650403927290262441"
+      },
+      {
+        "file": "tmp/static-remotes/frontend/__federation_expose_Module.css",
+        "hash": "9318636411757896799"
+      },
+      {
+        "file": "tmp/static-remotes/backend/remoteEntry.js.map",
+        "hash": "11968366451894057181"
+      },
+      {
+        "file": "dist/apps/backend/remoteEntry.js",
+        "hash": "9654064434363858105"
+      },
+      {
+        "file": "tmp/static-remotes/home/src_bootstrap_tsx.js",
+        "hash": "14214331905629036024"
+      },
+      {
+        "file": "dist/apps/home/src_bootstrap_tsx.css.map",
+        "hash": "11081627051909912267"
+      },
+      {
+        "file": "dist/apps/backend/mf-stats.json",
+        "hash": "6281941743680316196"
+      },
+      {
+        "file": "dist/apps/home/src_bootstrap_tsx.js",
+        "hash": "14214331905629036024"
+      },
+      {
+        "file": "tmp/static-remotes/backend/src_bootstrap_tsx.css.map",
+        "hash": "5103372390796846054"
+      },
+      {
+        "file": "tmp/static-remotes/design/main.js",
+        "hash": "17496024498669841101"
+      },
+      {
+        "file": "tmp/static-remotes/home/src_bootstrap_tsx.css.map",
+        "hash": "11081627051909912267"
+      },
+      {
+        "file": "dist/apps/backend/src_bootstrap_tsx.css.map",
+        "hash": "5103372390796846054"
+      },
+      {
+        "file": "tmp/static-remotes/backend/src_bootstrap_tsx.js.map",
+        "hash": "14420348108172186042"
+      },
+      {
+        "file": "tmp/static-remotes/frontend/src_bootstrap_tsx.js",
+        "hash": "13839412853693279687"
+      },
+      {
+        "file": "tmp/static-remotes/design/favicon.ico",
+        "hash": "9303420814833116677"
+      },
+      {
+        "file": "dist/apps/design/mf-stats.json",
+        "hash": "4220208677973778255"
+      },
+      {
+        "file": "tmp/static-remotes/design/index.html",
+        "hash": "15650403927290262441"
+      },
+      {
+        "file": "dist/apps/design/__federation_expose_Module.css.map",
+        "hash": "17522278434921655221"
+      },
+      {
+        "file": "tmp/static-remotes/frontend/__federation_expose_Module.js",
+        "hash": "11242787022074964492"
+      },
+      {
+        "file": "dist/apps/frontend/index.html",
+        "hash": "9269873011508345272"
+      },
+      {
+        "file": "dist/apps/backend/favicon.ico",
+        "hash": "9303420814833116677"
+      },
+      {
+        "file": "dist/apps/backend/__federation_expose_Module.css",
+        "hash": "9318636411757896799"
+      },
+      {
+        "file": "dist/apps/frontend/src_bootstrap_tsx.css",
+        "hash": "9896272063618815090"
+      },
+      {
+        "file": "tmp/static-remotes/design/remoteEntry.js.map",
+        "hash": "5322729944494093812"
+      },
+      {
+        "file": "dist/apps/home/main.js",
+        "hash": "9652446517976674960"
+      },
+      {
+        "file": "tmp/static-remotes/frontend/remoteEntry.js.map",
+        "hash": "1784160073512138574"
+      },
+      {
+        "file": "dist/apps/design/__federation_expose_Module.js",
+        "hash": "6742240133858827541"
+      },
+      {
+        "file": "tmp/static-remotes/design/__federation_expose_Module.js",
+        "hash": "6742240133858827541"
+      },
+      {
+        "file": "dist/apps/backend/mf-manifest.json",
+        "hash": "7371569199848357567"
+      },
+      {
+        "file": "dist/apps/backend/index.html",
+        "hash": "6404519038154513754"
+      },
+      {
+        "file": "tmp/static-remotes/frontend/main.js.map",
+        "hash": "1232030433197674986"
+      },
+      {
+        "file": "dist/apps/frontend/main.js",
+        "hash": "5416576003172318733"
+      },
+      {
+        "file": "tsconfig.json",
+        "hash": "3999473556742372045"
+      },
+      {
+        "file": "dist/apps/backend/src_bootstrap_tsx.js",
+        "hash": "6246518690610565130"
+      },
+      {
+        "file": "tmp/static-remotes/home/__federation_expose_Module.css",
+        "hash": "9318636411757896799"
+      },
+      {
+        "file": "dist/apps/frontend/src_bootstrap_tsx.js.map",
+        "hash": "6590328577968739555"
+      },
+      {
+        "file": "tmp/static-remotes/backend/src_bootstrap_tsx.css",
+        "hash": "9896272063618815090"
+      },
+      {
+        "file": ".prettierrc",
+        "hash": "16267754514737964994"
+      },
+      {
+        "file": "dist/apps/design/src_bootstrap_tsx.css",
+        "hash": "9896272063618815090"
+      },
+      {
+        "file": "tmp/static-remotes/home/index.html",
+        "hash": "10483450005787899308"
+      },
+      {
+        "file": "dist/apps/backend/main.js.map",
+        "hash": "12750255148132510949"
+      },
+      {
+        "file": "tmp/static-remotes/design/src_bootstrap_tsx.js",
+        "hash": "4973008939983815446"
+      },
+      {
+        "file": "dist/apps/home/mf-manifest.json",
+        "hash": "11917366059958401594"
+      },
+      {
+        "file": "dist/apps/design/src_bootstrap_tsx.js",
+        "hash": "4973008939983815446"
+      },
+      {
+        "file": "tmp/static-remotes/backend/main.js",
+        "hash": "14934421798533440719"
+      },
+      {
+        "file": "tmp/static-remotes/frontend/mf-manifest.json",
+        "hash": "16108823366031271004"
       }
     ],
-    "projectFileMap": {}
+    "projectFileMap": {
+      "backend": [
+        {
+          "file": "apps/backend/eslint.config.mjs",
+          "hash": "8789163670399984295"
+        },
+        {
+          "file": "apps/backend/jest.config.ts",
+          "hash": "4967781698978867776"
+        },
+        {
+          "file": "apps/backend/module-federation.config.ts",
+          "hash": "13392552767415931025"
+        },
+        {
+          "file": "apps/backend/postcss.config.js",
+          "hash": "2759402739052110475"
+        },
+        {
+          "file": "apps/backend/project.json",
+          "hash": "9179142262676134733"
+        },
+        {
+          "file": "apps/backend/rspack.config.prod.ts",
+          "hash": "5708868766095607563"
+        },
+        {
+          "file": "apps/backend/rspack.config.ts",
+          "hash": "16984140700667765709",
+          "deps": [
+            "npm:@nx/rspack",
+            "npm:@nx/module-federation"
+          ]
+        },
+        {
+          "file": "apps/backend/src/app/app.spec.tsx",
+          "hash": "14178506126615152034"
+        },
+        {
+          "file": "apps/backend/src/app/app.tsx",
+          "hash": "5108838811065959677"
+        },
+        {
+          "file": "apps/backend/src/app/nx-welcome.tsx",
+          "hash": "14708174282304233720"
+        },
+        {
+          "file": "apps/backend/src/assets/.gitkeep",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "apps/backend/src/bootstrap.tsx",
+          "hash": "3427523804892720320"
+        },
+        {
+          "file": "apps/backend/src/favicon.ico",
+          "hash": "9303420814833116677"
+        },
+        {
+          "file": "apps/backend/src/index.html",
+          "hash": "14041059235739876394"
+        },
+        {
+          "file": "apps/backend/src/main.ts",
+          "hash": "10018980967429810802"
+        },
+        {
+          "file": "apps/backend/src/remote-entry.ts",
+          "hash": "16889477869301519830"
+        },
+        {
+          "file": "apps/backend/src/styles.css",
+          "hash": "9540575453073076294"
+        },
+        {
+          "file": "apps/backend/tailwind.config.js",
+          "hash": "13090734457927965885"
+        },
+        {
+          "file": "apps/backend/tsconfig.app.json",
+          "hash": "3126679420255048410"
+        },
+        {
+          "file": "apps/backend/tsconfig.json",
+          "hash": "9850153468027031608"
+        },
+        {
+          "file": "apps/backend/tsconfig.spec.json",
+          "hash": "3305260514729189295"
+        }
+      ],
+      "home": [
+        {
+          "file": "apps/home/eslint.config.mjs",
+          "hash": "8789163670399984295"
+        },
+        {
+          "file": "apps/home/jest.config.ts",
+          "hash": "16485490280279637648"
+        },
+        {
+          "file": "apps/home/module-federation.config.ts",
+          "hash": "2692820841118042309"
+        },
+        {
+          "file": "apps/home/postcss.config.js",
+          "hash": "2759402739052110475"
+        },
+        {
+          "file": "apps/home/project.json",
+          "hash": "7392719962607837504"
+        },
+        {
+          "file": "apps/home/rspack.config.prod.ts",
+          "hash": "5708868766095607563"
+        },
+        {
+          "file": "apps/home/rspack.config.ts",
+          "hash": "8288928209116736272",
+          "deps": [
+            "npm:@nx/rspack",
+            "npm:@nx/module-federation"
+          ]
+        },
+        {
+          "file": "apps/home/src/app/app.spec.tsx",
+          "hash": "12984779949536753665"
+        },
+        {
+          "file": "apps/home/src/app/app.tsx",
+          "hash": "12062690132051594844"
+        },
+        {
+          "file": "apps/home/src/app/nx-welcome.tsx",
+          "hash": "14708174282304233720"
+        },
+        {
+          "file": "apps/home/src/assets/.gitkeep",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "apps/home/src/bootstrap.tsx",
+          "hash": "3427523804892720320"
+        },
+        {
+          "file": "apps/home/src/favicon.ico",
+          "hash": "9303420814833116677"
+        },
+        {
+          "file": "apps/home/src/index.html",
+          "hash": "13779278514719803203"
+        },
+        {
+          "file": "apps/home/src/main.ts",
+          "hash": "10018980967429810802"
+        },
+        {
+          "file": "apps/home/src/remote-entry.ts",
+          "hash": "16889477869301519830"
+        },
+        {
+          "file": "apps/home/src/styles.css",
+          "hash": "9540575453073076294"
+        },
+        {
+          "file": "apps/home/tailwind.config.js",
+          "hash": "13090734457927965885"
+        },
+        {
+          "file": "apps/home/tsconfig.app.json",
+          "hash": "3126679420255048410"
+        },
+        {
+          "file": "apps/home/tsconfig.json",
+          "hash": "9850153468027031608"
+        },
+        {
+          "file": "apps/home/tsconfig.spec.json",
+          "hash": "3305260514729189295"
+        }
+      ],
+      "devops": [
+        {
+          "file": "apps/devops/eslint.config.mjs",
+          "hash": "8789163670399984295"
+        },
+        {
+          "file": "apps/devops/jest.config.ts",
+          "hash": "320090291229162832"
+        },
+        {
+          "file": "apps/devops/module-federation.config.ts",
+          "hash": "13745288400492409141"
+        },
+        {
+          "file": "apps/devops/postcss.config.js",
+          "hash": "2759402739052110475"
+        },
+        {
+          "file": "apps/devops/project.json",
+          "hash": "2201336036983974908"
+        },
+        {
+          "file": "apps/devops/rspack.config.prod.ts",
+          "hash": "5708868766095607563"
+        },
+        {
+          "file": "apps/devops/rspack.config.ts",
+          "hash": "15689374751886230993",
+          "deps": [
+            "npm:@nx/rspack",
+            "npm:@nx/module-federation"
+          ]
+        },
+        {
+          "file": "apps/devops/src/app/app.spec.tsx",
+          "hash": "17815613368376169186"
+        },
+        {
+          "file": "apps/devops/src/app/app.tsx",
+          "hash": "447308696866763970"
+        },
+        {
+          "file": "apps/devops/src/app/nx-welcome.tsx",
+          "hash": "14708174282304233720"
+        },
+        {
+          "file": "apps/devops/src/assets/.gitkeep",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "apps/devops/src/bootstrap.tsx",
+          "hash": "3427523804892720320"
+        },
+        {
+          "file": "apps/devops/src/favicon.ico",
+          "hash": "9303420814833116677"
+        },
+        {
+          "file": "apps/devops/src/index.html",
+          "hash": "4170119351720728228"
+        },
+        {
+          "file": "apps/devops/src/main.ts",
+          "hash": "10018980967429810802"
+        },
+        {
+          "file": "apps/devops/src/remote-entry.ts",
+          "hash": "16889477869301519830"
+        },
+        {
+          "file": "apps/devops/src/styles.css",
+          "hash": "9540575453073076294"
+        },
+        {
+          "file": "apps/devops/tailwind.config.js",
+          "hash": "13090734457927965885"
+        },
+        {
+          "file": "apps/devops/tsconfig.app.json",
+          "hash": "3126679420255048410"
+        },
+        {
+          "file": "apps/devops/tsconfig.json",
+          "hash": "9850153468027031608"
+        },
+        {
+          "file": "apps/devops/tsconfig.spec.json",
+          "hash": "3305260514729189295"
+        }
+      ],
+      "shell": [
+        {
+          "file": "apps/shell/eslint.config.mjs",
+          "hash": "8789163670399984295"
+        },
+        {
+          "file": "apps/shell/jest.config.ts",
+          "hash": "13719579975470344960"
+        },
+        {
+          "file": "apps/shell/module-federation.config.ts",
+          "hash": "3977206967473846693"
+        },
+        {
+          "file": "apps/shell/postcss.config.js",
+          "hash": "2759402739052110475"
+        },
+        {
+          "file": "apps/shell/project.json",
+          "hash": "1451073382293509855"
+        },
+        {
+          "file": "apps/shell/rspack.config.prod.ts",
+          "hash": "11141478075226558486"
+        },
+        {
+          "file": "apps/shell/rspack.config.ts",
+          "hash": "10791076154300684526",
+          "deps": [
+            "npm:@nx/rspack",
+            "npm:@nx/module-federation"
+          ]
+        },
+        {
+          "file": "apps/shell/src/app/app.tsx",
+          "hash": "207452092155647897",
+          "deps": [
+            "npm:react",
+            "npm:react-router",
+            [
+              "home",
+              "dynamic"
+            ],
+            [
+              "design",
+              "dynamic"
+            ],
+            [
+              "frontend",
+              "dynamic"
+            ],
+            [
+              "backend",
+              "dynamic"
+            ],
+            [
+              "devops",
+              "dynamic"
+            ]
+          ]
+        },
+        {
+          "file": "apps/shell/src/assets/.gitkeep",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "apps/shell/src/bootstrap.tsx",
+          "hash": "3430232715665436782"
+        },
+        {
+          "file": "apps/shell/src/favicon.ico",
+          "hash": "9303420814833116677"
+        },
+        {
+          "file": "apps/shell/src/index.html",
+          "hash": "8220279410159241849"
+        },
+        {
+          "file": "apps/shell/src/main.ts",
+          "hash": "14701344671644104227"
+        },
+        {
+          "file": "apps/shell/src/styles.css",
+          "hash": "9540575453073076294"
+        },
+        {
+          "file": "apps/shell/tailwind.config.js",
+          "hash": "13090734457927965885"
+        },
+        {
+          "file": "apps/shell/tsconfig.app.json",
+          "hash": "3126679420255048410"
+        },
+        {
+          "file": "apps/shell/tsconfig.json",
+          "hash": "9850153468027031608"
+        },
+        {
+          "file": "apps/shell/tsconfig.spec.json",
+          "hash": "3305260514729189295"
+        }
+      ],
+      "design": [
+        {
+          "file": "apps/design/eslint.config.mjs",
+          "hash": "8789163670399984295"
+        },
+        {
+          "file": "apps/design/jest.config.ts",
+          "hash": "1722221271195020686"
+        },
+        {
+          "file": "apps/design/module-federation.config.ts",
+          "hash": "15412019194424767666"
+        },
+        {
+          "file": "apps/design/postcss.config.js",
+          "hash": "2759402739052110475"
+        },
+        {
+          "file": "apps/design/project.json",
+          "hash": "13109547910103596648"
+        },
+        {
+          "file": "apps/design/rspack.config.prod.ts",
+          "hash": "5708868766095607563"
+        },
+        {
+          "file": "apps/design/rspack.config.ts",
+          "hash": "12657977655616609509",
+          "deps": [
+            "npm:@nx/rspack",
+            "npm:@nx/module-federation"
+          ]
+        },
+        {
+          "file": "apps/design/src/app/app.spec.tsx",
+          "hash": "6959422676549152074"
+        },
+        {
+          "file": "apps/design/src/app/app.tsx",
+          "hash": "1664796736841675088"
+        },
+        {
+          "file": "apps/design/src/app/nx-welcome.tsx",
+          "hash": "14708174282304233720"
+        },
+        {
+          "file": "apps/design/src/assets/.gitkeep",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "apps/design/src/bootstrap.tsx",
+          "hash": "3427523804892720320"
+        },
+        {
+          "file": "apps/design/src/favicon.ico",
+          "hash": "9303420814833116677"
+        },
+        {
+          "file": "apps/design/src/index.html",
+          "hash": "4383530129250209018"
+        },
+        {
+          "file": "apps/design/src/main.ts",
+          "hash": "10018980967429810802"
+        },
+        {
+          "file": "apps/design/src/remote-entry.ts",
+          "hash": "16889477869301519830"
+        },
+        {
+          "file": "apps/design/src/styles.css",
+          "hash": "9540575453073076294"
+        },
+        {
+          "file": "apps/design/tailwind.config.js",
+          "hash": "13090734457927965885"
+        },
+        {
+          "file": "apps/design/tsconfig.app.json",
+          "hash": "3126679420255048410"
+        },
+        {
+          "file": "apps/design/tsconfig.json",
+          "hash": "9850153468027031608"
+        },
+        {
+          "file": "apps/design/tsconfig.spec.json",
+          "hash": "3305260514729189295"
+        }
+      ],
+      "frontend": [
+        {
+          "file": "apps/frontend/eslint.config.mjs",
+          "hash": "8789163670399984295"
+        },
+        {
+          "file": "apps/frontend/jest.config.ts",
+          "hash": "12503280562667538461"
+        },
+        {
+          "file": "apps/frontend/module-federation.config.ts",
+          "hash": "15340138871026321897"
+        },
+        {
+          "file": "apps/frontend/postcss.config.js",
+          "hash": "2759402739052110475"
+        },
+        {
+          "file": "apps/frontend/project.json",
+          "hash": "4465636511124419730"
+        },
+        {
+          "file": "apps/frontend/rspack.config.prod.ts",
+          "hash": "5708868766095607563"
+        },
+        {
+          "file": "apps/frontend/rspack.config.ts",
+          "hash": "3827893722245470257",
+          "deps": [
+            "npm:@nx/rspack",
+            "npm:@nx/module-federation"
+          ]
+        },
+        {
+          "file": "apps/frontend/src/app/app.spec.tsx",
+          "hash": "16715125725452478220"
+        },
+        {
+          "file": "apps/frontend/src/app/app.tsx",
+          "hash": "2959302537285467659"
+        },
+        {
+          "file": "apps/frontend/src/app/nx-welcome.tsx",
+          "hash": "14708174282304233720"
+        },
+        {
+          "file": "apps/frontend/src/assets/.gitkeep",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "apps/frontend/src/bootstrap.tsx",
+          "hash": "3427523804892720320"
+        },
+        {
+          "file": "apps/frontend/src/favicon.ico",
+          "hash": "9303420814833116677"
+        },
+        {
+          "file": "apps/frontend/src/index.html",
+          "hash": "552970882016167959"
+        },
+        {
+          "file": "apps/frontend/src/main.ts",
+          "hash": "10018980967429810802"
+        },
+        {
+          "file": "apps/frontend/src/remote-entry.ts",
+          "hash": "16889477869301519830"
+        },
+        {
+          "file": "apps/frontend/src/styles.css",
+          "hash": "9540575453073076294"
+        },
+        {
+          "file": "apps/frontend/tailwind.config.js",
+          "hash": "13090734457927965885"
+        },
+        {
+          "file": "apps/frontend/tsconfig.app.json",
+          "hash": "3126679420255048410"
+        },
+        {
+          "file": "apps/frontend/tsconfig.json",
+          "hash": "9850153468027031608"
+        },
+        {
+          "file": "apps/frontend/tsconfig.spec.json",
+          "hash": "3305260514729189295"
+        }
+      ]
+    }
   }
 }

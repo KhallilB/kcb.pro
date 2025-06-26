@@ -1,0 +1,65 @@
+{
+  "run": {
+    "command": "nx run-many --target=build --projects=home,design,frontend,backend,devops",
+    "startTime": "2025-06-26T19:33:52.709Z",
+    "endTime": "2025-06-26T19:33:54.911Z",
+    "inner": false
+  },
+  "tasks": [
+    {
+      "taskId": "devops:build",
+      "target": "build",
+      "projectName": "devops",
+      "hash": "700754034899868296",
+      "startTime": "2025-06-26T19:33:52.761Z",
+      "endTime": "2025-06-26T19:33:52.788Z",
+      "params": "",
+      "cacheStatus": "local-cache-hit",
+      "status": 0
+    },
+    {
+      "taskId": "frontend:build",
+      "target": "build",
+      "projectName": "frontend",
+      "hash": "43667661570594006",
+      "startTime": "2025-06-26T19:33:52.761Z",
+      "endTime": "2025-06-26T19:33:52.791Z",
+      "params": "",
+      "cacheStatus": "local-cache-hit",
+      "status": 0
+    },
+    {
+      "taskId": "design:build",
+      "target": "build",
+      "projectName": "design",
+      "hash": "14170006535619519178",
+      "startTime": "2025-06-26T19:33:52.794Z",
+      "endTime": "2025-06-26T19:33:52.797Z",
+      "params": "",
+      "cacheStatus": "local-cache-hit",
+      "status": 0
+    },
+    {
+      "taskId": "backend:build",
+      "target": "build",
+      "projectName": "backend",
+      "hash": "16666488647692114682",
+      "startTime": "2025-06-26T19:33:52.796Z",
+      "endTime": "2025-06-26T19:33:52.801Z",
+      "params": "",
+      "cacheStatus": "local-cache-hit",
+      "status": 0
+    },
+    {
+      "taskId": "home:build",
+      "target": "build",
+      "projectName": "home",
+      "hash": "5213533553268843002",
+      "startTime": "2025-06-26T19:33:52.761Z",
+      "endTime": "2025-06-26T19:33:54.907Z",
+      "params": "",
+      "cacheStatus": "cache-miss",
+      "status": 0
+    }
+  ]
+}

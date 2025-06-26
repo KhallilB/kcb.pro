@@ -1,0 +1,15 @@
+{
+  "name": "devops",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/devops/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "serve": {
+      "options": {
+        "port": 4205
+      },
+      "dependsOn": ["shell:serve"]
+    }
+  }
+}

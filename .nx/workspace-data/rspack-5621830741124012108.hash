@@ -1,0 +1,1161 @@
+{
+  "17191730522314917097_apps/backend/rspack.config.ts": {
+    "targets": {
+      "build": {
+        "command": "rspack build",
+        "options": {
+          "cwd": "apps/backend",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        },
+        "cache": true,
+        "dependsOn": [
+          "^build"
+        ],
+        "inputs": [
+          "default",
+          "^default",
+          {
+            "externalDependencies": [
+              "@rspack/cli"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/dist/apps/backend"
+        ]
+      },
+      "serve": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/backend",
+          "args": [
+            "--node-env=development"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "preview": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/backend",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "serve-static": {
+        "dependsOn": [
+          "build"
+        ],
+        "continuous": true,
+        "executor": "@nx/web:file-server",
+        "options": {
+          "buildTarget": "build",
+          "spa": true,
+          "port": 4204
+        }
+      },
+      "build-deps": {
+        "dependsOn": [
+          "^build"
+        ]
+      },
+      "watch-deps": {
+        "continuous": true,
+        "dependsOn": [
+          "build-deps"
+        ],
+        "command": "npx nx watch --projects backend --includeDependentProjects -- npx nx build-deps backend"
+      }
+    },
+    "metadata": {}
+  },
+  "17971825884649800313_apps/design/rspack.config.ts": {
+    "targets": {
+      "build": {
+        "command": "rspack build",
+        "options": {
+          "cwd": "apps/design",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        },
+        "cache": true,
+        "dependsOn": [
+          "^build"
+        ],
+        "inputs": [
+          "default",
+          "^default",
+          {
+            "externalDependencies": [
+              "@rspack/cli"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/dist/apps/design"
+        ]
+      },
+      "serve": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/design",
+          "args": [
+            "--node-env=development"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "preview": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/design",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "serve-static": {
+        "dependsOn": [
+          "build"
+        ],
+        "continuous": true,
+        "executor": "@nx/web:file-server",
+        "options": {
+          "buildTarget": "build",
+          "spa": true,
+          "port": 4202
+        }
+      },
+      "build-deps": {
+        "dependsOn": [
+          "^build"
+        ]
+      },
+      "watch-deps": {
+        "continuous": true,
+        "dependsOn": [
+          "build-deps"
+        ],
+        "command": "npx nx watch --projects design --includeDependentProjects -- npx nx build-deps design"
+      }
+    },
+    "metadata": {}
+  },
+  "641649085663790456_apps/devops/rspack.config.ts": {
+    "targets": {
+      "build": {
+        "command": "rspack build",
+        "options": {
+          "cwd": "apps/devops",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        },
+        "cache": true,
+        "dependsOn": [
+          "^build"
+        ],
+        "inputs": [
+          "default",
+          "^default",
+          {
+            "externalDependencies": [
+              "@rspack/cli"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/dist/apps/devops"
+        ]
+      },
+      "serve": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/devops",
+          "args": [
+            "--node-env=development"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "preview": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/devops",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "serve-static": {
+        "dependsOn": [
+          "build"
+        ],
+        "continuous": true,
+        "executor": "@nx/web:file-server",
+        "options": {
+          "buildTarget": "build",
+          "spa": true,
+          "port": 4205
+        }
+      },
+      "build-deps": {
+        "dependsOn": [
+          "^build"
+        ]
+      },
+      "watch-deps": {
+        "continuous": true,
+        "dependsOn": [
+          "build-deps"
+        ],
+        "command": "npx nx watch --projects devops --includeDependentProjects -- npx nx build-deps devops"
+      }
+    },
+    "metadata": {}
+  },
+  "6256801655754604971_apps/frontend/rspack.config.ts": {
+    "targets": {
+      "build": {
+        "command": "rspack build",
+        "options": {
+          "cwd": "apps/frontend",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        },
+        "cache": true,
+        "dependsOn": [
+          "^build"
+        ],
+        "inputs": [
+          "default",
+          "^default",
+          {
+            "externalDependencies": [
+              "@rspack/cli"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/dist/apps/frontend"
+        ]
+      },
+      "serve": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/frontend",
+          "args": [
+            "--node-env=development"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "preview": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/frontend",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "serve-static": {
+        "dependsOn": [
+          "build"
+        ],
+        "continuous": true,
+        "executor": "@nx/web:file-server",
+        "options": {
+          "buildTarget": "build",
+          "spa": true,
+          "port": 4203
+        }
+      },
+      "build-deps": {
+        "dependsOn": [
+          "^build"
+        ]
+      },
+      "watch-deps": {
+        "continuous": true,
+        "dependsOn": [
+          "build-deps"
+        ],
+        "command": "npx nx watch --projects frontend --includeDependentProjects -- npx nx build-deps frontend"
+      }
+    },
+    "metadata": {}
+  },
+  "13503548872203592701_apps/home/rspack.config.ts": {
+    "targets": {
+      "build": {
+        "command": "rspack build",
+        "options": {
+          "cwd": "apps/home",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        },
+        "cache": true,
+        "dependsOn": [
+          "^build"
+        ],
+        "inputs": [
+          "default",
+          "^default",
+          {
+            "externalDependencies": [
+              "@rspack/cli"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/dist/apps/home"
+        ]
+      },
+      "serve": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/home",
+          "args": [
+            "--node-env=development"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "preview": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/home",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "serve-static": {
+        "dependsOn": [
+          "build"
+        ],
+        "continuous": true,
+        "executor": "@nx/web:file-server",
+        "options": {
+          "buildTarget": "build",
+          "spa": true,
+          "port": 4201
+        }
+      },
+      "build-deps": {
+        "dependsOn": [
+          "^build"
+        ]
+      },
+      "watch-deps": {
+        "continuous": true,
+        "dependsOn": [
+          "build-deps"
+        ],
+        "command": "npx nx watch --projects home --includeDependentProjects -- npx nx build-deps home"
+      }
+    },
+    "metadata": {}
+  },
+  "17877783356055638506_apps/shell/rspack.config.ts": {
+    "targets": {
+      "build": {
+        "command": "rspack build",
+        "options": {
+          "cwd": "apps/shell",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        },
+        "cache": true,
+        "dependsOn": [
+          "^build"
+        ],
+        "inputs": [
+          "default",
+          "^default",
+          {
+            "externalDependencies": [
+              "@rspack/cli"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/dist/apps/shell"
+        ]
+      },
+      "serve": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/shell",
+          "args": [
+            "--node-env=development"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "preview": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/shell",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "serve-static": {
+        "dependsOn": [
+          "build"
+        ],
+        "continuous": true,
+        "executor": "@nx/web:file-server",
+        "options": {
+          "buildTarget": "build",
+          "spa": true
+        }
+      },
+      "build-deps": {
+        "dependsOn": [
+          "^build"
+        ]
+      },
+      "watch-deps": {
+        "continuous": true,
+        "dependsOn": [
+          "build-deps"
+        ],
+        "command": "npx nx watch --projects shell --includeDependentProjects -- npx nx build-deps shell"
+      }
+    },
+    "metadata": {}
+  },
+  "5301414003284589592_apps/backend/rspack.config.ts": {
+    "targets": {
+      "build": {
+        "command": "rspack build",
+        "options": {
+          "cwd": "apps/backend",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        },
+        "cache": true,
+        "dependsOn": [
+          "^build"
+        ],
+        "inputs": [
+          "default",
+          "^default",
+          {
+            "externalDependencies": [
+              "@rspack/cli"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/dist/apps/backend"
+        ]
+      },
+      "serve": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/backend",
+          "args": [
+            "--node-env=development"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "preview": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/backend",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "serve-static": {
+        "dependsOn": [
+          "build"
+        ],
+        "continuous": true,
+        "executor": "@nx/web:file-server",
+        "options": {
+          "buildTarget": "build",
+          "spa": true,
+          "port": 4204
+        }
+      },
+      "build-deps": {
+        "dependsOn": [
+          "^build"
+        ]
+      },
+      "watch-deps": {
+        "continuous": true,
+        "dependsOn": [
+          "build-deps"
+        ],
+        "command": "npx nx watch --projects backend --includeDependentProjects -- npx nx build-deps backend"
+      }
+    },
+    "metadata": {}
+  },
+  "8978112173100950949_apps/design/rspack.config.ts": {
+    "targets": {
+      "build": {
+        "command": "rspack build",
+        "options": {
+          "cwd": "apps/design",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        },
+        "cache": true,
+        "dependsOn": [
+          "^build"
+        ],
+        "inputs": [
+          "default",
+          "^default",
+          {
+            "externalDependencies": [
+              "@rspack/cli"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/dist/apps/design"
+        ]
+      },
+      "serve": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/design",
+          "args": [
+            "--node-env=development"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "preview": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/design",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "serve-static": {
+        "dependsOn": [
+          "build"
+        ],
+        "continuous": true,
+        "executor": "@nx/web:file-server",
+        "options": {
+          "buildTarget": "build",
+          "spa": true,
+          "port": 4202
+        }
+      },
+      "build-deps": {
+        "dependsOn": [
+          "^build"
+        ]
+      },
+      "watch-deps": {
+        "continuous": true,
+        "dependsOn": [
+          "build-deps"
+        ],
+        "command": "npx nx watch --projects design --includeDependentProjects -- npx nx build-deps design"
+      }
+    },
+    "metadata": {}
+  },
+  "12420407119986327917_apps/devops/rspack.config.ts": {
+    "targets": {
+      "build": {
+        "command": "rspack build",
+        "options": {
+          "cwd": "apps/devops",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        },
+        "cache": true,
+        "dependsOn": [
+          "^build"
+        ],
+        "inputs": [
+          "default",
+          "^default",
+          {
+            "externalDependencies": [
+              "@rspack/cli"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/dist/apps/devops"
+        ]
+      },
+      "serve": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/devops",
+          "args": [
+            "--node-env=development"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "preview": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/devops",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "serve-static": {
+        "dependsOn": [
+          "build"
+        ],
+        "continuous": true,
+        "executor": "@nx/web:file-server",
+        "options": {
+          "buildTarget": "build",
+          "spa": true,
+          "port": 4205
+        }
+      },
+      "build-deps": {
+        "dependsOn": [
+          "^build"
+        ]
+      },
+      "watch-deps": {
+        "continuous": true,
+        "dependsOn": [
+          "build-deps"
+        ],
+        "command": "npx nx watch --projects devops --includeDependentProjects -- npx nx build-deps devops"
+      }
+    },
+    "metadata": {}
+  },
+  "8622134792922001698_apps/frontend/rspack.config.ts": {
+    "targets": {
+      "build": {
+        "command": "rspack build",
+        "options": {
+          "cwd": "apps/frontend",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        },
+        "cache": true,
+        "dependsOn": [
+          "^build"
+        ],
+        "inputs": [
+          "default",
+          "^default",
+          {
+            "externalDependencies": [
+              "@rspack/cli"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/dist/apps/frontend"
+        ]
+      },
+      "serve": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/frontend",
+          "args": [
+            "--node-env=development"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "preview": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/frontend",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "serve-static": {
+        "dependsOn": [
+          "build"
+        ],
+        "continuous": true,
+        "executor": "@nx/web:file-server",
+        "options": {
+          "buildTarget": "build",
+          "spa": true,
+          "port": 4203
+        }
+      },
+      "build-deps": {
+        "dependsOn": [
+          "^build"
+        ]
+      },
+      "watch-deps": {
+        "continuous": true,
+        "dependsOn": [
+          "build-deps"
+        ],
+        "command": "npx nx watch --projects frontend --includeDependentProjects -- npx nx build-deps frontend"
+      }
+    },
+    "metadata": {}
+  },
+  "8759716382705778542_apps/home/rspack.config.ts": {
+    "targets": {
+      "build": {
+        "command": "rspack build",
+        "options": {
+          "cwd": "apps/home",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        },
+        "cache": true,
+        "dependsOn": [
+          "^build"
+        ],
+        "inputs": [
+          "default",
+          "^default",
+          {
+            "externalDependencies": [
+              "@rspack/cli"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/dist/apps/home"
+        ]
+      },
+      "serve": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/home",
+          "args": [
+            "--node-env=development"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "preview": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/home",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "serve-static": {
+        "dependsOn": [
+          "build"
+        ],
+        "continuous": true,
+        "executor": "@nx/web:file-server",
+        "options": {
+          "buildTarget": "build",
+          "spa": true,
+          "port": 4201
+        }
+      },
+      "build-deps": {
+        "dependsOn": [
+          "^build"
+        ]
+      },
+      "watch-deps": {
+        "continuous": true,
+        "dependsOn": [
+          "build-deps"
+        ],
+        "command": "npx nx watch --projects home --includeDependentProjects -- npx nx build-deps home"
+      }
+    },
+    "metadata": {}
+  },
+  "3706215077589166982_apps/shell/rspack.config.ts": {
+    "targets": {
+      "build": {
+        "command": "rspack build",
+        "options": {
+          "cwd": "apps/shell",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        },
+        "cache": true,
+        "dependsOn": [
+          "^build"
+        ],
+        "inputs": [
+          "default",
+          "^default",
+          {
+            "externalDependencies": [
+              "@rspack/cli"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/dist/apps/shell"
+        ]
+      },
+      "serve": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/shell",
+          "args": [
+            "--node-env=development"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "preview": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/shell",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "serve-static": {
+        "dependsOn": [
+          "build"
+        ],
+        "continuous": true,
+        "executor": "@nx/web:file-server",
+        "options": {
+          "buildTarget": "build",
+          "spa": true
+        }
+      },
+      "build-deps": {
+        "dependsOn": [
+          "^build"
+        ]
+      },
+      "watch-deps": {
+        "continuous": true,
+        "dependsOn": [
+          "build-deps"
+        ],
+        "command": "npx nx watch --projects shell --includeDependentProjects -- npx nx build-deps shell"
+      }
+    },
+    "metadata": {}
+  },
+  "1433377111715021795_apps/home/rspack.config.ts": {
+    "targets": {
+      "build": {
+        "command": "rspack build",
+        "options": {
+          "cwd": "apps/home",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        },
+        "cache": true,
+        "dependsOn": [
+          "^build"
+        ],
+        "inputs": [
+          "default",
+          "^default",
+          {
+            "externalDependencies": [
+              "@rspack/cli"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/dist/apps/home"
+        ]
+      },
+      "serve": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/home",
+          "args": [
+            "--node-env=development"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "preview": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/home",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "serve-static": {
+        "dependsOn": [
+          "build"
+        ],
+        "continuous": true,
+        "executor": "@nx/web:file-server",
+        "options": {
+          "buildTarget": "build",
+          "spa": true,
+          "port": 4201
+        }
+      },
+      "build-deps": {
+        "dependsOn": [
+          "^build"
+        ]
+      },
+      "watch-deps": {
+        "continuous": true,
+        "dependsOn": [
+          "build-deps"
+        ],
+        "command": "npx nx watch --projects home --includeDependentProjects -- npx nx build-deps home"
+      }
+    },
+    "metadata": {}
+  },
+  "13202657588406677032_apps/shell/rspack.config.ts": {
+    "targets": {
+      "build": {
+        "command": "rspack build",
+        "options": {
+          "cwd": "apps/shell",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        },
+        "cache": true,
+        "dependsOn": [
+          "^build"
+        ],
+        "inputs": [
+          "default",
+          "^default",
+          {
+            "externalDependencies": [
+              "@rspack/cli"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/dist/apps/shell"
+        ]
+      },
+      "serve": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/shell",
+          "args": [
+            "--node-env=development"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "preview": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/shell",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "serve-static": {
+        "dependsOn": [
+          "build"
+        ],
+        "continuous": true,
+        "executor": "@nx/web:file-server",
+        "options": {
+          "buildTarget": "build",
+          "spa": true
+        }
+      },
+      "build-deps": {
+        "dependsOn": [
+          "^build"
+        ]
+      },
+      "watch-deps": {
+        "continuous": true,
+        "dependsOn": [
+          "build-deps"
+        ],
+        "command": "npx nx watch --projects shell --includeDependentProjects -- npx nx build-deps shell"
+      }
+    },
+    "metadata": {}
+  }
+}
