@@ -57,4 +57,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo '{ "name": "${{ matrix.app }}", "extends": "../../.release-it.base.json" }' > .release-it.json && npx release-it --ci
+          npx release-it --ci                          \
+            --config=../../.release-it.base.json       \
+            --projectName=${{ matrix.app }}            \
+            --git.tagName='${{ matrix.app }}-v${version}' \
+            --git.tagMatch='${{ matrix.app }}-v*'      \
+            --github.releaseName='${{ matrix.app }} v${version}'

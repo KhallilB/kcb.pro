@@ -3,8 +3,7 @@
   "git": {
     "tagName": "${name}-v${version}",
     "tagMatch": "${name}-v*",
-    "commitMessage": "chore(${name}): release v${version}",
-    "commitsPath": "."
+    "commitMessage": "chore(${name}): release v${version}"
   },
   "github": {
     "release": true,
@@ -20,8 +19,7 @@
       "in": "./version.json"
     },
     "@release-it/conventional-changelog": {
-      "preset": "angular",
-      "path": "."
+      "preset": "angular"
     }
   }
 }
