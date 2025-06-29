@@ -5,8 +5,8 @@ logs
 **/*.backup.*
 **/*.back.*
 
-node_modules
 tmp
 dist
 .nx/cache
-nx/installation
+.nx/installation
+node_modules
