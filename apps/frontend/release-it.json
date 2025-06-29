@@ -1,27 +1,25 @@
 {
   "projectName": "frontend",
-  "plugins": {
-    "@release-it/bumper": {
-      "in": "./package.json",
-      "out": false,
-      "strict": true
-    },
-    "@release-it/conventional-changelog": {
-      "preset": "angular",
-      "path": "."
-    }
-  },
   "git": {
     "tagName": "frontend-v${version}",
     "tagMatch": "frontend-v*",
-    "commitsPath": ".",
     "commitMessage": "chore(frontend): release v${version}",
-    "pushArgs": ["--follow-tags", "--no-verify"]
+    "push": false
   },
   "github": {
     "release": true,
     "draft": true,
     "autoGenerate": true,
     "releaseName": "frontend v${version}"
+  },
+  "plugins": {
+    "@release-it/bumper": {
+      "in": "./package.json",
+      "out": false
+    },
+    "@release-it/conventional-changelog": {
+      "preset": "angular",
+      "path": "."
+    }
   }
 }

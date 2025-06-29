@@ -1,27 +1,25 @@
 {
   "projectName": "dsa",
-  "plugins": {
-    "@release-it/bumper": {
-      "in": "./package.json",
-      "out": false,
-      "strict": true
-    },
-    "@release-it/conventional-changelog": {
-      "preset": "angular",
-      "path": "."
-    }
-  },
   "git": {
     "tagName": "dsa-v${version}",
     "tagMatch": "dsa-v*",
-    "commitsPath": ".",
     "commitMessage": "chore(dsa): release v${version}",
-    "pushArgs": ["--follow-tags", "--no-verify"]
+    "push": false
   },
   "github": {
     "release": true,
     "draft": true,
     "autoGenerate": true,
     "releaseName": "dsa v${version}"
+  },
+  "plugins": {
+    "@release-it/bumper": {
+      "in": "./package.json",
+      "out": false
+    },
+    "@release-it/conventional-changelog": {
+      "preset": "angular",
+      "path": "."
+    }
   }
 }
