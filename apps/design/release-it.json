@@ -1,4 +1,22 @@
 {
-  "name": "design",
-  "extends": "../../.release-it.base.json"
+  "projectName": "design",
+  "plugins": {
+    "@release-it/bumper": { "in": "./version.json" },
+    "@release-it/conventional-changelog": {
+      "preset": "angular",
+      "path": "."
+    }
+  },
+  "git": {
+    "tagName": "design-v${version}",
+    "tagMatch": "design-v*",
+    "commitsPath": ".",
+    "commitMessage": "chore(design): release v${version}"
+  },
+  "github": {
+    "release": true,
+    "draft": true,
+    "autoGenerate": true,
+    "releaseName": "design v${version}"
+  }
 }

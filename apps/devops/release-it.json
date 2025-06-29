@@ -1,4 +1,22 @@
 {
-  "name": "devops",
-  "extends": "../../.release-it.base.json"
+  "projectName": "devops",
+  "plugins": {
+    "@release-it/bumper": { "in": "./version.json" },
+    "@release-it/conventional-changelog": {
+      "preset": "angular",
+      "path": "."
+    }
+  },
+  "git": {
+    "tagName": "devops-v${version}",
+    "tagMatch": "devops-v*",
+    "commitsPath": ".",
+    "commitMessage": "chore(devops): release v${version}"
+  },
+  "github": {
+    "release": true,
+    "draft": true,
+    "autoGenerate": true,
+    "releaseName": "devops v${version}"
+  }
 }
