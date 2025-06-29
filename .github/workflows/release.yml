@@ -57,9 +57,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [ -f version.json ]; then
-            npx release-it --ci --name=${{ matrix.app }} \
-              --config=../../.release-it.base.json
-          else
-            echo "Skipping: no version.json"
-          fi
+          npx release-it --ci --name=${{ matrix.app }} --config=../../.release-it.base.json

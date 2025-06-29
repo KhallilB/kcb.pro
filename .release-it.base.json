@@ -3,13 +3,14 @@
     "tagName": "${name}-v${version}",
     "commitMessage": "chore(${name}): release v${version}",
     "requireCleanWorkingDir": false,
-    "commit": false
+    "commit": false,
+    "tagMatch": "${name}-v*",
+    "commitsPath": "."
   },
   "github": {
     "release": true,
     "draft": true,
-    "autoGenerate": true,
-    "releaseName": "Let's release! ${name} (${version})"
+    "autoGenerate": true
   },
   "hooks": {
     "prePush": ""
@@ -17,6 +18,10 @@
   "plugins": {
     "@release-it/bumper": {
       "in": "./version.json"
+    },
+    "@release-it/conventional-changelog": {
+      "preset": "angular",
+      "commitPath": "."
     }
   }
 }
