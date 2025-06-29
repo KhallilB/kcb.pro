@@ -1,16 +1,16 @@
 {
+  "$schema": "https://unpkg.com/release-it@19/schema/release-it.json",
   "git": {
     "tagName": "${name}-v${version}",
-    "commitMessage": "chore(${name}): release v${version}",
-    "requireCleanWorkingDir": false,
-    "commit": false,
     "tagMatch": "${name}-v*",
+    "commitMessage": "chore(${name}): release v${version}",
     "commitsPath": "."
   },
   "github": {
     "release": true,
     "draft": true,
-    "autoGenerate": true
+    "autoGenerate": true,
+    "releaseName": "${name} v${version}"
   },
   "hooks": {
     "prePush": ""
@@ -21,7 +21,7 @@
     },
     "@release-it/conventional-changelog": {
       "preset": "angular",
-      "commitPath": "."
+      "path": "."
     }
   }
 }

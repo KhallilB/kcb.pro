@@ -57,4 +57,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npx release-it --ci --name=${{ matrix.app }} --config=../../.release-it.base.json
+          npx release-it --ci --config=../../.release-it.base.json \
+            --project.name=${{ matrix.app }}
