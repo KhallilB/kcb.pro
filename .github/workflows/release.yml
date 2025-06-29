@@ -57,5 +57,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo '{ "name": "${{ matrix.app }}", "extends": "../../.release-it.base.json" }' > .release-it.json \
-          npx release-it --ci
+          echo '{ "name": "${{ matrix.app }}", "extends": "../../.release-it.base.json" }' > .release-it.json && npx release-it --ci
