@@ -1,0 +1,4 @@
+{
+  "name": "home",
+  "extends": "../../.release-it.base.json"
+}

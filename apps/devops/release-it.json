@@ -1,0 +1,4 @@
+{
+  "name": "devops",
+  "extends": "../../.release-it.base.json"
+}
