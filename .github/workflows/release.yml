@@ -6,21 +6,29 @@ on:
       - main
 
 jobs:
-  detect-affected:
-    uses: ./.github/workflows/detect-affected.yml
-    with:
-      target: build
-
-  create-release-drafts:
-    name: Create Release Drafts
-    needs: detect-affected
-    if: ${{ needs.detect-affected.outputs.apps != '[]' }}
+  download-affected:
     runs-on: ubuntu-latest
+    outputs:
+      apps: ${{ steps.read.outputs.apps }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: affected-apps
 
+      - id: read
+        run: |
+          apps=$(cat affected.json)
+          echo "Loaded affected apps: $apps"
+          echo "apps=$apps" >> "$GITHUB_OUTPUT"
+
+  release:
+    name: Create Release Drafts
+    needs: download-affected
+    if: ${{ needs.download-affected.outputs.apps != '[]' }}
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        app: ${{ fromJson(needs.detect-affected.outputs.apps) }}
-
+        app: ${{ fromJson(needs.download-affected.outputs.apps) }}
     steps:
       - uses: actions/checkout@v4
 

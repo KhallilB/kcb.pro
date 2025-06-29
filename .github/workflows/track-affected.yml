@@ -1,0 +1,32 @@
+name: track-affected
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  detect-affected:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Detect affected apps
+        run: |
+          apps=$(npx nx print-affected --base=origin/main --target=build --select=projects --plain | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "$apps" > affected.json
+          echo "Detected affected apps: $apps"
+
+      - name: Upload affected.json
+        uses: actions/upload-artifact@v4
+        with:
+          name: affected-apps
+          path: affected.json
