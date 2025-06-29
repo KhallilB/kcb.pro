@@ -11,9 +11,9 @@
     "tagName": "frontend-v${version}",
     "tagMatch": "frontend-v*",
     "commitsPath": ".",
-    "commitMessage": "chore(frontend): release v${version}"
+    "commitMessage": "chore(frontend): release v${version}",
+    "pushArgs": ["--follow-tags", "--no-verify"]
   },
-  "prePush": "",
   "github": {
     "release": true,
     "draft": true,

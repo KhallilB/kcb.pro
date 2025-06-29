@@ -11,9 +11,9 @@
     "tagName": "shell-v${version}",
     "tagMatch": "shell-v*",
     "commitsPath": ".",
-    "commitMessage": "chore(shell): release v${version}"
+    "commitMessage": "chore(shell): release v${version}",
+    "pushArgs": ["--follow-tags", "--no-verify"]
   },
-  "prePush": "",
   "github": {
     "release": true,
     "draft": true,

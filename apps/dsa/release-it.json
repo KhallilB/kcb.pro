@@ -11,9 +11,9 @@
     "tagName": "dsa-v${version}",
     "tagMatch": "dsa-v*",
     "commitsPath": ".",
-    "commitMessage": "chore(dsa): release v${version}"
+    "commitMessage": "chore(dsa): release v${version}",
+    "pushArgs": ["--follow-tags", "--no-verify"]
   },
-  "prePush": "",
   "github": {
     "release": true,
     "draft": true,

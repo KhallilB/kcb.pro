@@ -11,9 +11,9 @@
     "tagName": "design-v${version}",
     "tagMatch": "design-v*",
     "commitsPath": ".",
-    "commitMessage": "chore(design): release v${version}"
+    "commitMessage": "chore(design): release v${version}",
+    "pushArgs": ["--follow-tags", "--no-verify"]
   },
-  "prePush": "",
   "github": {
     "release": true,
     "draft": true,

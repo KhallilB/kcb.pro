@@ -11,9 +11,9 @@
     "tagName": "backend-v${version}",
     "tagMatch": "backend-v*",
     "commitsPath": ".",
-    "commitMessage": "chore(backend): release v${version}"
+    "commitMessage": "chore(backend): release v${version}",
+    "pushArgs": ["--follow-tags", "--no-verify"]
   },
-  "prePush": "",
   "github": {
     "release": true,
     "draft": true,

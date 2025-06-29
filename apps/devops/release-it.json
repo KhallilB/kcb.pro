@@ -11,9 +11,9 @@
     "tagName": "devops-v${version}",
     "tagMatch": "devops-v*",
     "commitsPath": ".",
-    "commitMessage": "chore(devops): release v${version}"
+    "commitMessage": "chore(devops): release v${version}",
+    "pushArgs": ["--follow-tags", "--no-verify"]
   },
-  "prePush": "",
   "github": {
     "release": true,
     "draft": true,
