@@ -58,6 +58,194 @@
   ],
   "fileMap": {
     "projectFileMap": {
+      "home": [
+        {
+          "file": "apps/home/eslint.config.mjs",
+          "hash": "8789163670399984295"
+        },
+        {
+          "file": "apps/home/jest.config.ts",
+          "hash": "16485490280279637648"
+        },
+        {
+          "file": "apps/home/module-federation.config.ts",
+          "hash": "2692820841118042309"
+        },
+        {
+          "file": "apps/home/postcss.config.js",
+          "hash": "2759402739052110475"
+        },
+        {
+          "file": "apps/home/project.json",
+          "hash": "9582296878915212324"
+        },
+        {
+          "file": "apps/home/rspack.config.prod.ts",
+          "hash": "5708868766095607563"
+        },
+        {
+          "file": "apps/home/rspack.config.ts",
+          "hash": "8288928209116736272",
+          "deps": [
+            "npm:@nx/rspack",
+            "npm:@nx/module-federation"
+          ]
+        },
+        {
+          "file": "apps/home/src/app/app.tsx",
+          "hash": "11013430123854793375"
+        },
+        {
+          "file": "apps/home/src/assets/.gitkeep",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "apps/home/src/bootstrap.tsx",
+          "hash": "3427523804892720320"
+        },
+        {
+          "file": "apps/home/src/favicon.ico",
+          "hash": "9303420814833116677"
+        },
+        {
+          "file": "apps/home/src/index.html",
+          "hash": "13779278514719803203"
+        },
+        {
+          "file": "apps/home/src/main.ts",
+          "hash": "10018980967429810802"
+        },
+        {
+          "file": "apps/home/src/remote-entry.ts",
+          "hash": "16889477869301519830"
+        },
+        {
+          "file": "apps/home/src/styles.css",
+          "hash": "9540575453073076294"
+        },
+        {
+          "file": "apps/home/tailwind.config.js",
+          "hash": "13090734457927965885"
+        },
+        {
+          "file": "apps/home/tsconfig.app.json",
+          "hash": "3126679420255048410"
+        },
+        {
+          "file": "apps/home/tsconfig.json",
+          "hash": "9850153468027031608"
+        },
+        {
+          "file": "apps/home/tsconfig.spec.json",
+          "hash": "3305260514729189295"
+        }
+      ],
+      "dsa": [
+        {
+          "file": "apps/dsa/eslint.config.mjs",
+          "hash": "8789163670399984295",
+          "deps": [
+            "npm:@nx/eslint-plugin"
+          ]
+        },
+        {
+          "file": "apps/dsa/jest.config.ts",
+          "hash": "18423732383235805187"
+        },
+        {
+          "file": "apps/dsa/module-federation.config.ts",
+          "hash": "15844282199169708355",
+          "deps": [
+            "npm:@nx/module-federation"
+          ]
+        },
+        {
+          "file": "apps/dsa/postcss.config.js",
+          "hash": "2759402739052110475"
+        },
+        {
+          "file": "apps/dsa/project.json",
+          "hash": "12452776594349337699"
+        },
+        {
+          "file": "apps/dsa/rspack.config.prod.ts",
+          "hash": "5708868766095607563"
+        },
+        {
+          "file": "apps/dsa/rspack.config.ts",
+          "hash": "16889174522952716118",
+          "deps": [
+            "npm:@nx/rspack",
+            "npm:@nx/module-federation"
+          ]
+        },
+        {
+          "file": "apps/dsa/src/app/app.spec.tsx",
+          "hash": "3675556482732785738",
+          "deps": [
+            "npm:@testing-library/react"
+          ]
+        },
+        {
+          "file": "apps/dsa/src/app/app.tsx",
+          "hash": "8334839754451305622"
+        },
+        {
+          "file": "apps/dsa/src/app/nx-welcome.tsx",
+          "hash": "14708174282304233720"
+        },
+        {
+          "file": "apps/dsa/src/assets/.gitkeep",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "apps/dsa/src/bootstrap.tsx",
+          "hash": "3427523804892720320",
+          "deps": [
+            "npm:react",
+            "npm:react-dom"
+          ]
+        },
+        {
+          "file": "apps/dsa/src/favicon.ico",
+          "hash": "9303420814833116677"
+        },
+        {
+          "file": "apps/dsa/src/index.html",
+          "hash": "14924187335853068910"
+        },
+        {
+          "file": "apps/dsa/src/main.ts",
+          "hash": "10018980967429810802"
+        },
+        {
+          "file": "apps/dsa/src/remote-entry.ts",
+          "hash": "16889477869301519830"
+        },
+        {
+          "file": "apps/dsa/src/styles.css",
+          "hash": "9540575453073076294"
+        },
+        {
+          "file": "apps/dsa/tailwind.config.js",
+          "hash": "13090734457927965885",
+          "deps": [
+            "npm:@nx/react"
+          ]
+        },
+        {
+          "file": "apps/dsa/tsconfig.app.json",
+          "hash": "3126679420255048410"
+        },
+        {
+          "file": "apps/dsa/tsconfig.json",
+          "hash": "9850153468027031608"
+        },
+        {
+          "file": "apps/dsa/tsconfig.spec.json",
+          "hash": "3305260514729189295"
+        }
+      ],
       "design": [
         {
           "file": "apps/design/eslint.config.mjs",
@@ -230,6 +418,92 @@
           "hash": "3305260514729189295"
         }
       ],
+      "backend": [
+        {
+          "file": "apps/backend/eslint.config.mjs",
+          "hash": "8789163670399984295"
+        },
+        {
+          "file": "apps/backend/jest.config.ts",
+          "hash": "4967781698978867776"
+        },
+        {
+          "file": "apps/backend/module-federation.config.ts",
+          "hash": "13392552767415931025"
+        },
+        {
+          "file": "apps/backend/postcss.config.js",
+          "hash": "2759402739052110475"
+        },
+        {
+          "file": "apps/backend/project.json",
+          "hash": "9179142262676134733"
+        },
+        {
+          "file": "apps/backend/rspack.config.prod.ts",
+          "hash": "5708868766095607563"
+        },
+        {
+          "file": "apps/backend/rspack.config.ts",
+          "hash": "16984140700667765709"
+        },
+        {
+          "file": "apps/backend/src/app/app.spec.tsx",
+          "hash": "14178506126615152034"
+        },
+        {
+          "file": "apps/backend/src/app/app.tsx",
+          "hash": "5108838811065959677"
+        },
+        {
+          "file": "apps/backend/src/app/nx-welcome.tsx",
+          "hash": "14708174282304233720"
+        },
+        {
+          "file": "apps/backend/src/assets/.gitkeep",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "apps/backend/src/bootstrap.tsx",
+          "hash": "3427523804892720320"
+        },
+        {
+          "file": "apps/backend/src/favicon.ico",
+          "hash": "9303420814833116677"
+        },
+        {
+          "file": "apps/backend/src/index.html",
+          "hash": "14041059235739876394"
+        },
+        {
+          "file": "apps/backend/src/main.ts",
+          "hash": "10018980967429810802"
+        },
+        {
+          "file": "apps/backend/src/remote-entry.ts",
+          "hash": "16889477869301519830"
+        },
+        {
+          "file": "apps/backend/src/styles.css",
+          "hash": "9540575453073076294"
+        },
+        {
+          "file": "apps/backend/tailwind.config.js",
+          "hash": "13090734457927965885"
+        },
+        {
+          "file": "apps/backend/tsconfig.app.json",
+          "hash": "3126679420255048410"
+        },
+        {
+          "file": "apps/backend/tsconfig.json",
+          "hash": "9850153468027031608"
+        },
+        {
+          "file": "apps/backend/tsconfig.spec.json",
+          "hash": "3305260514729189295"
+        }
+      ],
       "shell": [
         {
           "file": "apps/shell/eslint.config.mjs",
@@ -336,280 +610,6 @@
         },
         {
           "file": "apps/shell/tsconfig.spec.json",
-          "hash": "3305260514729189295"
-        }
-      ],
-      "home": [
-        {
-          "file": "apps/home/eslint.config.mjs",
-          "hash": "8789163670399984295"
-        },
-        {
-          "file": "apps/home/jest.config.ts",
-          "hash": "16485490280279637648"
-        },
-        {
-          "file": "apps/home/module-federation.config.ts",
-          "hash": "2692820841118042309"
-        },
-        {
-          "file": "apps/home/postcss.config.js",
-          "hash": "2759402739052110475"
-        },
-        {
-          "file": "apps/home/project.json",
-          "hash": "9582296878915212324"
-        },
-        {
-          "file": "apps/home/rspack.config.prod.ts",
-          "hash": "5708868766095607563"
-        },
-        {
-          "file": "apps/home/rspack.config.ts",
-          "hash": "8288928209116736272",
-          "deps": [
-            "npm:@nx/rspack",
-            "npm:@nx/module-federation"
-          ]
-        },
-        {
-          "file": "apps/home/src/app/app.tsx",
-          "hash": "11013430123854793375"
-        },
-        {
-          "file": "apps/home/src/assets/.gitkeep",
-          "hash": "3244421341483603138"
-        },
-        {
-          "file": "apps/home/src/bootstrap.tsx",
-          "hash": "3427523804892720320"
-        },
-        {
-          "file": "apps/home/src/favicon.ico",
-          "hash": "9303420814833116677"
-        },
-        {
-          "file": "apps/home/src/index.html",
-          "hash": "13779278514719803203"
-        },
-        {
-          "file": "apps/home/src/main.ts",
-          "hash": "10018980967429810802"
-        },
-        {
-          "file": "apps/home/src/remote-entry.ts",
-          "hash": "16889477869301519830"
-        },
-        {
-          "file": "apps/home/src/styles.css",
-          "hash": "9540575453073076294"
-        },
-        {
-          "file": "apps/home/tailwind.config.js",
-          "hash": "13090734457927965885"
-        },
-        {
-          "file": "apps/home/tsconfig.app.json",
-          "hash": "3126679420255048410"
-        },
-        {
-          "file": "apps/home/tsconfig.json",
-          "hash": "9850153468027031608"
-        },
-        {
-          "file": "apps/home/tsconfig.spec.json",
-          "hash": "3305260514729189295"
-        }
-      ],
-      "backend": [
-        {
-          "file": "apps/backend/eslint.config.mjs",
-          "hash": "8789163670399984295"
-        },
-        {
-          "file": "apps/backend/jest.config.ts",
-          "hash": "4967781698978867776"
-        },
-        {
-          "file": "apps/backend/module-federation.config.ts",
-          "hash": "13392552767415931025"
-        },
-        {
-          "file": "apps/backend/postcss.config.js",
-          "hash": "2759402739052110475"
-        },
-        {
-          "file": "apps/backend/project.json",
-          "hash": "9179142262676134733"
-        },
-        {
-          "file": "apps/backend/rspack.config.prod.ts",
-          "hash": "5708868766095607563"
-        },
-        {
-          "file": "apps/backend/rspack.config.ts",
-          "hash": "16984140700667765709"
-        },
-        {
-          "file": "apps/backend/src/app/app.spec.tsx",
-          "hash": "14178506126615152034"
-        },
-        {
-          "file": "apps/backend/src/app/app.tsx",
-          "hash": "5108838811065959677"
-        },
-        {
-          "file": "apps/backend/src/app/nx-welcome.tsx",
-          "hash": "14708174282304233720"
-        },
-        {
-          "file": "apps/backend/src/assets/.gitkeep",
-          "hash": "3244421341483603138"
-        },
-        {
-          "file": "apps/backend/src/bootstrap.tsx",
-          "hash": "3427523804892720320"
-        },
-        {
-          "file": "apps/backend/src/favicon.ico",
-          "hash": "9303420814833116677"
-        },
-        {
-          "file": "apps/backend/src/index.html",
-          "hash": "14041059235739876394"
-        },
-        {
-          "file": "apps/backend/src/main.ts",
-          "hash": "10018980967429810802"
-        },
-        {
-          "file": "apps/backend/src/remote-entry.ts",
-          "hash": "16889477869301519830"
-        },
-        {
-          "file": "apps/backend/src/styles.css",
-          "hash": "9540575453073076294"
-        },
-        {
-          "file": "apps/backend/tailwind.config.js",
-          "hash": "13090734457927965885"
-        },
-        {
-          "file": "apps/backend/tsconfig.app.json",
-          "hash": "3126679420255048410"
-        },
-        {
-          "file": "apps/backend/tsconfig.json",
-          "hash": "9850153468027031608"
-        },
-        {
-          "file": "apps/backend/tsconfig.spec.json",
-          "hash": "3305260514729189295"
-        }
-      ],
-      "dsa": [
-        {
-          "file": "apps/dsa/eslint.config.mjs",
-          "hash": "8789163670399984295",
-          "deps": [
-            "npm:@nx/eslint-plugin"
-          ]
-        },
-        {
-          "file": "apps/dsa/jest.config.ts",
-          "hash": "18423732383235805187"
-        },
-        {
-          "file": "apps/dsa/module-federation.config.ts",
-          "hash": "15844282199169708355",
-          "deps": [
-            "npm:@nx/module-federation"
-          ]
-        },
-        {
-          "file": "apps/dsa/postcss.config.js",
-          "hash": "2759402739052110475"
-        },
-        {
-          "file": "apps/dsa/project.json",
-          "hash": "12452776594349337699"
-        },
-        {
-          "file": "apps/dsa/rspack.config.prod.ts",
-          "hash": "5708868766095607563"
-        },
-        {
-          "file": "apps/dsa/rspack.config.ts",
-          "hash": "16889174522952716118",
-          "deps": [
-            "npm:@nx/rspack",
-            "npm:@nx/module-federation"
-          ]
-        },
-        {
-          "file": "apps/dsa/src/app/app.spec.tsx",
-          "hash": "3675556482732785738",
-          "deps": [
-            "npm:@testing-library/react"
-          ]
-        },
-        {
-          "file": "apps/dsa/src/app/app.tsx",
-          "hash": "8334839754451305622"
-        },
-        {
-          "file": "apps/dsa/src/app/nx-welcome.tsx",
-          "hash": "14708174282304233720"
-        },
-        {
-          "file": "apps/dsa/src/assets/.gitkeep",
-          "hash": "3244421341483603138"
-        },
-        {
-          "file": "apps/dsa/src/bootstrap.tsx",
-          "hash": "3427523804892720320",
-          "deps": [
-            "npm:react",
-            "npm:react-dom"
-          ]
-        },
-        {
-          "file": "apps/dsa/src/favicon.ico",
-          "hash": "9303420814833116677"
-        },
-        {
-          "file": "apps/dsa/src/index.html",
-          "hash": "14924187335853068910"
-        },
-        {
-          "file": "apps/dsa/src/main.ts",
-          "hash": "10018980967429810802"
-        },
-        {
-          "file": "apps/dsa/src/remote-entry.ts",
-          "hash": "16889477869301519830"
-        },
-        {
-          "file": "apps/dsa/src/styles.css",
-          "hash": "9540575453073076294"
-        },
-        {
-          "file": "apps/dsa/tailwind.config.js",
-          "hash": "13090734457927965885",
-          "deps": [
-            "npm:@nx/react"
-          ]
-        },
-        {
-          "file": "apps/dsa/tsconfig.app.json",
-          "hash": "3126679420255048410"
-        },
-        {
-          "file": "apps/dsa/tsconfig.json",
-          "hash": "9850153468027031608"
-        },
-        {
-          "file": "apps/dsa/tsconfig.spec.json",
           "hash": "3305260514729189295"
         }
       ],

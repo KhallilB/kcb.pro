@@ -64,10 +64,5 @@
     "react-dom": "19.0.0",
     "react-router": "^7.6.2",
     "tslib": "^2.3.0"
-  },
-  "husky": {
-    "hooks": {
-      "pre-push": "npm run pre-push"
-    }
   }
 }
