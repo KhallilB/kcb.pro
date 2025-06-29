@@ -1,6 +1,5 @@
 name: detect-affected
 
-# This file is NOT triggered directly; other workflows call it with `uses:`
 on:
   workflow_call:
     inputs:
@@ -13,6 +12,11 @@ on:
         description: Nx target to check (build, test, lint …)
         required: true
         type: string
+      upload_artifact:
+        description: Upload affected.json as artifact
+        required: false
+        type: boolean
+        default: false
     outputs:
       apps:
         description: JSON array of affected projects
@@ -27,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Nx needs the base commit
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -37,18 +41,20 @@ jobs:
       - name: Install deps
         run: npm ci
 
-      - name: Compute affected projects
+      - name: Detect affected apps
         id: set
         env:
           NX_BASE: ${{ inputs.base }}
           NX_TARGET: ${{ inputs.target }}
         run: |
-          set -euo pipefail
-          affected=$(npx nx show projects \
-                       --affected \
-                       --base="$NX_BASE" \
-                       --target="$NX_TARGET" \
-                       --json)
+          apps=$(npx nx print-affected --base="$NX_BASE" --target="$NX_TARGET" --select=projects --plain | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "$apps" > affected.json
+          echo "apps=$apps"
+          echo "apps=$apps" >> "$GITHUB_OUTPUT"
 
-          echo "Changed projects for target '$NX_TARGET': $affected"
-          echo "apps=$affected" >>"$GITHUB_OUTPUT"
+      - name: Upload affected.json
+        if: ${{ inputs.upload_artifact }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: affected-apps
+          path: affected.json
