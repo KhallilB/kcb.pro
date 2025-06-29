@@ -1,4 +1,22 @@
 {
-  "name": "shell",
-  "extends": "../../.release-it.base.json"
+  "projectName": "shell",
+  "plugins": {
+    "@release-it/bumper": { "in": "./version.json" },
+    "@release-it/conventional-changelog": {
+      "preset": "angular",
+      "path": "."
+    }
+  },
+  "git": {
+    "tagName": "shell-v${version}",
+    "tagMatch": "shell-v*",
+    "commitsPath": ".",
+    "commitMessage": "chore(shell): release v${version}"
+  },
+  "github": {
+    "release": true,
+    "draft": true,
+    "autoGenerate": true,
+    "releaseName": "shell v${version}"
+  }
 }

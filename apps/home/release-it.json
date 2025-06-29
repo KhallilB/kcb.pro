@@ -1,4 +1,22 @@
 {
-  "name": "home",
-  "extends": "../../.release-it.base.json"
+  "projectName": "home",
+  "plugins": {
+    "@release-it/bumper": { "in": "./version.json" },
+    "@release-it/conventional-changelog": {
+      "preset": "angular",
+      "path": "."
+    }
+  },
+  "git": {
+    "tagName": "home-v${version}",
+    "tagMatch": "home-v*",
+    "commitsPath": ".",
+    "commitMessage": "chore(home): release v${version}"
+  },
+  "github": {
+    "release": true,
+    "draft": true,
+    "autoGenerate": true,
+    "releaseName": "home v${version}"
+  }
 }

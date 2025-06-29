@@ -1,9 +1,7 @@
 name: release
-
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 permissions:
   contents: write
@@ -13,21 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       apps: ${{ steps.set.outputs.apps }}
-
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # required for merge-base
-
+        with: { fetch-depth: 0 }
       - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
+        with: { node-version: 20, cache: npm }
       - run: npm ci
-
-      - name: Get affected apps from merge
-        id: set
+      - id: set
         run: |
           BASE=$(git merge-base HEAD HEAD~1)
           apps=$(npx nx show projects --affected --base=$BASE --target=build --json)
@@ -43,23 +33,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with:
-          node-version: 20
+        with: { node-version: 20 }
       - run: npm ci
+
       - name: Git setup
         run: |
-          git config --global user.name "GitHub Actions"
+          git config --global user.name  "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/KhallilB/kcb.pro.git
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
 
-      - name: Create Release Draft for ${{ matrix.app }}
+      - name: Release ${{ matrix.app }}
         working-directory: apps/${{ matrix.app }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          npx release-it --ci                          \
-            --config=../../.release-it.base.json       \
-            --projectName=${{ matrix.app }}            \
-            --git.tagName='${{ matrix.app }}-v${version}' \
-            --git.tagMatch='${{ matrix.app }}-v*'      \
-            --github.releaseName='${{ matrix.app }} v${version}'
+        run: npx release-it --ci

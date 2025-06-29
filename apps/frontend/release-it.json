@@ -1,4 +1,22 @@
 {
-  "name": "frontend",
-  "extends": "../../.release-it.base.json"
+  "projectName": "frontend",
+  "plugins": {
+    "@release-it/bumper": { "in": "./version.json" },
+    "@release-it/conventional-changelog": {
+      "preset": "angular",
+      "path": "."
+    }
+  },
+  "git": {
+    "tagName": "frontend-v${version}",
+    "tagMatch": "frontend-v*",
+    "commitsPath": ".",
+    "commitMessage": "chore(frontend): release v${version}"
+  },
+  "github": {
+    "release": true,
+    "draft": true,
+    "autoGenerate": true,
+    "releaseName": "frontend v${version}"
+  }
 }

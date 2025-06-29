@@ -1,4 +1,22 @@
 {
-  "name": "backend",
-  "extends": "../../.release-it.base.json"
+  "projectName": "backend",
+  "plugins": {
+    "@release-it/bumper": { "in": "./version.json" },
+    "@release-it/conventional-changelog": {
+      "preset": "angular",
+      "path": "."
+    }
+  },
+  "git": {
+    "tagName": "backend-v${version}",
+    "tagMatch": "backend-v*",
+    "commitsPath": ".",
+    "commitMessage": "chore(backend): release v${version}"
+  },
+  "github": {
+    "release": true,
+    "draft": true,
+    "autoGenerate": true,
+    "releaseName": "backend v${version}"
+  }
 }
