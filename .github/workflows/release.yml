@@ -30,6 +30,7 @@ jobs:
     strategy:
       matrix:
         app: ${{ fromJson(needs.detect-affected.outputs.apps) }}
+      max-parallel: 1
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -48,22 +49,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx release-it --ci
-
-      - name: Safe push with up-to-5 retries
-        working-directory: apps/${{ matrix.app }}
-        env:
-          MAX_RETRIES: 5
-        run: |
-          set -e
-          n=0
-          until git push --follow-tags --no-verify; do
-            n=$((n+1))
-            if [ "$n" -ge "$MAX_RETRIES" ]; then
-              echo "❌  Gave up after $MAX_RETRIES attempts" >&2
-              exit 1
-            fi
-            echo "⚠️  Push race detected — re-basing on origin/main (try $n)..."
-            git fetch origin main
-            git rebase origin/main
-          done
-          echo "✅  Push succeeded after $n retries"
