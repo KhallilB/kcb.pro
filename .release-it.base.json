@@ -2,7 +2,6 @@
   "git": {
     "tagName": "${name}-v${version}",
     "commitMessage": "chore(${name}): release v${version}",
-    "changelogCommand": "git log --pretty=format:'* %s (%h)' $(git describe --tags --abbrev=0 --match '${name}-v*' || echo HEAD^1)...HEAD -- apps/${name}/",
     "requireCleanWorkingDir": false,
     "commit": false
   },
@@ -10,7 +9,7 @@
     "release": true,
     "draft": true,
     "autoGenerate": true,
-    "releaseName": "Let's release! ${name}@${latest.version} to ${version}"
+    "releaseName": "Let's release! ${name} (${version})"
   },
   "hooks": {
     "prePush": ""
