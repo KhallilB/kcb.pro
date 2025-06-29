@@ -1,7 +1,11 @@
 {
   "projectName": "home",
   "plugins": {
-    "@release-it/bumper": { "in": "./version.json" },
+    "@release-it/bumper": {
+      "in": "./package.json",
+      "out": false,
+      "strict": true
+    },
     "@release-it/conventional-changelog": {
       "preset": "angular",
       "path": "."
@@ -11,9 +15,9 @@
     "tagName": "home-v${version}",
     "tagMatch": "home-v*",
     "commitsPath": ".",
-    "commitMessage": "chore(home): release v${version}"
+    "commitMessage": "chore(home): release v${version}",
+    "pushArgs": ["--follow-tags", "--no-verify"]
   },
-  "prePush": "",
   "github": {
     "release": true,
     "draft": true,
