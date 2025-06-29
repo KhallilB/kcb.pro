@@ -1,0 +1,78 @@
+
+services:
+  - type: static
+    name: shell
+    env: static
+    rootDir: apps/shell
+    buildCommand: npx nx build shell --configuration=production
+    staticPublishPath: dist/apps/shell
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
+
+  - type: static
+    name: backend
+    env: static
+    rootDir: apps/backend
+    buildCommand: npx nx build backend --configuration=production
+    staticPublishPath: dist/apps/backend
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
+
+  - type: static
+    name: design
+    env: static
+    rootDir: apps/design
+    buildCommand: npx nx build design --configuration=production
+    staticPublishPath: dist/apps/design
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
+
+  - type: static
+    name: devops
+    env: static
+    rootDir: apps/devops
+    buildCommand: npx nx build devops --configuration=production
+    staticPublishPath: dist/apps/devops
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
+
+  - type: static
+    name: dsa
+    env: static
+    rootDir: apps/dsa
+    buildCommand: npx nx build dsa --configuration=production
+    staticPublishPath: dist/apps/dsa
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
+
+  - type: static
+    name: frontend
+    env: static
+    rootDir: apps/frontend
+    buildCommand: npx nx build frontend --configuration=production
+    staticPublishPath: dist/apps/frontend
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
+
+  - type: static
+    name: home
+    env: static
+    rootDir: apps/home
+    buildCommand: npx nx build home --configuration=production
+    staticPublishPath: dist/apps/home
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
