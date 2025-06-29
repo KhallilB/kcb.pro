@@ -3,7 +3,7 @@ import '../styles.css';
 export function App() {
   return (
     <div>
-      <p>test change gome</p>
+      <p>test change home</p>
     </div>
   );
 }

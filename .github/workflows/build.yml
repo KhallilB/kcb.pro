@@ -9,6 +9,7 @@ jobs:
     uses: ./.github/workflows/detect-affected.yml
     with:
       target: build
+      upload_artifact: true
 
   build:
     needs: detect-affected
@@ -29,7 +30,7 @@ jobs:
           node-version: 20
           cache: npm
 
-      - name: Install deps
+      - name: Install dependencies
         run: npm ci
 
       - name: Build ${{ matrix.app }}
