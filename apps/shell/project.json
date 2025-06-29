@@ -10,6 +10,14 @@
         "port": 4200,
         "devRemotes": ["home", "design", "frontend", "backend", "devops"]
       }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["apps/shell/**/*"],
+        "fix": true,
+        "format": "stylish"
+      }
     }
   }
 }

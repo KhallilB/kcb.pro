@@ -10,6 +10,14 @@
         "port": 4203
       },
       "dependsOn": ["shell:serve"]
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["apps/frontend/**/*"],
+        "fix": true,
+        "format": "stylish"
+      }
     }
   }
 }

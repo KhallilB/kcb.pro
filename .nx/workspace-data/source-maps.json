@@ -180,66 +180,6 @@
       "apps/backend/rspack.config.ts",
       "@nx/rspack/plugin"
     ],
-    "targets.lint": [
-      "apps/backend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.cache": [
-      "apps/backend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.options": [
-      "apps/backend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.inputs": [
-      "apps/backend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.outputs": [
-      "apps/backend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata": [
-      "apps/backend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.executor": [
-      "apps/backend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.options.cwd": [
-      "apps/backend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.options.command": [
-      "apps/backend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.technologies": [
-      "apps/backend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.technologies.0": [
-      "apps/backend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.description": [
-      "apps/backend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.help": [
-      "apps/backend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.help.command": [
-      "apps/backend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.help.example": [
-      "apps/backend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
     "targets.test": [
       "apps/backend/jest.config.ts",
       "@nx/jest/plugin"
@@ -329,6 +269,30 @@
       "nx/core/project-json"
     ],
     "targets.serve.options.port": [
+      "apps/backend/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint": [
+      "apps/backend/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.executor": [
+      "apps/backend/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.options": [
+      "apps/backend/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.options.lintFilePatterns": [
+      "apps/backend/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.options.fix": [
+      "apps/backend/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.options.format": [
       "apps/backend/project.json",
       "nx/core/project-json"
     ]
@@ -514,66 +478,6 @@
       "apps/design/rspack.config.ts",
       "@nx/rspack/plugin"
     ],
-    "targets.lint": [
-      "apps/design/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.cache": [
-      "apps/design/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.options": [
-      "apps/design/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.inputs": [
-      "apps/design/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.outputs": [
-      "apps/design/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata": [
-      "apps/design/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.executor": [
-      "apps/design/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.options.cwd": [
-      "apps/design/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.options.command": [
-      "apps/design/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.technologies": [
-      "apps/design/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.technologies.0": [
-      "apps/design/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.description": [
-      "apps/design/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.help": [
-      "apps/design/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.help.command": [
-      "apps/design/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.help.example": [
-      "apps/design/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
     "targets.test": [
       "apps/design/jest.config.ts",
       "@nx/jest/plugin"
@@ -663,6 +567,30 @@
       "nx/core/project-json"
     ],
     "targets.serve.options.port": [
+      "apps/design/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint": [
+      "apps/design/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.executor": [
+      "apps/design/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.options": [
+      "apps/design/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.options.lintFilePatterns": [
+      "apps/design/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.options.fix": [
+      "apps/design/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.options.format": [
       "apps/design/project.json",
       "nx/core/project-json"
     ]
@@ -848,66 +776,6 @@
       "apps/devops/rspack.config.ts",
       "@nx/rspack/plugin"
     ],
-    "targets.lint": [
-      "apps/devops/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.cache": [
-      "apps/devops/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.options": [
-      "apps/devops/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.inputs": [
-      "apps/devops/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.outputs": [
-      "apps/devops/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata": [
-      "apps/devops/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.executor": [
-      "apps/devops/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.options.cwd": [
-      "apps/devops/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.options.command": [
-      "apps/devops/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.technologies": [
-      "apps/devops/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.technologies.0": [
-      "apps/devops/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.description": [
-      "apps/devops/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.help": [
-      "apps/devops/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.help.command": [
-      "apps/devops/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.help.example": [
-      "apps/devops/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
     "targets.test": [
       "apps/devops/jest.config.ts",
       "@nx/jest/plugin"
@@ -997,6 +865,30 @@
       "nx/core/project-json"
     ],
     "targets.serve.options.port": [
+      "apps/devops/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint": [
+      "apps/devops/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.executor": [
+      "apps/devops/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.options": [
+      "apps/devops/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.options.lintFilePatterns": [
+      "apps/devops/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.options.fix": [
+      "apps/devops/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.options.format": [
       "apps/devops/project.json",
       "nx/core/project-json"
     ]
@@ -1182,66 +1074,6 @@
       "apps/dsa/rspack.config.ts",
       "@nx/rspack/plugin"
     ],
-    "targets.lint": [
-      "apps/dsa/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.cache": [
-      "apps/dsa/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.options": [
-      "apps/dsa/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.inputs": [
-      "apps/dsa/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.outputs": [
-      "apps/dsa/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata": [
-      "apps/dsa/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.executor": [
-      "apps/dsa/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.options.cwd": [
-      "apps/dsa/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.options.command": [
-      "apps/dsa/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.technologies": [
-      "apps/dsa/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.technologies.0": [
-      "apps/dsa/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.description": [
-      "apps/dsa/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.help": [
-      "apps/dsa/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.help.command": [
-      "apps/dsa/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.help.example": [
-      "apps/dsa/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
     "targets.test": [
       "apps/dsa/jest.config.ts",
       "@nx/jest/plugin"
@@ -1331,6 +1163,30 @@
       "nx/core/project-json"
     ],
     "targets.serve.options.port": [
+      "apps/dsa/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint": [
+      "apps/dsa/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.executor": [
+      "apps/dsa/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.options": [
+      "apps/dsa/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.options.lintFilePatterns": [
+      "apps/dsa/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.options.fix": [
+      "apps/dsa/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.options.format": [
       "apps/dsa/project.json",
       "nx/core/project-json"
     ]
@@ -1516,66 +1372,6 @@
       "apps/frontend/rspack.config.ts",
       "@nx/rspack/plugin"
     ],
-    "targets.lint": [
-      "apps/frontend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.cache": [
-      "apps/frontend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.options": [
-      "apps/frontend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.inputs": [
-      "apps/frontend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.outputs": [
-      "apps/frontend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata": [
-      "apps/frontend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.executor": [
-      "apps/frontend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.options.cwd": [
-      "apps/frontend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.options.command": [
-      "apps/frontend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.technologies": [
-      "apps/frontend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.technologies.0": [
-      "apps/frontend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.description": [
-      "apps/frontend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.help": [
-      "apps/frontend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.help.command": [
-      "apps/frontend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.help.example": [
-      "apps/frontend/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
     "targets.test": [
       "apps/frontend/jest.config.ts",
       "@nx/jest/plugin"
@@ -1665,6 +1461,30 @@
       "nx/core/project-json"
     ],
     "targets.serve.options.port": [
+      "apps/frontend/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint": [
+      "apps/frontend/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.executor": [
+      "apps/frontend/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.options": [
+      "apps/frontend/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.options.lintFilePatterns": [
+      "apps/frontend/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.options.fix": [
+      "apps/frontend/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.options.format": [
       "apps/frontend/project.json",
       "nx/core/project-json"
     ]
@@ -1850,66 +1670,6 @@
       "apps/home/rspack.config.ts",
       "@nx/rspack/plugin"
     ],
-    "targets.lint": [
-      "apps/home/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.cache": [
-      "apps/home/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.options": [
-      "apps/home/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.inputs": [
-      "apps/home/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.outputs": [
-      "apps/home/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata": [
-      "apps/home/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.executor": [
-      "apps/home/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.options.cwd": [
-      "apps/home/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.options.command": [
-      "apps/home/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.technologies": [
-      "apps/home/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.technologies.0": [
-      "apps/home/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.description": [
-      "apps/home/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.help": [
-      "apps/home/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.help.command": [
-      "apps/home/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.help.example": [
-      "apps/home/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
     "targets.test": [
       "apps/home/jest.config.ts",
       "@nx/jest/plugin"
@@ -1999,6 +1759,30 @@
       "nx/core/project-json"
     ],
     "targets.serve.options.port": [
+      "apps/home/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint": [
+      "apps/home/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.executor": [
+      "apps/home/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.options": [
+      "apps/home/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.options.lintFilePatterns": [
+      "apps/home/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.options.fix": [
+      "apps/home/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.options.format": [
       "apps/home/project.json",
       "nx/core/project-json"
     ]
@@ -2180,66 +1964,6 @@
       "apps/shell/rspack.config.ts",
       "@nx/rspack/plugin"
     ],
-    "targets.lint": [
-      "apps/shell/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.cache": [
-      "apps/shell/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.options": [
-      "apps/shell/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.inputs": [
-      "apps/shell/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.outputs": [
-      "apps/shell/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata": [
-      "apps/shell/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.executor": [
-      "apps/shell/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.options.cwd": [
-      "apps/shell/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.options.command": [
-      "apps/shell/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.technologies": [
-      "apps/shell/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.technologies.0": [
-      "apps/shell/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.description": [
-      "apps/shell/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.help": [
-      "apps/shell/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.help.command": [
-      "apps/shell/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
-    "targets.lint.metadata.help.example": [
-      "apps/shell/eslint.config.mjs",
-      "@nx/eslint/plugin"
-    ],
     "targets.test": [
       "apps/shell/jest.config.ts",
       "@nx/jest/plugin"
@@ -2329,6 +2053,30 @@
       "nx/core/project-json"
     ],
     "targets.serve.options.devRemotes": [
+      "apps/shell/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint": [
+      "apps/shell/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.executor": [
+      "apps/shell/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.options": [
+      "apps/shell/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.options.lintFilePatterns": [
+      "apps/shell/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.options.fix": [
+      "apps/shell/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.options.format": [
       "apps/shell/project.json",
       "nx/core/project-json"
     ]

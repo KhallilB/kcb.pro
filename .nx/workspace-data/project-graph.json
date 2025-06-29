@@ -23,8 +23,8 @@
               "^build"
             ],
             "inputs": [
-              "default",
-              "^default",
+              "production",
+              "^production",
               {
                 "externalDependencies": [
                   "@rspack/cli"
@@ -110,41 +110,14 @@
             "parallelism": true
           },
           "lint": {
-            "cache": true,
+            "executor": "@nx/eslint:lint",
             "options": {
-              "cwd": "apps/frontend",
-              "command": "eslint ."
-            },
-            "inputs": [
-              "default",
-              "^default",
-              "{workspaceRoot}/eslint.config.mjs",
-              "{workspaceRoot}/apps/frontend/eslint.config.mjs",
-              "{workspaceRoot}/tools/eslint-rules/**/*",
-              {
-                "externalDependencies": [
-                  "eslint"
-                ]
-              }
-            ],
-            "outputs": [
-              "{options.outputFile}"
-            ],
-            "metadata": {
-              "technologies": [
-                "eslint"
+              "lintFilePatterns": [
+                "apps/frontend/**/*"
               ],
-              "description": "Runs ESLint on project",
-              "help": {
-                "command": "npx eslint --help",
-                "example": {
-                  "options": {
-                    "max-warnings": 0
-                  }
-                }
-              }
+              "fix": true,
+              "format": "stylish"
             },
-            "executor": "nx:run-commands",
             "configurations": {},
             "parallelism": true
           },
@@ -173,7 +146,7 @@
             "cache": true,
             "inputs": [
               "default",
-              "^default",
+              "^production",
               "{workspaceRoot}/jest.preset.js",
               {
                 "externalDependencies": [
@@ -220,8 +193,8 @@
               "^build"
             ],
             "inputs": [
-              "default",
-              "^default",
+              "production",
+              "^production",
               {
                 "externalDependencies": [
                   "@rspack/cli"
@@ -307,41 +280,14 @@
             "parallelism": true
           },
           "lint": {
-            "cache": true,
+            "executor": "@nx/eslint:lint",
             "options": {
-              "cwd": "apps/backend",
-              "command": "eslint ."
-            },
-            "inputs": [
-              "default",
-              "^default",
-              "{workspaceRoot}/eslint.config.mjs",
-              "{workspaceRoot}/apps/backend/eslint.config.mjs",
-              "{workspaceRoot}/tools/eslint-rules/**/*",
-              {
-                "externalDependencies": [
-                  "eslint"
-                ]
-              }
-            ],
-            "outputs": [
-              "{options.outputFile}"
-            ],
-            "metadata": {
-              "technologies": [
-                "eslint"
+              "lintFilePatterns": [
+                "apps/backend/**/*"
               ],
-              "description": "Runs ESLint on project",
-              "help": {
-                "command": "npx eslint --help",
-                "example": {
-                  "options": {
-                    "max-warnings": 0
-                  }
-                }
-              }
+              "fix": true,
+              "format": "stylish"
             },
-            "executor": "nx:run-commands",
             "configurations": {},
             "parallelism": true
           },
@@ -370,7 +316,7 @@
             "cache": true,
             "inputs": [
               "default",
-              "^default",
+              "^production",
               "{workspaceRoot}/jest.preset.js",
               {
                 "externalDependencies": [
@@ -417,8 +363,8 @@
               "^build"
             ],
             "inputs": [
-              "default",
-              "^default",
+              "production",
+              "^production",
               {
                 "externalDependencies": [
                   "@rspack/cli"
@@ -504,41 +450,14 @@
             "parallelism": true
           },
           "lint": {
-            "cache": true,
+            "executor": "@nx/eslint:lint",
             "options": {
-              "cwd": "apps/design",
-              "command": "eslint ."
-            },
-            "inputs": [
-              "default",
-              "^default",
-              "{workspaceRoot}/eslint.config.mjs",
-              "{workspaceRoot}/apps/design/eslint.config.mjs",
-              "{workspaceRoot}/tools/eslint-rules/**/*",
-              {
-                "externalDependencies": [
-                  "eslint"
-                ]
-              }
-            ],
-            "outputs": [
-              "{options.outputFile}"
-            ],
-            "metadata": {
-              "technologies": [
-                "eslint"
+              "lintFilePatterns": [
+                "apps/design/**/*"
               ],
-              "description": "Runs ESLint on project",
-              "help": {
-                "command": "npx eslint --help",
-                "example": {
-                  "options": {
-                    "max-warnings": 0
-                  }
-                }
-              }
+              "fix": true,
+              "format": "stylish"
             },
-            "executor": "nx:run-commands",
             "configurations": {},
             "parallelism": true
           },
@@ -567,7 +486,7 @@
             "cache": true,
             "inputs": [
               "default",
-              "^default",
+              "^production",
               "{workspaceRoot}/jest.preset.js",
               {
                 "externalDependencies": [
@@ -614,8 +533,8 @@
               "^build"
             ],
             "inputs": [
-              "default",
-              "^default",
+              "production",
+              "^production",
               {
                 "externalDependencies": [
                   "@rspack/cli"
@@ -701,41 +620,14 @@
             "parallelism": true
           },
           "lint": {
-            "cache": true,
+            "executor": "@nx/eslint:lint",
             "options": {
-              "cwd": "apps/devops",
-              "command": "eslint ."
-            },
-            "inputs": [
-              "default",
-              "^default",
-              "{workspaceRoot}/eslint.config.mjs",
-              "{workspaceRoot}/apps/devops/eslint.config.mjs",
-              "{workspaceRoot}/tools/eslint-rules/**/*",
-              {
-                "externalDependencies": [
-                  "eslint"
-                ]
-              }
-            ],
-            "outputs": [
-              "{options.outputFile}"
-            ],
-            "metadata": {
-              "technologies": [
-                "eslint"
+              "lintFilePatterns": [
+                "apps/devops/**/*"
               ],
-              "description": "Runs ESLint on project",
-              "help": {
-                "command": "npx eslint --help",
-                "example": {
-                  "options": {
-                    "max-warnings": 0
-                  }
-                }
-              }
+              "fix": true,
+              "format": "stylish"
             },
-            "executor": "nx:run-commands",
             "configurations": {},
             "parallelism": true
           },
@@ -764,7 +656,7 @@
             "cache": true,
             "inputs": [
               "default",
-              "^default",
+              "^production",
               "{workspaceRoot}/jest.preset.js",
               {
                 "externalDependencies": [
@@ -811,8 +703,8 @@
               "^build"
             ],
             "inputs": [
-              "default",
-              "^default",
+              "production",
+              "^production",
               {
                 "externalDependencies": [
                   "@rspack/cli"
@@ -901,41 +793,14 @@
             "parallelism": true
           },
           "lint": {
-            "cache": true,
+            "executor": "@nx/eslint:lint",
             "options": {
-              "cwd": "apps/shell",
-              "command": "eslint ."
-            },
-            "inputs": [
-              "default",
-              "^default",
-              "{workspaceRoot}/eslint.config.mjs",
-              "{workspaceRoot}/apps/shell/eslint.config.mjs",
-              "{workspaceRoot}/tools/eslint-rules/**/*",
-              {
-                "externalDependencies": [
-                  "eslint"
-                ]
-              }
-            ],
-            "outputs": [
-              "{options.outputFile}"
-            ],
-            "metadata": {
-              "technologies": [
-                "eslint"
+              "lintFilePatterns": [
+                "apps/shell/**/*"
               ],
-              "description": "Runs ESLint on project",
-              "help": {
-                "command": "npx eslint --help",
-                "example": {
-                  "options": {
-                    "max-warnings": 0
-                  }
-                }
-              }
+              "fix": true,
+              "format": "stylish"
             },
-            "executor": "nx:run-commands",
             "configurations": {},
             "parallelism": true
           },
@@ -964,7 +829,7 @@
             "cache": true,
             "inputs": [
               "default",
-              "^default",
+              "^production",
               "{workspaceRoot}/jest.preset.js",
               {
                 "externalDependencies": [
@@ -1011,8 +876,8 @@
               "^build"
             ],
             "inputs": [
-              "default",
-              "^default",
+              "production",
+              "^production",
               {
                 "externalDependencies": [
                   "@rspack/cli"
@@ -1098,41 +963,14 @@
             "parallelism": true
           },
           "lint": {
-            "cache": true,
+            "executor": "@nx/eslint:lint",
             "options": {
-              "cwd": "apps/home",
-              "command": "eslint ."
-            },
-            "inputs": [
-              "default",
-              "^default",
-              "{workspaceRoot}/eslint.config.mjs",
-              "{workspaceRoot}/apps/home/eslint.config.mjs",
-              "{workspaceRoot}/tools/eslint-rules/**/*",
-              {
-                "externalDependencies": [
-                  "eslint"
-                ]
-              }
-            ],
-            "outputs": [
-              "{options.outputFile}"
-            ],
-            "metadata": {
-              "technologies": [
-                "eslint"
+              "lintFilePatterns": [
+                "apps/home/**/*"
               ],
-              "description": "Runs ESLint on project",
-              "help": {
-                "command": "npx eslint --help",
-                "example": {
-                  "options": {
-                    "max-warnings": 0
-                  }
-                }
-              }
+              "fix": true,
+              "format": "stylish"
             },
-            "executor": "nx:run-commands",
             "configurations": {},
             "parallelism": true
           },
@@ -1161,7 +999,7 @@
             "cache": true,
             "inputs": [
               "default",
-              "^default",
+              "^production",
               "{workspaceRoot}/jest.preset.js",
               {
                 "externalDependencies": [
@@ -1208,8 +1046,8 @@
               "^build"
             ],
             "inputs": [
-              "default",
-              "^default",
+              "production",
+              "^production",
               {
                 "externalDependencies": [
                   "@rspack/cli"
@@ -1295,41 +1133,14 @@
             "parallelism": true
           },
           "lint": {
-            "cache": true,
+            "executor": "@nx/eslint:lint",
             "options": {
-              "cwd": "apps/dsa",
-              "command": "eslint ."
-            },
-            "inputs": [
-              "default",
-              "^default",
-              "{workspaceRoot}/eslint.config.mjs",
-              "{workspaceRoot}/apps/dsa/eslint.config.mjs",
-              "{workspaceRoot}/tools/eslint-rules/**/*",
-              {
-                "externalDependencies": [
-                  "eslint"
-                ]
-              }
-            ],
-            "outputs": [
-              "{options.outputFile}"
-            ],
-            "metadata": {
-              "technologies": [
-                "eslint"
+              "lintFilePatterns": [
+                "apps/dsa/**/*"
               ],
-              "description": "Runs ESLint on project",
-              "help": {
-                "command": "npx eslint --help",
-                "example": {
-                  "options": {
-                    "max-warnings": 0
-                  }
-                }
-              }
+              "fix": true,
+              "format": "stylish"
             },
-            "executor": "nx:run-commands",
             "configurations": {},
             "parallelism": true
           },
@@ -1358,7 +1169,7 @@
             "cache": true,
             "inputs": [
               "default",
-              "^default",
+              "^production",
               "{workspaceRoot}/jest.preset.js",
               {
                 "externalDependencies": [
@@ -1427,6 +1238,42 @@
         "version": "7.27.7",
         "packageName": "@babel/core",
         "hash": "sha512-BU2f9tlKQ5CAthiMIgpzAh4eDTLWo1mqi9jqE2OxMG0E/OM199VJt2q8BztTxpnSW0i1ymdwLXRJnYzvDM5r2w=="
+      }
+    },
+    "npm:semver@6.3.1": {
+      "type": "npm",
+      "name": "npm:semver@6.3.1",
+      "data": {
+        "version": "6.3.1",
+        "packageName": "semver",
+        "hash": "sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA=="
+      }
+    },
+    "npm:semver@7.6.3": {
+      "type": "npm",
+      "name": "npm:semver@7.6.3",
+      "data": {
+        "version": "7.6.3",
+        "packageName": "semver",
+        "hash": "sha512-oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A=="
+      }
+    },
+    "npm:semver@5.7.2": {
+      "type": "npm",
+      "name": "npm:semver@5.7.2",
+      "data": {
+        "version": "5.7.2",
+        "packageName": "semver",
+        "hash": "sha512-cBznnQ9KjJqU67B52RMC65CMarK2600WFnbkcaiwWq3xy/5haFJlshgnpjovMVJ+Hff49d8GEn0b87C5pDQ10g=="
+      }
+    },
+    "npm:semver": {
+      "type": "npm",
+      "name": "npm:semver",
+      "data": {
+        "version": "7.7.2",
+        "packageName": "semver",
+        "hash": "sha512-RF0Fw+rO5AMf9MAyaRXI4AV0Ulj5lMHqVxxdSgiVbixSCXoEmmX/jk0CuJw4+3SqroYO9VoUh+HcuJivvtJemA=="
       }
     },
     "npm:@babel/generator": {
@@ -3398,42 +3245,6 @@
         "version": "0.15.0",
         "packageName": "@module-federation/bridge-react-webpack-plugin",
         "hash": "sha512-bbinV0gC82x0JGrT6kNV1tQHi4UBxqY79mZJKWVbGpSMPM+nifC9y/nQCYhZZajT7D/5zIHNkP0BKrQmPA7ArA=="
-      }
-    },
-    "npm:semver@7.6.3": {
-      "type": "npm",
-      "name": "npm:semver@7.6.3",
-      "data": {
-        "version": "7.6.3",
-        "packageName": "semver",
-        "hash": "sha512-oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A=="
-      }
-    },
-    "npm:semver@7.7.2": {
-      "type": "npm",
-      "name": "npm:semver@7.7.2",
-      "data": {
-        "version": "7.7.2",
-        "packageName": "semver",
-        "hash": "sha512-RF0Fw+rO5AMf9MAyaRXI4AV0Ulj5lMHqVxxdSgiVbixSCXoEmmX/jk0CuJw4+3SqroYO9VoUh+HcuJivvtJemA=="
-      }
-    },
-    "npm:semver@5.7.2": {
-      "type": "npm",
-      "name": "npm:semver@5.7.2",
-      "data": {
-        "version": "5.7.2",
-        "packageName": "semver",
-        "hash": "sha512-cBznnQ9KjJqU67B52RMC65CMarK2600WFnbkcaiwWq3xy/5haFJlshgnpjovMVJ+Hff49d8GEn0b87C5pDQ10g=="
-      }
-    },
-    "npm:semver": {
-      "type": "npm",
-      "name": "npm:semver",
-      "data": {
-        "version": "6.3.1",
-        "packageName": "semver",
-        "hash": "sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA=="
       }
     },
     "npm:@module-federation/cli": {
@@ -9421,6 +9232,15 @@
         "hash": "sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw=="
       }
     },
+    "npm:husky": {
+      "type": "npm",
+      "name": "npm:husky",
+      "data": {
+        "version": "9.1.7",
+        "packageName": "husky",
+        "hash": "sha512-5gs5ytaNjBrh5Ow3zrvdUUY+0VxIuWVL4i9irt6friV+BqdCfmV11CQTWMiBYWHbXhco+J1kHfTOUkePhCDvMA=="
+      }
+    },
     "npm:hyperdyperid": {
       "type": "npm",
       "name": "npm:hyperdyperid",
@@ -14166,7 +13986,7 @@
       },
       {
         "source": "npm:@babel/core",
-        "target": "npm:semver",
+        "target": "npm:semver@6.3.1",
         "type": "static"
       }
     ],
@@ -14227,7 +14047,7 @@
       },
       {
         "source": "npm:@babel/helper-compilation-targets",
-        "target": "npm:semver",
+        "target": "npm:semver@6.3.1",
         "type": "static"
       }
     ],
@@ -14269,7 +14089,7 @@
       },
       {
         "source": "npm:@babel/helper-create-class-features-plugin",
-        "target": "npm:semver",
+        "target": "npm:semver@6.3.1",
         "type": "static"
       }
     ],
@@ -14291,7 +14111,7 @@
       },
       {
         "source": "npm:@babel/helper-create-regexp-features-plugin",
-        "target": "npm:semver",
+        "target": "npm:semver@6.3.1",
         "type": "static"
       }
     ],
@@ -15611,7 +15431,7 @@
       },
       {
         "source": "npm:@babel/plugin-transform-runtime",
-        "target": "npm:semver",
+        "target": "npm:semver@6.3.1",
         "type": "static"
       }
     ],
@@ -16123,7 +15943,7 @@
       },
       {
         "source": "npm:@babel/preset-env",
-        "target": "npm:semver",
+        "target": "npm:semver@6.3.1",
         "type": "static"
       }
     ],
@@ -18469,7 +18289,7 @@
       },
       {
         "source": "npm:@nx/devkit",
-        "target": "npm:semver@7.7.2",
+        "target": "npm:semver",
         "type": "static"
       },
       {
@@ -18511,7 +18331,7 @@
       },
       {
         "source": "npm:@nx/eslint",
-        "target": "npm:semver@7.7.2",
+        "target": "npm:semver",
         "type": "static"
       },
       {
@@ -18578,7 +18398,7 @@
       },
       {
         "source": "npm:@nx/eslint-plugin",
-        "target": "npm:semver@7.7.2",
+        "target": "npm:semver",
         "type": "static"
       },
       {
@@ -18650,7 +18470,7 @@
       },
       {
         "source": "npm:@nx/jest",
-        "target": "npm:semver@7.7.2",
+        "target": "npm:semver",
         "type": "static"
       },
       {
@@ -18792,7 +18612,7 @@
       },
       {
         "source": "npm:@nx/js",
-        "target": "npm:semver@7.7.2",
+        "target": "npm:semver",
         "type": "static"
       },
       {
@@ -18936,7 +18756,7 @@
       },
       {
         "source": "npm:@nx/react",
-        "target": "npm:semver@7.7.2",
+        "target": "npm:semver",
         "type": "static"
       },
       {
@@ -19979,7 +19799,7 @@
       },
       {
         "source": "npm:@swc/cli",
-        "target": "npm:semver@7.7.2",
+        "target": "npm:semver",
         "type": "static"
       },
       {
@@ -20712,7 +20532,7 @@
       },
       {
         "source": "npm:@typescript-eslint/typescript-estree",
-        "target": "npm:semver@7.7.2",
+        "target": "npm:semver",
         "type": "static"
       },
       {
@@ -21721,7 +21541,7 @@
       },
       {
         "source": "npm:istanbul-lib-instrument@5.2.1",
-        "target": "npm:semver",
+        "target": "npm:semver@6.3.1",
         "type": "static"
       }
     ],
@@ -21809,7 +21629,7 @@
       },
       {
         "source": "npm:babel-plugin-polyfill-corejs2",
-        "target": "npm:semver",
+        "target": "npm:semver@6.3.1",
         "type": "static"
       }
     ],
@@ -21975,7 +21795,7 @@
       },
       {
         "source": "npm:bin-version-check",
-        "target": "npm:semver@7.7.2",
+        "target": "npm:semver",
         "type": "static"
       },
       {
@@ -22535,7 +22355,7 @@
       },
       {
         "source": "npm:css-loader",
-        "target": "npm:semver@7.7.2",
+        "target": "npm:semver",
         "type": "static"
       }
     ],
@@ -23759,7 +23579,7 @@
       },
       {
         "source": "npm:eslint-plugin-import",
-        "target": "npm:semver",
+        "target": "npm:semver@6.3.1",
         "type": "static"
       },
       {
@@ -23943,7 +23763,7 @@
       },
       {
         "source": "npm:eslint-plugin-react",
-        "target": "npm:semver",
+        "target": "npm:semver@6.3.1",
         "type": "static"
       },
       {
@@ -25565,7 +25385,7 @@
       },
       {
         "source": "npm:istanbul-lib-instrument",
-        "target": "npm:semver@7.7.2",
+        "target": "npm:semver",
         "type": "static"
       }
     ],
@@ -26686,7 +26506,7 @@
       },
       {
         "source": "npm:jest-snapshot",
-        "target": "npm:semver@7.7.2",
+        "target": "npm:semver",
         "type": "static"
       }
     ],
@@ -26994,7 +26814,7 @@
       },
       {
         "source": "npm:jsonc-eslint-parser",
-        "target": "npm:semver@7.7.2",
+        "target": "npm:semver",
         "type": "static"
       }
     ],
@@ -27398,7 +27218,7 @@
     "npm:make-dir": [
       {
         "source": "npm:make-dir",
-        "target": "npm:semver@7.7.2",
+        "target": "npm:semver",
         "type": "static"
       }
     ],
@@ -27564,7 +27384,7 @@
       },
       {
         "source": "npm:npm-package-arg",
-        "target": "npm:semver@7.7.2",
+        "target": "npm:semver",
         "type": "static"
       },
       {
@@ -27725,7 +27545,7 @@
       },
       {
         "source": "npm:nx",
-        "target": "npm:semver@7.7.2",
+        "target": "npm:semver",
         "type": "static"
       },
       {
@@ -28318,7 +28138,7 @@
       },
       {
         "source": "npm:postcss-loader",
-        "target": "npm:semver@7.7.2",
+        "target": "npm:semver",
         "type": "static"
       }
     ],
@@ -29066,7 +28886,7 @@
     "npm:semver-truncate": [
       {
         "source": "npm:semver-truncate",
-        "target": "npm:semver@7.7.2",
+        "target": "npm:semver",
         "type": "static"
       }
     ],
@@ -30462,7 +30282,7 @@
       },
       {
         "source": "npm:ts-jest",
-        "target": "npm:semver@7.7.2",
+        "target": "npm:semver",
         "type": "static"
       },
       {
@@ -31597,5 +31417,5 @@
   },
   "version": "6.0",
   "errors": [],
-  "computedAt": 1751185235458
+  "computedAt": 1751215643336
 }
