@@ -1075,5 +1075,88 @@
       }
     },
     "metadata": {}
+  },
+  "7959251403567869041_apps/dsa/rspack.config.ts": {
+    "targets": {
+      "build": {
+        "command": "rspack build",
+        "options": {
+          "cwd": "apps/dsa",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        },
+        "cache": true,
+        "dependsOn": [
+          "^build"
+        ],
+        "inputs": [
+          "default",
+          "^default",
+          {
+            "externalDependencies": [
+              "@rspack/cli"
+            ]
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/dist/apps/dsa"
+        ]
+      },
+      "serve": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/dsa",
+          "args": [
+            "--node-env=development"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "preview": {
+        "continuous": true,
+        "command": "rspack serve",
+        "options": {
+          "cwd": "apps/dsa",
+          "args": [
+            "--node-env=production"
+          ],
+          "env": {
+            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+          }
+        }
+      },
+      "serve-static": {
+        "dependsOn": [
+          "build"
+        ],
+        "continuous": true,
+        "executor": "@nx/web:file-server",
+        "options": {
+          "buildTarget": "build",
+          "spa": true,
+          "port": 4206
+        }
+      },
+      "build-deps": {
+        "dependsOn": [
+          "^build"
+        ]
+      },
+      "watch-deps": {
+        "continuous": true,
+        "dependsOn": [
+          "build-deps"
+        ],
+        "command": "npx nx watch --projects dsa --includeDependentProjects -- npx nx build-deps dsa"
+      }
+    },
+    "metadata": {}
   }
 }

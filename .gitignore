@@ -6,3 +6,7 @@ logs
 **/*.back.*
 
 node_modules
+tmp
+dist
+.nx/cache
+nx/installation
