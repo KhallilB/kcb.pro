@@ -1,0 +1,4 @@
+{
+  "name": "dsa",
+  "extends": "../../.release-it.base.json"
+}

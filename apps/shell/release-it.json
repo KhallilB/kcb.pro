@@ -1,0 +1,4 @@
+{
+  "name": "shell",
+  "extends": "../../.release-it.base.json"
+}

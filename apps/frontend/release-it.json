@@ -1,0 +1,4 @@
+{
+  "name": "frontend",
+  "extends": "../../.release-it.base.json"
+}
