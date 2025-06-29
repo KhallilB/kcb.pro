@@ -13,6 +13,7 @@
     "commitsPath": ".",
     "commitMessage": "chore(home): release v${version}"
   },
+  "prePush": "",
   "github": {
     "release": true,
     "draft": true,
