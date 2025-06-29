@@ -1,7 +1,7 @@
 {
   "projectName": "dsa",
   "plugins": {
-    "@release-it/bumper": { "in": "./version.json" },
+    "@release-it/bumper": { "out": false },
     "@release-it/conventional-changelog": {
       "preset": "angular",
       "path": "."
