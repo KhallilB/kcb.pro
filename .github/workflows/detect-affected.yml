@@ -43,18 +43,15 @@ jobs:
 
       - name: Detect affected apps
         id: set
-        env:
-          NX_BASE: ${{ inputs.base }}
-          NX_TARGET: ${{ inputs.target }}
         run: |
-          set -euo pipefail
-
-          # Capture affected apps as JSON array (e.g. ["shell","home"])
-          apps=$(npx nx show projects --affected --base="$NX_BASE" --target="$NX_TARGET" --json)
-
-          echo "$apps" > affected.json
+          apps=$(npx nx show projects --affected --base="${{ inputs.base }}" --target="${{ inputs.target }}" --json)
+          echo "$apps"
           echo "apps=$apps" >> "$GITHUB_OUTPUT"
-          echo "Detected affected apps: $apps"
+
+          # Save to file only if artifact upload is requested
+          if [ "${{ inputs.upload_artifact }}" = "true" ]; then
+            echo "$apps" > affected.json
+          fi
 
       - name: Upload affected.json
         if: ${{ inputs.upload_artifact }}
