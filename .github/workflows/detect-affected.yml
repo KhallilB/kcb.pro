@@ -1,0 +1,54 @@
+name: detect-affected
+
+# This file is NOT triggered directly; other workflows call it with `uses:`
+on:
+  workflow_call:
+    inputs:
+      base:
+        description: Git ref to diff against
+        required: false
+        type: string
+        default: origin/main
+      target:
+        description: Nx target to check (build, test, lint …)
+        required: true
+        type: string
+    outputs:
+      apps:
+        description: JSON array of affected projects
+        value: ${{ jobs.detect.outputs.apps }}
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      apps: ${{ steps.set.outputs.apps }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Nx needs the base commit
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Compute affected projects
+        id: set
+        env:
+          NX_BASE: ${{ inputs.base }}
+          NX_TARGET: ${{ inputs.target }}
+        run: |
+          set -euo pipefail
+          affected=$(npx nx show projects \
+                       --affected \
+                       --base="$NX_BASE" \
+                       --target="$NX_TARGET" \
+                       --json)
+
+          echo "Changed projects for target '$NX_TARGET': $affected"
+          echo "apps=$affected" >>"$GITHUB_OUTPUT"

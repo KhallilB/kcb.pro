@@ -1,83 +1,39 @@
-# .github/workflows/build.yml
 name: build
 
 on:
   pull_request:
     branches: [main]
 
-permissions:
-  contents: read
-  pull-requests: write
-
 jobs:
-  # ──────────────────────────────
-  # 1. Figure out which apps changed
-  # ──────────────────────────────
   detect-affected:
-    name: Detect affected apps
-    runs-on: ubuntu-latest
-    outputs:
-      apps: ${{ steps.set.outputs.apps }}
-    steps:
-      - uses: actions/checkout@v4
+    uses: ./.github/workflows/detect-affected.yml
+    with:
+      target: build
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20 # pick one version and stick to it
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Get affected apps
-        id: set
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          apps=$(npx nx print-affected \
-                   --base=origin/main \
-                   --target=build \
-                   --select=projects \
-                   --plain 2>/dev/null |
-                 grep -E '^[A-Za-z0-9_-]+$' || true)
-
-          if [[ -z "$apps" ]]; then
-            # Empty JSON array → no matrix
-            echo 'apps=[]' >>"$GITHUB_OUTPUT"
-          else
-            # JSON array of strings: ["home","admin", ...]
-            json_apps=$(printf '%s\n' "$apps" |
-                        jq -R -s -c 'split("\n") | map(select(length>0))')
-            echo "apps=$json_apps" >>"$GITHUB_OUTPUT"
-          fi
-
-  # ──────────────────────────────
-  # 2. Build every touched app in parallel
-  # ──────────────────────────────
   build:
-    name: Build apps
     needs: detect-affected
-    if: ${{ needs.detect-affected.outputs.apps != '[]' }} # skip when nothing changed
+    if: ${{ needs.detect-affected.outputs.apps != '[]' }}
     runs-on: ubuntu-latest
 
     strategy:
-      # The key is "matrix.<dimension>" ← must be an array
       matrix:
         app: ${{ fromJson(needs.detect-affected.outputs.apps) }}
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
-      - name: Install dependencies
+      - name: Install deps
         run: npm ci
 
       - name: Build ${{ matrix.app }}
+        env:
+          NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+          NX_RUN_GROUP: ${{ github.run_id }}
         run: npx nx build ${{ matrix.app }} --configuration=production

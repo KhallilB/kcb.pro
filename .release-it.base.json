@@ -1,0 +1,17 @@
+{
+  "git": {
+    "requireCleanWorkingDir": false,
+    "tagName": "${name}-v${version}",
+    "commitMessage": "chore(${name}): release v${version}"
+  },
+  "github": {
+    "release": true,
+    "draft": true,
+    "autoGenerate": true
+  },
+  "plugins": {
+    "@release-it/bumper": {
+      "in": "./version.json"
+    }
+  }
+}
