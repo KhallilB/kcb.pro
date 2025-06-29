@@ -10,7 +10,7 @@
     "prepare": "husky",
     "build": "nx run-many --target=build --all",
     "lint": "nx run-many --target=lint --all",
-    "pre-commit": "export NX_TUI=false && npm run build && npm run lint"
+    "pre-push": "export NX_TUI=false && npm run build && npm run lint"
   },
   "devDependencies": {
     "@eslint/js": "^9.8.0",
@@ -64,5 +64,10 @@
     "react-dom": "19.0.0",
     "react-router": "^7.6.2",
     "tslib": "^2.3.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "npm run pre-push"
+    }
   }
 }
