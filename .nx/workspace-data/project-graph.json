@@ -838,7 +838,14 @@
                 "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
               },
               "command": "rspack serve",
-              "port": 4200
+              "port": 4200,
+              "devRemotes": [
+                "home",
+                "design",
+                "frontend",
+                "backend",
+                "devops"
+              ]
             },
             "configurations": {},
             "parallelism": true
@@ -1173,6 +1180,203 @@
         "name": "home",
         "$schema": "../../node_modules/nx/schemas/project-schema.json",
         "sourceRoot": "apps/home/src",
+        "projectType": "application",
+        "tags": [],
+        "implicitDependencies": []
+      }
+    },
+    "dsa": {
+      "name": "dsa",
+      "type": "app",
+      "data": {
+        "root": "apps/dsa",
+        "metadata": {},
+        "targets": {
+          "build": {
+            "options": {
+              "cwd": "apps/dsa",
+              "args": [
+                "--node-env=production"
+              ],
+              "env": {
+                "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+              },
+              "command": "rspack build"
+            },
+            "cache": true,
+            "dependsOn": [
+              "^build"
+            ],
+            "inputs": [
+              "default",
+              "^default",
+              {
+                "externalDependencies": [
+                  "@rspack/cli"
+                ]
+              }
+            ],
+            "outputs": [
+              "{workspaceRoot}/dist/apps/dsa"
+            ],
+            "executor": "nx:run-commands",
+            "configurations": {},
+            "parallelism": true
+          },
+          "serve": {
+            "continuous": true,
+            "executor": "nx:run-commands",
+            "options": {
+              "cwd": "apps/dsa",
+              "args": [
+                "--node-env=development"
+              ],
+              "env": {
+                "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+              },
+              "command": "rspack serve",
+              "port": 4206
+            },
+            "dependsOn": [
+              "shell:serve"
+            ],
+            "configurations": {},
+            "parallelism": true
+          },
+          "preview": {
+            "continuous": true,
+            "options": {
+              "cwd": "apps/dsa",
+              "args": [
+                "--node-env=production"
+              ],
+              "env": {
+                "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
+              },
+              "command": "rspack serve"
+            },
+            "executor": "nx:run-commands",
+            "configurations": {},
+            "parallelism": true
+          },
+          "serve-static": {
+            "dependsOn": [
+              "build"
+            ],
+            "continuous": true,
+            "executor": "@nx/web:file-server",
+            "options": {
+              "buildTarget": "build",
+              "spa": true,
+              "port": 4206
+            },
+            "configurations": {},
+            "parallelism": true
+          },
+          "build-deps": {
+            "dependsOn": [
+              "^build"
+            ],
+            "configurations": {},
+            "options": {},
+            "parallelism": true,
+            "executor": "nx:noop"
+          },
+          "watch-deps": {
+            "continuous": true,
+            "dependsOn": [
+              "build-deps"
+            ],
+            "executor": "nx:run-commands",
+            "options": {
+              "command": "npx nx watch --projects dsa --includeDependentProjects -- npx nx build-deps dsa"
+            },
+            "configurations": {},
+            "parallelism": true
+          },
+          "lint": {
+            "cache": true,
+            "options": {
+              "cwd": "apps/dsa",
+              "command": "eslint ."
+            },
+            "inputs": [
+              "default",
+              "^default",
+              "{workspaceRoot}/eslint.config.mjs",
+              "{workspaceRoot}/apps/dsa/eslint.config.mjs",
+              "{workspaceRoot}/tools/eslint-rules/**/*",
+              {
+                "externalDependencies": [
+                  "eslint"
+                ]
+              }
+            ],
+            "outputs": [
+              "{options.outputFile}"
+            ],
+            "metadata": {
+              "technologies": [
+                "eslint"
+              ],
+              "description": "Runs ESLint on project",
+              "help": {
+                "command": "npx eslint --help",
+                "example": {
+                  "options": {
+                    "max-warnings": 0
+                  }
+                }
+              }
+            },
+            "executor": "nx:run-commands",
+            "configurations": {},
+            "parallelism": true
+          },
+          "test": {
+            "options": {
+              "cwd": "apps/dsa",
+              "env": {
+                "TS_NODE_COMPILER_OPTIONS": "{\"moduleResolution\":\"node10\",\"module\":\"commonjs\",\"customConditions\":null}"
+              },
+              "command": "jest"
+            },
+            "metadata": {
+              "technologies": [
+                "jest"
+              ],
+              "description": "Run Jest Tests",
+              "help": {
+                "command": "npx jest --help",
+                "example": {
+                  "options": {
+                    "coverage": true
+                  }
+                }
+              }
+            },
+            "cache": true,
+            "inputs": [
+              "default",
+              "^default",
+              "{workspaceRoot}/jest.preset.js",
+              {
+                "externalDependencies": [
+                  "jest"
+                ]
+              }
+            ],
+            "outputs": [
+              "{workspaceRoot}/coverage/apps/dsa"
+            ],
+            "executor": "nx:run-commands",
+            "configurations": {},
+            "parallelism": true
+          }
+        },
+        "name": "dsa",
+        "$schema": "../../node_modules/nx/schemas/project-schema.json",
+        "sourceRoot": "apps/dsa/src",
         "projectType": "application",
         "tags": [],
         "implicitDependencies": []
@@ -13755,63 +13959,19 @@
     }
   },
   "dependencies": {
-    "frontend": [
-      {
-        "source": "frontend",
-        "target": "npm:@nx/rspack",
-        "type": "static"
-      },
-      {
-        "source": "frontend",
-        "target": "npm:@nx/module-federation",
-        "type": "static"
-      }
-    ],
-    "backend": [
-      {
-        "source": "backend",
-        "target": "npm:@nx/rspack",
-        "type": "static"
-      },
-      {
-        "source": "backend",
-        "target": "npm:@nx/module-federation",
-        "type": "static"
-      }
-    ],
-    "design": [
-      {
-        "source": "design",
-        "target": "npm:@nx/rspack",
-        "type": "static"
-      },
-      {
-        "source": "design",
-        "target": "npm:@nx/module-federation",
-        "type": "static"
-      }
-    ],
-    "devops": [
-      {
-        "source": "devops",
-        "target": "npm:@nx/rspack",
-        "type": "static"
-      },
-      {
-        "source": "devops",
-        "target": "npm:@nx/module-federation",
-        "type": "static"
-      }
-    ],
+    "frontend": [],
+    "backend": [],
+    "design": [],
+    "devops": [],
     "shell": [
       {
         "source": "shell",
-        "target": "npm:@nx/rspack",
+        "target": "npm:@nx/module-federation",
         "type": "static"
       },
       {
         "source": "shell",
-        "target": "npm:@nx/module-federation",
+        "target": "npm:@nx/rspack",
         "type": "static"
       },
       {
@@ -13823,6 +13983,11 @@
         "source": "shell",
         "target": "npm:react-router",
         "type": "static"
+      },
+      {
+        "source": "shell",
+        "target": "dsa",
+        "type": "dynamic"
       },
       {
         "source": "shell",
@@ -13859,6 +14024,43 @@
       {
         "source": "home",
         "target": "npm:@nx/module-federation",
+        "type": "static"
+      }
+    ],
+    "dsa": [
+      {
+        "source": "dsa",
+        "target": "npm:@nx/eslint-plugin",
+        "type": "static"
+      },
+      {
+        "source": "dsa",
+        "target": "npm:@nx/module-federation",
+        "type": "static"
+      },
+      {
+        "source": "dsa",
+        "target": "npm:@nx/rspack",
+        "type": "static"
+      },
+      {
+        "source": "dsa",
+        "target": "npm:@testing-library/react",
+        "type": "static"
+      },
+      {
+        "source": "dsa",
+        "target": "npm:react",
+        "type": "static"
+      },
+      {
+        "source": "dsa",
+        "target": "npm:react-dom",
+        "type": "static"
+      },
+      {
+        "source": "dsa",
+        "target": "npm:@nx/react",
         "type": "static"
       }
     ],
@@ -31395,5 +31597,5 @@
   },
   "version": "6.0",
   "errors": [],
-  "computedAt": 1750966449439
+  "computedAt": 1751184633881
 }

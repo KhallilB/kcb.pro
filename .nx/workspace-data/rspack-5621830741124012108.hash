@@ -331,7 +331,7 @@
     },
     "metadata": {}
   },
-  "13503548872203592701_apps/home/rspack.config.ts": {
+  "16445454301080966668_apps/home/rspack.config.ts": {
     "targets": {
       "build": {
         "command": "rspack build",
@@ -414,7 +414,7 @@
     },
     "metadata": {}
   },
-  "17877783356055638506_apps/shell/rspack.config.ts": {
+  "7969177337888713412_apps/shell/rspack.config.ts": {
     "targets": {
       "build": {
         "command": "rspack build",
@@ -828,7 +828,7 @@
     },
     "metadata": {}
   },
-  "8759716382705778542_apps/home/rspack.config.ts": {
+  "3185231341937306163_apps/home/rspack.config.ts": {
     "targets": {
       "build": {
         "command": "rspack build",
@@ -911,7 +911,7 @@
     },
     "metadata": {}
   },
-  "3706215077589166982_apps/shell/rspack.config.ts": {
+  "16516499034287717865_apps/shell/rspack.config.ts": {
     "targets": {
       "build": {
         "command": "rspack build",
@@ -993,7 +993,7 @@
     },
     "metadata": {}
   },
-  "1433377111715021795_apps/home/rspack.config.ts": {
+  "11586926304466788561_apps/home/rspack.config.ts": {
     "targets": {
       "build": {
         "command": "rspack build",
@@ -1072,88 +1072,6 @@
           "build-deps"
         ],
         "command": "npx nx watch --projects home --includeDependentProjects -- npx nx build-deps home"
-      }
-    },
-    "metadata": {}
-  },
-  "13202657588406677032_apps/shell/rspack.config.ts": {
-    "targets": {
-      "build": {
-        "command": "rspack build",
-        "options": {
-          "cwd": "apps/shell",
-          "args": [
-            "--node-env=production"
-          ],
-          "env": {
-            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
-          }
-        },
-        "cache": true,
-        "dependsOn": [
-          "^build"
-        ],
-        "inputs": [
-          "default",
-          "^default",
-          {
-            "externalDependencies": [
-              "@rspack/cli"
-            ]
-          }
-        ],
-        "outputs": [
-          "{workspaceRoot}/dist/apps/shell"
-        ]
-      },
-      "serve": {
-        "continuous": true,
-        "command": "rspack serve",
-        "options": {
-          "cwd": "apps/shell",
-          "args": [
-            "--node-env=development"
-          ],
-          "env": {
-            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
-          }
-        }
-      },
-      "preview": {
-        "continuous": true,
-        "command": "rspack serve",
-        "options": {
-          "cwd": "apps/shell",
-          "args": [
-            "--node-env=production"
-          ],
-          "env": {
-            "TS_NODE_COMPILER_OPTIONS": "{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\",\"customConditions\":null}"
-          }
-        }
-      },
-      "serve-static": {
-        "dependsOn": [
-          "build"
-        ],
-        "continuous": true,
-        "executor": "@nx/web:file-server",
-        "options": {
-          "buildTarget": "build",
-          "spa": true
-        }
-      },
-      "build-deps": {
-        "dependsOn": [
-          "^build"
-        ]
-      },
-      "watch-deps": {
-        "continuous": true,
-        "dependsOn": [
-          "build-deps"
-        ],
-        "command": "npx nx watch --projects shell --includeDependentProjects -- npx nx build-deps shell"
       }
     },
     "metadata": {}

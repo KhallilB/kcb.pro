@@ -1,0 +1,12 @@
+[2m> [22mrspack build --node-env=production
+
+[36m[ Module Federation Manifest Plugin ][39m Manifest will use absolute path resolution via its host at runtime, reason: publicPath='auto'
+
+[1m[33mwarn[39m[22m - No utility classes were detected in your source files. If this is unexpected, double-check the `content` option in your Tailwind CSS configuration.
+[1m[33mwarn[39m[22m - https://tailwindcss.com/docs/content-configuration
+[36m[ Module Federation Manifest Plugin ][39m Manifest Link: [36m{auto}/mf-manifest.json[39m 
+chunk (runtime: home) [1m[32m__federation_expose_Module.css[39m[22m, [1m[32m__federation_expose_Module.js[39m[22m (__federation_expose_Module) 10.1 KiB (css/mini-extract) 80.1 KiB (javascript) [1m[32m[rendered][39m[22m
+chunk (runtime: home) [1m[32mremoteEntry.js[39m[22m (home) 42 bytes (expose) 225 KiB (javascript) 11.6 KiB (runtime) [1m[33m[entry][39m[22m [1m[32m[rendered][39m[22m
+chunk (runtime: main) [1m[32mmain.js[39m[22m (main) 225 KiB (javascript) 11 KiB (runtime) [1m[33m[entry][39m[22m [1m[32m[rendered][39m[22m
+chunk (runtime: main) [1m[32msrc_bootstrap_tsx.css[39m[22m, [1m[32msrc_bootstrap_tsx.js[39m[22m 10.1 KiB (css/mini-extract) 1.01 MiB (javascript) [1m[32m[rendered][39m[22m
+Rspack compiled [1m[32msuccessfully[39m[22m (504848e1f7fd6b5a)

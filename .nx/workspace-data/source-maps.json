@@ -1001,6 +1001,340 @@
       "nx/core/project-json"
     ]
   },
+  "apps/dsa": {
+    "root": [
+      "apps/dsa/project.json",
+      "nx/core/project-json"
+    ],
+    "targets": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.build": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.build.options": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.build.cache": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.build.dependsOn": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.build.inputs": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.build.outputs": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.build.executor": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.build.options.cwd": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.build.options.args": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.build.options.env": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.build.options.command": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.serve": [
+      "apps/dsa/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.continuous": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.serve.options": [
+      "apps/dsa/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.executor": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.serve.options.cwd": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.serve.options.args": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.serve.options.env": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.serve.options.command": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.preview": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.preview.continuous": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.preview.options": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.preview.executor": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.preview.options.cwd": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.preview.options.args": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.preview.options.env": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.preview.options.command": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.serve-static": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.serve-static.dependsOn": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.serve-static.continuous": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.serve-static.executor": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.serve-static.options": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.serve-static.options.buildTarget": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.serve-static.options.spa": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.serve-static.options.port": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.build-deps": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.build-deps.dependsOn": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.watch-deps": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.watch-deps.continuous": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.watch-deps.dependsOn": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.watch-deps.executor": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.watch-deps.options": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.watch-deps.options.command": [
+      "apps/dsa/rspack.config.ts",
+      "@nx/rspack/plugin"
+    ],
+    "targets.lint": [
+      "apps/dsa/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.cache": [
+      "apps/dsa/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.options": [
+      "apps/dsa/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.inputs": [
+      "apps/dsa/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.outputs": [
+      "apps/dsa/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata": [
+      "apps/dsa/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.executor": [
+      "apps/dsa/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.options.cwd": [
+      "apps/dsa/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.options.command": [
+      "apps/dsa/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.technologies": [
+      "apps/dsa/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.technologies.0": [
+      "apps/dsa/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.description": [
+      "apps/dsa/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.help": [
+      "apps/dsa/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.help.command": [
+      "apps/dsa/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.help.example": [
+      "apps/dsa/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.test": [
+      "apps/dsa/jest.config.ts",
+      "@nx/jest/plugin"
+    ],
+    "targets.test.options": [
+      "apps/dsa/jest.config.ts",
+      "@nx/jest/plugin"
+    ],
+    "targets.test.metadata": [
+      "apps/dsa/jest.config.ts",
+      "@nx/jest/plugin"
+    ],
+    "targets.test.cache": [
+      "apps/dsa/jest.config.ts",
+      "@nx/jest/plugin"
+    ],
+    "targets.test.inputs": [
+      "apps/dsa/jest.config.ts",
+      "@nx/jest/plugin"
+    ],
+    "targets.test.outputs": [
+      "apps/dsa/jest.config.ts",
+      "@nx/jest/plugin"
+    ],
+    "targets.test.executor": [
+      "apps/dsa/jest.config.ts",
+      "@nx/jest/plugin"
+    ],
+    "targets.test.options.cwd": [
+      "apps/dsa/jest.config.ts",
+      "@nx/jest/plugin"
+    ],
+    "targets.test.options.env": [
+      "apps/dsa/jest.config.ts",
+      "@nx/jest/plugin"
+    ],
+    "targets.test.options.command": [
+      "apps/dsa/jest.config.ts",
+      "@nx/jest/plugin"
+    ],
+    "targets.test.metadata.technologies": [
+      "apps/dsa/jest.config.ts",
+      "@nx/jest/plugin"
+    ],
+    "targets.test.metadata.technologies.0": [
+      "apps/dsa/jest.config.ts",
+      "@nx/jest/plugin"
+    ],
+    "targets.test.metadata.description": [
+      "apps/dsa/jest.config.ts",
+      "@nx/jest/plugin"
+    ],
+    "targets.test.metadata.help": [
+      "apps/dsa/jest.config.ts",
+      "@nx/jest/plugin"
+    ],
+    "targets.test.metadata.help.command": [
+      "apps/dsa/jest.config.ts",
+      "@nx/jest/plugin"
+    ],
+    "targets.test.metadata.help.example": [
+      "apps/dsa/jest.config.ts",
+      "@nx/jest/plugin"
+    ],
+    "name": [
+      "apps/dsa/project.json",
+      "nx/core/project-json"
+    ],
+    "$schema": [
+      "apps/dsa/project.json",
+      "nx/core/project-json"
+    ],
+    "sourceRoot": [
+      "apps/dsa/project.json",
+      "nx/core/project-json"
+    ],
+    "projectType": [
+      "apps/dsa/project.json",
+      "nx/core/project-json"
+    ],
+    "tags": [
+      "apps/dsa/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.dependsOn": [
+      "apps/dsa/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.options.port": [
+      "apps/dsa/project.json",
+      "nx/core/project-json"
+    ]
+  },
   "apps/frontend": {
     "root": [
       "apps/frontend/project.json",
@@ -1991,6 +2325,10 @@
       "nx/core/project-json"
     ],
     "targets.serve.options.port": [
+      "apps/shell/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.options.devRemotes": [
       "apps/shell/project.json",
       "nx/core/project-json"
     ]

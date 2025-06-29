@@ -10,6 +10,7 @@ import config from './module-federation.config';
 
 export default {
   output: {
+    uniqueName: 'shell',
     path: join(__dirname, '../../dist/apps/shell'),
     publicPath: 'auto',
   },

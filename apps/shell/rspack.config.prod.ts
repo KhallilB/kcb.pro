@@ -34,6 +34,7 @@ const prodConfig: ModuleFederationConfig = {
     ['frontend', 'http://localhost:4203/'],
     ['backend', 'http://localhost:4204/'],
     ['devops', 'http://localhost:4205/'],
+    ['dsa', 'http://localhost:4206/'],
   ],
 };
 

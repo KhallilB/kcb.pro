@@ -1,5 +1,0 @@
-
-[0m[7m[1m[31m NX [39m[22m[27m[0m  [31mEntry is required. Please set the `main` option in the executor or the `entry` property in the rspack config.[39m
-
-Pass --verbose to see the stacktrace.
-

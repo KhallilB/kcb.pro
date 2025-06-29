@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { Link, Route, Routes } from 'react-router';
 
+const Dsa = React.lazy(() => import('dsa/Module'));
+
 const Home = React.lazy(() => import('home/Module'));
 const Design = React.lazy(() => import('design/Module'));
 const Frontend = React.lazy(() => import('frontend/Module'));
@@ -13,6 +15,9 @@ export function App() {
       <ul>
         <li>
           <Link to="/">Home</Link>
+        </li>
+        <li>
+          <Link to="/dsa">Dsa</Link>
         </li>
         <li>
           <Link to="/home">Home</Link>
@@ -32,6 +37,7 @@ export function App() {
       </ul>
       <Routes>
         <Route path="/" element={<h1>Shell to me </h1>} />
+        <Route path="/dsa" element={<Dsa />} />
         <Route path="/home" element={<Home />} />
         <Route path="/design" element={<Design />} />
         <Route path="/frontend" element={<Frontend />} />

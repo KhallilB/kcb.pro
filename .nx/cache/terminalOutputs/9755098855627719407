@@ -1,0 +1,107 @@
+> rspack serve --port=4201 --node-env=development
+
+[36m[ Module Federation Manifest Plugin ][39m Manifest will use absolute path resolution via its host at runtime, reason: publicPath='auto'
+[rspack-cli] [31mValidationError: Invalid options object. Dev Server has been initialized using an options object that does not match the API schema.
+ - options has an unknown property 'hmr'. These properties are valid:
+   object { allowedHosts?, bonjour?, client?, compress?, devMiddleware?, headers?, historyApiFallback?, host?, hot?, ipc?, liveReload?, onListening?, open?, port?, proxy?, server?, app?, setupExitSignals?, setupMiddlewares?, static?, watchFiles?, webSocketServer? }
+    at validate (/Users/khallilbailey/dev/kcb.pro/node_modules/webpack-dev-server/node_modules/schema-utils/dist/validate.js:166:11)
+    at new Server (/Users/khallilbailey/dev/kcb.pro/node_modules/webpack-dev-server/lib/Server.js:325:5)
+    at new RspackDevServer (/Users/khallilbailey/dev/kcb.pro/node_modules/@rspack/dev-server/dist/server.js:35:9)
+    at Object.handler (/Users/khallilbailey/dev/kcb.pro/node_modules/@rspack/cli/dist/index.js:481:36) {
+  errors: [
+    {
+      instancePath: '',
+      schemaPath: '#/additionalProperties',
+      keyword: 'additionalProperties',
+      params: [Object],
+      message: 'must NOT have additional properties',
+      schema: false,
+      parentSchema: [Object],
+      data: [Object]
+    }
+  ],
+  schema: {
+    title: 'Dev Server options',
+    type: 'object',
+    definitions: {
+      App: [Object],
+      AllowedHosts: [Object],
+      AllowedHostsItem: [Object],
+      Bonjour: [Object],
+      Client: [Object],
+      ClientLogging: [Object],
+      ClientOverlay: [Object],
+      ClientProgress: [Object],
+      ClientReconnect: [Object],
+      ClientWebSocketTransport: [Object],
+      ClientWebSocketTransportEnum: [Object],
+      ClientWebSocketTransportString: [Object],
+      ClientWebSocketURL: [Object],
+      Compress: [Object],
+      DevMiddleware: [Object],
+      HeaderObject: [Object],
+      Headers: [Object],
+      HistoryApiFallback: [Object],
+      Host: [Object],
+      Hot: [Object],
+      IPC: [Object],
+      LiveReload: [Object],
+      OnListening: [Object],
+      Open: [Object],
+      OpenBoolean: [Object],
+      OpenObject: [Object],
+      OpenString: [Object],
+      Port: [Object],
+      Proxy: [Object],
+      Server: [Object],
+      ServerType: [Object],
+      ServerFn: [Object],
+      ServerEnum: [Object],
+      ServerString: [Object],
+      ServerObject: [Object],
+      ServerOptions: [Object],
+      SetupExitSignals: [Object],
+      SetupMiddlewares: [Object],
+      Static: [Object],
+      StaticObject: [Object],
+      StaticString: [Object],
+      WatchFiles: [Object],
+      WatchFilesObject: [Object],
+      WatchFilesString: [Object],
+      WebSocketServer: [Object],
+      WebSocketServerType: [Object],
+      WebSocketServerEnum: [Object],
+      WebSocketServerFunction: [Object],
+      WebSocketServerObject: [Object],
+      WebSocketServerString: [Object]
+    },
+    additionalProperties: false,
+    properties: {
+      allowedHosts: [Object],
+      bonjour: [Object],
+      client: [Object],
+      compress: [Object],
+      devMiddleware: [Object],
+      headers: [Object],
+      historyApiFallback: [Object],
+      host: [Object],
+      hot: [Object],
+      ipc: [Object],
+      liveReload: [Object],
+      onListening: [Object],
+      open: [Object],
+      port: [Object],
+      proxy: [Object],
+      server: [Object],
+      app: [Object],
+      setupExitSignals: [Object],
+      setupMiddlewares: [Object],
+      static: [Object],
+      watchFiles: [Object],
+      webSocketServer: [Object]
+    }
+  },
+  headerName: 'Dev Server',
+  baseDataPath: 'options',
+  postFormatter: null
+}[39m

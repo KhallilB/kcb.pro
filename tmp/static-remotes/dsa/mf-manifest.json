@@ -1,0 +1,138 @@
+{
+  "id": "dsa",
+  "name": "dsa",
+  "metaData": {
+    "name": "dsa",
+    "type": "app",
+    "buildInfo": {
+      "buildVersion": "local"
+    },
+    "remoteEntry": {
+      "name": "remoteEntry.js",
+      "path": "",
+      "type": "global"
+    },
+    "types": {
+      "path": "",
+      "name": "",
+      "zip": "",
+      "api": ""
+    },
+    "globalName": "dsa",
+    "pluginVersion": "0.9.1",
+    "prefetchInterface": false,
+    "publicPath": "auto"
+  },
+  "shared": [
+    {
+      "id": "dsa:react/jsx-dev-runtime",
+      "name": "react/jsx-dev-runtime",
+      "version": "19.0.0",
+      "singleton": true,
+      "requiredVersion": "19.0.0",
+      "assets": {
+        "js": {
+          "async": [
+            "node_modules_react_index_js.js"
+          ],
+          "sync": [
+            "node_modules_react_jsx-dev-runtime_js.js"
+          ]
+        },
+        "css": {
+          "async": [],
+          "sync": []
+        }
+      }
+    },
+    {
+      "id": "dsa:react",
+      "name": "react",
+      "version": "19.0.0",
+      "singleton": true,
+      "requiredVersion": "19.0.0",
+      "assets": {
+        "js": {
+          "async": [],
+          "sync": [
+            "node_modules_react_index_js.js"
+          ]
+        },
+        "css": {
+          "async": [],
+          "sync": []
+        }
+      }
+    },
+    {
+      "id": "dsa:react-dom/client",
+      "name": "react-dom/client",
+      "version": "19.0.0",
+      "singleton": true,
+      "requiredVersion": "19.0.0",
+      "assets": {
+        "js": {
+          "async": [
+            "node_modules_react_index_js.js",
+            "node_modules_react-dom_index_js-_5b600.js"
+          ],
+          "sync": [
+            "node_modules_react-dom_client_js-_32da0.js",
+            "node_modules_react-dom_client_js-_32da1.js"
+          ]
+        },
+        "css": {
+          "async": [],
+          "sync": []
+        }
+      }
+    },
+    {
+      "id": "dsa:react-dom",
+      "name": "react-dom",
+      "version": "19.0.0",
+      "singleton": true,
+      "requiredVersion": "19.0.0",
+      "assets": {
+        "js": {
+          "async": [
+            "node_modules_react_index_js.js"
+          ],
+          "sync": [
+            "node_modules_react-dom_index_js-_5b600.js",
+            "node_modules_react-dom_index_js-_5b601.js"
+          ]
+        },
+        "css": {
+          "async": [],
+          "sync": []
+        }
+      }
+    }
+  ],
+  "remotes": [],
+  "exposes": [
+    {
+      "id": "dsa:Module",
+      "name": "Module",
+      "assets": {
+        "js": {
+          "sync": [
+            "__federation_expose_Module.js"
+          ],
+          "async": [
+            "node_modules_react_jsx-dev-runtime_js.js",
+            "node_modules_react_index_js.js"
+          ]
+        },
+        "css": {
+          "sync": [
+            "__federation_expose_Module.css"
+          ],
+          "async": []
+        }
+      },
+      "path": "./Module"
+    }
+  ]
+}

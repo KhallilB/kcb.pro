@@ -1,0 +1,3 @@
+> rspack serve --port=4200 --node-env=development
+
+[36m[ Module Federation Manifest Plugin ][39m Manifest will use absolute path resolution via its host at runtime, reason: publicPath='auto'

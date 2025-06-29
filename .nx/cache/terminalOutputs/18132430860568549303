@@ -1,13 +1,0 @@
-> rspack serve --port=4200 --node-env=development
-
-Error: Missing "main" option for the entry file. Set this option in your Nx rspack plugin.
-    at normalizeOptions (/Users/khallilbailey/dev/kcb.pro/node_modules/[4m@nx[24m/rspack/src/plugins/utils/plugins/normalize-options.js:53:15)
-    at new NxAppRspackPlugin (/Users/khallilbailey/dev/kcb.pro/node_modules/[4m@nx[24m/rspack/src/plugins/nx-app-rspack-plugin/nx-app-rspack-plugin.js:20:69)
-    at Object.<anonymous> [90m(/Users/khallilbailey/dev/kcb.pro/apps/shell/[39mrspack.config.ts:26:5[90m)[39m
-[90m    at Module._compile (node:internal/modules/cjs/loader:1562:14)[39m
-    at Module.m._compile (/Users/khallilbailey/dev/kcb.pro/node_modules/[4mts-node[24m/src/index.ts:1618:23)
-[90m    at node:internal/modules/cjs/loader:1699:10[39m
-    at Object.require.extensions.<computed> [as .ts] (/Users/khallilbailey/dev/kcb.pro/node_modules/[4mts-node[24m/src/index.ts:1621:12)
-[90m    at Module.load (node:internal/modules/cjs/loader:1313:32)[39m
-[90m    at Function._load (node:internal/modules/cjs/loader:1123:12)[39m
-[90m    at TracingChannel.traceSync (node:diagnostics_channel:322:14)[39m

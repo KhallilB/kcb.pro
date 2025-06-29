@@ -2227,16 +2227,16 @@ __webpack_require__.d(__webpack_exports__, {
 
 function App() {
     return /*#__PURE__*/ (0,react_jsx_dev_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxDEV)("div", {
-        children: /*#__PURE__*/ (0,react_jsx_dev_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxDEV)("h1", {
-            children: "Home"
+        children: /*#__PURE__*/ (0,react_jsx_dev_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxDEV)("p", {
+            children: "test"
         }, void 0, false, {
             fileName: "/Users/khallilbailey/dev/kcb.pro/apps/home/src/app/app.tsx",
-            lineNumber: 7,
+            lineNumber: 6,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "/Users/khallilbailey/dev/kcb.pro/apps/home/src/app/app.tsx",
-        lineNumber: 6,
+        lineNumber: 5,
         columnNumber: 5
     }, this);
 }

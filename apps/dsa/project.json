@@ -1,0 +1,15 @@
+{
+  "name": "dsa",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/dsa/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "serve": {
+      "options": {
+        "port": 4206
+      },
+      "dependsOn": ["shell:serve"]
+    }
+  }
+}

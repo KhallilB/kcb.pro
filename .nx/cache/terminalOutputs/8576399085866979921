@@ -1,0 +1,3 @@
+> rspack serve --port=4200 --hmr=true --node-env=development
+
+Unknown argument: hmr

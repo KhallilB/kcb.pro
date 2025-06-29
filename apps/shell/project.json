@@ -7,7 +7,8 @@
   "targets": {
     "serve": {
       "options": {
-        "port": 4200
+        "port": 4200,
+        "devRemotes": ["home", "design", "frontend", "backend", "devops"]
       }
     }
   }
