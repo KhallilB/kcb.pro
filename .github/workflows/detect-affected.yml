@@ -38,7 +38,7 @@ jobs:
           node-version: 20
           cache: npm
 
-      - name: Install deps
+      - name: Install dependencies
         run: npm ci
 
       - name: Detect affected apps
@@ -47,10 +47,14 @@ jobs:
           NX_BASE: ${{ inputs.base }}
           NX_TARGET: ${{ inputs.target }}
         run: |
-          apps=$(npx nx print-affected --base="$NX_BASE" --target="$NX_TARGET" --select=projects --plain | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          set -euo pipefail
+
+          # Capture affected apps as JSON array (e.g. ["shell","home"])
+          apps=$(npx nx show projects --affected --base="$NX_BASE" --target="$NX_TARGET" --json)
+
           echo "$apps" > affected.json
-          echo "apps=$apps"
           echo "apps=$apps" >> "$GITHUB_OUTPUT"
+          echo "Detected affected apps: $apps"
 
       - name: Upload affected.json
         if: ${{ inputs.upload_artifact }}
