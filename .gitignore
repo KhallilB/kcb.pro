@@ -1,0 +1,13 @@
+### react ###
+.DS_*
+*.log
+logs
+**/*.backup.*
+**/*.back.*
+
+tmp
+dist
+.nx/cache
+.nx/installation
+.nx/workspace-data
+node_modules
