@@ -2,6 +2,22 @@ name: Draft Releases
 on:
   push:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      release_strategy:
+        description: 'Release strategy'
+        required: true
+        default: 'affected'
+        type: choice
+        options:
+          - affected
+          - orchestrated
+          - shell-only
+          - remotes-only
+      force_release:
+        description: 'Force release specific apps (comma-separated)'
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -11,6 +27,9 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       apps: ${{ steps.affected.outputs.apps }}
+      shell_affected: ${{ steps.affected.outputs.shell_affected }}
+      should_release_shell: ${{ steps.affected.outputs.should_release_shell }}
+      should_release_remotes: ${{ steps.affected.outputs.should_release_remotes }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -27,25 +46,76 @@ jobs:
       - name: Get affected apps
         id: affected
         run: |
-          # Get apps affected since last release tags
-          affected_apps=$(npx nx show projects --affected --base=HEAD~5 | grep -E '^(backend|design|devops|dsa|frontend|home|shell)$' || echo "")
-
-          if [ -z "$affected_apps" ]; then
-            echo "apps=[]" >> "$GITHUB_OUTPUT"
-            echo "No affected apps found"
+          # Handle manual workflow dispatch
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            case "${{ inputs.release_strategy }}" in
+              "orchestrated")
+                apps_json='["shell","backend","design","devops","dsa","frontend","home"]'
+                shell_affected="true"
+                should_release_shell="true"
+                should_release_remotes="true"
+                ;;
+              "shell-only")
+                apps_json='["shell"]'
+                shell_affected="true"
+                should_release_shell="true"
+                should_release_remotes="false"
+                ;;
+              "remotes-only")
+                apps_json='["backend","design","devops","dsa","frontend","home"]'
+                shell_affected="false"
+                should_release_shell="false"
+                should_release_remotes="true"
+                ;;
+              "affected"|*)
+                if [ -n "${{ inputs.force_release }}" ]; then
+                  # Convert comma-separated list to JSON array
+                  apps_json=$(echo "${{ inputs.force_release }}" | tr ',' '\n' | jq -R -s -c 'split("\n")[:-1]')
+                  shell_affected=$(echo "${{ inputs.force_release }}" | grep -q "shell" && echo "true" || echo "false")
+                else
+                  affected_apps=$(npx nx show projects --affected --base=HEAD~5 | grep -E '^(backend|design|devops|dsa|frontend|home|shell)$' || echo "")
+                  if [ -z "$affected_apps" ]; then
+                    apps_json='[]'
+                  else
+                    apps_json=$(echo "$affected_apps" | jq -R -s -c 'split("\n")[:-1]')
+                  fi
+                  shell_affected=$(echo "$affected_apps" | grep -q "shell" && echo "true" || echo "false")
+                fi
+                should_release_shell="$shell_affected"
+                should_release_remotes=$(echo "$apps_json" | jq -r '. | map(select(. != "shell")) | length > 0')
+                ;;
+            esac
           else
-            apps_json=$(echo "$affected_apps" | jq -R -s -c 'split("\n")[:-1]')
-            echo "apps=$apps_json" >> "$GITHUB_OUTPUT"
-            echo "Affected apps: $affected_apps"
+            # Automatic detection on push
+            affected_apps=$(npx nx show projects --affected --base=HEAD~5 | grep -E '^(backend|design|devops|dsa|frontend|home|shell)$' || echo "")
+            if [ -z "$affected_apps" ]; then
+              apps_json='[]'
+              shell_affected="false"
+            else
+              apps_json=$(echo "$affected_apps" | jq -R -s -c 'split("\n")[:-1]')
+              shell_affected=$(echo "$affected_apps" | grep -q "shell" && echo "true" || echo "false")
+            fi
+            should_release_shell="$shell_affected"
+            should_release_remotes=$(echo "$apps_json" | jq -r '. | map(select(. != "shell")) | length > 0')
           fi
 
-  release:
+          echo "apps=$apps_json" >> "$GITHUB_OUTPUT"
+          echo "shell_affected=$shell_affected" >> "$GITHUB_OUTPUT"
+          echo "should_release_shell=$should_release_shell" >> "$GITHUB_OUTPUT"
+          echo "should_release_remotes=$should_release_remotes" >> "$GITHUB_OUTPUT"
+          
+          echo "Strategy: ${{ inputs.release_strategy || 'auto-affected' }}"
+          echo "Apps to release: $apps_json"
+          echo "Shell affected: $shell_affected"
+          echo "Should release shell: $should_release_shell"
+          echo "Should release remotes: $should_release_remotes"
+
+  release-shell:
     needs: detect-affected
-    if: ${{ needs.detect-affected.outputs.apps != '[]' }}
+    if: ${{ needs.detect-affected.outputs.should_release_shell == 'true' }}
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        app: ${{ fromJson(needs.detect-affected.outputs.apps) }}
+    outputs:
+      shell_version: ${{ steps.release.outputs.version }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -64,24 +134,67 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
 
+      - name: Release Shell (Host)
+        id: release
+        working-directory: apps/shell
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Releasing shell app with dependency coordination..."
+          npx release-it --ci --no-npm --github.release --github.autoGenerate=true --github.releaseName='Release shell v${version}'
+          # Capture the version for dependent releases
+          version=$(node -p "require('./package.json').version")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Released shell version: $version"
+
+      - name: Push shell release
+        run: |
+          # Push the shell release tags and commits
+          git push --follow-tags origin main
+
+  release-remotes:
+    needs: [detect-affected, release-shell]
+    if: ${{ always() && needs.detect-affected.outputs.should_release_remotes == 'true' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app: ${{ fromJson(needs.detect-affected.outputs.apps) }}
+    steps:
+      - name: Skip shell app
+        if: ${{ matrix.app == 'shell' }}
+        run: echo "Skipping shell app in remotes release"
+
+      - uses: actions/checkout@v4
+        if: ${{ matrix.app != 'shell' }}
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - uses: actions/setup-node@v4
+        if: ${{ matrix.app != 'shell' }}
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+        if: ${{ matrix.app != 'shell' }}
+
+      - name: Setup Git
+        if: ${{ matrix.app != 'shell' }}
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Pull latest changes (shell release)
+        if: ${{ matrix.app != 'shell' }}
+        run: |
+          git pull origin main
+
       - name: Release ${{ matrix.app }}
+        if: ${{ matrix.app != 'shell' }}
         working-directory: apps/${{ matrix.app }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          echo "Releasing ${{ matrix.app }} with shell dependency detection..."
           npx release-it --ci --no-npm --github.release --github.autoGenerate=true --github.releaseName='Release ${{ matrix.app }} v${version}'
-
-  push-changes:
-    needs: [detect-affected, release]
-    if: ${{ needs.detect-affected.outputs.apps != '[]' }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Pull latest changes and push
-        run: |
-          git pull --rebase origin main
-          git push --follow-tags origin main
