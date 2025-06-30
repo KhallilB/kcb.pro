@@ -3,7 +3,7 @@ import '../styles.css';
 export function App() {
   return (
     <div>
-      <p>Frontend</p>
+      <p>Frontend 1</p>
     </div>
   );
 }
