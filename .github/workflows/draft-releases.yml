@@ -29,7 +29,7 @@ jobs:
         run: |
           # Get apps affected since last release tags
           affected_apps=$(npx nx show projects --affected --base=HEAD~5 | grep -E '^(backend|design|devops|dsa|frontend|home|shell)$' || echo "")
-          
+
           if [ -z "$affected_apps" ]; then
             echo "apps=[]" >> "$GITHUB_OUTPUT"
             echo "No affected apps found"
@@ -65,12 +65,15 @@ jobs:
           git config --global user.email "actions@github.com"
 
       - name: Release ${{ matrix.app }}
+        working-directory: apps/${{ matrix.app }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "📦 Releasing ${{ matrix.app }}..."
-          cd apps/${{ matrix.app }}
-          npx release-it --ci
+          npx release-it --ci \
+          --github.release \
+          --github.autoGenerate=true \
+          --github.releaseName='Release ${{ matrix.app }} v${version}' \
+          --git.push=false
 
   push-changes:
     needs: [detect-affected, release]
