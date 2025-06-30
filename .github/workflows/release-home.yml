@@ -30,5 +30,19 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx release-it --ci
 
-      - name: Push changes
-        run: git push --follow-tags --no-verify
+      - name: Push changes with retry logic (max 10 tries)
+        env: { MAX_RETRIES: 10 }
+        run: |
+          set -e
+          n=0
+          while \! git push --follow-tags --no-verify; do
+            n=$((n+1))
+            if [ "$n" -ge "$MAX_RETRIES" ]; then
+              echo "❌  Push failed after $MAX_RETRIES attempts"; exit 1
+            fi
+            echo "⚠️   main moved — re-basing (attempt $n)…"
+            sleep $((n * 2))  # Exponential backoff
+            git fetch origin main
+            git rebase origin/main
+          done
+          echo "✅  Push succeeded after $n re-tries"
