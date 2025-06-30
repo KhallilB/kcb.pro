@@ -1,8 +1,5 @@
 {
   "name": "dsa",
   "version": "0.0.1",
-  "private": true,
-  "dependencies": {
-    "shell": "0.0.1"
-  }
+  "private": true
 }
