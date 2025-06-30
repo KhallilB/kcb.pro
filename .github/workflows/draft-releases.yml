@@ -1,0 +1,102 @@
+name: Draft Releases
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  detect-affected:
+    runs-on: ubuntu-latest
+    outputs:
+      apps: ${{ steps.set.outputs.apps }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci
+      - id: set
+        run: |
+          BASE=$(git merge-base HEAD HEAD~1)
+          apps=$(npx nx show projects --affected --base=$BASE --target=build --json)
+          echo "apps=$apps" >> "$GITHUB_OUTPUT"
+
+  release:
+    needs: detect-affected
+    if: ${{ needs.detect-affected.outputs.apps != '[]' }}
+    runs-on: ubuntu-latest
+    concurrency:
+      group: releases
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm ci
+
+      - name: Disable Husky and setup Git
+        run: |
+          export HUSKY=0
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git config --global core.hooksPath /dev/null
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+
+      - name: Release affected apps sequentially
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AFFECTED_APPS: ${{ needs.detect-affected.outputs.apps }}
+        run: |
+          echo "Releasing apps: $AFFECTED_APPS"
+          
+          for app in $(echo $AFFECTED_APPS | jq -r '.[]'); do
+            echo "🚀 Starting release for $app..."
+            cd apps/$app
+            
+            # Disable git operations in release-it, we'll handle push manually
+            HUSKY=0 npx release-it --ci --no-git.push
+            
+            # Get the new version and tag
+            version=$(cat package.json | jq -r '.version')
+            tag_name="$app-v$version"
+            
+            echo "✅ Released $app v$version (tag: $tag_name)"
+            cd ../..
+          done
+
+      - name: Push all changes at once
+        run: |
+          # Push all commits and tags together
+          HUSKY=0 git push --follow-tags --no-verify origin main
+
+      - name: Create draft GitHub releases
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AFFECTED_APPS: ${{ needs.detect-affected.outputs.apps }}
+        run: |
+          for app in $(echo $AFFECTED_APPS | jq -r '.[]'); do
+            version=$(cat apps/$app/package.json | jq -r '.version')
+            tag_name="$app-v$version"
+            
+            echo "Creating draft release for $app v$version..."
+            
+            # Create draft release with changelog if available
+            if [ -f "apps/$app/CHANGELOG.md" ]; then
+              gh release create "$tag_name" \
+                --title "$app v$version" \
+                --notes-file "apps/$app/CHANGELOG.md" \
+                --draft \
+                || echo "Draft release $tag_name may already exist"
+            else
+              gh release create "$tag_name" \
+                --title "$app v$version" \
+                --generate-notes \
+                --draft \
+                || echo "Draft release $tag_name may already exist"
+            fi
+            
+            echo "✅ Created draft release: $tag_name"
+          done
