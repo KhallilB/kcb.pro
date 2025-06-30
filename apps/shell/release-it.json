@@ -3,11 +3,12 @@
   "git": {
     "tagName": "shell-v${version}",
     "commitMessage": "chore(shell): release v${version}",
-    "push": false
+    "push": true
   },
   "github": {
     "release": true,
-    "draft": true
+    "draft": true,
+    "releaseName": "Release shell v${version}"
   },
   "plugins": {
     "@release-it/conventional-changelog": {

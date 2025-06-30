@@ -141,22 +141,25 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Releasing shell app with dependency coordination..."
-          npx release-it --ci --no-npm --github.release --github.autoGenerate=true --github.releaseName='Release shell v${version}'
-          # Capture the version for dependent releases
-          version=$(node -p "require('./package.json').version")
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "Released shell version: $version"
+          # Get current version
+          current_version=$(node -p "require('./package.json').version")
+          echo "Current shell version: $current_version"
+          
+          # Run release-it using the app's own configuration
+          npx release-it --ci
+          
+          # Capture the new version for dependent releases
+          new_version=$(node -p "require('./package.json').version")
+          echo "version=$new_version" >> "$GITHUB_OUTPUT"
+          echo "Released shell version: $new_version"
 
-      - name: Push shell release
-        run: |
-          # Push the shell release tags and commits
-          git push --follow-tags origin main
 
   release-remotes:
     needs: [detect-affected, release-shell]
     if: ${{ always() && needs.detect-affected.outputs.should_release_remotes == 'true' }}
     runs-on: ubuntu-latest
     strategy:
+      max-parallel: 1  # Sequential releases to avoid conflicts
       matrix:
         app: ${{ fromJson(needs.detect-affected.outputs.apps) }}
     steps:
@@ -197,4 +200,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Releasing ${{ matrix.app }} with shell dependency detection..."
-          npx release-it --ci --no-npm --github.release --github.autoGenerate=true --github.releaseName='Release ${{ matrix.app }} v${version}'
+          # Get current version
+          current_version=$(node -p "require('./package.json').version")
+          echo "Current ${{ matrix.app }} version: $current_version"
+          
+          # Run release-it using the app's own configuration
+          npx release-it --ci

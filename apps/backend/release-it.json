@@ -3,11 +3,12 @@
   "git": {
     "tagName": "backend-v${version}",
     "commitMessage": "chore(backend): release v${version}",
-    "push": false
+    "push": true
   },
   "github": {
     "release": true,
-    "draft": true
+    "draft": true,
+    "releaseName": "Release backend v${version}"
   },
   "plugins": {
     "@release-it/conventional-changelog": {

@@ -3,11 +3,12 @@
   "git": {
     "tagName": "home-v${version}",
     "commitMessage": "chore(home): release v${version}",
-    "push": false
+    "push": true
   },
   "github": {
     "release": true,
-    "draft": true
+    "draft": true,
+    "releaseName": "Release ${version}"
   },
   "plugins": {
     "@release-it/conventional-changelog": {
