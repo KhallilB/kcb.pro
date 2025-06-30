@@ -1,0 +1,27 @@
+{
+  "$schema": "https://unpkg.com/release-it@19/schema/release-it.json",
+  "git": {
+    "tagName": "design-v${version}",
+    "commitMessage": "chore(design): release v${version}",
+    "push": false
+  },
+  "github": {
+    "release": true,
+    "draft": true
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "preset": "angular",
+      "infile": "CHANGELOG.md",
+      "context": {
+        "path": "apps/design"
+      },
+      "gitRawCommitsOpts": {
+        "path": "apps/design"
+      }
+    }
+  },
+  "npm": {
+    "publish": false
+  }
+}
