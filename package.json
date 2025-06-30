@@ -10,14 +10,7 @@
     "prepare": "husky",
     "build": "nx run-many --target=build --all",
     "lint": "nx run-many --target=lint --all",
-    "pre-push": "export NX_TUI=false && npm run build && npm run lint",
-    "release": "node scripts/release-app.js",
-    "release:affected": "node scripts/release-app.js --affected",
-    "release:affected:dry": "node scripts/release-app.js --affected --dry-run",
-    "release:all": "node scripts/release-app.js --all",
-    "release:all:dry": "node scripts/release-app.js --all --dry-run",
-    "release:smart": "node scripts/release-workflow.js --smart",
-    "release:smart:dry": "node scripts/release-workflow.js --smart --dry-run"
+    "pre-push": "export NX_TUI=false && npm run build && npm run lint"
   },
   "devDependencies": {
     "@eslint/js": "^9.8.0",

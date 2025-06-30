@@ -1,0 +1,27 @@
+{
+  "$schema": "https://unpkg.com/release-it@19/schema/release-it.json",
+  "git": {
+    "tagName": "dsa-v${version}",
+    "commitMessage": "chore(dsa): release v${version}",
+    "push": false
+  },
+  "github": {
+    "release": true,
+    "draft": true
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "preset": "angular",
+      "infile": "CHANGELOG.md",
+      "context": {
+        "path": "apps/dsa"
+      },
+      "gitRawCommitsOpts": {
+        "path": "apps/dsa"
+      }
+    }
+  },
+  "npm": {
+    "publish": false
+  }
+}
