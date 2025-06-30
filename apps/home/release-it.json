@@ -6,10 +6,13 @@
     "commitMessage": "chore(home): release v${version}",
     "commit": true,
     "tag": true,
-    "push": false
+    "push": true
   },
   "github": {
-    "release": false
+    "release": true,
+    "draft": true,
+    "autoGenerate": true,
+    "releaseName": "home v${version}"
   },
   "plugins": {
     "@release-it/bumper": {
