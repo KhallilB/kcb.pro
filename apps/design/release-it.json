@@ -4,14 +4,12 @@
     "tagName": "design-v${version}",
     "tagMatch": "design-v*",
     "commitMessage": "chore(design): release v${version}",
-    "push": false,
-    "pushArgs": ["--no-verify"]
+    "commit": true,
+    "tag": true,
+    "push": false
   },
   "github": {
-    "release": true,
-    "draft": true,
-    "autoGenerate": true,
-    "releaseName": "design v${version}"
+    "release": false
   },
   "plugins": {
     "@release-it/bumper": {
@@ -20,7 +18,10 @@
     },
     "@release-it/conventional-changelog": {
       "preset": "angular",
-      "path": "."
+      "path": ".",
+      "infile": "CHANGELOG.md",
+      "header": "# Changelog\n\nAll notable changes to this project will be documented in this file.\n\n",
+      "strictSemVer": false
     }
   }
 }
