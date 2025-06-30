@@ -14,41 +14,73 @@ const getApps = () => {
   });
 };
 
-// Get the last release commit SHA for comparison
-const getLastReleaseBase = () => {
+// Get the last release commit SHA for a specific app
+const getLastReleaseBase = (appName = null) => {
   try {
-    // First, try to find the most recent release tag
-    const command = `git tag --sort=-version:refname | grep -E '^(backend|design|devops|dsa|frontend|home|shell)-v' | head -1`;
-    const lastTag = execSync(command, { 
-      encoding: 'utf8',
-      cwd: path.join(__dirname, '..'),
-      stdio: ['pipe', 'pipe', 'pipe']
-    }).trim();
+    // In CI environments, ensure we have all tags
+    if (process.env.CI || process.env.GITHUB_ACTIONS) {
+      try {
+        execSync('git fetch --tags --force', {
+          cwd: path.join(__dirname, '..'),
+          stdio: ['pipe', 'pipe', 'pipe']
+        });
+      } catch (error) {
+        console.warn(`⚠️  Could not fetch tags: ${error.message}`);
+      }
+    }
     
-    if (lastTag) {
-      const tagSha = execSync(`git rev-list -n 1 ${lastTag}`, {
+    if (appName) {
+      // Find the most recent tag for this specific app
+      const command = `git tag --sort=-version:refname | grep -E '^${appName}-v' | head -1`;
+      const lastTag = execSync(command, { 
         encoding: 'utf8',
         cwd: path.join(__dirname, '..'),
         stdio: ['pipe', 'pipe', 'pipe']
       }).trim();
-      console.log(`📍 Found last release tag: ${lastTag} (${tagSha.substring(0, 8)})`);
-      return tagSha;
+      
+      if (lastTag) {
+        const tagSha = execSync(`git rev-list -n 1 ${lastTag}`, {
+          encoding: 'utf8',
+          cwd: path.join(__dirname, '..'),
+          stdio: ['pipe', 'pipe', 'pipe']
+        }).trim();
+        console.log(`📍 Found last release tag for ${appName}: ${lastTag} (${tagSha.substring(0, 8)})`);
+        return tagSha;
+      }
+    } else {
+      // Find the most recent tag across all apps
+      const command = `git tag --sort=-version:refname | grep -E '^(backend|design|devops|dsa|frontend|home|shell)-v' | head -1`;
+      const lastTag = execSync(command, { 
+        encoding: 'utf8',
+        cwd: path.join(__dirname, '..'),
+        stdio: ['pipe', 'pipe', 'pipe']
+      }).trim();
+      
+      if (lastTag) {
+        const tagSha = execSync(`git rev-list -n 1 ${lastTag}`, {
+          encoding: 'utf8',
+          cwd: path.join(__dirname, '..'),
+          stdio: ['pipe', 'pipe', 'pipe']
+        }).trim();
+        console.log(`📍 Found most recent release tag: ${lastTag} (${tagSha.substring(0, 8)})`);
+        return tagSha;
+      }
     }
   } catch (error) {
     console.warn(`⚠️  Could not find last release tag: ${error.message}`);
   }
   
-  // Fallback to HEAD~10 if no release tags found
+  // Fallback: use the most recent merge to main
   try {
-    const fallbackSha = execSync('git rev-parse HEAD~10', {
+    const fallbackSha = execSync('git merge-base HEAD HEAD~1', {
       encoding: 'utf8',
       cwd: path.join(__dirname, '..'),
       stdio: ['pipe', 'pipe', 'pipe']
     }).trim();
-    console.log(`📍 Using fallback base: HEAD~10 (${fallbackSha.substring(0, 8)})`);
+    console.log(`📍 Using merge base fallback: ${fallbackSha.substring(0, 8)}`);
     return fallbackSha;
   } catch (error) {
-    console.warn(`⚠️  Could not get fallback base: ${error.message}`);
+    console.warn(`⚠️  Could not get merge base: ${error.message}`);
     return 'origin/main';
   }
 };
@@ -92,9 +124,9 @@ const getAffectedApps = (base = null) => {
 
 // Check if app has unreleased changes
 const hasUnreleasedChanges = (appName, base = null) => {
-  // If no base provided, try to detect the last release
+  // If no base provided, try to detect the last release for this specific app
   if (!base) {
-    base = getLastReleaseBase();
+    base = getLastReleaseBase(appName);
   }
   
   try {
@@ -108,6 +140,8 @@ const hasUnreleasedChanges = (appName, base = null) => {
     const hasChanges = output.trim().length > 0;
     if (hasChanges) {
       console.log(`📝 ${appName} has unreleased changes since ${base.substring(0, 8)}`);
+    } else {
+      console.log(`⏭️  ${appName} has no changes since last release`);
     }
     return hasChanges;
   } catch (error) {
