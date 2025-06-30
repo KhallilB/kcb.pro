@@ -44,8 +44,8 @@ jobs:
       - name: Detect affected apps
         id: set
         run: |
-          apps=$(npx nx show projects --affected --base="${{ inputs.base }}" --target="${{ inputs.target }}" --json)
-          echo "$apps"
+          apps=$(npx nx show projects --affected --base="${{ inputs.base }}" --json | jq -r '.[]' | grep -E '^(backend|design|devops|dsa|frontend|home|shell)$' | jq -R -s -c 'split("\n")[:-1]')
+          echo "Affected apps: $apps"
           echo "apps=$apps" >> "$GITHUB_OUTPUT"
 
           # Save to file only if artifact upload is requested
