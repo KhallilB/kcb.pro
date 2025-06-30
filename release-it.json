@@ -11,16 +11,13 @@
     "releaseName": "Release v${version}",
     "autoGenerate": true
   },
+  "hooks": {
+    "before:bump": "node scripts/update-affected-versions.js"
+  },
   "plugins": {
     "@release-it/conventional-changelog": {
       "preset": "angular",
       "infile": "CHANGELOG.md"
-    },
-    "@release-it/bumper": {
-      "files": [
-        "package.json",
-        "apps/*/package.json"
-      ]
     }
   },
   "npm": {
