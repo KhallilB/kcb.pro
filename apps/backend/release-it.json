@@ -1,5 +1,5 @@
 {
-  "projectName": "backend",
+  "$schema": "https://unpkg.com/release-it@19/schema/release-it.json",
   "git": {
     "tagName": "backend-v${version}",
     "tagMatch": "backend-v*",
@@ -9,7 +9,10 @@
     "push": false
   },
   "github": {
-    "release": false
+    "release": true,
+    "draft": true,
+    "autoGenerate": true,
+    "releaseName": "backend v${version}"
   },
   "plugins": {
     "@release-it/bumper": {

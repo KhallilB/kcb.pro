@@ -1,5 +1,5 @@
 {
-  "projectName": "home",
+  "$schema": "https://unpkg.com/release-it@19/schema/release-it.json",
   "git": {
     "tagName": "home-v${version}",
     "tagMatch": "home-v*",
@@ -9,7 +9,10 @@
     "push": false
   },
   "github": {
-    "release": false
+    "release": true,
+    "draft": true,
+    "autoGenerate": true,
+    "releaseName": "home v${version}"
   },
   "plugins": {
     "@release-it/bumper": {
