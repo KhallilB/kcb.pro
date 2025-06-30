@@ -57,7 +57,8 @@ jobs:
             cd apps/$app
             
             # Disable git operations in release-it, we'll handle push manually
-            HUSKY=0 npx release-it --ci --no-git.push
+            # Use --no-git.requireCleanWorkingDir to allow dirty working directory
+            HUSKY=0 npx release-it --ci --no-git.push --no-git.requireCleanWorkingDir
             
             # Get the new version and tag
             version=$(cat package.json | jq -r '.version')
