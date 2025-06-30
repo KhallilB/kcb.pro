@@ -3,11 +3,11 @@
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const { getApps, getAffectedApps, hasUnreleasedChanges, releaseApp } = require('./release-app.js');
+const { getApps, getAffectedApps, hasUnreleasedChanges, releaseApp, getLastReleaseBase } = require('./release-app.js');
 
 // Validate apps have actual changes before releasing
 const validateAndRelease = (appNames, options = {}) => {
-  const { base = 'origin/main', skipValidation = false } = options;
+  const { base = null, skipValidation = false } = options;
   const validApps = [];
   
   console.log('🔍 Validating apps for release...\n');
@@ -54,7 +54,7 @@ const validateAndRelease = (appNames, options = {}) => {
 
 // Smart release workflow
 const smartRelease = (options = {}) => {
-  const { base = 'origin/main' } = options;
+  const { base = null } = options;
   
   console.log('🤖 Starting smart release workflow...\n');
   
