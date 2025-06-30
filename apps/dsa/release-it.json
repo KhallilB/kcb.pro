@@ -4,7 +4,8 @@
     "tagName": "dsa-v${version}",
     "tagMatch": "dsa-v*",
     "commitMessage": "chore(dsa): release v${version}",
-    "push": false
+    "push": false,
+    "pushArgs": ["--no-verify"]
   },
   "github": {
     "release": true,

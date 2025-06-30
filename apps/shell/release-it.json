@@ -4,7 +4,8 @@
     "tagName": "shell-v${version}",
     "tagMatch": "shell-v*",
     "commitMessage": "chore(shell): release v${version}",
-    "push": false
+    "push": false,
+    "pushArgs": ["--no-verify"]
   },
   "github": {
     "release": true,
