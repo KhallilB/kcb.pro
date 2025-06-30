@@ -8,20 +8,10 @@ permissions:
 
 jobs:
   detect-affected:
-    runs-on: ubuntu-latest
-    outputs:
-      apps: ${{ steps.set.outputs.apps }}
-    steps:
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-      - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: npm }
-      - run: npm ci
-      - id: set
-        run: |
-          BASE=$(git merge-base HEAD HEAD~1)
-          apps=$(npx nx show projects --affected --base=$BASE --target=build --json)
-          echo "apps=$apps" >> "$GITHUB_OUTPUT"
+    uses: ./.github/workflows/detect-affected.yml
+    with:
+      base: ${{ github.event.before }}
+      target: build
 
   release:
     needs: detect-affected
@@ -47,22 +37,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           apps='${{ needs.detect-affected.outputs.apps }}'
-          echo "🚀 Starting releases for apps: $apps"
+          echo "🚀 Starting smart releases for apps: $apps"
 
-          for app in $(echo $apps | jq -r '.[]'); do
-            echo "Processing $app..."
-            cd apps/$app
-            
-            if HUSKY=0 npm run release; then
-              version=$(cat package.json | jq -r '.version')
-              echo "✅ Released $app v$version with draft GitHub release"
-            else
-              echo "❌ Failed to release $app"
-              exit 1
-            fi
-            
-            cd ../..
-          done
+          # Use our new smart release workflow
+          if HUSKY=0 npm run release:smart --base=${{ github.event.before }}; then
+            echo "✅ Successfully released all affected apps"
+          else
+            echo "❌ Failed to release apps"
+            exit 1
+          fi
 
       - name: Push version bumps and tags
         run: |
