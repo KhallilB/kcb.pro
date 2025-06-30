@@ -6,10 +6,13 @@
     "commitMessage": "chore(backend): release v${version}",
     "commit": true,
     "tag": true,
-    "push": false
+    "push": true
   },
   "github": {
-    "release": false
+    "release": true,
+    "draft": true,
+    "autoGenerate": true,
+    "releaseName": "backend v${version}"
   },
   "plugins": {
     "@release-it/bumper": {
