@@ -22,8 +22,8 @@
     },
     "@release-it/bumper": {
       "in": {
-        "file": "package.json",
-        "path": "dependencies.shell"
+        "file": "../shell/package.json",
+        "path": "version"
       }
     }
   },

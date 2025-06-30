@@ -147,14 +147,10 @@ jobs:
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "Released shell version: $version"
 
-      - name: Commit and push dependency updates
+      - name: Push shell release
         run: |
-          # Add any files that were modified by @release-it/bumper
-          git add .
-          if ! git diff --cached --quiet; then
-            git commit -m "chore: update dependency versions after shell release"
-            git push origin main
-          fi
+          # Push the shell release tags and commits
+          git push --follow-tags origin main
 
   release-remotes:
     needs: [detect-affected, release-shell]
@@ -189,7 +185,7 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
 
-      - name: Pull latest changes (dependency updates)
+      - name: Pull latest changes (shell release)
         if: ${{ matrix.app != 'shell' }}
         run: |
           git pull origin main
