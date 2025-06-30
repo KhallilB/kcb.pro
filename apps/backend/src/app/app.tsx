@@ -1,10 +1,9 @@
-import NxWelcome from './nx-welcome';
 import '../styles.css';
 
 export function App() {
   return (
     <div>
-      <NxWelcome title="backend" />
+      <h1>Backend</h1>
     </div>
   );
 }
