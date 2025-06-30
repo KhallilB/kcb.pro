@@ -1,5 +1,8 @@
 {
   "name": "backend",
-  "version": "0.0.3",
-  "private": true
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "release": "release-it --ci --git.tagName='backend-v${version}' --git.tagAnnotation='Release backend v${version}' --git.commitMessage='chore(backend): release v${version}' --github.release --github.releaseName='backend v${version}' --github.tagName='backend-v${version}' --github.autoGenerate=true --github.draft=true --no-npm.publish --no-npm.tag"
+  }
 }

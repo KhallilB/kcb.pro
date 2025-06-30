@@ -1,5 +1,8 @@
 {
   "name": "design",
-  "version": "0.0.2",
-  "private": true
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "release": "release-it --ci --git.tagName='design-v${version}' --git.tagAnnotation='Release design v${version}' --git.commitMessage='chore(design): release v${version}' --github.release --github.releaseName='design v${version}' --github.tagName='design-v${version}' --github.autoGenerate=true --github.draft=true --no-npm.publish --no-npm.tag"
+  }
 }
