@@ -3,16 +3,22 @@
   "git": {
     "tagName": "home-v${version}",
     "tagMatch": "home-v*",
+    "tagAnnotation": "Release home v${version}",
     "commitMessage": "chore(home): release v${version}",
     "commit": true,
     "tag": true,
-    "push": false
+    "push": false,
+    "requireCleanWorkingDir": false
+  },
+  "npm": {
+    "publish": false
   },
   "github": {
     "release": true,
     "draft": true,
     "autoGenerate": true,
-    "releaseName": "home v${version}"
+    "releaseName": "home v${version}",
+    "tagName": "home-v${version}"
   },
   "plugins": {
     "@release-it/bumper": {
