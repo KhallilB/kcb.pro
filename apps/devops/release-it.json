@@ -10,9 +10,6 @@
     "push": false,
     "requireCleanWorkingDir": false
   },
-  "npm": {
-    "publish": false
-  },
   "github": {
     "release": true,
     "draft": true,
