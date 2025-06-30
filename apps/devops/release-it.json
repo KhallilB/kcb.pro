@@ -3,11 +3,12 @@
   "git": {
     "tagName": "devops-v${version}",
     "commitMessage": "chore(devops): release v${version}",
-    "push": false
+    "push": true
   },
   "github": {
     "release": true,
-    "draft": true
+    "draft": true,
+    "releaseName": "Release devops v${version}"
   },
   "plugins": {
     "@release-it/conventional-changelog": {

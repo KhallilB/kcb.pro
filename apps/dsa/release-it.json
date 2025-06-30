@@ -3,11 +3,12 @@
   "git": {
     "tagName": "dsa-v${version}",
     "commitMessage": "chore(dsa): release v${version}",
-    "push": false
+    "push": true
   },
   "github": {
     "release": true,
-    "draft": true
+    "draft": true,
+    "releaseName": "Release dsa v${version}"
   },
   "plugins": {
     "@release-it/conventional-changelog": {
