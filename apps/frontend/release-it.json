@@ -3,11 +3,12 @@
   "git": {
     "tagName": "frontend-v${version}",
     "commitMessage": "chore(frontend): release v${version}",
-    "push": false
+    "push": true
   },
   "github": {
     "release": true,
-    "draft": true
+    "draft": true,
+    "releaseName": "Release frontend v${version}"
   },
   "plugins": {
     "@release-it/conventional-changelog": {
