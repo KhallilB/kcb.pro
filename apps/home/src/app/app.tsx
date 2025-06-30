@@ -2,12 +2,11 @@ import '../styles.css';
 
 export function App() {
   return (
-    <div>
-      <h1>Home</h1>
+    <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
+      <h1>App</h1>
+      <p>Version: {process.env.npm_package_version}</p>
     </div>
   );
 }
 
 export default App;
-// Bump for release 20250629-183439
-// Bump for release 20250629-185903
