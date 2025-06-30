@@ -10,7 +10,7 @@
     "prepare": "husky",
     "build": "nx run-many --target=build --all",
     "lint": "nx run-many --target=lint --all",
-    "pre-push": "export NX_TUI=false && npm run build && npm run lint",
+    "pre-push": "export NX_TUI=false && npm run build && npm run lint"
   },
   "devDependencies": {
     "@eslint/js": "^9.8.0",
