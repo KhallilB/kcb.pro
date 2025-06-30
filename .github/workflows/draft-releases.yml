@@ -3,119 +3,23 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-    inputs:
-      release_strategy:
-        description: 'Release strategy'
-        required: true
-        default: 'affected'
-        type: choice
-        options:
-          - affected
-          - orchestrated
-          - shell-only
-          - remotes-only
-      force_release:
-        description: 'Force release specific apps (comma-separated)'
-        required: false
-        type: string
 
 permissions:
   contents: write
 
 jobs:
   detect-affected:
-    runs-on: ubuntu-latest
-    outputs:
-      apps: ${{ steps.affected.outputs.apps }}
-      shell_affected: ${{ steps.affected.outputs.shell_affected }}
-      should_release_shell: ${{ steps.affected.outputs.should_release_shell }}
-      should_release_remotes: ${{ steps.affected.outputs.should_release_remotes }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          fetch-tags: true
+    uses: ./.github/workflows/detect-affected.yml
+    with:
+      target: build
+      upload_artifact: true
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - run: npm ci
-
-      - name: Get affected apps
-        id: affected
-        run: |
-          # Handle manual workflow dispatch
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            case "${{ inputs.release_strategy }}" in
-              "orchestrated")
-                apps_json='["shell","backend","design","devops","dsa","frontend","home"]'
-                shell_affected="true"
-                should_release_shell="true"
-                should_release_remotes="true"
-                ;;
-              "shell-only")
-                apps_json='["shell"]'
-                shell_affected="true"
-                should_release_shell="true"
-                should_release_remotes="false"
-                ;;
-              "remotes-only")
-                apps_json='["backend","design","devops","dsa","frontend","home"]'
-                shell_affected="false"
-                should_release_shell="false"
-                should_release_remotes="true"
-                ;;
-              "affected"|*)
-                if [ -n "${{ inputs.force_release }}" ]; then
-                  # Convert comma-separated list to JSON array
-                  apps_json=$(echo "${{ inputs.force_release }}" | tr ',' '\n' | jq -R -s -c 'split("\n")[:-1]')
-                  shell_affected=$(echo "${{ inputs.force_release }}" | grep -q "shell" && echo "true" || echo "false")
-                else
-                  affected_apps=$(npx nx show projects --affected --base=HEAD~5 | grep -E '^(backend|design|devops|dsa|frontend|home|shell)$' || echo "")
-                  if [ -z "$affected_apps" ]; then
-                    apps_json='[]'
-                  else
-                    apps_json=$(echo "$affected_apps" | jq -R -s -c 'split("\n")[:-1]')
-                  fi
-                  shell_affected=$(echo "$affected_apps" | grep -q "shell" && echo "true" || echo "false")
-                fi
-                should_release_shell="$shell_affected"
-                should_release_remotes=$(echo "$apps_json" | jq -r '. | map(select(. != "shell")) | length > 0')
-                ;;
-            esac
-          else
-            # Automatic detection on push
-            affected_apps=$(npx nx show projects --affected --base=HEAD~5 | grep -E '^(backend|design|devops|dsa|frontend|home|shell)$' || echo "")
-            if [ -z "$affected_apps" ]; then
-              apps_json='[]'
-              shell_affected="false"
-            else
-              apps_json=$(echo "$affected_apps" | jq -R -s -c 'split("\n")[:-1]')
-              shell_affected=$(echo "$affected_apps" | grep -q "shell" && echo "true" || echo "false")
-            fi
-            should_release_shell="$shell_affected"
-            should_release_remotes=$(echo "$apps_json" | jq -r '. | map(select(. != "shell")) | length > 0')
-          fi
-
-          echo "apps=$apps_json" >> "$GITHUB_OUTPUT"
-          echo "shell_affected=$shell_affected" >> "$GITHUB_OUTPUT"
-          echo "should_release_shell=$should_release_shell" >> "$GITHUB_OUTPUT"
-          echo "should_release_remotes=$should_release_remotes" >> "$GITHUB_OUTPUT"
-          
-          echo "Strategy: ${{ inputs.release_strategy || 'auto-affected' }}"
-          echo "Apps to release: $apps_json"
-          echo "Shell affected: $shell_affected"
-          echo "Should release shell: $should_release_shell"
-          echo "Should release remotes: $should_release_remotes"
-
-  release-shell:
+  release:
     needs: detect-affected
-    if: ${{ needs.detect-affected.outputs.should_release_shell == 'true' }}
+    if: ${{ needs.detect-affected.outputs.apps != '[]' }}
     runs-on: ubuntu-latest
     outputs:
-      shell_version: ${{ steps.release.outputs.version }}
+      version: ${{ steps.release.outputs.version }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -134,75 +38,34 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
 
-      - name: Release Shell (Host)
+      - name: Create Release
         id: release
-        working-directory: apps/shell
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Releasing shell app with dependency coordination..."
-          # Get current version
-          current_version=$(node -p "require('./package.json').version")
-          echo "Current shell version: $current_version"
-          
-          # Run release-it using the app's own configuration
+          echo "Creating unified release for affected apps: ${{ needs.detect-affected.outputs.apps }}"
+
+          # Run release-it
           npx release-it --ci
-          
-          # Capture the new version for dependent releases
-          new_version=$(node -p "require('./package.json').version")
-          echo "version=$new_version" >> "$GITHUB_OUTPUT"
-          echo "Released shell version: $new_version"
 
+          # Capture the version
+          version=$(node -p "require('./package.json').version")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Released version: $version"
 
-  release-remotes:
-    needs: [detect-affected, release-shell]
-    if: ${{ always() && needs.detect-affected.outputs.should_release_remotes == 'true' }}
+  deploy:
+    needs: [detect-affected, release]
+    if: ${{ always() && needs.detect-affected.outputs.apps != '[]' }}
     runs-on: ubuntu-latest
     strategy:
-      max-parallel: 1  # Sequential releases to avoid conflicts
       matrix:
         app: ${{ fromJson(needs.detect-affected.outputs.apps) }}
     steps:
-      - name: Skip shell app
-        if: ${{ matrix.app == 'shell' }}
-        run: echo "Skipping shell app in remotes release"
-
       - uses: actions/checkout@v4
-        if: ${{ matrix.app != 'shell' }}
-        with:
-          fetch-depth: 0
-          fetch-tags: true
 
       - uses: actions/setup-node@v4
-        if: ${{ matrix.app != 'shell' }}
         with:
           node-version: 20
           cache: npm
 
       - run: npm ci
-        if: ${{ matrix.app != 'shell' }}
-
-      - name: Setup Git
-        if: ${{ matrix.app != 'shell' }}
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-
-      - name: Pull latest changes (shell release)
-        if: ${{ matrix.app != 'shell' }}
-        run: |
-          git pull origin main
-
-      - name: Release ${{ matrix.app }}
-        if: ${{ matrix.app != 'shell' }}
-        working-directory: apps/${{ matrix.app }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "Releasing ${{ matrix.app }} with shell dependency detection..."
-          # Get current version
-          current_version=$(node -p "require('./package.json').version")
-          echo "Current ${{ matrix.app }} version: $current_version"
-          
-          # Run release-it using the app's own configuration
-          npx release-it --ci

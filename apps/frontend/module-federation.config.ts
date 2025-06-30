@@ -4,6 +4,7 @@ const config: ModuleFederationConfig = {
   name: 'frontend',
   exposes: {
     './Module': './src/remote-entry.ts',
+    './Version': './src/version.ts',
   },
 };
 

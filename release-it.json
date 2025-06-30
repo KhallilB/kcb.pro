@@ -1,0 +1,29 @@
+{
+  "$schema": "https://unpkg.com/release-it@19/schema/release-it.json",
+  "git": {
+    "tagName": "v${version}",
+    "commitMessage": "chore: release v${version}",
+    "push": true
+  },
+  "github": {
+    "release": true,
+    "draft": true,
+    "releaseName": "Release v${version}",
+    "autoGenerate": true
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "preset": "angular",
+      "infile": "CHANGELOG.md"
+    },
+    "@release-it/bumper": {
+      "files": [
+        "package.json",
+        "apps/*/package.json"
+      ]
+    }
+  },
+  "npm": {
+    "publish": false
+  }
+}

@@ -4,6 +4,7 @@ const config: ModuleFederationConfig = {
   name: 'devops',
   exposes: {
     './Module': './src/remote-entry.ts',
+    './Version': './src/version.ts',
   },
 };
 
