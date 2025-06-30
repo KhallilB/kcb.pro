@@ -1,6 +1,5 @@
 {
   "name": "shell",
-  "version": "0.0.2",
-  "private": true,
-  "scripts": {}
+  "version": "0.0.1",
+  "private": true
 }
