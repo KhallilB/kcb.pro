@@ -14,8 +14,52 @@ const getApps = () => {
   });
 };
 
+// Get the last release commit SHA for comparison
+const getLastReleaseBase = () => {
+  try {
+    // First, try to find the most recent release tag
+    const command = `git tag --sort=-version:refname | grep -E '^(backend|design|devops|dsa|frontend|home|shell)-v' | head -1`;
+    const lastTag = execSync(command, { 
+      encoding: 'utf8',
+      cwd: path.join(__dirname, '..'),
+      stdio: ['pipe', 'pipe', 'pipe']
+    }).trim();
+    
+    if (lastTag) {
+      const tagSha = execSync(`git rev-list -n 1 ${lastTag}`, {
+        encoding: 'utf8',
+        cwd: path.join(__dirname, '..'),
+        stdio: ['pipe', 'pipe', 'pipe']
+      }).trim();
+      console.log(`📍 Found last release tag: ${lastTag} (${tagSha.substring(0, 8)})`);
+      return tagSha;
+    }
+  } catch (error) {
+    console.warn(`⚠️  Could not find last release tag: ${error.message}`);
+  }
+  
+  // Fallback to HEAD~10 if no release tags found
+  try {
+    const fallbackSha = execSync('git rev-parse HEAD~10', {
+      encoding: 'utf8',
+      cwd: path.join(__dirname, '..'),
+      stdio: ['pipe', 'pipe', 'pipe']
+    }).trim();
+    console.log(`📍 Using fallback base: HEAD~10 (${fallbackSha.substring(0, 8)})`);
+    return fallbackSha;
+  } catch (error) {
+    console.warn(`⚠️  Could not get fallback base: ${error.message}`);
+    return 'origin/main';
+  }
+};
+
 // Get affected apps using NX
-const getAffectedApps = (base = 'origin/main') => {
+const getAffectedApps = (base = null) => {
+  // If no base provided, try to detect the last release
+  if (!base) {
+    base = getLastReleaseBase();
+  }
+  
   try {
     console.log(`🔍 Checking for affected apps since ${base}...`);
     const command = `npx nx show projects --affected --base=${base}`;
@@ -47,7 +91,12 @@ const getAffectedApps = (base = 'origin/main') => {
 };
 
 // Check if app has unreleased changes
-const hasUnreleasedChanges = (appName, base = 'origin/main') => {
+const hasUnreleasedChanges = (appName, base = null) => {
+  // If no base provided, try to detect the last release
+  if (!base) {
+    base = getLastReleaseBase();
+  }
+  
   try {
     const command = `git log ${base}..HEAD --oneline --pretty=format:"%h %s" -- apps/${appName}`;
     const output = execSync(command, { 
@@ -58,7 +107,7 @@ const hasUnreleasedChanges = (appName, base = 'origin/main') => {
     
     const hasChanges = output.trim().length > 0;
     if (hasChanges) {
-      console.log(`📝 ${appName} has unreleased changes since ${base}`);
+      console.log(`📝 ${appName} has unreleased changes since ${base.substring(0, 8)}`);
     }
     return hasChanges;
   } catch (error) {
@@ -209,4 +258,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { releaseApp, releaseMultiple, getApps };
+module.exports = { releaseApp, releaseMultiple, getApps, getAffectedApps, hasUnreleasedChanges, getLastReleaseBase };

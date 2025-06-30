@@ -7,15 +7,51 @@ permissions:
   contents: write
 
 jobs:
-  detect-affected:
-    uses: ./.github/workflows/detect-affected.yml
-    with:
-      base: ${{ github.event.before }}
-      target: build
+  detect-merged-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      has_changes: ${{ steps.check.outputs.has_changes }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check for apps with merged changes
+        id: check
+        run: |
+          echo "🔍 Checking for apps with merged changes..."
+          
+          # Use our smart release script to detect changes (dry run)
+          if npm run release:smart:dry > /tmp/release_check.log 2>&1; then
+            # Check if the output indicates apps would be released
+            if grep -q "No affected apps detected\|No apps need releasing" /tmp/release_check.log; then
+              echo "has_changes=false" >> "$GITHUB_OUTPUT"
+              echo "✅ No apps need releasing"
+            else
+              echo "has_changes=true" >> "$GITHUB_OUTPUT"
+              echo "📋 Found apps that need releasing"
+            fi
+          else
+            # If dry run fails, assume we have changes to be safe
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Could not determine changes, proceeding with release attempt"
+          fi
+          
+          # Show the log for debugging
+          cat /tmp/release_check.log
 
   release:
-    needs: detect-affected
-    if: ${{ needs.detect-affected.outputs.apps != '[]' }}
+    needs: detect-merged-changes
+    if: ${{ needs.detect-merged-changes.outputs.has_changes == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -32,16 +68,15 @@ jobs:
           git config --global core.hooksPath /dev/null
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
 
-      - name: Create Release Drafts for affected apps
+      - name: Create Release Drafts for apps with merged changes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          apps='${{ needs.detect-affected.outputs.apps }}'
-          echo "🚀 Starting smart releases for apps: $apps"
+          echo "🚀 Starting smart release for apps with merged changes..."
 
-          # Use our new smart release workflow
-          if HUSKY=0 npm run release:smart --base=${{ github.event.before }}; then
-            echo "✅ Successfully released all affected apps"
+          # Use our smart release workflow (it will auto-detect the base)
+          if HUSKY=0 npm run release:smart; then
+            echo "✅ Successfully released all apps with merged changes"
           else
             echo "❌ Failed to release apps"
             exit 1
