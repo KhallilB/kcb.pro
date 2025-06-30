@@ -1,5 +1,8 @@
 {
   "name": "frontend",
-  "version": "0.0.2",
-  "private": true
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "release": "release-it --ci --git.tagName='frontend-v${version}' --git.tagAnnotation='Release frontend v${version}' --git.commitMessage='chore(frontend): release v${version}' --github.release --github.releaseName='frontend v${version}' --github.tagName='frontend-v${version}' --github.autoGenerate=true --github.draft=true --no-npm.publish --no-npm.tag"
+  }
 }
