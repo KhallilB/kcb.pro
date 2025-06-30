@@ -27,7 +27,13 @@
       "path": ".",
       "infile": "CHANGELOG.md",
       "header": "# Changelog\n\nAll notable changes to this project will be documented in this file.\n\n",
-      "strictSemVer": false
+      "strictSemVer": false,
+      "context": {
+        "path": "apps/frontend"
+      },
+      "gitRawCommitsOpts": {
+        "path": "apps/frontend"
+      }
     }
   }
 }
