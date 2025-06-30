@@ -3,16 +3,22 @@
   "git": {
     "tagName": "frontend-v${version}",
     "tagMatch": "frontend-v*",
+    "tagAnnotation": "Release frontend v${version}",
     "commitMessage": "chore(frontend): release v${version}",
     "commit": true,
     "tag": true,
-    "push": false
+    "push": false,
+    "requireCleanWorkingDir": false
+  },
+  "npm": {
+    "publish": false
   },
   "github": {
     "release": true,
     "draft": true,
     "autoGenerate": true,
-    "releaseName": "frontend v${version}"
+    "releaseName": "frontend v${version}",
+    "tagName": "frontend-v${version}"
   },
   "plugins": {
     "@release-it/bumper": {

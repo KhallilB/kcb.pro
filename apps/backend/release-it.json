@@ -3,16 +3,22 @@
   "git": {
     "tagName": "backend-v${version}",
     "tagMatch": "backend-v*",
+    "tagAnnotation": "Release backend v${version}",
     "commitMessage": "chore(backend): release v${version}",
     "commit": true,
     "tag": true,
-    "push": false
+    "push": false,
+    "requireCleanWorkingDir": false
+  },
+  "npm": {
+    "publish": false
   },
   "github": {
     "release": true,
     "draft": true,
     "autoGenerate": true,
-    "releaseName": "backend v${version}"
+    "releaseName": "backend v${version}",
+    "tagName": "backend-v${version}"
   },
   "plugins": {
     "@release-it/bumper": {

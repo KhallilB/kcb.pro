@@ -3,16 +3,22 @@
   "git": {
     "tagName": "devops-v${version}",
     "tagMatch": "devops-v*",
+    "tagAnnotation": "Release devops v${version}",
     "commitMessage": "chore(devops): release v${version}",
     "commit": true,
     "tag": true,
-    "push": false
+    "push": false,
+    "requireCleanWorkingDir": false
+  },
+  "npm": {
+    "publish": false
   },
   "github": {
     "release": true,
     "draft": true,
     "autoGenerate": true,
-    "releaseName": "devops v${version}"
+    "releaseName": "devops v${version}",
+    "tagName": "devops-v${version}"
   },
   "plugins": {
     "@release-it/bumper": {
