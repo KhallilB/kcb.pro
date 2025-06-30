@@ -19,6 +19,34 @@
       "gitRawCommitsOpts": {
         "path": "apps/shell"
       }
+    },
+    "@release-it/bumper": {
+      "out": [
+        {
+          "file": "../../apps/backend/package.json",
+          "path": "dependencies.shell"
+        },
+        {
+          "file": "../../apps/design/package.json",
+          "path": "dependencies.shell"
+        },
+        {
+          "file": "../../apps/devops/package.json",
+          "path": "dependencies.shell"
+        },
+        {
+          "file": "../../apps/dsa/package.json",
+          "path": "dependencies.shell"
+        },
+        {
+          "file": "../../apps/frontend/package.json",
+          "path": "dependencies.shell"
+        },
+        {
+          "file": "../../apps/home/package.json",
+          "path": "dependencies.shell"
+        }
+      ]
     }
   },
   "npm": {
