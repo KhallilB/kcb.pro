@@ -4,7 +4,8 @@
     "tagName": "backend-v${version}",
     "tagMatch": "backend-v*",
     "commitMessage": "chore(backend): release v${version}",
-    "push": false
+    "push": false,
+    "pushArgs": ["--no-verify"]
   },
   "github": {
     "release": true,

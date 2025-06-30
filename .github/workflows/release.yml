@@ -33,6 +33,7 @@ jobs:
       max-parallel: 1
     steps:
       - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
       - run: npm ci
@@ -43,6 +44,11 @@ jobs:
           git config --global user.email "actions@github.com"
           git config --global core.hooksPath /dev/null
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+
+      - name: Fetch latest changes before release
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
 
       - name: Release ${{ matrix.app }}
         working-directory: apps/${{ matrix.app }}

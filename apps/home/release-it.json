@@ -4,7 +4,8 @@
     "tagName": "home-v${version}",
     "tagMatch": "home-v*",
     "commitMessage": "chore(home): release v${version}",
-    "push": false
+    "push": false,
+    "pushArgs": ["--no-verify"]
   },
   "github": {
     "release": true,

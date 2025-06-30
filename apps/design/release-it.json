@@ -4,7 +4,8 @@
     "tagName": "design-v${version}",
     "tagMatch": "design-v*",
     "commitMessage": "chore(design): release v${version}",
-    "push": false
+    "push": false,
+    "pushArgs": ["--no-verify"]
   },
   "github": {
     "release": true,
