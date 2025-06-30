@@ -69,7 +69,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npx release-it --ci --no-npm --github.release --github.autoGenerate=true --github.releaseName='Release ${{ matrix.app }} v${version}''
+          npx release-it --ci --no-npm --github.release --github.autoGenerate=true --github.releaseName='Release ${{ matrix.app }} v${version}'
 
   push-changes:
     needs: [detect-affected, release]
