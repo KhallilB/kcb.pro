@@ -1,5 +1,8 @@
 {
   "name": "shell",
-  "version": "0.0.2",
-  "private": true
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "release": "release-it --ci --git.tagName='shell-v${version}' --git.tagAnnotation='Release shell v${version}' --git.commitMessage='chore(shell): release v${version}' --github.release --github.releaseName='shell v${version}' --github.tagName='shell-v${version}' --github.autoGenerate=true --github.draft=true --no-npm.publish --no-npm.tag"
+  }
 }

@@ -1,5 +1,8 @@
 {
   "name": "home",
-  "version": "0.0.3",
-  "private": true
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "release": "release-it --ci --git.tagName='home-v${version}' --git.tagAnnotation='Release home v${version}' --git.commitMessage='chore(home): release v${version}' --github.release --github.releaseName='home v${version}' --github.tagName='home-v${version}' --github.autoGenerate=true --github.draft=true --no-npm.publish --no-npm.tag"
+  }
 }
