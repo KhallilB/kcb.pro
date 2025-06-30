@@ -19,6 +19,12 @@
       "gitRawCommitsOpts": {
         "path": "apps/devops"
       }
+    },
+    "@release-it/bumper": {
+      "in": {
+        "file": "package.json",
+        "path": "dependencies.shell"
+      }
     }
   },
   "npm": {

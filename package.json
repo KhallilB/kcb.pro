@@ -10,7 +10,16 @@
     "prepare": "husky",
     "build": "nx run-many --target=build --all",
     "lint": "nx run-many --target=lint --all",
-    "pre-push": "export NX_TUI=false && npm run build && npm run lint"
+    "pre-push": "export NX_TUI=false && npm run build && npm run lint",
+    "release:shell": "cd apps/shell && release-it",
+    "release:backend": "cd apps/backend && release-it",
+    "release:design": "cd apps/design && release-it",
+    "release:devops": "cd apps/devops && release-it",
+    "release:dsa": "cd apps/dsa && release-it",
+    "release:frontend": "cd apps/frontend && release-it",
+    "release:home": "cd apps/home && release-it",
+    "release:orchestrated": "npm run release:shell && npm run release:backend && npm run release:design && npm run release:devops && npm run release:dsa && npm run release:frontend && npm run release:home",
+    "release:remotes": "npm run release:backend && npm run release:design && npm run release:devops && npm run release:dsa && npm run release:frontend && npm run release:home"
   },
   "devDependencies": {
     "@eslint/js": "^9.8.0",
