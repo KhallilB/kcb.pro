@@ -1,5 +1,5 @@
 {
-  "projectName": "dsa",
+  "$schema": "https://unpkg.com/release-it@19/schema/release-it.json",
   "git": {
     "tagName": "dsa-v${version}",
     "tagMatch": "dsa-v*",
@@ -9,7 +9,10 @@
     "push": false
   },
   "github": {
-    "release": false
+    "release": true,
+    "draft": true,
+    "autoGenerate": true,
+    "releaseName": "dsa v${version}"
   },
   "plugins": {
     "@release-it/bumper": {

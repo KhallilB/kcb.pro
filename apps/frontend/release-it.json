@@ -1,5 +1,5 @@
 {
-  "projectName": "frontend",
+  "$schema": "https://unpkg.com/release-it@19/schema/release-it.json",
   "git": {
     "tagName": "frontend-v${version}",
     "tagMatch": "frontend-v*",
@@ -9,7 +9,10 @@
     "push": false
   },
   "github": {
-    "release": false
+    "release": true,
+    "draft": true,
+    "autoGenerate": true,
+    "releaseName": "frontend v${version}"
   },
   "plugins": {
     "@release-it/bumper": {
