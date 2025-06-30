@@ -7,85 +7,82 @@ permissions:
   contents: write
 
 jobs:
-  detect-merged-changes:
+  detect-affected:
     runs-on: ubuntu-latest
     outputs:
-      has_changes: ${{ steps.check.outputs.has_changes }}
+      apps: ${{ steps.affected.outputs.apps }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           fetch-tags: true
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Check for apps with merged changes
-        id: check
-        run: |
-          echo "🔍 Checking for apps with merged changes..."
-          
-          # Use our smart release script to detect changes (dry run)
-          if npm run release:smart:dry > /tmp/release_check.log 2>&1; then
-            # Check if the output indicates apps would be released
-            if grep -q "No affected apps detected\|No apps need releasing" /tmp/release_check.log; then
-              echo "has_changes=false" >> "$GITHUB_OUTPUT"
-              echo "✅ No apps need releasing"
-            else
-              echo "has_changes=true" >> "$GITHUB_OUTPUT"
-              echo "📋 Found apps that need releasing"
-            fi
-          else
-            # If dry run fails, assume we have changes to be safe
-            echo "has_changes=true" >> "$GITHUB_OUTPUT"
-            echo "⚠️  Could not determine changes, proceeding with release attempt"
-          fi
-          
-          # Show the log for debugging
-          cat /tmp/release_check.log
-
-  release:
-    needs: detect-merged-changes
-    if: ${{ needs.detect-merged-changes.outputs.has_changes == 'true' }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with: 
-          fetch-depth: 0
-          fetch-tags: true
-      - uses: actions/setup-node@v4
-        with: { node-version: 20 }
       - run: npm ci
 
-      - name: Disable Husky and setup Git
+      - name: Get affected apps
+        id: affected
         run: |
-          export HUSKY=0
+          # Get apps affected since last release tags
+          affected_apps=$(npx nx show projects --affected --base=HEAD~5 | grep -E '^(backend|design|devops|dsa|frontend|home|shell)$' || echo "")
+          
+          if [ -z "$affected_apps" ]; then
+            echo "apps=[]" >> "$GITHUB_OUTPUT"
+            echo "No affected apps found"
+          else
+            apps_json=$(echo "$affected_apps" | jq -R -s -c 'split("\n")[:-1]')
+            echo "apps=$apps_json" >> "$GITHUB_OUTPUT"
+            echo "Affected apps: $affected_apps"
+          fi
+
+  release:
+    needs: detect-affected
+    if: ${{ needs.detect-affected.outputs.apps != '[]' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app: ${{ fromJson(needs.detect-affected.outputs.apps) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Setup Git
+        run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git config --global core.hooksPath /dev/null
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
 
-      - name: Create Release Drafts for apps with merged changes
+      - name: Release ${{ matrix.app }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "🚀 Starting smart release for apps with merged changes..."
+          echo "📦 Releasing ${{ matrix.app }}..."
+          cd apps/${{ matrix.app }}
+          npx release-it --ci
 
-          # Use our smart release workflow (it will auto-detect the base)
-          if HUSKY=0 npm run release:smart; then
-            echo "✅ Successfully released all apps with merged changes"
-          else
-            echo "❌ Failed to release apps"
-            exit 1
-          fi
+  push-changes:
+    needs: [detect-affected, release]
+    if: ${{ needs.detect-affected.outputs.apps != '[]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Push version bumps and tags
+      - name: Pull latest changes and push
         run: |
-          # Push all commits and tags together
+          git pull --rebase origin main
           git push --follow-tags origin main
