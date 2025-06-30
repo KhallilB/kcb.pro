@@ -3,6 +3,6 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "release": "release-it --ci --git.tagName='devops-v${version}' --git.tagAnnotation='Release devops v${version}' --git.commitMessage='chore(devops): release v${version}' --github.release --github.releaseName='devops v${version}' --github.tagName='devops-v${version}' --github.autoGenerate=true --github.draft=true --no-npm.publish --no-npm.tag"
+    "release": "release-it --ci --git.tagName='devops-v${version}' --git.tagAnnotation='Release devops v${version}' --git.commitMessage='chore(devops): release v${version}' --git.commit=true --git.tag=true --no-git.push --github.release --github.releaseName='devops v${version}' --github.tagName='devops-v${version}' --github.autoGenerate=true --github.draft=true --no-npm.publish --no-npm.tag"
   }
 }
