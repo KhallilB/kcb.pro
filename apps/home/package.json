@@ -3,6 +3,6 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "release": "release-it --ci --git.tagName='home-v${version}' --git.tagAnnotation='Release home v${version}' --git.commitMessage='chore(home): release v${version}' --github.release --github.releaseName='home v${version}' --github.tagName='home-v${version}' --github.autoGenerate=true --github.draft=true --no-npm.publish --no-npm.tag"
+    "release": "release-it --ci --git.tagName='home-v${version}' --git.tagAnnotation='Release home v${version}' --git.commitMessage='chore(home): release v${version}' --git.commit=true --git.tag=true --no-git.push --github.release --github.releaseName='home v${version}' --github.tagName='home-v${version}' --github.autoGenerate=true --github.draft=true --no-npm.publish --no-npm.tag"
   }
 }
