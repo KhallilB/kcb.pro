@@ -19,6 +19,12 @@
       "gitRawCommitsOpts": {
         "path": "apps/backend"
       }
+    },
+    "@release-it/bumper": {
+      "in": {
+        "file": "../shell/package.json",
+        "path": "version"
+      }
     }
   },
   "npm": {
