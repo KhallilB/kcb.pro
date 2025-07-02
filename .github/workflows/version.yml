@@ -10,7 +10,7 @@ jobs:
   version:
     runs-on: ubuntu-latest
     outputs:
-      apps: ${{ steps.affected.outputs.apps }}
+      appsJson: ${{ steps.affected.outputs.appsJson }}
 
     steps:
       - uses: actions/checkout@v4
@@ -20,36 +20,46 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: npm }
+        with:
+          node-version: 20
+          cache: npm
 
-      - run: git config --global user.name "release-bot"
+      - run: git config --global user.name  "release-bot"
       - run: git config --global user.email "release-bot@users.noreply.github.com"
 
       - run: npm install
 
       - id: affected
         run: |
-          APPS=$(npx nx show projects --affected \
-                    --base="${{ github.event.before }}" \
-                    --head="${{ github.event.after }}" \
-                    --json | jq -r '.[]' | jq -R -s -c 'split("\n")[:-1]')
-          echo "apps=$APPS" >>"$GITHUB_OUTPUT"
+          BASE="${{ github.event.before }}"
+          HEAD="${{ github.event.after }}"
+
+          mapfile -t list < <(npx nx show projects --affected --base="$BASE" --head="$HEAD" --json | jq -r '.[]')
+
+          APPS_CSV=$(IFS=, ; echo "${list[*]}")
+          APPS_JSON=$(printf '%s\n' "${list[@]}" | jq -R -s -c 'split("\n")[:-1]')
+
+          echo "appsCsv=$APPS_CSV"
+          echo "appsJson=$APPS_JSON"
+
+          echo "appsCsv=$APPS_CSV"   >> "$GITHUB_OUTPUT"
+          echo "appsJson=$APPS_JSON" >> "$GITHUB_OUTPUT"
 
       - name: Nx release – version & tag
-        if: steps.affected.outputs.apps != '[]'
+        if: steps.affected.outputs.appsCsv != ''
         run: |
           npx nx release version \
-            --projects="${{ steps.affected.outputs.apps }}" \
+            --projects="${{ steps.affected.outputs.appsCsv }}" \
             --git-commit --git-tag --git-push --verbose
 
   changelog:
     needs: version
-    if: needs.version.outputs.apps != '[]'
+    if: needs.version.outputs.appsJson != ''
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        app: ${{ fromJson(needs.version.outputs.apps) }}
+        app: ${{ fromJson(needs.version.outputs.appsJson) }}
 
     steps:
       - uses: actions/checkout@v4
@@ -64,9 +74,11 @@ jobs:
           git reset --hard origin/main
 
       - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: npm }
+        with:
+          node-version: 20
+          cache: npm
 
-      - run: git config --global user.name "release-bot"
+      - run: git config --global user.name  "release-bot"
       - run: git config --global user.email "release-bot@users.noreply.github.com"
 
       - run: npm install
