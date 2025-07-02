@@ -52,3 +52,5 @@ jobs:
             --draft \
             --title "$APP $VER" \
             --notes-file "apps/$APP/CHANGELOG.md"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
