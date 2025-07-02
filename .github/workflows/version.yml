@@ -21,36 +21,38 @@ jobs:
           node-version: 20
           cache: npm
 
-      - name: Setup git
-        run: |
-          git config --global user.name "${GITHUB_ACTOR}"
-          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+      - name: Install
+        run: npm ci
 
-      - run: npm ci
-
-      - name: Work out affected projects
-        id: affected
+      - id: affected
         run: |
           APPS=$(npx nx show projects --affected \
                     --base="${{ github.event.before }}" \
                     --head="${{ github.event.after }}" \
                     --json | jq -r '.[]' | paste -sd, -)
-          echo "apps=$APPS" >> $GITHUB_OUTPUT
+          echo "apps=$APPS" >> "$GITHUB_OUTPUT"
 
-      - name: Nx Release – version & tag
+      - name: Nx release – version & tag
         if: steps.affected.outputs.apps != ''
         run: |
           npx nx release version \
             --projects="${{ steps.affected.outputs.apps }}" \
-            --git-commit --git-tag --git-push
-
-      - name: Draft release
+            --git-commit --git-tag --git-push --verbose
+      - name: Draft GitHub releases for new tags
         if: steps.affected.outputs.apps != ''
-        run: |
-          gh release create "$TAG" \
-            --repo "$GITHUB_REPOSITORY" \
-            --draft \
-            --title "$APP $VER" \
-            --notes-file "apps/$APP/CHANGELOG.md"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for TAG in $(git tag --points-at HEAD); do
+            APP="${TAG%%@*}"
+            VER="${TAG#*@}"
+
+            echo "📦  creating draft for $TAG"
+
+            gh release create "$TAG" \
+              --repo "$GITHUB_REPOSITORY" \
+              --draft \
+              --title "$APP $VER" \
+              --notes-file "apps/$APP/CHANGELOG.md" \
+              --verify-tag
+          done
