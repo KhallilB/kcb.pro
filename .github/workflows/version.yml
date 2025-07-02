@@ -37,27 +37,23 @@ jobs:
                     --json | jq -r '.[]' | paste -sd, -)
           echo "apps=$APPS" >> "$GITHUB_OUTPUT"
 
-      - name: Nx release – version & tag
+      - name: NX Release - Version & Tag
         if: steps.affected.outputs.apps != ''
         run: |
           npx nx release version \
             --projects="${{ steps.affected.outputs.apps }}" \
             --git-commit --git-tag --git-push --verbose
-      - name: Draft GitHub releases for new tags
+
+      - name: NX Release - Changelog
         if: steps.affected.outputs.apps != ''
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          for TAG in $(git tag --points-at HEAD); do
-            APP="${TAG%%@*}"
-            VER="${TAG#*@}"
+          npx nx release changelog \
+            --projects="${{ steps.affected.outputs.apps }}" \
+            --git-commit --git-tag --git-push --verbose
 
-            echo "📦  creating draft for $TAG"
-
-            gh release create "$TAG" \
-              --repo "$GITHUB_REPOSITORY" \
-              --draft \
-              --title "$APP $VER" \
-              --notes-file "apps/$APP/CHANGELOG.md" \
-              --verify-tag
-          done
+      - name: NX Release - Publish
+        if: steps.affected.outputs.apps != ''
+        run: |
+          npx nx release publish \
+            --projects="${{ steps.affected.outputs.apps }}" \
+            --git-commit --git-tag --git-push --verbose
