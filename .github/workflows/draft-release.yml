@@ -14,6 +14,7 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/setup-node@v4
         with:
@@ -31,16 +32,15 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAG="${GITHUB_REF_NAME/#refs\/tags\//}"      # strip prefix if present
+          TAG="${GITHUB_REF_NAME/#refs\/tags\//}"
 
-          # ✅ Bail out early if TAG does not contain '@'
           if [[ "$TAG" != *@* ]]; then
             echo "Ref $TAG is not a version tag → skipping draft-release job"
             exit 0
           fi
 
-          APP="${TAG%%@*}"   # text before first @
-          VER="${TAG#*@}"    # text after first @
+          APP="${TAG%%@*}"
+          VER="${TAG#*@}"
 
           echo "Creating changelog for project=$APP version=$VER"
 
