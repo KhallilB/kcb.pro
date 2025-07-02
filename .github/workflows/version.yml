@@ -4,13 +4,12 @@ on:
     branches: [main]
 
 permissions:
-  contents: write # needed for git push and gh release later
+  contents: write
 
 jobs:
-  # ────────────────────────── 1) bump + tag (single job) ─────────────────────────
   version:
     runs-on: ubuntu-latest
-    outputs: # expose list of changed apps to the next job
+    outputs:
       apps: ${{ steps.affected.outputs.apps }}
 
     steps:
@@ -18,7 +17,7 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
-          token: ${{ secrets.GITHUB_TOKEN }} # embed token in origin
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/setup-node@v4
         with: { node-version: 20, cache: npm }
@@ -28,7 +27,6 @@ jobs:
 
       - run: npm install
 
-      # ---------- figure out affected projects ----------
       - id: affected
         run: |
           APPS=$(npx nx show projects --affected \
@@ -37,7 +35,6 @@ jobs:
                     --json | jq -r '.[]' | jq -R -s -c 'split("\n")[:-1]')
           echo "apps=$APPS" >>"$GITHUB_OUTPUT"
 
-      # ---------- bump versions and push tags ----------
       - name: Nx release – version & tag
         if: steps.affected.outputs.apps != '[]'
         run: |
@@ -45,7 +42,6 @@ jobs:
             --projects="${{ steps.affected.outputs.apps }}" \
             --git-commit --git-tag --git-push --verbose
 
-  # ────────────────────────── 2) changelog (matrix) ──────────────────────────────
   changelog:
     needs: version
     if: needs.version.outputs.apps != '[]'
@@ -70,21 +66,17 @@ jobs:
 
       - run: npm install
 
-      # ---------- run nx release changelog for ONE project ----------
       - name: Changelog + draft release (${{ matrix.app }})
         env:
           APP: ${{ matrix.app }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # 1) get the new version that nx wrote in job 1
           VER=$(jq -r .version apps/$APP/package.json)
 
-          # 2) generate/update CHANGELOG.md (no commit needed here)
           npx nx release changelog "$VER" \
             --projects="$APP" \
             --git-commit=false --git-tag=false --git-push=false
 
-          # 3) create the GitHub draft
           gh release create "$APP@$VER" \
             --repo "$GITHUB_REPOSITORY" \
             --draft \
