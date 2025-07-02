@@ -80,7 +80,6 @@
   },
 
   "release": {
-    "projectsRelationship": "independent",
     "projects": ["apps/*", "packages/*", "libs/*", "!experiments/**"],
     "version": {
       "conventionalCommits": true
