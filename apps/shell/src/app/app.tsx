@@ -13,6 +13,7 @@ export function App() {
   return (
     <React.Suspense fallback={null}>
       <ul>
+        <li>Bump</li>
         <li>
           <Link to="/">Home</Link>
         </li>
@@ -37,12 +38,32 @@ export function App() {
       </ul>
       <Routes>
         <Route path="/" element={<h1>Shell to me </h1>} />
-        <Route path="/dsa" element={<RemoteLoader remoteName="dsa">{Dsa}</RemoteLoader>} />
-        <Route path="/home" element={<RemoteLoader remoteName="home">{Home}</RemoteLoader>} />
-        <Route path="/design" element={<RemoteLoader remoteName="design">{Design}</RemoteLoader>} />
-        <Route path="/frontend" element={<RemoteLoader remoteName="frontend">{Frontend}</RemoteLoader>} />
-        <Route path="/backend" element={<RemoteLoader remoteName="backend">{Backend}</RemoteLoader>} />
-        <Route path="/devops" element={<RemoteLoader remoteName="devops">{Devops}</RemoteLoader>} />
+        <Route
+          path="/dsa"
+          element={<RemoteLoader remoteName="dsa">{Dsa}</RemoteLoader>}
+        />
+        <Route
+          path="/home"
+          element={<RemoteLoader remoteName="home">{Home}</RemoteLoader>}
+        />
+        <Route
+          path="/design"
+          element={<RemoteLoader remoteName="design">{Design}</RemoteLoader>}
+        />
+        <Route
+          path="/frontend"
+          element={
+            <RemoteLoader remoteName="frontend">{Frontend}</RemoteLoader>
+          }
+        />
+        <Route
+          path="/backend"
+          element={<RemoteLoader remoteName="backend">{Backend}</RemoteLoader>}
+        />
+        <Route
+          path="/devops"
+          element={<RemoteLoader remoteName="devops">{Devops}</RemoteLoader>}
+        />
       </Routes>
     </React.Suspense>
   );
