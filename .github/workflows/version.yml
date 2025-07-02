@@ -43,5 +43,13 @@ jobs:
           npx nx release version \
             --projects="${{ steps.affected.outputs.apps }}" \
             --git-commit --git-tag --git-push \
-            --create-release-drafts
           git push origin --tags --no-verify
+
+      - name: Draft release
+        if: steps.affected.outputs.apps != ''
+        run: |
+          npx nx release changelog "$VER" \
+            --projects="$APP" \
+          gh release create "$TAG" \
+            --draft --title "$APP $VER" \
+            --notes-file "apps/$APP/CHANGELOG.md"
