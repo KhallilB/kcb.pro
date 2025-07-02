@@ -1,0 +1,48 @@
+name: draft-release
+on:
+  push:
+    tags: ['*']
+
+permissions:
+  contents: write # create commit and/or draft release
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Setup git
+        run: |
+          git config --global user.name "${GITHUB_ACTOR}"
+          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+
+      - run: npm ci
+
+      - name: Generate changelog & GitHub draft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          APP="${TAG%@*}"
+          VER="${TAG#*@}"
+
+          echo "Tag: $TAG  →  project=$APP  version=$VER"
+
+          npx nx release changelog "$VER" \
+            --projects="$APP" \
+            --git-commit --git-push
+
+          gh release create "$TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --draft \
+            --title "$APP $VER" \
+            --notes-file "apps/$APP/CHANGELOG.md"

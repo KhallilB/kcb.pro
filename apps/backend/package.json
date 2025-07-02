@@ -1,8 +1,5 @@
 {
   "name": "backend",
-  "version": "1.0.0",
-  "private": true,
-  "dependencies": {
-    "husky": "^9.1.7"
-  }
+  "version": "0.0.1",
+  "private": true
 }
