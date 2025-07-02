@@ -77,5 +77,31 @@
     "build": {
       "dependsOn": []
     }
+  },
+
+  "release": {
+    "projectsRelationship": "independent",
+    "projects": ["apps/*", "packages/*", "libs/*", "!experiments/**"],
+    "version": {
+      "conventionalCommits": true
+    },
+    "changelog": {
+      "projectChangelogs": {
+        "renderOptions": {
+          "authors": true,
+          "commitReferences": true,
+          "versionTitleDate": true,
+          "applyUsernameToAuthors": true
+        }
+      },
+      "workspaceChangelog": {
+        "renderOptions": {
+          "authors": true,
+          "commitReferences": true,
+          "versionTitleDate": true,
+          "applyUsernameToAuthors": true
+        }
+      }
+    }
   }
 }

@@ -1,0 +1,39 @@
+name: version
+on:
+  push:
+    branches: [main]
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0, fetch-tags: true }
+
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+
+      - name: Setup git
+        run: |
+          git config --global user.name "${GITHUB_ACTOR}"
+          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+
+      - run: npm ci
+
+      - name: Work out affected projects
+        id: affected
+        run: |
+          APPS=$(npx nx show projects --affected \
+                    --base="${{ github.event.before }}" \
+                    --head="${{ github.event.after }}" \
+                    --json | jq -r '.[]' | paste -sd, -)
+          echo "apps=$APPS" >> $GITHUB_OUTPUT
+
+      - name: Nx Release – version & tag
+        if: steps.affected.outputs.apps != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npx nx release version \
+            --projects="${{ steps.affected.outputs.apps }}" \
+            --git-commit --git-tag --git-push --verbose
