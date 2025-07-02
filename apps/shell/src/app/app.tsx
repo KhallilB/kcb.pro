@@ -13,6 +13,7 @@ export function App() {
   return (
     <React.Suspense fallback={null}>
       <ul>
+        <li>Bump</li>
         <li>
           <Link to="/">Home</Link>
         </li>
