@@ -1,10 +1,9 @@
-import NxWelcome from './nx-welcome';
 import '../styles.css';
 
 export function App() {
   return (
     <div>
-      <NxWelcome title="devops" />
+      <h1>DevOps v0.0.1</h1>
     </div>
   );
 }
