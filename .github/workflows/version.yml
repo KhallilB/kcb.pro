@@ -21,6 +21,11 @@ jobs:
           node-version: 20
           cache: npm
 
+      - name: Setup git
+        run: |
+          git config --global user.name "release-bot"
+          git config --global user.email "release-bot@users.noreply.github.com"
+
       - name: Install
         run: npm ci
 
