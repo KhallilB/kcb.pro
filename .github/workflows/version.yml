@@ -39,9 +39,9 @@ jobs:
 
       - name: Nx Release – version & tag
         if: steps.affected.outputs.apps != ''
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           npx nx release version \
             --projects="${{ steps.affected.outputs.apps }}" \
-            --git-commit --git-tag --git-push --verbose
+            --git-commit --git-tag --git-push \
+            --create-release-drafts
+          git push origin --tags --no-verify
