@@ -7,7 +7,7 @@ on:
         description: Git ref to diff against
         required: false
         type: string
-        default: ""
+        default: "origin/main"
       target:
         description: Nx target to check (build, test, lint …)
         required: true
@@ -44,21 +44,7 @@ jobs:
       - name: Detect affected apps
         id: set
         run: |
-          # Determine base reference for comparison
-          if [ -n "${{ inputs.base }}" ]; then
-            BASE_REF="${{ inputs.base }}"
-          else
-            # Use last release tag as base, fallback to main if no tags exist
-            LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-            if [ -n "$LAST_TAG" ]; then
-              BASE_REF="$LAST_TAG"
-              echo "Using last release tag as base: $LAST_TAG"
-            else
-              BASE_REF="origin/main"
-              echo "No release tags found, using origin/main as base"
-            fi
-          fi
-          
+          BASE_REF="${{ inputs.base }}"
           echo "Comparing against base: $BASE_REF"
           
           apps=$(npx nx show projects --affected --base="$BASE_REF" --json | jq -r '.[]' | grep -E '^(backend|design|devops|dsa|frontend|home|shell)$' | jq -R -s -c 'split("\n")[:-1]')
