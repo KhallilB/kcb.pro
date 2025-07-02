@@ -37,9 +37,23 @@ jobs:
                     --json | jq -r '.[]' | paste -sd, -)
           echo "apps=$APPS" >> "$GITHUB_OUTPUT"
 
-      - name: Nx release – version & tag
+      - name: NX Release - Version & Tag
         if: steps.affected.outputs.apps != ''
         run: |
           npx nx release version \
+            --projects="${{ steps.affected.outputs.apps }}" \
+            --git-commit --git-tag --git-push --verbose
+
+      - name: NX Release - Changelog
+        if: steps.affected.outputs.apps != ''
+        run: |
+          npx nx release changelog \
+            --projects="${{ steps.affected.outputs.apps }}" \
+            --git-commit --git-tag --git-push --verbose
+
+      - name: NX Release - Publish
+        if: steps.affected.outputs.apps != ''
+        run: |
+          npx nx release publish \
             --projects="${{ steps.affected.outputs.apps }}" \
             --git-commit --git-tag --git-push --verbose
