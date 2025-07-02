@@ -58,6 +58,11 @@ jobs:
           fetch-tags: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Update to latest commit + tags
+        run: |
+          git fetch origin main --tags
+          git reset --hard origin/main
+
       - uses: actions/setup-node@v4
         with: { node-version: 20, cache: npm }
 
