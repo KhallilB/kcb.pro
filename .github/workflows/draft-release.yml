@@ -4,7 +4,7 @@ on:
     tags: ['*']
 
 permissions:
-  contents: write # create commit and/or draft release
+  contents: write
 
 jobs:
   changelog:
@@ -31,11 +31,18 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAG="${GITHUB_REF_NAME}"
-          APP="${TAG%@*}"
-          VER="${TAG#*@}"
+          TAG="${GITHUB_REF_NAME/#refs\/tags\//}"      # strip prefix if present
 
-          echo "Tag: $TAG  →  project=$APP  version=$VER"
+          # ✅ Bail out early if TAG does not contain '@'
+          if [[ "$TAG" != *@* ]]; then
+            echo "Ref $TAG is not a version tag → skipping draft-release job"
+            exit 0
+          fi
+
+          APP="${TAG%%@*}"   # text before first @
+          VER="${TAG#*@}"    # text after first @
+
+          echo "Creating changelog for project=$APP version=$VER"
 
           npx nx release changelog "$VER" \
             --projects="$APP" \
