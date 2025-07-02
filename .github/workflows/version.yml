@@ -47,8 +47,8 @@ jobs:
       - name: Draft release
         if: steps.affected.outputs.apps != ''
         run: |
-          npx nx release changelog "$VER" \
-            --projects="$APP" \
           gh release create "$TAG" \
-            --draft --title "$APP $VER" \
+            --repo "$GITHUB_REPOSITORY" \
+            --draft \
+            --title "$APP $VER" \
             --notes-file "apps/$APP/CHANGELOG.md"
