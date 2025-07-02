@@ -68,7 +68,7 @@ jobs:
       - run: git config --global user.name "release-bot"
       - run: git config --global user.email "release-bot@users.noreply.github.com"
 
-      - run: npm ci
+      - run: npm install
 
       # ---------- run nx release changelog for ONE project ----------
       - name: Nx release changelog (${{ matrix.app }})
