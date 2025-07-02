@@ -42,8 +42,7 @@ jobs:
         run: |
           npx nx release version \
             --projects="${{ steps.affected.outputs.apps }}" \
-            --git-commit --git-tag --git-push \
-          git push origin --tags --no-verify
+            --git-commit --git-tag --git-push
 
       - name: Draft release
         if: steps.affected.outputs.apps != ''
