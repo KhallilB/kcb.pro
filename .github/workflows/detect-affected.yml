@@ -7,7 +7,7 @@ on:
         description: Git ref to diff against
         required: false
         type: string
-        default: "origin/main"
+        default: 'origin/main'
       target:
         description: Nx target to check (build, test, lint …)
         required: true
@@ -39,14 +39,14 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Detect affected apps
         id: set
         run: |
           BASE_REF="${{ inputs.base }}"
           echo "Comparing against base: $BASE_REF"
-          
+
           apps=$(npx nx show projects --affected --base="$BASE_REF" --json | jq -r '.[]' | grep -E '^(backend|design|devops|dsa|frontend|home|shell)$' | jq -R -s -c 'split("\n")[:-1]')
           echo "Affected apps: $apps"
           echo "apps=$apps" >> "$GITHUB_OUTPUT"
