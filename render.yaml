@@ -1,77 +1,109 @@
 
+  # Example static site config
+  # - type: web
+  #   name: my-blog
+  #   runtime: static
+  #   buildCommand: yarn build
+  #   staticPublishPath: ./build
+  #   previews:
+  #     generation: automatic # Enable service previews
+  #   buildFilter:
+  #     paths:
+  #       - src/**/*.js
+  #     ignoredPaths:
+  #       - src/**/*.test.js
+  #   headers:
+  #     - path: /*
+  #       name: X-Frame-Options
+  #       value: sameorigin
+  #   routes:
+  #     - type: redirect
+  #       source: /old
+  #       destination: /new
+  #     - type: rewrite
+  #       source: /a/*
+  #       destination: /a
+
 services:
-  - type: static
+  - type: web
     name: shell
-    env: static
-    rootDir: apps/shell
+    runtime: static
     buildCommand: npx nx build shell --configuration=production
     staticPublishPath: dist/apps/shell
+    previews:
+      generation: automatic
     headers:
       - path: /*
         name: Cache-Control
         value: no-cache
 
-  - type: static
+  - type: web
     name: backend
-    env: static
-    rootDir: apps/backend
+    runtime: static
     buildCommand: npx nx build backend --configuration=production
     staticPublishPath: dist/apps/backend
+    previews:
+      generation: automatic
     headers:
       - path: /*
         name: Cache-Control
         value: no-cache
 
-  - type: static
+  - type: web
     name: design
-    env: static
-    rootDir: apps/design
+    runtime: static
     buildCommand: npx nx build design --configuration=production
     staticPublishPath: dist/apps/design
+    previews:
+      generation: automatic
     headers:
       - path: /*
         name: Cache-Control
         value: no-cache
 
-  - type: static
+  - type: web
     name: devops
-    env: static
-    rootDir: apps/devops
+    runtime: static
     buildCommand: npx nx build devops --configuration=production
     staticPublishPath: dist/apps/devops
+    previews:
+      generation: automatic
     headers:
       - path: /*
         name: Cache-Control
         value: no-cache
 
-  - type: static
+  - type: web
     name: dsa
-    env: static
-    rootDir: apps/dsa
+    runtime: static
     buildCommand: npx nx build dsa --configuration=production
     staticPublishPath: dist/apps/dsa
+    previews:
+      generation: automatic
     headers:
       - path: /*
         name: Cache-Control
         value: no-cache
 
-  - type: static
+  - type: web
     name: frontend
-    env: static
-    rootDir: apps/frontend
+    runtime: static
     buildCommand: npx nx build frontend --configuration=production
     staticPublishPath: dist/apps/frontend
+    previews:
+      generation: automatic
     headers:
       - path: /*
         name: Cache-Control
         value: no-cache
 
-  - type: static
+  - type: web
     name: home
-    env: static
-    rootDir: apps/home
+    runtime: static
     buildCommand: npx nx build home --configuration=production
     staticPublishPath: dist/apps/home
+    previews:
+      generation: automatic
     headers:
       - path: /*
         name: Cache-Control
