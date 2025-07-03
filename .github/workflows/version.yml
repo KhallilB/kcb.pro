@@ -1,103 +1,90 @@
-name: version
+name: release
 on:
   push:
     branches: [main]
 
 permissions:
   contents: write
+  packages: write
 
 jobs:
-  version:
+  detect-affected:
     runs-on: ubuntu-latest
     outputs:
-      appsJson: ${{ steps.affected.outputs.appsJson }}
+      apps: ${{ steps.set.outputs.apps }}
 
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           fetch-tags: true
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
-      - run: git config --global user.name  "release-bot"
-      - run: git config --global user.email "release-bot@users.noreply.github.com"
-
       - run: npm install
 
-      - id: affected
+      - id: set
         run: |
-          BASE="${{ github.event.before }}"
-          HEAD="${{ github.event.after }}"
+          APPS=$(npx nx show projects --affected \
+                   --base="${{ github.event.before }}" \
+                   --head="${{ github.event.after }}" \
+                   --json | jq -r '.[]' | jq -R -s -c 'split("\n")[:-1]')
+          echo "apps=$APPS" >> "$GITHUB_OUTPUT"
 
-          mapfile -t list < <(npx nx show projects --affected --base="$BASE" --head="$HEAD" --json | jq -r '.[]')
-
-          APPS_CSV=$(IFS=, ; echo "${list[*]}")
-          APPS_JSON=$(printf '%s\n' "${list[@]}" | jq -R -s -c 'split("\n")[:-1]')
-
-          echo "appsCsv=$APPS_CSV"
-          echo "appsJson=$APPS_JSON"
-
-          echo "appsCsv=$APPS_CSV"   >> "$GITHUB_OUTPUT"
-          echo "appsJson=$APPS_JSON" >> "$GITHUB_OUTPUT"
-
-      - name: Nx release – version & tag
-        if: steps.affected.outputs.appsCsv != ''
-        run: |
-          npx nx release version \
-            --projects="${{ steps.affected.outputs.appsCsv }}" \
-            --git-commit --git-tag --git-push --verbose
-
-  changelog:
-    needs: version
-    if: needs.version.outputs.appsJson != ''
+  per-app-release:
+    needs: detect-affected
+    if: needs.detect-affected.outputs.apps != '[]'
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
-        app: ${{ fromJson(needs.version.outputs.appsJson) }}
+        app: ${{ fromJson(needs.detect-affected.outputs.apps) }}
 
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           fetch-tags: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Update to latest commit + tags
-        run: |
-          git fetch origin main --tags
-          git reset --hard origin/main
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
-      - run: git config --global user.name  "release-bot"
-      - run: git config --global user.email "release-bot@users.noreply.github.com"
-
       - run: npm install
 
-      - name: Changelog + draft release (${{ matrix.app }})
+      - name: Configure Git
+        run: |
+          git config --global user.name  "release-bot"
+          git config --global user.email "release-bot@users.noreply.github.com"
+
+      - name: Bump ${{ matrix.app }} version
+        run: |
+          npx nx release version \
+            --projects="${{ matrix.app }}" \
+            --git-commit=false --git-tag=false --git-push=false \
+            --verbose
+
+      - name: Changelog + commit/tag/push
         env:
-          APP: ${{ matrix.app }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # create changelog; committing will also tag & push
           npx nx release changelog \
-          --projects="$APP" \
-          --git-commit=false \
-          --git-tag=false \
-          --git-push=false
+            --projects="${{ matrix.app }}" \
+            --git-commit --git-tag --git-push \
+            --git-commit-message="chore(${{
+              matrix.app }}): release v{version} [skip ci]" \
+            --verbose
 
-            VER=$(jq -r .version apps/$APP/package.json)
-
-          gh release create "$APP@$VER" \
-            --repo "$GITHUB_REPOSITORY" \
+      - name: Draft GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VER=$(jq -r .version apps/${{ matrix.app }}/package.json)
+          gh release create "${{ matrix.app }}@$VER" \
             --draft \
-            --title "$APP $VER" \
-            --notes-file "apps/$APP/CHANGELOG.md"
+            --title "${{ matrix.app }} $VER" \
+            --notes-file "apps/${{ matrix.app }}/CHANGELOG.md"
