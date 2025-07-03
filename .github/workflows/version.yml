@@ -1,87 +1,87 @@
-name: release
+name: version
 on:
   push:
     branches: [main]
 
 permissions:
   contents: write
-  packages: write
 
 jobs:
-  detect-affected:
+  release:
     runs-on: ubuntu-latest
     outputs:
-      apps: ${{ steps.set.outputs.apps }}
+      apps: ${{ steps.affected.outputs.apps }}
 
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           fetch-tags: true
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
+        with: { node-version: 20, cache: npm }
+
+      - run: git config --global user.name "release-bot"
+      - run: git config --global user.email "release-bot@users.noreply.github.com"
 
       - run: npm install
 
-      - id: set
+      - id: affected
         run: |
           APPS=$(npx nx show projects --affected \
-                   --base="${{ github.event.before }}" \
-                   --head="${{ github.event.after }}" \
-                   --json | jq -r '.[]' | jq -R -s -c 'split("\n")[:-1]')
-          echo "apps=$APPS" >> "$GITHUB_OUTPUT"
+                    --base="${{ github.event.before }}" \
+                    --head="${{ github.event.after }}" \
+                    --json | jq -r '.[]' | jq -R -s -c 'split("\n")[:-1]')
+          echo "apps=$APPS" >>"$GITHUB_OUTPUT"
 
-  per-app-release:
-    needs: detect-affected
-    if: needs.detect-affected.outputs.apps != '[]'
+      - name: Generate changelogs
+        if: steps.affected.outputs.apps != '[]'
+        run: |
+          echo '${{ steps.affected.outputs.apps }}' | jq -r '.[]' | while read app; do
+            echo "Generating changelog for $app"
+            npx nx release changelog \
+              --projects="$app" \
+              --git-commit=false --git-tag=false --git-push=false
+          done
+
+      - name: Nx release – version & tag
+        if: steps.affected.outputs.apps != '[]'
+        run: |
+          npx nx release version \
+            --projects="${{ steps.affected.outputs.apps }}" \
+            --git-commit --git-tag --git-push --verbose
+
+  github-releases:
+    needs: release
+    if: needs.release.outputs.apps != '[]'
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
-        app: ${{ fromJson(needs.detect-affected.outputs.apps) }}
+        app: ${{ fromJson(needs.release.outputs.apps) }}
 
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           fetch-tags: true
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - run: npm install
-
-      - name: Configure Git
+      - name: Update to latest commit + tags
         run: |
-          git config --global user.name  "release-bot"
-          git config --global user.email "release-bot@users.noreply.github.com"
+          git fetch origin main --tags
+          git reset --hard origin/main
 
-      - name: Bump version for ${{ matrix.app }}
-        run: |
-          npx nx release version \
-            --projects="${{ matrix.app }}" \
-            --override="version.generatorOptions.updateDependents=false" \
-            --git-commit=false --git-tag=false --git-push=false
-
-      - name: Generate changelog, commit, tag, push
+      - name: Create GitHub release (${{ matrix.app }})
         env:
+          APP: ${{ matrix.app }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npx nx release changelog \
-            --projects="${{ matrix.app }}" \
-            --git-commit --git-tag --git-push \
-            --git-commit-message="chore(${{ matrix.app }}): release v{version} [skip ci]"
+          VER=$(jq -r .version apps/$APP/package.json)
 
-      - name: Draft GitHub release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          VER=$(jq -r .version apps/${{ matrix.app }}/package.json)
-          gh release create "${{ matrix.app }}@$VER" \
+          gh release create "$APP@$VER" \
+            --repo "$GITHUB_REPOSITORY" \
             --draft \
-            --title "${{ matrix.app }} $VER" \
-            --notes-file "apps/${{ matrix.app }}/CHANGELOG.md"
+            --title "$APP $VER" \
+            --notes-file "apps/$APP/CHANGELOG.md"
