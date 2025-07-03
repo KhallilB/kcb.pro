@@ -60,24 +60,21 @@ jobs:
           git config --global user.name  "release-bot"
           git config --global user.email "release-bot@users.noreply.github.com"
 
-      - name: Bump ${{ matrix.app }} version
+      - name: Bump version for ${{ matrix.app }}
         run: |
           npx nx release version \
             --projects="${{ matrix.app }}" \
-            --git-commit=false --git-tag=false --git-push=false \
-            --verbose
+            --override="version.generatorOptions.updateDependents=false" \
+            --git-commit=false --git-tag=false --git-push=false
 
-      - name: Changelog + commit/tag/push
+      - name: Generate changelog, commit, tag, push
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # create changelog; committing will also tag & push
           npx nx release changelog \
             --projects="${{ matrix.app }}" \
             --git-commit --git-tag --git-push \
-            --git-commit-message="chore(${{
-              matrix.app }}): release v{version} [skip ci]" \
-            --verbose
+            --git-commit-message="chore(${{ matrix.app }}): release v{version} [skip ci]"
 
       - name: Draft GitHub release
         env:
