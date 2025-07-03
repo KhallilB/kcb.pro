@@ -9,8 +9,6 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
-    outputs:
-      apps: ${{ steps.affected.outputs.apps }}
 
     steps:
       - uses: actions/checkout@v4
@@ -27,73 +25,57 @@ jobs:
 
       - run: npm install
 
-      - id: affected
+      - name: Get affected apps
+        id: affected
         run: |
           APPS=$(npx nx show projects --affected \
                     --base="${{ github.event.before }}" \
                     --head="${{ github.event.after }}" \
                     --json | jq -r '.[]' | jq -R -s -c 'split("\n")[:-1]')
-          echo "apps=$APPS" >>"$GITHUB_OUTPUT"
+          echo "apps=$APPS" >> $GITHUB_OUTPUT
 
-      - name: Pre-calculate versions and generate changelogs
+      - name: Process releases
         if: steps.affected.outputs.apps != '[]'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo '${{ steps.affected.outputs.apps }}' | jq -r '.[]' | while read app; do
             echo "Processing $app..."
             
-            # Get what the next version would be
+            # Step 1: Determine next version using nx
             NEXT_VER=$(npx nx release version --projects="$app" --dry-run --verbose 2>&1 | \
-              grep "New version" | sed 's/.*New version \([0-9\.]*\).*/\1/' | head -1)
+              grep -E "New version.*[0-9]+\.[0-9]+\.[0-9]+" | \
+              sed -E 's/.*New version[^0-9]*([0-9]+\.[0-9]+\.[0-9]+[^[:space:]]*).*/\1/' | head -1)
             
             if [ -n "$NEXT_VER" ]; then
               echo "Next version for $app: $NEXT_VER"
               
-              # Generate changelog for that version
+              # Step 2: Generate changelog for that version
               npx nx release changelog "$NEXT_VER" \
                 --projects="$app" \
                 --git-commit=false --git-tag=false --git-push=false
+              
+              # Step 3: Bump the version
+              npx nx release version \
+                --projects="$app" \
+                --git-commit=false --git-tag=false --git-push=false
+              
+              # Step 4: Create GitHub draft release
+              gh release create "$app@$NEXT_VER" \
+                --repo "$GITHUB_REPOSITORY" \
+                --draft \
+                --title "$app $NEXT_VER" \
+                --notes-file "apps/$app/CHANGELOG.md"
+              
+              echo "✅ Created draft release for $app@$NEXT_VER"
             else
               echo "No version change needed for $app"
             fi
           done
 
-      - name: Nx release – version & tag
+      - name: Commit and push
         if: steps.affected.outputs.apps != '[]'
         run: |
-          npx nx release version \
-            --projects="${{ steps.affected.outputs.apps }}" \
-            --git-commit --git-tag --git-push --verbose
-
-  github-releases:
-    needs: release
-    if: needs.release.outputs.apps != '[]'
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        app: ${{ fromJson(needs.release.outputs.apps) }}
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          fetch-tags: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Update to latest commit + tags
-        run: |
-          git fetch origin main --tags
-          git reset --hard origin/main
-
-      - name: Create GitHub release (${{ matrix.app }})
-        env:
-          APP: ${{ matrix.app }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          VER=$(jq -r .version apps/$APP/package.json)
-
-          gh release create "$APP@$VER" \
-            --repo "$GITHUB_REPOSITORY" \
-            --draft \
-            --title "$APP $VER" \
-            --notes-file "apps/$APP/CHANGELOG.md"
+          git add .
+          git commit -m "chore(release): update versions and changelogs"
+          git push origin main
