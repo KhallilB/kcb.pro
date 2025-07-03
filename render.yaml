@@ -31,6 +31,10 @@ services:
     rootDir: apps/shell
     buildCommand: npx nx build shell --configuration=production
     staticPublishPath: dist/apps/shell
+    buildFilter:
+      paths:
+        - apps/shell/**
+        - packages/**
     previews:
       generation: automatic
     headers:
@@ -44,6 +48,10 @@ services:
     rootDir: apps/backend
     buildCommand: npx nx build backend --configuration=production
     staticPublishPath: dist/apps/backend
+    buildFilter:
+      paths:
+        - apps/backend/**
+        - packages/**
     previews:
       generation: automatic
     headers:
@@ -56,12 +64,16 @@ services:
     runtime: static
     rootDir: apps/design
     buildCommand: npx nx build design --configuration=production
-    staticPublishPath: dist/apps/design
+    staticPublishPath: ../../dist/apps/design
+    buildFilter:
+      paths:
+        - apps/design/**
+        - packages/**
     previews:
       generation: automatic
     headers:
       - path: /*
-        name: Cache-Control
+        name: Cache-Control 
         value: no-cache
 
   - type: web
@@ -69,7 +81,11 @@ services:
     runtime: static
     rootDir: apps/devops
     buildCommand: npx nx build devops --configuration=production
-    staticPublishPath: dist/apps/devops
+    staticPublishPath: ../../dist/apps/devops
+    buildFilter:
+      paths:
+        - apps/devops/**
+        - packages/**
     previews:
       generation: automatic
     headers:
@@ -82,7 +98,11 @@ services:
     runtime: static
     rootDir: apps/dsa
     buildCommand: npx nx build dsa --configuration=production
-    staticPublishPath: dist/apps/dsa
+    staticPublishPath: ../../dist/apps/dsa
+    buildFilter:
+      paths:
+        - apps/dsa/**
+        - packages/**
     previews:
       generation: automatic
     headers:
@@ -95,7 +115,11 @@ services:
     runtime: static
     rootDir: apps/frontend
     buildCommand: npx nx build frontend --configuration=production
-    staticPublishPath: dist/apps/frontend
+    staticPublishPath: ../../dist/apps/frontend
+    buildFilter:
+      paths:
+        - apps/frontend/**
+        - packages/**
     previews:
       generation: automatic
     headers:
@@ -108,7 +132,11 @@ services:
     runtime: static
     rootDir: apps/home
     buildCommand: npx nx build home --configuration=production
-    staticPublishPath: dist/apps/home
+    staticPublishPath: ../../dist/apps/home
+    buildFilter:
+      paths:
+        - apps/home/**
+        - packages/**
     previews:
       generation: automatic
     headers:
