@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Link, Route, Routes } from 'react-router';
-import { RemoteLoader } from './remote-loader';
 
 const Dsa = React.lazy(() => import('dsa/Module'));
 const Home = React.lazy(() => import('home/Module'));
@@ -37,32 +36,12 @@ export function App() {
       </ul>
       <Routes>
         <Route path="/" element={<h1>Shell to me </h1>} />
-        <Route
-          path="/dsa"
-          element={<RemoteLoader remoteName="dsa">{Dsa}</RemoteLoader>}
-        />
-        <Route
-          path="/home"
-          element={<RemoteLoader remoteName="home">{Home}</RemoteLoader>}
-        />
-        <Route
-          path="/design"
-          element={<RemoteLoader remoteName="design">{Design}</RemoteLoader>}
-        />
-        <Route
-          path="/frontend"
-          element={
-            <RemoteLoader remoteName="frontend">{Frontend}</RemoteLoader>
-          }
-        />
-        <Route
-          path="/backend"
-          element={<RemoteLoader remoteName="backend">{Backend}</RemoteLoader>}
-        />
-        <Route
-          path="/devops"
-          element={<RemoteLoader remoteName="devops">{Devops}</RemoteLoader>}
-        />
+        <Route path="/dsa" element={<Dsa />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/design" element={<Design />} />
+        <Route path="/frontend" element={<Frontend />} />
+        <Route path="/backend" element={<Backend />} />
+        <Route path="/devops" element={<Devops />} />
       </Routes>
     </React.Suspense>
   );

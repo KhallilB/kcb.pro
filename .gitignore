@@ -4,6 +4,7 @@
 logs
 **/*.backup.*
 **/*.back.*
+.env
 
 tmp
 dist

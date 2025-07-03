@@ -39,6 +39,9 @@ export default {
       // svgr: false
     }),
     new NxModuleFederationPlugin({ config }, { dts: false }),
-    new NxModuleFederationDevServerPlugin({ config }),
+    new NxModuleFederationPlugin({ config }, { dts: false }),
+    ...(process.env['NX_MF_DEV_SERVER'] === 'true' // 👈 gate it!
+      ? [new NxModuleFederationDevServerPlugin({ config })]
+      : []),
   ],
 };

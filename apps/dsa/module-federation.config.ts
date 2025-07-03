@@ -4,7 +4,6 @@ const config: ModuleFederationConfig = {
   name: 'dsa',
   exposes: {
     './Module': './src/remote-entry.ts',
-    './Version': './src/version.ts',
   },
 };
 
