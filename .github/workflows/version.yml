@@ -1,4 +1,4 @@
-name: version
+name: release
 on:
   push:
     branches: [main]
@@ -35,14 +35,26 @@ jobs:
                     --json | jq -r '.[]' | jq -R -s -c 'split("\n")[:-1]')
           echo "apps=$APPS" >>"$GITHUB_OUTPUT"
 
-      - name: Generate changelogs
+      - name: Pre-calculate versions and generate changelogs
         if: steps.affected.outputs.apps != '[]'
         run: |
           echo '${{ steps.affected.outputs.apps }}' | jq -r '.[]' | while read app; do
-            echo "Generating changelog for $app"
-            npx nx release changelog \
-              --projects="$app" \
-              --git-commit=false --git-tag=false --git-push=false
+            echo "Processing $app..."
+            
+            # Get what the next version would be
+            NEXT_VER=$(npx nx release version --projects="$app" --dry-run --verbose 2>&1 | \
+              grep "New version" | sed 's/.*New version \([0-9\.]*\).*/\1/' | head -1)
+            
+            if [ -n "$NEXT_VER" ]; then
+              echo "Next version for $app: $NEXT_VER"
+              
+              # Generate changelog for that version
+              npx nx release changelog "$NEXT_VER" \
+                --projects="$app" \
+                --git-commit=false --git-tag=false --git-push=false
+            else
+              echo "No version change needed for $app"
+            fi
           done
 
       - name: Nx release – version & tag
