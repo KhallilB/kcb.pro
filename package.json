@@ -16,7 +16,7 @@
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@eslint/js": "^9.8.0",
-    "@module-federation/enhanced": "^0.9.0",
+    "@module-federation/enhanced": "^0.15.0",
     "@nx/eslint": "^21.2.1",
     "@nx/eslint-plugin": "21.2.1",
     "@nx/jest": "21.2.1",

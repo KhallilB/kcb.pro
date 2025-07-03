@@ -28,6 +28,7 @@ services:
   - type: web
     name: shell
     runtime: static
+    rootDir: apps/shell
     buildCommand: npx nx build shell --configuration=production
     staticPublishPath: dist/apps/shell
     previews:
@@ -40,6 +41,7 @@ services:
   - type: web
     name: backend
     runtime: static
+    rootDir: apps/backend
     buildCommand: npx nx build backend --configuration=production
     staticPublishPath: dist/apps/backend
     previews:
@@ -52,6 +54,7 @@ services:
   - type: web
     name: design
     runtime: static
+    rootDir: apps/design
     buildCommand: npx nx build design --configuration=production
     staticPublishPath: dist/apps/design
     previews:
@@ -64,6 +67,7 @@ services:
   - type: web
     name: devops
     runtime: static
+    rootDir: apps/devops
     buildCommand: npx nx build devops --configuration=production
     staticPublishPath: dist/apps/devops
     previews:
@@ -76,6 +80,7 @@ services:
   - type: web
     name: dsa
     runtime: static
+    rootDir: apps/dsa
     buildCommand: npx nx build dsa --configuration=production
     staticPublishPath: dist/apps/dsa
     previews:
@@ -88,6 +93,7 @@ services:
   - type: web
     name: frontend
     runtime: static
+    rootDir: apps/frontend
     buildCommand: npx nx build frontend --configuration=production
     staticPublishPath: dist/apps/frontend
     previews:
@@ -100,6 +106,7 @@ services:
   - type: web
     name: home
     runtime: static
+    rootDir: apps/home
     buildCommand: npx nx build home --configuration=production
     staticPublishPath: dist/apps/home
     previews:
