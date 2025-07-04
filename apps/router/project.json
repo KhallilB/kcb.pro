@@ -1,0 +1,31 @@
+{
+  "name": "router",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/router/src",
+  "projectType": "application",
+  "tags": [],
+  "// targets": "to see all targets run: nx show project router --web",
+  "targets": {
+    "build": {
+      "executor": "@nx/rspack:rspack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "../../dist/apps/router",
+        "rspackConfig": "apps/router/rspack.config.js"
+      },
+      "configurations": {
+        "production": {
+          "mode": "production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["apps/home/**/*"],
+        "fix": true,
+        "format": "stylish"
+      }
+    }
+  }
+}
