@@ -51,7 +51,7 @@ jobs:
           git config --global user.email "release-bot@users.noreply.github.com"
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
       - name: Analyze Conventional Commits
         id: analyze
@@ -211,8 +211,13 @@ jobs:
           echo "🚀 Running NX Release..."
           echo "🔄 Using individual NX release commands for better control..."
 
+          # Clean git state first
+          echo "🧹 Ensuring clean git state..."
+          git add package-lock.json || echo "No package-lock.json to add"
+          git commit -m "chore: update package-lock.json" || echo "No changes in package-lock.json"
+
           # Step 1: Version bump
-          VERSION_CMD="npx nx release version ${{ steps.strategy.outputs.release_type }} --verbose"
+          VERSION_CMD="npx nx release version ${{ steps.strategy.outputs.release_type }} --verbose --git-commit --git-tag"
 
           # Add target projects if specified
           if [ -n "${{ github.event.inputs.target_projects }}" ]; then
@@ -233,13 +238,16 @@ jobs:
             echo "✅ Version bump completed successfully!"
             VERSION_SUCCESS=true
           else
-            echo "⚠️ NX version command failed, trying alternative approach..."
+            echo "⚠️ NX version command failed, trying without git integration..."
             echo ""
             
-            # Alternative: Use basic version bumping without git integration
-            ALT_VERSION_CMD="npx nx release version ${{ steps.strategy.outputs.release_type }} --verbose --skip-git"
+            # Alternative: Version without git, then handle git manually
+            ALT_VERSION_CMD="npx nx release version ${{ steps.strategy.outputs.release_type }} --verbose --stage-changes --git-commit=false --git-tag=false"
             if [ -n "${{ github.event.inputs.target_projects }}" ]; then
               ALT_VERSION_CMD="$ALT_VERSION_CMD --projects=${{ github.event.inputs.target_projects }}"
+            fi
+            if [ "${{ steps.analyze.outputs.is_first_release }}" == "true" ]; then
+              ALT_VERSION_CMD="$ALT_VERSION_CMD --first-release"
             fi
             
             echo "Trying alternative: $ALT_VERSION_CMD"
@@ -250,10 +258,17 @@ jobs:
               # Manually handle git operations
               echo "📝 Manually handling git operations..."
               git add .
-              git commit -m "chore(release): version bumps" || echo "No changes to commit"
+              
+              # Create commit
+              if git commit -m "chore(release): version bumps for ${{ steps.strategy.outputs.release_type }} release"; then
+                echo "✅ Changes committed"
+              else
+                echo "⚠️ No changes to commit (versions may already be correct)"
+              fi
               
               # Create tags manually
               echo "🏷️ Creating tags manually..."
+              TAGS_CREATED=0
               for dir in apps libs packages; do
                 if [ -d "$dir" ]; then
                   find "$dir" -maxdepth 2 -name "package.json" -type f | while read file; do
@@ -262,13 +277,23 @@ jobs:
                       VERSION=$(grep '"version"' "$file" | cut -d'"' -f4 2>/dev/null)
                       if [ -n "$VERSION" ] && [ "$VERSION" != "unknown" ]; then
                         TAG="${PROJECT_NAME}@${VERSION}"
-                        git tag -f "$TAG" || echo "Failed to create tag $TAG"
-                        echo "🏷️ Created tag: $TAG"
+                        if git tag -f "$TAG"; then
+                          echo "🏷️ Created tag: $TAG"
+                          TAGS_CREATED=$((TAGS_CREATED + 1))
+                        else
+                          echo "⚠️ Failed to create tag $TAG"
+                        fi
                       fi
                     fi
                   done
                 fi
               done
+              
+              if [ $TAGS_CREATED -gt 0 ]; then
+                echo "✅ Created $TAGS_CREATED tag(s)"
+              else
+                echo "⚠️ No tags were created"
+              fi
             else
               echo "❌ Both version commands failed"
               VERSION_SUCCESS=false
@@ -292,7 +317,12 @@ jobs:
             
             # Push changes
             echo "📤 Pushing changes and tags..."
-            git push --follow-tags origin main || echo "⚠️ Push failed, but release may still be successful"
+            if git push --follow-tags origin main; then
+              echo "✅ Successfully pushed changes and tags"
+            else
+              echo "⚠️ Push failed, but release may still be successful"
+              echo "You may need to push manually: git push --follow-tags origin main"
+            fi
             
             echo "✅ NX Release process completed!"
           else
@@ -303,10 +333,24 @@ jobs:
             echo "Git status:"
             git status --porcelain || echo "Git status failed"
             echo ""
+            echo "Current project versions:"
+            for dir in apps libs packages; do
+              if [ -d "$dir" ]; then
+                find "$dir" -maxdepth 2 -name "package.json" -type f | while read file; do
+                  if [ -f "$file" ]; then
+                    PROJECT_NAME=$(basename $(dirname "$file"))
+                    VERSION=$(grep '"version"' "$file" | cut -d'"' -f4 2>/dev/null || echo "unknown")
+                    echo "  $PROJECT_NAME: $VERSION"
+                  fi
+                done
+              fi
+            done
+            echo ""
             echo "🆘 **Manual Fix Required:**"
             echo "Run these commands locally to debug:"
             echo "  npx nx release --printConfig"
             echo "  npx nx release version ${{ steps.strategy.outputs.release_type }} --dry-run --verbose"
+            echo "  npx nx release version ${{ steps.strategy.outputs.release_type }} --verbose --git-commit=false --git-tag=false"
             exit 1
           fi
 
