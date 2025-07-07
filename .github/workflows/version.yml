@@ -1,4 +1,86 @@
-name: Release
+# name: release
+# on:
+#   push:
+#     branches: [main]
+
+# permissions:
+#   contents: write
+
+# jobs:
+#   release:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 0
+#           fetch-tags: true
+#           token: ${{ secrets.GITHUB_TOKEN }}
+
+#       - uses: actions/setup-node@v4
+#         with: { node-version: 20, cache: npm }
+
+#       - run: git config --global user.name "release-bot"
+#       - run: git config --global user.email "release-bot@users.noreply.github.com"
+
+#       - run: npm install
+
+#       - name: Get affected apps
+#         id: affected
+#         run: |
+#           APPS=$(npx nx show projects --affected \
+#                     --base="${{ github.event.before }}" \
+#                     --head="${{ github.event.after }}" \
+#                     --json | jq -r '.[]' | jq -R -s -c 'split("\n")[:-1]')
+#           echo "apps=$APPS" >> $GITHUB_OUTPUT
+
+#       - name: Process releases
+#         if: steps.affected.outputs.apps != '[]'
+#         env:
+#           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#         run: |
+#           echo '${{ steps.affected.outputs.apps }}' | jq -r '.[]' | while read app; do
+#             echo "Processing $app..."
+
+#             # Step 1: Determine next version using nx
+#             NEXT_VER=$(npx nx release version --projects="$app" --dry-run --verbose 2>&1 | \
+#               grep -E "New version.*[0-9]+\.[0-9]+\.[0-9]+" | \
+#               sed -E 's/.*New version[^0-9]*([0-9]+\.[0-9]+\.[0-9]+[^[:space:]]*).*/\1/' | head -1)
+
+#             if [ -n "$NEXT_VER" ]; then
+#               echo "Next version for $app: $NEXT_VER"
+
+#               # Step 2: Generate changelog for that version
+#               npx nx release changelog "$NEXT_VER" \
+#                 --projects="$app" \
+#                 --git-commit=false --git-tag=false --git-push=false
+
+#               # Step 3: Bump the version
+#               npx nx release version \
+#                 --projects="$app" \
+#                 --git-commit=false --git-tag=false --git-push=false
+
+#               # Step 4: Create GitHub draft release
+#               gh release create "$app@$NEXT_VER" \
+#                 --repo "$GITHUB_REPOSITORY" \
+#                 --draft \
+#                 --title "$app $NEXT_VER" \
+#                 --notes-file "apps/$app/CHANGELOG.md"
+
+#               echo "✅ Created draft release for $app@$NEXT_VER"
+#             else
+#               echo "No version change needed for $app"
+#             fi
+#           done
+
+#       - name: Commit and push
+#         if: steps.affected.outputs.apps != '[]'
+#         run: |
+#           git add .
+#           git commit --no-verify -m "chore(release): update versions and changelogs"
+#           git push --no-verify origin main
+
+name: Version
 
 on:
   push:
@@ -9,8 +91,90 @@ permissions:
   pull-requests: write
 
 jobs:
-  release:
+  detect-affected:
     runs-on: ubuntu-latest
+    outputs:
+      apps: ${{ steps.affected.outputs.apps }}
+      has_changes: ${{ steps.affected.outputs.has_changes }}
+      base_ref: ${{ steps.affected.outputs.base_ref }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Find affected apps
+        id: affected
+        run: |
+          # Find the last tag or use a fallback
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+          if [ -z "$LAST_TAG" ]; then
+            echo "No previous tags found, using initial commit as base"
+            BASE_REF=$(git rev-list --max-parents=0 HEAD)
+            echo "base_ref=$BASE_REF" >> $GITHUB_OUTPUT
+          else
+            echo "Using last tag as base: $LAST_TAG"
+            BASE_REF="$LAST_TAG"
+            echo "base_ref=$BASE_REF" >> $GITHUB_OUTPUT
+          fi
+
+          # Get affected projects
+          AFFECTED_APPS=$(npx nx show projects --affected \
+            --base="$BASE_REF" \
+            --head="HEAD" \
+            --type=app \
+            --json 2>/dev/null | jq -r '.[]' | jq -R -s -c 'split("\n")[:-1]')
+
+          echo "Affected apps: $AFFECTED_APPS"
+          echo "apps=$AFFECTED_APPS" >> $GITHUB_OUTPUT
+
+          # Check if there are any affected apps
+          if [ "$AFFECTED_APPS" != "[]" ] && [ "$AFFECTED_APPS" != '[""]' ]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "Found affected apps that may need release"
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "No affected apps found"
+          fi
+
+      - name: Check for conventional commits in affected apps
+        if: steps.affected.outputs.has_changes == 'true'
+        id: conventional_commits
+        run: |
+          BASE_REF="${{ steps.affected.outputs.base_ref }}"
+
+          # Check for conventional commits since base
+          COMMITS=$(git log ${BASE_REF}..HEAD --oneline --grep="^feat" --grep="^fix" --grep="^BREAKING CHANGE" --grep="^feat!" --grep="^fix!" --grep="^chore!" --grep="^docs!" --grep="^style!" --grep="^refactor!" --grep="^perf!" --grep="^test!" --grep="^build!" --grep="^ci!" --extended-regexp)
+
+          if [ -n "$COMMITS" ]; then
+            echo "Found conventional commits requiring release:"
+            echo "$COMMITS"
+            echo "has_conventional_commits=true" >> $GITHUB_OUTPUT
+          else
+            echo "No conventional commits found"
+            echo "has_conventional_commits=false" >> $GITHUB_OUTPUT
+          fi
+
+  release:
+    needs: detect-affected
+    if: needs.detect-affected.outputs.has_changes == 'true'
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        app: ${{ fromJson(needs.detect-affected.outputs.apps) }}
 
     steps:
       - name: Checkout
@@ -33,38 +197,55 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Check for changes requiring release
-        id: changes
-        run: |
-          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-          if [ -z "$LAST_TAG" ]; then
-            echo "No previous tags found, will process all projects"
-            echo "has_changes=true" >> $GITHUB_OUTPUT
-          else
-            # Check for conventional commits since last tag
-            COMMITS=$(git log ${LAST_TAG}..HEAD --oneline --grep="^feat" --grep="^fix" --grep="^BREAKING CHANGE" --grep="^feat!" --grep="^fix!" --grep="^chore!" --grep="^docs!" --grep="^style!" --grep="^refactor!" --grep="^perf!" --grep="^test!" --grep="^build!" --grep="^ci!" --extended-regexp)
-            if [ -n "$COMMITS" ]; then
-              echo "Found conventional commits requiring release:"
-              echo "$COMMITS"
-              echo "has_changes=true" >> $GITHUB_OUTPUT
-            else
-              echo "No conventional commits found since last release"
-              echo "has_changes=false" >> $GITHUB_OUTPUT
-            fi
-          fi
-
-      - name: Run nx release
-        if: steps.changes.outputs.has_changes == 'true'
+      - name: Release ${{ matrix.app }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Run nx release with conventional commits
-          npx nx release --verbose
+          echo "Processing release for ${{ matrix.app }}..."
 
-          # Push changes back to main
-          git push --follow-tags origin main
+          # Check if this specific app has changes that warrant a release
+          BASE_REF="${{ needs.detect-affected.outputs.base_ref }}"
+
+          # Check for conventional commits affecting this app
+          APP_COMMITS=$(git log ${BASE_REF}..HEAD --oneline --grep="^feat(\(.*${{ matrix.app }}.*\)|${{ matrix.app }})" --grep="^fix(\(.*${{ matrix.app }}.*\)|${{ matrix.app }})" --grep="^feat!" --grep="^fix!" --extended-regexp -- "apps/${{ matrix.app }}/**" "libs/**")
+
+          if [ -n "$APP_COMMITS" ] || [ -z "$BASE_REF" ]; then
+            echo "Found commits affecting ${{ matrix.app }}, proceeding with release..."
+            
+            # Run nx release for this specific app
+            npx nx release --projects="${{ matrix.app }}" --verbose
+            
+            echo "✅ Released ${{ matrix.app }}"
+          else
+            echo "No conventional commits found for ${{ matrix.app }}, skipping release"
+          fi
+
+  push-changes:
+    needs: [detect-affected, release]
+    if: needs.detect-affected.outputs.has_changes == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git
+        run: |
+          git config --global user.name "release-bot"
+          git config --global user.email "release-bot@users.noreply.github.com"
+
+      - name: Pull latest changes and push
+        run: |
+          # Pull any changes made by the release jobs
+          git pull --rebase origin main
+
+          # Push all changes and tags
+          git push --follow-tags origin main || echo "Nothing to push"
 
       - name: Trigger deployments
-        if: steps.changes.outputs.has_changes == 'true'
         run: |
           echo "Release completed, deployments will be triggered by Render"
+          echo "Released apps: ${{ needs.detect-affected.outputs.apps }}"
