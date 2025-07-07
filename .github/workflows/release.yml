@@ -68,31 +68,67 @@ jobs:
               COMMIT_RANGE="HEAD~1..HEAD"
             fi
           else
-            # For manual dispatch, check since last release
-            LAST_RELEASE_TAG=$(git tag --list "*@*" --sort=-version:refname | head -1)
-            if [ -n "$LAST_RELEASE_TAG" ]; then
-              COMMIT_RANGE="${LAST_RELEASE_TAG}..HEAD"
-            else
-              COMMIT_RANGE="HEAD~10..HEAD"
-            fi
+            # For manual dispatch, check since last release per project
+            COMMIT_RANGE="HEAD~10..HEAD"  # fallback range
           fi
 
           echo "📋 Analyzing commit range: $COMMIT_RANGE"
 
-          # Check for conventional commits
+          # Show the commits we're analyzing
+          echo "📝 Commits in range:"
+          git log $COMMIT_RANGE --oneline | sed 's/^/  /'
+
+          # Check for conventional commits in the range
           CONVENTIONAL_COMMITS=$(git log $COMMIT_RANGE --oneline --grep="^feat" --grep="^fix" --grep="^chore" --grep="^docs" --grep="^style" --grep="^refactor" --grep="^perf" --grep="^test" --grep="^build" --grep="^ci" --grep="^revert" --grep="BREAKING CHANGE" --extended-regexp)
+
+          # Also check each commit message for conventional format (handles squash merges)
+          MANUAL_CHECK_COMMITS=$(git log $COMMIT_RANGE --pretty=format:"%h %s" | grep -E "^[a-f0-9]+ (feat|fix|chore|docs|style|refactor|perf|test|build|ci)(\(.+\))?:")
+
+          # Also check for conventional commits since last release for each project
+          echo ""
+          echo "🔍 Checking per-project since last release:"
+          PROJECT_HAS_CHANGES=false
+
+          for project in router home shared; do
+            LAST_TAG=$(git tag --list "${project}@*" --sort=-version:refname | head -1)
+            if [ -n "$LAST_TAG" ]; then
+              echo "  $project (since $LAST_TAG):"
+              PROJECT_COMMITS=$(git log ${LAST_TAG}..HEAD --oneline --grep="^feat" --grep="^fix" --grep="^chore" --grep="^docs" --grep="^style" --grep="^refactor" --grep="^perf" --grep="^test" --grep="^build" --grep="^ci" --grep="BREAKING CHANGE" --extended-regexp)
+              
+              # Also check for any commits affecting this project's files
+              PROJECT_FILE_CHANGES=$(git log ${LAST_TAG}..HEAD --oneline --name-only | grep -E "(apps/${project}/|libs/${project}/|packages/${project}/)" | wc -l)
+              
+              if [ -n "$PROJECT_COMMITS" ] || [ "$PROJECT_FILE_CHANGES" -gt 0 ]; then
+                echo "    ✅ Changes detected"
+                if [ -n "$PROJECT_COMMITS" ]; then
+                  echo "$PROJECT_COMMITS" | sed 's/^/      /'
+                fi
+                if [ "$PROJECT_FILE_CHANGES" -gt 0 ]; then
+                  echo "      📁 $PROJECT_FILE_CHANGES file(s) changed"
+                fi
+                PROJECT_HAS_CHANGES=true
+              else
+                echo "    ❌ No changes detected"
+              fi
+            else
+              echo "  $project: No previous releases (will release)"
+              PROJECT_HAS_CHANGES=true
+            fi
+          done
 
           # Determine if release is needed
           NEEDS_RELEASE=false
-          if [ -n "$CONVENTIONAL_COMMITS" ]; then
-            echo "✅ Found conventional commits:"
-            echo "$CONVENTIONAL_COMMITS"
+          if [ -n "$CONVENTIONAL_COMMITS" ] || [ -n "$MANUAL_CHECK_COMMITS" ] || [ "$PROJECT_HAS_CHANGES" = "true" ]; then
+            echo ""
+            echo "✅ Found changes requiring release:"
+            [ -n "$CONVENTIONAL_COMMITS" ] && echo "$CONVENTIONAL_COMMITS" | sed 's/^/  📝 /'
+            [ -n "$MANUAL_CHECK_COMMITS" ] && echo "$MANUAL_CHECK_COMMITS" | sed 's/^/  🔍 /'
             NEEDS_RELEASE=true
           elif [ "${{ github.event.inputs.force_release }}" == "true" ]; then
             echo "✅ Force release requested"
             NEEDS_RELEASE=true
           else
-            echo "❌ No conventional commits found in range $COMMIT_RANGE"
+            echo "❌ No conventional commits or changes found"
           fi
 
           # Check if this is first release
@@ -106,6 +142,7 @@ jobs:
           # Set outputs
           echo "needs_release=$NEEDS_RELEASE" >> $GITHUB_OUTPUT
           echo "is_first_release=$FIRST_RELEASE" >> $GITHUB_OUTPUT
+          echo "commit_range=$COMMIT_RANGE" >> $GITHUB_OUTPUT
 
           # Show current project versions
           echo ""
@@ -139,6 +176,21 @@ jobs:
           if [ "${{ steps.analyze.outputs.is_first_release }}" == "true" ]; then
             RELEASE_CMD="$RELEASE_CMD --first-release"
             echo "🎉 Running first release"
+          else
+            # For subsequent releases, specify the commit range to ensure NX detects changes
+            COMMIT_RANGE="${{ steps.analyze.outputs.commit_range }}"
+            if [ -n "$COMMIT_RANGE" ]; then
+              # Extract the FROM part of the range for NX
+              FROM_COMMIT=$(echo "$COMMIT_RANGE" | cut -d'.' -f1)
+              if [ -n "$FROM_COMMIT" ] && [ "$FROM_COMMIT" != "HEAD~1" ] && [ "$FROM_COMMIT" != "HEAD~10" ]; then
+                RELEASE_CMD="$RELEASE_CMD --from=$FROM_COMMIT"
+                echo "📍 Using commit range from: $FROM_COMMIT"
+              else
+                # Fallback: force release if we detected changes manually
+                RELEASE_CMD="$RELEASE_CMD --force"
+                echo "💪 Force release due to detected changes"
+              fi
+            fi
           fi
 
           # Add release type override if specified
@@ -147,17 +199,25 @@ jobs:
             echo "📊 Using release type override: ${{ github.event.inputs.release_type }}"
           fi
 
-          # Add force flag if needed
+          # Add force flag if manually requested
           if [ "${{ github.event.inputs.force_release }}" == "true" ]; then
             RELEASE_CMD="$RELEASE_CMD --force"
-            echo "💪 Force release enabled"
+            echo "💪 Manual force release enabled"
           fi
 
           echo "Executing: $RELEASE_CMD"
           echo ""
 
           # Execute the release command
-          $RELEASE_CMD
+          if ! $RELEASE_CMD; then
+            echo "❌ NX Release failed, trying with --force flag..."
+            FORCE_CMD=$(echo "$RELEASE_CMD" | sed 's/--from=[^ ]*//' | sed 's/  */ /g')
+            if [[ ! "$FORCE_CMD" =~ --force ]]; then
+              FORCE_CMD="$FORCE_CMD --force"
+            fi
+            echo "Retrying with: $FORCE_CMD"
+            $FORCE_CMD
+          fi
 
           echo ""
           echo "✅ NX Release completed successfully!"
