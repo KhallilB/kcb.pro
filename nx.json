@@ -94,8 +94,8 @@
   "release": {
     "projectsRelationship": "independent",
     "projects": ["apps/*", "libs/*"],
+    "releaseTagPattern": "{projectName}@{version}",
     "version": {
-      "preVersionCommand": "npx nx run-many -t build",
       "conventionalCommits": true
     },
     "changelog": {
