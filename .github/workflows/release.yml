@@ -1,0 +1,127 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Configure git
+        run: |
+          git config --global user.name "release-bot"
+          git config --global user.email "release-bot@users.noreply.github.com"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Find affected apps
+        id: affected
+        env:
+          NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+        run: |
+          # Find the last tag or use a fallback
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+          if [ -z "$LAST_TAG" ]; then
+            echo "No previous tags found, using initial commit as base"
+            BASE_REF=$(git rev-list --max-parents=0 HEAD)
+          else
+            echo "Using last tag as base: $LAST_TAG"
+            BASE_REF="$LAST_TAG"
+          fi
+
+          # Get affected apps using nx
+          AFFECTED_APPS=$(npx nx show projects --affected \
+            --base="$BASE_REF" \
+            --head="HEAD" \
+            --type=app \
+            --json 2>/dev/null | jq -r '.[]')
+
+          echo "Base ref: $BASE_REF"
+          echo "Affected apps:"
+          echo "$AFFECTED_APPS"
+
+          # Convert to comma-separated list for nx release
+          if [ -n "$AFFECTED_APPS" ] && [ "$AFFECTED_APPS" != "null" ]; then
+            APPS_LIST=$(echo "$AFFECTED_APPS" | tr '\n' ',' | sed 's/,$//')
+            echo "apps_list=$APPS_LIST" >> $GITHUB_OUTPUT
+            echo "has_affected=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_affected=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check for conventional commits
+        if: steps.affected.outputs.has_affected == 'true'
+        id: commits
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          BASE_REF=${LAST_TAG:-$(git rev-list --max-parents=0 HEAD)}
+
+          # Check for conventional commits
+          COMMITS=$(git log ${BASE_REF}..HEAD --oneline --grep="^feat" --grep="^fix" --grep="^BREAKING CHANGE" --grep="^feat!" --grep="^fix!" --extended-regexp)
+
+          if [ -n "$COMMITS" ]; then
+            echo "Found conventional commits:"
+            echo "$COMMITS"
+            echo "has_conventional_commits=true" >> $GITHUB_OUTPUT
+          else
+            echo "No conventional commits found"
+            echo "has_conventional_commits=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run nx release for affected apps
+        if: steps.affected.outputs.has_affected == 'true' && steps.commits.outputs.has_conventional_commits == 'true'
+        env:
+          NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+        run: |
+          APPS_LIST="${{ steps.affected.outputs.apps_list }}"
+          echo "Running nx release for apps: $APPS_LIST"
+
+          # Run nx release for affected apps (this will handle version bumps and changelogs)
+          npx nx release --projects="$APPS_LIST" --verbose
+
+          echo "✅ Release completed for affected apps"
+
+      - name: Push all changes
+        if: steps.affected.outputs.has_affected == 'true' && steps.commits.outputs.has_conventional_commits == 'true'
+        run: |
+          # Check if there are any changes to push
+          if git diff --quiet && git diff --staged --quiet; then
+            echo "No changes to push"
+          else
+            echo "Pushing all accumulated changes..."
+            git push --follow-tags origin main
+            echo "✅ All changes pushed successfully"
+          fi
+
+      - name: Summary
+        if: always()
+        run: |
+          if [ "${{ steps.affected.outputs.has_affected }}" == "true" ]; then
+            echo "🎯 Affected apps: ${{ steps.affected.outputs.apps_list }}"
+            if [ "${{ steps.commits.outputs.has_conventional_commits }}" == "true" ]; then
+              echo "✅ Releases completed and pushed"
+            else
+              echo "⏭️  No conventional commits found, skipped releases"
+            fi
+          else
+            echo "ℹ️  No affected apps found, no releases needed"
+          fi
