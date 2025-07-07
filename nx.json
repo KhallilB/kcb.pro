@@ -92,13 +92,15 @@
   },
   "release": {
     "projectsRelationship": "independent",
-    "projects": ["apps/*", "libs/*", "!experiments/**", "tailwind-config"],
+    "projects": ["apps/*", "libs/*"],
     "version": {
       "preVersionCommand": "npx nx run-many -t build",
-      "conventionalCommits": true
+      "conventionalCommits": true,
+      "currentVersionResolver": "git-tag"
     },
     "changelog": {
       "projectChangelogs": {
+        "file": "{projectRoot}/CHANGELOG.md",
         "renderOptions": {
           "authors": true,
           "applyUsernameToAuthors": true,
@@ -107,6 +109,7 @@
         }
       },
       "workspaceChangelog": {
+        "file": "{workspaceRoot}/CHANGELOG.md",
         "renderOptions": {
           "authors": true,
           "commitReferences": true,
@@ -114,6 +117,12 @@
           "applyUsernameToAuthors": true
         }
       }
+    },
+    "git": {
+      "commit": true,
+      "tag": true,
+      "push": true,
+      "commitMessage": "chore(release): publish {projectName} {version}"
     }
   },
   "generators": {

@@ -1,83 +1,70 @@
-name: release
+name: Release
+
 on:
   push:
     branches: [main]
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   release:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          fetch-tags: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
-      - run: git config --global user.name "release-bot"
-      - run: git config --global user.email "release-bot@users.noreply.github.com"
-
-      - run: npm install
-
-      - name: Get affected apps
-        id: affected
+      - name: Configure git
         run: |
-          APPS=$(npx nx show projects --affected \
-                    --base="${{ github.event.before }}" \
-                    --head="${{ github.event.after }}" \
-                    --json | jq -r '.[]' | jq -R -s -c 'split("\n")[:-1]')
-          echo "apps=$APPS" >> $GITHUB_OUTPUT
+          git config --global user.name "release-bot"
+          git config --global user.email "release-bot@users.noreply.github.com"
 
-      - name: Process releases
-        if: steps.affected.outputs.apps != '[]'
+      - name: Install dependencies
+        run: npm install
+
+      - name: Check for changes requiring release
+        id: changes
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$LAST_TAG" ]; then
+            echo "No previous tags found, will process all projects"
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          else
+            # Check for conventional commits since last tag
+            COMMITS=$(git log ${LAST_TAG}..HEAD --oneline --grep="^feat" --grep="^fix" --grep="^BREAKING CHANGE" --grep="^feat!" --grep="^fix!" --grep="^chore!" --grep="^docs!" --grep="^style!" --grep="^refactor!" --grep="^perf!" --grep="^test!" --grep="^build!" --grep="^ci!" --extended-regexp)
+            if [ -n "$COMMITS" ]; then
+              echo "Found conventional commits requiring release:"
+              echo "$COMMITS"
+              echo "has_changes=true" >> $GITHUB_OUTPUT
+            else
+              echo "No conventional commits found since last release"
+              echo "has_changes=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Run nx release
+        if: steps.changes.outputs.has_changes == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo '${{ steps.affected.outputs.apps }}' | jq -r '.[]' | while read app; do
-            echo "Processing $app..."
-            
-            # Step 1: Determine next version using nx
-            NEXT_VER=$(npx nx release version --projects="$app" --dry-run --verbose 2>&1 | \
-              grep -E "New version.*[0-9]+\.[0-9]+\.[0-9]+" | \
-              sed -E 's/.*New version[^0-9]*([0-9]+\.[0-9]+\.[0-9]+[^[:space:]]*).*/\1/' | head -1)
-            
-            if [ -n "$NEXT_VER" ]; then
-              echo "Next version for $app: $NEXT_VER"
-              
-              # Step 2: Generate changelog for that version
-              npx nx release changelog "$NEXT_VER" \
-                --projects="$app" \
-                --git-commit=false --git-tag=false --git-push=false
-              
-              # Step 3: Bump the version
-              npx nx release version \
-                --projects="$app" \
-                --git-commit=false --git-tag=false --git-push=false
-              
-              # Step 4: Create GitHub draft release
-              gh release create "$app@$NEXT_VER" \
-                --repo "$GITHUB_REPOSITORY" \
-                --draft \
-                --title "$app $NEXT_VER" \
-                --notes-file "apps/$app/CHANGELOG.md"
-              
-              echo "✅ Created draft release for $app@$NEXT_VER"
-            else
-              echo "No version change needed for $app"
-            fi
-          done
+          # Run nx release with conventional commits
+          npx nx release --verbose
 
-      - name: Commit and push
-        if: steps.affected.outputs.apps != '[]'
+          # Push changes back to main
+          git push --follow-tags origin main
+
+      - name: Trigger deployments
+        if: steps.changes.outputs.has_changes == 'true'
         run: |
-          git add .
-          git commit --no-verify -m "chore(release): update versions and changelogs"
-          git push --no-verify origin main
+          echo "Release completed, deployments will be triggered by Render"
