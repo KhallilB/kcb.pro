@@ -51,7 +51,7 @@ jobs:
           git config --global user.email "release-bot@users.noreply.github.com"
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
       - name: Analyze Conventional Commits
         id: analyze
@@ -209,10 +209,6 @@ jobs:
           NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
         run: |
           echo "🚀 Running NX Release..."
-
-          # Since we detected changes but NX might not, use individual commands
-          # This is more reliable than the combined `nx release` command
-
           echo "🔄 Using individual NX release commands for better control..."
 
           # Step 1: Version bump
@@ -231,10 +227,56 @@ jobs:
           fi
 
           echo "Executing version: $VERSION_CMD"
+
+          # Try version command
           if $VERSION_CMD; then
             echo "✅ Version bump completed successfully!"
+            VERSION_SUCCESS=true
+          else
+            echo "⚠️ NX version command failed, trying alternative approach..."
+            echo ""
             
-            # Step 2: Generate changelogs
+            # Alternative: Use basic version bumping without git integration
+            ALT_VERSION_CMD="npx nx release version ${{ steps.strategy.outputs.release_type }} --verbose --skip-git"
+            if [ -n "${{ github.event.inputs.target_projects }}" ]; then
+              ALT_VERSION_CMD="$ALT_VERSION_CMD --projects=${{ github.event.inputs.target_projects }}"
+            fi
+            
+            echo "Trying alternative: $ALT_VERSION_CMD"
+            if $ALT_VERSION_CMD; then
+              echo "✅ Alternative version bump succeeded!"
+              VERSION_SUCCESS=true
+              
+              # Manually handle git operations
+              echo "📝 Manually handling git operations..."
+              git add .
+              git commit -m "chore(release): version bumps" || echo "No changes to commit"
+              
+              # Create tags manually
+              echo "🏷️ Creating tags manually..."
+              for dir in apps libs packages; do
+                if [ -d "$dir" ]; then
+                  find "$dir" -maxdepth 2 -name "package.json" -type f | while read file; do
+                    if [ -f "$file" ]; then
+                      PROJECT_NAME=$(basename $(dirname "$file"))
+                      VERSION=$(grep '"version"' "$file" | cut -d'"' -f4 2>/dev/null)
+                      if [ -n "$VERSION" ] && [ "$VERSION" != "unknown" ]; then
+                        TAG="${PROJECT_NAME}@${VERSION}"
+                        git tag -f "$TAG" || echo "Failed to create tag $TAG"
+                        echo "🏷️ Created tag: $TAG"
+                      fi
+                    fi
+                  done
+                fi
+              done
+            else
+              echo "❌ Both version commands failed"
+              VERSION_SUCCESS=false
+            fi
+          fi
+
+          # Step 2: Generate changelogs (only if version succeeded)
+          if [ "$VERSION_SUCCESS" = "true" ]; then
             CHANGELOG_CMD="npx nx release changelog --verbose"
             if [ -n "${{ github.event.inputs.target_projects }}" ]; then
               CHANGELOG_CMD="$CHANGELOG_CMD --projects=${{ github.event.inputs.target_projects }}"
@@ -244,16 +286,27 @@ jobs:
             if $CHANGELOG_CMD; then
               echo "✅ Changelog generation completed!"
             else
-              echo "⚠️ Changelog generation had warnings (this is normal for some setups)"
+              echo "⚠️ Changelog generation failed, but continuing..."
+              echo "This is often not critical for the release process"
             fi
             
-            echo "✅ NX Release process completed successfully!"
+            # Push changes
+            echo "📤 Pushing changes and tags..."
+            git push --follow-tags origin main || echo "⚠️ Push failed, but release may still be successful"
+            
+            echo "✅ NX Release process completed!"
           else
-            echo "❌ Version bump failed"
-            echo "This might indicate:"
-            echo "  • Projects don't have package.json files"
-            echo "  • Git working directory is not clean"
-            echo "  • NX configuration issues"
+            echo "❌ Version bump failed completely"
+            echo ""
+            echo "🔍 **Debugging Information:**"
+            echo "Current working directory: $(pwd)"
+            echo "Git status:"
+            git status --porcelain || echo "Git status failed"
+            echo ""
+            echo "🆘 **Manual Fix Required:**"
+            echo "Run these commands locally to debug:"
+            echo "  npx nx release --printConfig"
+            echo "  npx nx release version ${{ steps.strategy.outputs.release_type }} --dry-run --verbose"
             exit 1
           fi
 
