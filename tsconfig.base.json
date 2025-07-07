@@ -3,12 +3,10 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "backend/Module": ["apps/backend/src/remote-entry.ts"],
-      "design/Module": ["apps/design/src/remote-entry.ts"],
-      "devops/Module": ["apps/devops/src/remote-entry.ts"],
-      "dsa/Module": ["apps/dsa/src/remote-entry.ts"],
-      "frontend/Module": ["apps/frontend/src/remote-entry.ts"],
-      "home/Module": ["apps/home/src/remote-entry.ts"]
+      "@home": ["apps/home/src/main.tsx"],
+      "@kcb/shared": ["libs/shared/src/index.ts"],
+      "@shared-styles": ["libs/shared/src/styles.scss"],
+      "@shared-variables": ["libs/shared/src/base/_variables.scss"]
     }
   }
 }
