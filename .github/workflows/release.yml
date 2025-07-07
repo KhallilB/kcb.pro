@@ -3,16 +3,37 @@ name: Release
 on:
   push:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      force_release:
+        description: 'Force release even if no conventional commits detected'
+        required: false
+        type: boolean
+      target_projects:
+        description: 'Specific projects to release (comma-separated, leave empty for all)'
+        required: false
+        default: ''
+      release_type:
+        description: 'Override release type (auto uses conventional commits)'
+        required: false
+        type: choice
+        options:
+          - auto
+          - major
+          - minor
+          - patch
+        default: auto
 
 permissions:
   contents: write
+  issues: write
+  pull-requests: write
 
 jobs:
   release:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -24,190 +45,265 @@ jobs:
           node-version: 20
           cache: npm
 
-      - name: Configure git
+      - name: Configure Git
         run: |
           git config --global user.name "release-bot"
           git config --global user.email "release-bot@users.noreply.github.com"
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install Dependencies
+        run: npm ci
 
-      - name: Check if first release
-        id: check_first
+      - name: Analyze Conventional Commits
+        id: analyze
         run: |
-          # Check if any release tags exist
-          EXISTING_TAGS=$(git tag --list "*@*")
-          if [ -z "$EXISTING_TAGS" ]; then
-            echo "is_first_release=true" >> $GITHUB_OUTPUT
-            echo "🎉 This is the first release"
-          else
-            echo "is_first_release=false" >> $GITHUB_OUTPUT
-            echo "📦 Found existing releases"
-          fi
+          echo "🔍 Analyzing conventional commits..."
 
-      - name: Debug recent commits
-        run: |
-          echo "🔍 Recent commits:"
-          git log --oneline -10
-          echo ""
-          echo "🏷️  Current tags:"
-          git tag --list "*@*" | sort -V | tail -10
-          echo ""
-          if [ "${{ steps.check_first.outputs.is_first_release }}" == "false" ]; then
-            echo "📈 Commits since last release:"
-            # Show commits since the latest tag
-            LATEST_TAG=$(git tag --list "*@*" | sort -V | tail -1)
-            if [ -n "$LATEST_TAG" ]; then
-              echo "Since $LATEST_TAG:"
-              git log ${LATEST_TAG}..HEAD --oneline || echo "No commits since last tag"
-            fi
-          fi
-
-      - name: Test nx release (dry run)
-        id: dry_run
-        env:
-          NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
-        run: |
-          echo "🧪 Testing what nx release would do..."
-
-          if [ "${{ steps.check_first.outputs.is_first_release }}" == "true" ]; then
-            echo "Testing first release for all apps..."
-            RESULT=$(npx nx release --first-release --dry-run --verbose 2>&1)
-          else
-            echo "Testing standard release for all projects..."
-            RESULT=$(npx nx release --dry-run --verbose 2>&1)
-          fi
-
-          echo "📋 Dry run output:"
-          echo "$RESULT"
-          echo ""
-
-          # Check if nx detected any changes worth releasing
-          if echo "$RESULT" | grep -q "No changes were detected\|No files would be changed"; then
-            echo "needs_release=false" >> $GITHUB_OUTPUT
-            echo "❌ Nx detected no changes requiring release"
-          elif echo "$RESULT" | grep -q "would be bumped\|New version\|would update"; then
-            echo "needs_release=true" >> $GITHUB_OUTPUT
-            echo "✅ Nx detected changes requiring release"
-          else
-            # For first release, proceed if there are any apps
-            if [ "${{ steps.check_first.outputs.is_first_release }}" == "true" ]; then
-              echo "needs_release=true" >> $GITHUB_OUTPUT
-              echo "✅ First release - proceeding"
+          # Determine commit range to analyze
+          if [ "${{ github.event_name }}" = "push" ]; then
+            # For push events (including PR merges), check commits in the push
+            if [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+              COMMIT_RANGE="${{ github.event.before }}..HEAD"
             else
-              echo "needs_release=false" >> $GITHUB_OUTPUT
-              echo "❓ Unclear - skipping to be safe"
+              # First push to branch
+              COMMIT_RANGE="HEAD~1..HEAD"
+            fi
+          else
+            # For manual dispatch, check since last release
+            LAST_RELEASE_TAG=$(git tag --list "*@*" --sort=-version:refname | head -1)
+            if [ -n "$LAST_RELEASE_TAG" ]; then
+              COMMIT_RANGE="${LAST_RELEASE_TAG}..HEAD"
+            else
+              COMMIT_RANGE="HEAD~10..HEAD"
             fi
           fi
 
-      - name: Run nx release
-        if: steps.dry_run.outputs.needs_release == 'true'
-        env:
-          NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
-        run: |
-          echo "🚀 Running nx release..."
+          echo "📋 Analyzing commit range: $COMMIT_RANGE"
 
-          if [ "${{ steps.check_first.outputs.is_first_release }}" == "true" ]; then
-            echo "🎉 Running first release"
-            npx nx release --first-release --verbose
+          # Check for conventional commits
+          CONVENTIONAL_COMMITS=$(git log $COMMIT_RANGE --oneline --grep="^feat" --grep="^fix" --grep="^chore" --grep="^docs" --grep="^style" --grep="^refactor" --grep="^perf" --grep="^test" --grep="^build" --grep="^ci" --grep="^revert" --grep="BREAKING CHANGE" --extended-regexp)
+
+          # Determine if release is needed
+          NEEDS_RELEASE=false
+          if [ -n "$CONVENTIONAL_COMMITS" ]; then
+            echo "✅ Found conventional commits:"
+            echo "$CONVENTIONAL_COMMITS"
+            NEEDS_RELEASE=true
+          elif [ "${{ github.event.inputs.force_release }}" == "true" ]; then
+            echo "✅ Force release requested"
+            NEEDS_RELEASE=true
           else
-            echo "📦 Running standard release"
-            npx nx release --verbose
+            echo "❌ No conventional commits found in range $COMMIT_RANGE"
           fi
 
-          echo "✅ Release completed"
-
-      - name: Get released projects
-        if: steps.dry_run.outputs.needs_release == 'true'
-        id: released
-        run: |
-          # Get all project tags created in this run
-          NEW_TAGS=$(git tag --points-at HEAD | grep "@")
-          echo "🏷️  New tags created:"
-          echo "$NEW_TAGS"
-
-          # Extract project names from tags
-          RELEASED_PROJECTS=""
-          if [ -n "$NEW_TAGS" ]; then
-            RELEASED_PROJECTS=$(echo "$NEW_TAGS" | sed 's/@.*//' | tr '\n' ',' | sed 's/,$//')
+          # Check if this is first release
+          FIRST_RELEASE=false
+          if ! git tag --list "*@*" | head -1 | grep -q "@"; then
+            echo "🎉 First release detected"
+            FIRST_RELEASE=true
+            NEEDS_RELEASE=true
           fi
 
-          echo "released_projects=$RELEASED_PROJECTS" >> $GITHUB_OUTPUT
-          echo "📦 Released projects: $RELEASED_PROJECTS"
+          # Set outputs
+          echo "needs_release=$NEEDS_RELEASE" >> $GITHUB_OUTPUT
+          echo "is_first_release=$FIRST_RELEASE" >> $GITHUB_OUTPUT
 
-      - name: Create GitHub release drafts
-        if: steps.dry_run.outputs.needs_release == 'true' && steps.released.outputs.released_projects != ''
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          RELEASED_PROJECTS="${{ steps.released.outputs.released_projects }}"
-
-          echo "$RELEASED_PROJECTS" | tr ',' '\n' | while read -r PROJECT; do
-            if [ -n "$PROJECT" ]; then
-              echo "📝 Creating GitHub release for $PROJECT..."
-              
-              # Get the latest tag for this project
-              PROJECT_TAG=$(git tag --list "${PROJECT}@*" --sort=-version:refname | head -1)
-              
-              if [ -n "$PROJECT_TAG" ]; then
-                VERSION=$(echo "$PROJECT_TAG" | sed "s/${PROJECT}@//")
-                echo "🏷️  Found tag: $PROJECT_TAG (version: $VERSION)"
-                
-                # Read changelog content if it exists
-                CHANGELOG_FILE="apps/${PROJECT}/CHANGELOG.md"
-                if [ ! -f "$CHANGELOG_FILE" ]; then
-                  CHANGELOG_FILE="libs/${PROJECT}/CHANGELOG.md"
-                fi
-                
-                RELEASE_NOTES=""
-                if [ -f "$CHANGELOG_FILE" ]; then
-                  echo "📖 Reading changelog from $CHANGELOG_FILE"
-                  # Extract the latest version's changelog content
-                  RELEASE_NOTES=$(awk "/^## \[?${VERSION}\]?|^## ${VERSION}/ {flag=1; next} /^## / && flag {exit} flag {print}" "$CHANGELOG_FILE")
-                fi
-                
-                if [ -z "$RELEASE_NOTES" ]; then
-                  RELEASE_NOTES="🚀 Release ${VERSION} of ${PROJECT}
-
-                  What's new in this release:
-                  $(git log --pretty=format:"- %s" $(git tag --list "${PROJECT}@*" --sort=-version:refname | sed -n '2p' || echo 'HEAD~10')..${PROJECT_TAG} 2>/dev/null || git log --pretty=format:"- %s" -5)"
-                fi
-                
-                # Create GitHub release draft
-                gh release create "$PROJECT_TAG" \
-                  --draft \
-                  --title "${PROJECT} v${VERSION}" \
-                  --notes "$RELEASE_NOTES"
-                
-                echo "✅ Created draft release for ${PROJECT} v${VERSION}"
-              else
-                echo "⚠️  No tag found for $PROJECT"
-              fi
+          # Show current project versions
+          echo ""
+          echo "📦 Current project versions:"
+          find . -name "package.json" -path "*/apps/*" -o -path "*/libs/*" -o -path "*/packages/*" | while read file; do
+            if [ -f "$file" ]; then
+              PROJECT_NAME=$(basename $(dirname "$file"))
+              VERSION=$(grep '"version"' "$file" | cut -d'"' -f4)
+              echo "  $PROJECT_NAME: $VERSION"
             fi
           done
 
-      - name: Push changes
-        if: steps.dry_run.outputs.needs_release == 'true'
+      - name: Run NX Release
+        if: steps.analyze.outputs.needs_release == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
         run: |
-          echo "📤 Pushing all changes and tags..."
-          git push --follow-tags origin main
-          echo "✅ All changes pushed"
+          echo "🚀 Running NX Release..."
 
-      - name: Summary
+          # Build release command
+          RELEASE_CMD="npx nx release --verbose"
+
+          # Add target projects if specified
+          if [ -n "${{ github.event.inputs.target_projects }}" ]; then
+            RELEASE_CMD="$RELEASE_CMD --projects=${{ github.event.inputs.target_projects }}"
+            echo "🎯 Targeting specific projects: ${{ github.event.inputs.target_projects }}"
+          fi
+
+          # Add first release flag if needed
+          if [ "${{ steps.analyze.outputs.is_first_release }}" == "true" ]; then
+            RELEASE_CMD="$RELEASE_CMD --first-release"
+            echo "🎉 Running first release"
+          fi
+
+          # Add release type override if specified
+          if [ "${{ github.event.inputs.release_type }}" != "auto" ] && [ -n "${{ github.event.inputs.release_type }}" ]; then
+            RELEASE_CMD="$RELEASE_CMD --specifier=${{ github.event.inputs.release_type }}"
+            echo "📊 Using release type override: ${{ github.event.inputs.release_type }}"
+          fi
+
+          # Add force flag if needed
+          if [ "${{ github.event.inputs.force_release }}" == "true" ]; then
+            RELEASE_CMD="$RELEASE_CMD --force"
+            echo "💪 Force release enabled"
+          fi
+
+          echo "Executing: $RELEASE_CMD"
+          echo ""
+
+          # Execute the release command
+          $RELEASE_CMD
+
+          echo ""
+          echo "✅ NX Release completed successfully!"
+
+      - name: Verify Release Results
+        if: steps.analyze.outputs.needs_release == 'true'
+        id: verify
+        run: |
+          echo "🔍 Verifying release results..."
+
+          # Check if any new tags were created
+          NEW_TAGS=$(git tag --points-at HEAD | grep "@" || true)
+
+          if [ -n "$NEW_TAGS" ]; then
+            echo "✅ New release tags created:"
+            echo "$NEW_TAGS" | sed 's/^/  🏷️  /'
+            echo "has_new_releases=true" >> $GITHUB_OUTPUT
+            
+            # Store new tags for use in GitHub releases
+            echo "$NEW_TAGS" > /tmp/new_tags.txt
+            
+            echo ""
+            echo "📦 Released project versions:"
+            echo "$NEW_TAGS" | while read tag; do
+              if [ -n "$tag" ]; then
+                PROJECT=$(echo "$tag" | cut -d'@' -f1)
+                VERSION=$(echo "$tag" | cut -d'@' -f2)
+                echo "  $PROJECT: $VERSION"
+              fi
+            done
+          else
+            echo "❌ No new release tags found"
+            echo "has_new_releases=false" >> $GITHUB_OUTPUT
+          fi
+
+          # Show what files were changed
+          echo ""
+          echo "📝 Files modified in this release:"
+          git log -1 --name-only --pretty=format: | grep -E '\.(json|md)$' | sed 's/^/  📄 /' || echo "  No files modified"
+
+      - name: Create GitHub Releases
+        if: steps.verify.outputs.has_new_releases == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "📝 Creating GitHub releases..."
+
+          # Read new tags from temporary file
+          if [ ! -f "/tmp/new_tags.txt" ]; then
+            echo "❌ No new tags file found"
+            exit 1
+          fi
+
+          while read -r TAG; do
+            if [ -n "$TAG" ] && echo "$TAG" | grep -q "@"; then
+              PROJECT=$(echo "$TAG" | cut -d'@' -f1)
+              VERSION=$(echo "$TAG" | cut -d'@' -f2)
+              
+              echo "Creating GitHub release for $PROJECT v$VERSION..."
+              
+              # Find changelog file for this project
+              CHANGELOG_FILE=""
+              for dir in "apps" "libs" "packages"; do
+                if [ -f "$dir/$PROJECT/CHANGELOG.md" ]; then
+                  CHANGELOG_FILE="$dir/$PROJECT/CHANGELOG.md"
+                  break
+                fi
+              done
+              
+              # Extract release notes from changelog
+              RELEASE_NOTES="🚀 **Release $VERSION**"$'\n\n'"This release was automatically generated from conventional commits."
+              
+              if [ -f "$CHANGELOG_FILE" ]; then
+                echo "📄 Found changelog: $CHANGELOG_FILE"
+                
+                # Extract the content for this version
+                VERSION_CONTENT=$(awk "
+                  /^## .*$VERSION/ { flag=1; next }
+                  /^## / && flag { exit }
+                  flag && !/^$/ { print }
+                " "$CHANGELOG_FILE" | head -50)
+                
+                if [ -n "$VERSION_CONTENT" ]; then
+                  RELEASE_NOTES="$VERSION_CONTENT"
+                else
+                  RELEASE_NOTES="🚀 **Release $VERSION**"$'\n\n'"This release contains updates to $PROJECT."
+                fi
+              else
+                echo "⚠️  No changelog found for $PROJECT"
+              fi
+              
+              # Create GitHub release (as draft for review)
+              if gh release create "$TAG" \
+                --draft \
+                --title "$PROJECT v$VERSION" \
+                --notes "$RELEASE_NOTES" \
+                --generate-notes; then
+                echo "✅ Created draft release: $PROJECT v$VERSION"
+              else
+                echo "❌ Failed to create release for $TAG"
+              fi
+            fi
+          done < /tmp/new_tags.txt
+
+          echo ""
+          echo "🎉 All GitHub releases created as drafts!"
+          echo "👀 Review and publish at: https://github.com/${{ github.repository }}/releases"
+
+      - name: Release Summary
         if: always()
         run: |
           echo ""
-          echo "📊 Release Summary:"
-          echo "==================="
-          echo "• First release: ${{ steps.check_first.outputs.is_first_release }}"
-          echo "• Needs release: ${{ steps.dry_run.outputs.needs_release }}"
+          echo "📊 Release Workflow Summary"
+          echo "=========================="
+          echo "🔧 Triggered by: ${{ github.event_name }}"
+          echo "🌟 Release needed: ${{ steps.analyze.outputs.needs_release }}"
+          echo "🎯 First release: ${{ steps.analyze.outputs.is_first_release }}"
 
-          if [ "${{ steps.dry_run.outputs.needs_release }}" == "true" ]; then
-            echo "• Released projects: ${{ steps.released.outputs.released_projects }}"
-            echo ""
-            echo "✅ Release completed successfully!"
-            echo "📝 Check GitHub releases for draft releases to publish"
+          if [ "${{ steps.analyze.outputs.needs_release }}" == "true" ]; then
+            if [ "${{ steps.verify.outputs.has_new_releases }}" == "true" ]; then
+              echo "✅ **SUCCESS**: Release completed!"
+              echo ""
+              echo "🏷️  **New Tags Created:**"
+              git tag --points-at HEAD | grep "@" | sed 's/^/   • /' || echo "   None"
+              echo ""
+              echo "📝 **Next Steps:**"
+              echo "   1. Review draft releases: https://github.com/${{ github.repository }}/releases"
+              echo "   2. Publish releases when ready"
+              echo "   3. Verify deployment pipelines (if any)"
+            else
+              echo "⚠️  **WARNING**: Release was attempted but no new versions were created"
+              echo "   This might indicate:"
+              echo "   • No changes detected by NX"
+              echo "   • Configuration issues"
+              echo "   • Projects already at correct versions"
+            fi
           else
+            echo "ℹ️  **INFO**: No release needed"
             echo ""
-            echo "ℹ️  No releases needed - no conventional commits detected since last release"
+            echo "💡 **To trigger a release, use conventional commits:**"
+            echo "   • feat: new feature (minor bump)"
+            echo "   • fix: bug fix (patch bump)"
+            echo "   • feat!: breaking change (major bump)"
+            echo "   • chore, docs, style, etc. (patch bump)"
+            echo ""
+            echo "🔧 **Or use manual trigger:**"
+            echo "   • Go to Actions → Release → Run workflow"
+            echo "   • Enable 'Force release' option"
           fi
