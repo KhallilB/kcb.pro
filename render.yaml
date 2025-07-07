@@ -27,7 +27,7 @@ services:
   - type: web
     name: router
     runtime: static
-    rootDir: apps/router
+    rootDir: .
     buildCommand: export HUSKY=0 && npm install && npx nx build router --configuration=production
     staticPublishPath: dist/apps/router
     branch: main
@@ -46,7 +46,7 @@ services:
   - type: web
     name: home
     runtime: static
-    rootDir: apps/home
+    rootDir: .
     buildCommand: export HUSKY=0 && npm install && npx nx build home --configuration=production
     staticPublishPath: dist/apps/home
     branch: main
