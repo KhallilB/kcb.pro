@@ -4,6 +4,7 @@
 logs
 **/*.backup.*
 **/*.back.*
+.env
 
 tmp
 dist
@@ -11,3 +12,9 @@ dist
 .nx/installation
 .nx/workspace-data
 node_modules
+
+
+.cursor/rules/nx-rules.mdc
+.github/instructions/nx.instructions.md
+vite.config.*.timestamp*
+vitest.config.*.timestamp*
