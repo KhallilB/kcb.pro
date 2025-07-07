@@ -1,6 +1,10 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "nxCloudId": "68674db39db9d86e9603a805",
+  "projects": {
+    "router": "apps/router",
+    "shared": "libs/shared"
+  },
   "namedInputs": {
     "default": ["{projectRoot}/**/*", "sharedGlobals"],
     "production": [
@@ -63,27 +67,46 @@
         "buildDepsTargetName": "build-deps",
         "watchDepsTargetName": "watch-deps"
       }
+    },
+    {
+      "plugin": "@nx/rollup/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "buildDepsTargetName": "build-deps",
+        "watchDepsTargetName": "watch-deps"
+      }
     }
   ],
   "targetDefaults": {
-    "@nx/rspack:rspack": {
-      "inputs": [
-        "production",
-        "^production",
-        {
-          "env": "NX_MF_DEV_REMOTES"
-        }
-      ],
-      "cache": true
+    "serve": {
+      "executor": "@nx/rspack:serve",
+      "options": {
+        "buildTarget": "{projectName}:build"
+      }
     },
     "build": {
-      "dependsOn": []
+      "executor": "@nx/rspack:build",
+      "options": {
+        "outputPath": "dist/apps/{projectName}",
+        "main": "src/main.tsx",
+        "polyfills": "src/polyfills.ts",
+        "tsConfig": "tsconfig.app.json",
+        "assets": ["src/favicon.ico", "src/assets"],
+        "styles": ["src/styles.css"],
+        "scripts": []
+      }
+    },
+    "@nx/js:tsc": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
     }
   },
   "release": {
     "projectsRelationship": "independent",
-    "projects": ["apps/*", "packages/*", "libs/*", "!experiments/**"],
+    "projects": ["apps/*", "libs/*", "!experiments/**", "tailwind-config"],
     "version": {
+      "preVersionCommand": "npx nx run-many -t build",
       "conventionalCommits": true
     },
     "changelog": {
@@ -118,7 +141,8 @@
       },
       "library": {
         "style": "tailwind",
-        "linter": "eslint"
+        "linter": "eslint",
+        "unitTestRunner": "vitest"
       }
     }
   }
