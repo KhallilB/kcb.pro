@@ -8,8 +8,14 @@
   ],
   "scripts": {
     "prepare": "husky",
+    "**********BUILD**********": "",
     "build": "nx run-many --target=build --all",
+    "build:router": "nx build router --prod",
+    "build:home": "nx build home --prod",
+    "**********LINT**********": "",
     "lint": "nx run-many --target=lint --all",
+    "lint:router": "nx lint router",
+    "lint:home": "nx lint home",
     "pre-push": "export NX_TUI=false && npm run build && npm run lint"
   },
   "devDependencies": {
