@@ -7,52 +7,86 @@ permissions:
   contents: read
 
 jobs:
-  detect:
-    runs-on: ubuntu-latest
-    outputs:
-      apps: ${{ steps.affected.outputs.apps }}
-
-    steps:
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-
-      - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: npm }
-
-      - run: npm install
-
-      - id: affected
-        run: |
-          BASE_SHA="${{ github.event.pull_request.base.sha }}"
-          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
-
-          APPS=$(npx nx show projects --affected \
-                    --base="$BASE_SHA" --head="$HEAD_SHA" \
-                    --json | jq -r '.[]' | jq -R -s -c 'split("\n")[:-1]')
-
-          echo "apps=$APPS"
-          echo "apps=$APPS" >> "$GITHUB_OUTPUT"
-
   build:
-    needs: detect
-    if: needs.detect.outputs.apps != '[]'
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        app: ${{ fromJson(needs.detect.outputs.apps) }}
-
     steps:
       - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
+        with:
+          fetch-depth: 0
+          fetch-tags: true
 
       - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: npm }
+        with:
+          node-version: 20
+          cache: npm
 
       - run: npm install
 
-      - name: Build ${{ matrix.app }}
+      - name: Extract branch name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
+
+      - name: Build affected apps
         env:
           NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
           NX_RUN_GROUP: ${{ github.run_id }}
-        run: npx nx build ${{ matrix.app }} --configuration=production
+        run: npx nx affected -t build --base=origin/main --head=${{ steps.extract_branch.outputs.branch }}
+# jobs:
+#   detect:
+#     runs-on: ubuntu-latest
+#     outputs:
+#       apps: ${{ steps.affected.outputs.apps }}
+
+#     steps:
+#       - uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 0
+#           fetch-tags: true
+
+#       - uses: actions/setup-node@v4
+#         with:
+#           node-version: 20
+#           cache: npm
+
+#       - run: npm install
+
+#       - id: affected
+#         run: |
+#           BASE_SHA="${{ github.event.pull_request.base.sha }}"
+#           HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+
+#           APPS=$(npx nx show projects --affected \
+#                     --base="$BASE_SHA" --head="$HEAD_SHA" \
+#                     --json | jq -r '.[]' | jq -R -s -c 'split("\n")[:-1]')
+
+#           echo "apps=$APPS"
+#           echo "apps=$APPS" >> "$GITHUB_OUTPUT"
+
+#   build:
+#     needs: detect
+#     if: needs.detect.outputs.apps != '[]'
+#     runs-on: ubuntu-latest
+
+#     strategy:
+#       matrix:
+#         app: ${{ fromJson(needs.detect.outputs.apps) }}
+
+#     steps:
+#       - uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 0
+#           fetch-tags: true
+
+#       - uses: actions/setup-node@v4
+#         with:
+#           node-version: 20
+#           cache: npm
+
+#       - run: npm install
+
+#       - name: Build ${{ matrix.app }}
+#         env:
+#           NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+#           NX_RUN_GROUP: ${{ github.run_id }}
+#         run: npx nx build ${{ matrix.app }} --configuration=production
