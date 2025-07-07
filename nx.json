@@ -84,18 +84,6 @@
         "buildTarget": "{projectName}:build"
       }
     },
-    "build": {
-      "executor": "@nx/rspack:build",
-      "options": {
-        "outputPath": "dist/apps/{projectName}",
-        "main": "src/main.tsx",
-        "polyfills": "src/polyfills.ts",
-        "tsConfig": "tsconfig.app.json",
-        "assets": ["src/favicon.ico", "src/assets"],
-        "styles": ["src/styles.css"],
-        "scripts": []
-      }
-    },
     "@nx/js:tsc": {
       "cache": true,
       "dependsOn": ["^build"],
