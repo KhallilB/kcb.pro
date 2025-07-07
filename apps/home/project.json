@@ -4,20 +4,6 @@
   "sourceRoot": "apps/home/src",
   "projectType": "application",
   "tags": [],
-  "targets": {
-    "serve": {
-      "options": {
-        "port": 4201
-      },
-      "dependsOn": ["shell:serve"]
-    },
-    "lint": {
-      "executor": "@nx/eslint:lint",
-      "options": {
-        "lintFilePatterns": ["apps/home/**/*"],
-        "fix": true,
-        "format": "stylish"
-      }
-    }
-  }
+  "// targets": "to see all targets run: nx show project home --web",
+  "targets": {}
 }

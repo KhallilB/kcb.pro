@@ -1,0 +1,14 @@
+{
+  "name": "kcb.pro",
+  "$schema": "node_modules/nx/schemas/project-schema.json",
+  "targets": {
+    "build": {
+      "dependsOn": [
+        {
+          "projects": ["shared"],
+          "target": "build"
+        }
+      ]
+    }
+  }
+}
