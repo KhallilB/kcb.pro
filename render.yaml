@@ -31,13 +31,10 @@ services:
     buildCommand: export HUSKY=0 && npm install && npx nx build router --configuration=production
     staticPublishPath: dist/apps/router
     branch: main
-    autoDeploy: true
     buildFilter:
       paths:
         - apps/router/**
         - libs/**
-    previews:
-      generation: automatic
     headers:
       - path: /*
         name: Cache-Control
@@ -50,13 +47,10 @@ services:
     buildCommand: export HUSKY=0 && npm install && npx nx build home --configuration=production
     staticPublishPath: dist/apps/home
     branch: main
-    autoDeploy: true
     buildFilter:
       paths:
         - apps/home/**
         - libs/**
-    previews:
-      generation: automatic
     headers:
       - path: /*
         name: Cache-Control
