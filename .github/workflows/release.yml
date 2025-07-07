@@ -51,7 +51,7 @@ jobs:
           git config --global user.email "release-bot@users.noreply.github.com"
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
       - name: Analyze Conventional Commits
         id: analyze
@@ -159,6 +159,49 @@ jobs:
             fi
           done
 
+      - name: Determine Release Strategy
+        if: steps.analyze.outputs.needs_release == 'true'
+        id: strategy
+        run: |
+          echo "🎯 Determining release strategy..."
+
+          # Analyze the types of conventional commits we found
+          COMMIT_RANGE="${{ steps.analyze.outputs.commit_range }}"
+
+          # Check for breaking changes
+          BREAKING_CHANGES=$(git log $COMMIT_RANGE --grep="BREAKING CHANGE" --grep="!" --extended-regexp --oneline)
+
+          # Check for features
+          FEATURES=$(git log $COMMIT_RANGE --grep="^feat" --extended-regexp --oneline)
+
+          # Check for fixes and other changes
+          FIXES=$(git log $COMMIT_RANGE --grep="^fix" --extended-regexp --oneline)
+          OTHER_CHANGES=$(git log $COMMIT_RANGE --grep="^chore" --grep="^docs" --grep="^style" --grep="^refactor" --grep="^perf" --extended-regexp --oneline)
+
+          # Determine version bump type
+          if [ -n "$BREAKING_CHANGES" ]; then
+            RELEASE_TYPE="major"
+            echo "📈 Detected breaking changes - will use MAJOR version bump"
+          elif [ -n "$FEATURES" ]; then
+            RELEASE_TYPE="minor"
+            echo "📈 Detected features - will use MINOR version bump"
+          elif [ -n "$FIXES" ] || [ -n "$OTHER_CHANGES" ]; then
+            RELEASE_TYPE="patch"
+            echo "📈 Detected fixes/changes - will use PATCH version bump"
+          else
+            RELEASE_TYPE="patch"
+            echo "📈 Default to PATCH version bump"
+          fi
+
+          # Override if manual release type specified
+          if [ "${{ github.event.inputs.release_type }}" != "auto" ] && [ -n "${{ github.event.inputs.release_type }}" ]; then
+            RELEASE_TYPE="${{ github.event.inputs.release_type }}"
+            echo "🎛️ Manual override: using $RELEASE_TYPE version bump"
+          fi
+
+          echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
+          echo "✅ Will use release type: $RELEASE_TYPE"
+
       - name: Run NX Release
         if: steps.analyze.outputs.needs_release == 'true'
         env:
@@ -167,72 +210,51 @@ jobs:
         run: |
           echo "🚀 Running NX Release..."
 
-          # Build release command
-          RELEASE_CMD="npx nx release --verbose"
+          # Since we detected changes but NX might not, use individual commands
+          # This is more reliable than the combined `nx release` command
+
+          echo "🔄 Using individual NX release commands for better control..."
+
+          # Step 1: Version bump
+          VERSION_CMD="npx nx release version ${{ steps.strategy.outputs.release_type }} --verbose"
 
           # Add target projects if specified
           if [ -n "${{ github.event.inputs.target_projects }}" ]; then
-            RELEASE_CMD="$RELEASE_CMD --projects=${{ github.event.inputs.target_projects }}"
+            VERSION_CMD="$VERSION_CMD --projects=${{ github.event.inputs.target_projects }}"
             echo "🎯 Targeting specific projects: ${{ github.event.inputs.target_projects }}"
           fi
 
           # Add first release flag if needed
           if [ "${{ steps.analyze.outputs.is_first_release }}" == "true" ]; then
-            RELEASE_CMD="$RELEASE_CMD --first-release"
+            VERSION_CMD="$VERSION_CMD --first-release"
             echo "🎉 Running first release"
           fi
 
-          # Add release type override if specified and we're forcing a release
-          if [ "${{ github.event.inputs.release_type }}" != "auto" ] && [ -n "${{ github.event.inputs.release_type }}" ]; then
-            RELEASE_CMD="$RELEASE_CMD ${{ github.event.inputs.release_type }}"
-            echo "📊 Using release type override: ${{ github.event.inputs.release_type }}"
-          fi
-
-          echo "Executing: $RELEASE_CMD"
-          echo ""
-
-          # Try the release command
-          if $RELEASE_CMD; then
-            echo "✅ NX Release completed successfully!"
-          else
-            echo "⚠️ NX Release didn't create new versions, trying individual commands..."
-            echo ""
+          echo "Executing version: $VERSION_CMD"
+          if $VERSION_CMD; then
+            echo "✅ Version bump completed successfully!"
             
-            # Fallback: Use individual NX commands to force releases
-            echo "🔄 Running individual release steps..."
-            
-            # Step 1: Version bump with force for detected changes
-            VERSION_CMD="npx nx release version --verbose"
+            # Step 2: Generate changelogs
+            CHANGELOG_CMD="npx nx release changelog --verbose"
             if [ -n "${{ github.event.inputs.target_projects }}" ]; then
-              VERSION_CMD="$VERSION_CMD --projects=${{ github.event.inputs.target_projects }}"
-            fi
-            if [ "${{ steps.analyze.outputs.is_first_release }}" == "true" ]; then
-              VERSION_CMD="$VERSION_CMD --first-release"
-            elif [ "${{ github.event.inputs.release_type }}" != "auto" ] && [ -n "${{ github.event.inputs.release_type }}" ]; then
-              VERSION_CMD="$VERSION_CMD ${{ github.event.inputs.release_type }}"
-            else
-              # Use patch as default for detected conventional commits
-              VERSION_CMD="$VERSION_CMD patch"
+              CHANGELOG_CMD="$CHANGELOG_CMD --projects=${{ github.event.inputs.target_projects }}"
             fi
             
-            echo "Running version: $VERSION_CMD"
-            if $VERSION_CMD; then
-              echo "✅ Version bump completed"
-              
-              # Step 2: Generate changelogs
-              CHANGELOG_CMD="npx nx release changelog --verbose"
-              if [ -n "${{ github.event.inputs.target_projects }}" ]; then
-                CHANGELOG_CMD="$CHANGELOG_CMD --projects=${{ github.event.inputs.target_projects }}"
-              fi
-              
-              echo "Running changelog: $CHANGELOG_CMD"
-              $CHANGELOG_CMD || echo "⚠️ Changelog generation had warnings (this is normal)"
-              
-              echo "✅ Manual release process completed!"
+            echo "Executing changelog: $CHANGELOG_CMD"
+            if $CHANGELOG_CMD; then
+              echo "✅ Changelog generation completed!"
             else
-              echo "❌ Version bump failed"
-              exit 1
+              echo "⚠️ Changelog generation had warnings (this is normal for some setups)"
             fi
+            
+            echo "✅ NX Release process completed successfully!"
+          else
+            echo "❌ Version bump failed"
+            echo "This might indicate:"
+            echo "  • Projects don't have package.json files"
+            echo "  • Git working directory is not clean"
+            echo "  • NX configuration issues"
+            exit 1
           fi
 
       - name: Verify Release Results
@@ -362,10 +384,18 @@ jobs:
               echo "   3. Verify deployment pipelines (if any)"
             else
               echo "⚠️  **WARNING**: Release was attempted but no new versions were created"
-              echo "   This might indicate:"
-              echo "   • No changes detected by NX"
-              echo "   • Configuration issues"
-              echo "   • Projects already at correct versions"
+              echo ""
+              echo "🔍 **Debug Info:**"
+              echo "   • Conventional commits detected: ✅"
+              echo "   • Release type determined: ${{ steps.strategy.outputs.release_type || 'patch' }}"
+              echo "   • This might indicate NX configuration issues"
+              echo ""
+              echo "🆘 **Manual Fix:**"
+              if [ -n "${{ steps.strategy.outputs.release_type }}" ]; then
+                echo "   npx nx release version ${{ steps.strategy.outputs.release_type }} --projects=router,home,shared"
+              else
+                echo "   npx nx release version patch --projects=router,home,shared"
+              fi
             fi
           else
             echo "ℹ️  **INFO**: No release needed"
@@ -375,6 +405,11 @@ jobs:
             echo "   • fix: bug fix (patch bump)"
             echo "   • feat!: breaking change (major bump)"
             echo "   • chore, docs, style, etc. (patch bump)"
+            echo ""
+            echo "🧪 **Test Examples:**"
+            echo "   git commit -m \"fix: this should bump all projects\""
+            echo "   git commit -m \"feat(router): add new navigation\""
+            echo "   git commit -m \"feat!: redesign API\""
             echo ""
             echo "🔧 **Or use manual trigger:**"
             echo "   • Go to Actions → Release → Run workflow"
