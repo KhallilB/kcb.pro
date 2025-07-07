@@ -32,202 +32,182 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Check for existing releases
-        id: check_releases
+      - name: Check if first release
+        id: check_first
         run: |
           # Check if any release tags exist
           EXISTING_TAGS=$(git tag --list "*@*")
           if [ -z "$EXISTING_TAGS" ]; then
-            echo "No release tags found - this is the first release"
             echo "is_first_release=true" >> $GITHUB_OUTPUT
-            echo "base_ref=HEAD~100" >> $GITHUB_OUTPUT  # Check last 100 commits for first release
+            echo "🎉 This is the first release"
           else
-            echo "Found existing release tags"
-            LAST_TAG=$(git describe --tags --abbrev=0)
             echo "is_first_release=false" >> $GITHUB_OUTPUT
-            echo "base_ref=$LAST_TAG" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Find affected apps
-        id: affected
-        env:
-          NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
-        run: |
-          BASE_REF="${{ steps.check_releases.outputs.base_ref }}"
-
-          if [ "${{ steps.check_releases.outputs.is_first_release }}" == "true" ]; then
-            # For first release, consider all apps as affected
-            echo "First release - considering all apps as affected"
-            ALL_APPS=$(npx nx show projects --type=app --json | jq -r '.[]')
-            echo "All apps:"
-            echo "$ALL_APPS"
-            APPS_LIST=$(echo "$ALL_APPS" | tr '\n' ',' | sed 's/,$//')
-          else
-            # Get affected apps using nx
-            echo "Finding affected apps since: $BASE_REF"
-            AFFECTED_APPS=$(npx nx show projects --affected \
-              --base="$BASE_REF" \
-              --head="HEAD" \
-              --type=app \
-              --json 2>/dev/null | jq -r '.[]')
-
-            echo "Affected apps:"
-            echo "$AFFECTED_APPS"
-            APPS_LIST=$(echo "$AFFECTED_APPS" | tr '\n' ',' | sed 's/,$//')
-          fi
-
-          if [ -n "$APPS_LIST" ] && [ "$APPS_LIST" != "null" ] && [ "$APPS_LIST" != "" ]; then
-            echo "apps_list=$APPS_LIST" >> $GITHUB_OUTPUT
-            echo "has_affected=true" >> $GITHUB_OUTPUT
-            echo "Final apps list: $APPS_LIST"
-          else
-            echo "has_affected=false" >> $GITHUB_OUTPUT
-            echo "No affected apps found"
+            echo "📦 Found existing releases"
           fi
 
       - name: Debug recent commits
-        if: steps.affected.outputs.has_affected == 'true'
         run: |
-          echo "🔍 Debugging recent commits..."
-          echo "Last 10 commits:"
+          echo "🔍 Recent commits:"
           git log --oneline -10
           echo ""
-          echo "Commits with conventional format:"
-          git log --oneline -20 --grep="^feat" --grep="^fix" --grep="^chore" --grep="^docs" --grep="^style" --grep="^refactor" --grep="^perf" --grep="^test" --grep="^build" --grep="^ci" --extended-regexp || echo "No conventional commits found with grep"
+          echo "🏷️  Current tags:"
+          git tag --list "*@*" | sort -V | tail -10
           echo ""
-          echo "All commit messages (last 10):"
-          git log --pretty=format:"%h - %s" -10
+          if [ "${{ steps.check_first.outputs.is_first_release }}" == "false" ]; then
+            echo "📈 Commits since last release:"
+            # Show commits since the latest tag
+            LATEST_TAG=$(git tag --list "*@*" | sort -V | tail -1)
+            if [ -n "$LATEST_TAG" ]; then
+              echo "Since $LATEST_TAG:"
+              git log ${LATEST_TAG}..HEAD --oneline || echo "No commits since last tag"
+            fi
+          fi
 
-      - name: Test nx release dry run
-        if: steps.affected.outputs.has_affected == 'true'
+      - name: Test nx release (dry run)
         id: dry_run
         env:
           NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
         run: |
-          APPS_LIST="${{ steps.affected.outputs.apps_list }}"
-          echo "Testing nx release dry run for apps: $APPS_LIST"
+          echo "🧪 Testing what nx release would do..."
 
-          # Test what nx release would do
-          if [ "${{ steps.check_releases.outputs.is_first_release }}" == "true" ]; then
-            echo "Testing first release..."
-            RESULT=$(npx nx release --projects="$APPS_LIST" --first-release --dry-run --verbose 2>&1)
+          if [ "${{ steps.check_first.outputs.is_first_release }}" == "true" ]; then
+            echo "Testing first release for all apps..."
+            RESULT=$(npx nx release --first-release --dry-run --verbose 2>&1)
           else
-            echo "Testing standard release..."
-            RESULT=$(npx nx release --projects="$APPS_LIST" --dry-run --verbose 2>&1)
+            echo "Testing standard release for all projects..."
+            RESULT=$(npx nx release --dry-run --verbose 2>&1)
           fi
 
-          echo "Dry run result:"
+          echo "📋 Dry run output:"
           echo "$RESULT"
+          echo ""
 
-          # Check if nx would actually release something
-          if echo "$RESULT" | grep -q "No changes to publish"; then
+          # Check if nx detected any changes worth releasing
+          if echo "$RESULT" | grep -q "No changes were detected\|No files would be changed"; then
             echo "needs_release=false" >> $GITHUB_OUTPUT
             echo "❌ Nx detected no changes requiring release"
-          elif echo "$RESULT" | grep -q "would be bumped"; then
-            echo "needs_release=true" >> $GITHUB_OUTPUT
-            echo "✅ Nx detected changes requiring release"
-          elif echo "$RESULT" | grep -q "New version"; then
+          elif echo "$RESULT" | grep -q "would be bumped\|New version\|would update"; then
             echo "needs_release=true" >> $GITHUB_OUTPUT
             echo "✅ Nx detected changes requiring release"
           else
-            # For first release, assume we need it
-            if [ "${{ steps.check_releases.outputs.is_first_release }}" == "true" ]; then
+            # For first release, proceed if there are any apps
+            if [ "${{ steps.check_first.outputs.is_first_release }}" == "true" ]; then
               echo "needs_release=true" >> $GITHUB_OUTPUT
               echo "✅ First release - proceeding"
             else
               echo "needs_release=false" >> $GITHUB_OUTPUT
-              echo "❓ Unclear if release needed - skipping"
+              echo "❓ Unclear - skipping to be safe"
             fi
           fi
 
       - name: Run nx release
-        if: steps.affected.outputs.has_affected == 'true' && steps.dry_run.outputs.needs_release == 'true'
+        if: steps.dry_run.outputs.needs_release == 'true'
         env:
           NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
         run: |
-          APPS_LIST="${{ steps.affected.outputs.apps_list }}"
-          echo "Running nx release for apps: $APPS_LIST"
+          echo "🚀 Running nx release..."
 
-          # Run the actual release
-          if [ "${{ steps.check_releases.outputs.is_first_release }}" == "true" ]; then
+          if [ "${{ steps.check_first.outputs.is_first_release }}" == "true" ]; then
             echo "🎉 Running first release"
-            npx nx release --projects="$APPS_LIST" --first-release --verbose
+            npx nx release --first-release --verbose
           else
-            echo "Running standard release"
-            npx nx release --projects="$APPS_LIST" --verbose
+            echo "📦 Running standard release"
+            npx nx release --verbose
           fi
 
-          echo "✅ Release completed for affected apps"
+          echo "✅ Release completed"
+
+      - name: Get released projects
+        if: steps.dry_run.outputs.needs_release == 'true'
+        id: released
+        run: |
+          # Get all project tags created in this run
+          NEW_TAGS=$(git tag --points-at HEAD | grep "@")
+          echo "🏷️  New tags created:"
+          echo "$NEW_TAGS"
+
+          # Extract project names from tags
+          RELEASED_PROJECTS=""
+          if [ -n "$NEW_TAGS" ]; then
+            RELEASED_PROJECTS=$(echo "$NEW_TAGS" | sed 's/@.*//' | tr '\n' ',' | sed 's/,$//')
+          fi
+
+          echo "released_projects=$RELEASED_PROJECTS" >> $GITHUB_OUTPUT
+          echo "📦 Released projects: $RELEASED_PROJECTS"
 
       - name: Create GitHub release drafts
-        if: steps.affected.outputs.has_affected == 'true' && steps.dry_run.outputs.needs_release == 'true'
+        if: steps.dry_run.outputs.needs_release == 'true' && steps.released.outputs.released_projects != ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          APPS_LIST="${{ steps.affected.outputs.apps_list }}"
+          RELEASED_PROJECTS="${{ steps.released.outputs.released_projects }}"
 
-          echo "$APPS_LIST" | tr ',' '\n' | while read -r APP; do
-            if [ -n "$APP" ]; then
-              echo "Creating GitHub release for $APP..."
+          echo "$RELEASED_PROJECTS" | tr ',' '\n' | while read -r PROJECT; do
+            if [ -n "$PROJECT" ]; then
+              echo "📝 Creating GitHub release for $PROJECT..."
               
-              # Get the latest tag for this app
-              APP_TAG=$(git tag --list "${APP}@*" --sort=-version:refname | head -1)
+              # Get the latest tag for this project
+              PROJECT_TAG=$(git tag --list "${PROJECT}@*" --sort=-version:refname | head -1)
               
-              if [ -n "$APP_TAG" ]; then
-                VERSION=$(echo "$APP_TAG" | sed "s/${APP}@//")
-                echo "Found tag: $APP_TAG (version: $VERSION)"
+              if [ -n "$PROJECT_TAG" ]; then
+                VERSION=$(echo "$PROJECT_TAG" | sed "s/${PROJECT}@//")
+                echo "🏷️  Found tag: $PROJECT_TAG (version: $VERSION)"
                 
                 # Read changelog content if it exists
-                CHANGELOG_FILE="apps/${APP}/CHANGELOG.md"
-                RELEASE_NOTES=""
+                CHANGELOG_FILE="apps/${PROJECT}/CHANGELOG.md"
+                if [ ! -f "$CHANGELOG_FILE" ]; then
+                  CHANGELOG_FILE="libs/${PROJECT}/CHANGELOG.md"
+                fi
                 
+                RELEASE_NOTES=""
                 if [ -f "$CHANGELOG_FILE" ]; then
+                  echo "📖 Reading changelog from $CHANGELOG_FILE"
+                  # Extract the latest version's changelog content
                   RELEASE_NOTES=$(awk "/^## \[?${VERSION}\]?|^## ${VERSION}/ {flag=1; next} /^## / && flag {exit} flag {print}" "$CHANGELOG_FILE")
                 fi
                 
                 if [ -z "$RELEASE_NOTES" ]; then
-                  RELEASE_NOTES="Release ${VERSION} of ${APP}
+                  RELEASE_NOTES="🚀 Release ${VERSION} of ${PROJECT}
 
-                  🚀 What's new in this release"
+                  What's new in this release:
+                  $(git log --pretty=format:"- %s" $(git tag --list "${PROJECT}@*" --sort=-version:refname | sed -n '2p' || echo 'HEAD~10')..${PROJECT_TAG} 2>/dev/null || git log --pretty=format:"- %s" -5)"
                 fi
                 
                 # Create GitHub release draft
-                gh release create "$APP_TAG" \
+                gh release create "$PROJECT_TAG" \
                   --draft \
-                  --title "${APP} ${VERSION}" \
-                  --notes "$RELEASE_NOTES" \
-                  --repo "$GITHUB_REPOSITORY"
+                  --title "${PROJECT} v${VERSION}" \
+                  --notes "$RELEASE_NOTES"
                 
-                echo "✅ Created draft release for ${APP} ${VERSION}"
+                echo "✅ Created draft release for ${PROJECT} v${VERSION}"
               else
-                echo "⚠️  No tag found for $APP, skipping GitHub release"
+                echo "⚠️  No tag found for $PROJECT"
               fi
             fi
           done
 
-      - name: Push all changes
-        if: steps.affected.outputs.has_affected == 'true' && steps.dry_run.outputs.needs_release == 'true'
+      - name: Push changes
+        if: steps.dry_run.outputs.needs_release == 'true'
         run: |
-          echo "Pushing all accumulated changes and tags..."
+          echo "📤 Pushing all changes and tags..."
           git push --follow-tags origin main
-          echo "✅ All changes and tags pushed successfully"
+          echo "✅ All changes pushed"
 
       - name: Summary
         if: always()
         run: |
+          echo ""
           echo "📊 Release Summary:"
-          echo "- First release: ${{ steps.check_releases.outputs.is_first_release }}"
-          echo "- Has affected apps: ${{ steps.affected.outputs.has_affected }}"
-          if [ "${{ steps.affected.outputs.has_affected }}" == "true" ]; then
-            echo "- Affected apps: ${{ steps.affected.outputs.apps_list }}"
-            echo "- Needs release: ${{ steps.dry_run.outputs.needs_release }}"
-            
-            if [ "${{ steps.dry_run.outputs.needs_release }}" == "true" ]; then
-              echo "✅ Releases completed and pushed"
-              echo "📝 GitHub release drafts created"
-            else
-              echo "⏭️  No changes detected by Nx that require release"
-            fi
+          echo "==================="
+          echo "• First release: ${{ steps.check_first.outputs.is_first_release }}"
+          echo "• Needs release: ${{ steps.dry_run.outputs.needs_release }}"
+
+          if [ "${{ steps.dry_run.outputs.needs_release }}" == "true" ]; then
+            echo "• Released projects: ${{ steps.released.outputs.released_projects }}"
+            echo ""
+            echo "✅ Release completed successfully!"
+            echo "📝 Check GitHub releases for draft releases to publish"
           else
-            echo "ℹ️  No affected apps found"
+            echo ""
+            echo "ℹ️  No releases needed - no conventional commits detected since last release"
           fi
