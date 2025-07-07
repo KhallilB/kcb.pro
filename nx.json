@@ -5,6 +5,7 @@
     "router": "apps/router",
     "shared": "libs/shared"
   },
+  "neverConnectToCloud": true,
   "namedInputs": {
     "default": ["{projectRoot}/**/*", "sharedGlobals"],
     "production": [
