@@ -95,8 +95,7 @@
     "projects": ["apps/*", "libs/*"],
     "version": {
       "preVersionCommand": "npx nx run-many -t build",
-      "conventionalCommits": true,
-      "currentVersionResolver": "git-tag"
+      "conventionalCommits": true
     },
     "changelog": {
       "projectChangelogs": {
@@ -121,7 +120,7 @@
     "git": {
       "commit": true,
       "tag": true,
-      "push": true,
+      "push": false,
       "commitMessage": "chore(release): publish {projectName} {version}"
     }
   },
