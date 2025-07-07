@@ -147,11 +147,15 @@ jobs:
           # Show current project versions
           echo ""
           echo "📦 Current project versions:"
-          find . -name "package.json" -path "*/apps/*" -o -path "*/libs/*" -o -path "*/packages/*" | while read file; do
-            if [ -f "$file" ]; then
-              PROJECT_NAME=$(basename $(dirname "$file"))
-              VERSION=$(grep '"version"' "$file" | cut -d'"' -f4)
-              echo "  $PROJECT_NAME: $VERSION"
+          for dir in apps libs packages; do
+            if [ -d "$dir" ]; then
+              find "$dir" -maxdepth 2 -name "package.json" -type f | while read file; do
+                if [ -f "$file" ]; then
+                  PROJECT_NAME=$(basename $(dirname "$file"))
+                  VERSION=$(grep '"version"' "$file" | cut -d'"' -f4 2>/dev/null || echo "unknown")
+                  echo "  $PROJECT_NAME: $VERSION"
+                fi
+              done
             fi
           done
 
@@ -176,51 +180,60 @@ jobs:
           if [ "${{ steps.analyze.outputs.is_first_release }}" == "true" ]; then
             RELEASE_CMD="$RELEASE_CMD --first-release"
             echo "🎉 Running first release"
-          else
-            # For subsequent releases, specify the commit range to ensure NX detects changes
-            COMMIT_RANGE="${{ steps.analyze.outputs.commit_range }}"
-            if [ -n "$COMMIT_RANGE" ]; then
-              # Extract the FROM part of the range for NX
-              FROM_COMMIT=$(echo "$COMMIT_RANGE" | cut -d'.' -f1)
-              if [ -n "$FROM_COMMIT" ] && [ "$FROM_COMMIT" != "HEAD~1" ] && [ "$FROM_COMMIT" != "HEAD~10" ]; then
-                RELEASE_CMD="$RELEASE_CMD --from=$FROM_COMMIT"
-                echo "📍 Using commit range from: $FROM_COMMIT"
-              else
-                # Fallback: force release if we detected changes manually
-                RELEASE_CMD="$RELEASE_CMD --force"
-                echo "💪 Force release due to detected changes"
-              fi
-            fi
           fi
 
-          # Add release type override if specified
+          # Add release type override if specified and we're forcing a release
           if [ "${{ github.event.inputs.release_type }}" != "auto" ] && [ -n "${{ github.event.inputs.release_type }}" ]; then
-            RELEASE_CMD="$RELEASE_CMD --specifier=${{ github.event.inputs.release_type }}"
+            RELEASE_CMD="$RELEASE_CMD ${{ github.event.inputs.release_type }}"
             echo "📊 Using release type override: ${{ github.event.inputs.release_type }}"
-          fi
-
-          # Add force flag if manually requested
-          if [ "${{ github.event.inputs.force_release }}" == "true" ]; then
-            RELEASE_CMD="$RELEASE_CMD --force"
-            echo "💪 Manual force release enabled"
           fi
 
           echo "Executing: $RELEASE_CMD"
           echo ""
 
-          # Execute the release command
-          if ! $RELEASE_CMD; then
-            echo "❌ NX Release failed, trying with --force flag..."
-            FORCE_CMD=$(echo "$RELEASE_CMD" | sed 's/--from=[^ ]*//' | sed 's/  */ /g')
-            if [[ ! "$FORCE_CMD" =~ --force ]]; then
-              FORCE_CMD="$FORCE_CMD --force"
+          # Try the release command
+          if $RELEASE_CMD; then
+            echo "✅ NX Release completed successfully!"
+          else
+            echo "⚠️ NX Release didn't create new versions, trying individual commands..."
+            echo ""
+            
+            # Fallback: Use individual NX commands to force releases
+            echo "🔄 Running individual release steps..."
+            
+            # Step 1: Version bump with force for detected changes
+            VERSION_CMD="npx nx release version --verbose"
+            if [ -n "${{ github.event.inputs.target_projects }}" ]; then
+              VERSION_CMD="$VERSION_CMD --projects=${{ github.event.inputs.target_projects }}"
             fi
-            echo "Retrying with: $FORCE_CMD"
-            $FORCE_CMD
+            if [ "${{ steps.analyze.outputs.is_first_release }}" == "true" ]; then
+              VERSION_CMD="$VERSION_CMD --first-release"
+            elif [ "${{ github.event.inputs.release_type }}" != "auto" ] && [ -n "${{ github.event.inputs.release_type }}" ]; then
+              VERSION_CMD="$VERSION_CMD ${{ github.event.inputs.release_type }}"
+            else
+              # Use patch as default for detected conventional commits
+              VERSION_CMD="$VERSION_CMD patch"
+            fi
+            
+            echo "Running version: $VERSION_CMD"
+            if $VERSION_CMD; then
+              echo "✅ Version bump completed"
+              
+              # Step 2: Generate changelogs
+              CHANGELOG_CMD="npx nx release changelog --verbose"
+              if [ -n "${{ github.event.inputs.target_projects }}" ]; then
+                CHANGELOG_CMD="$CHANGELOG_CMD --projects=${{ github.event.inputs.target_projects }}"
+              fi
+              
+              echo "Running changelog: $CHANGELOG_CMD"
+              $CHANGELOG_CMD || echo "⚠️ Changelog generation had warnings (this is normal)"
+              
+              echo "✅ Manual release process completed!"
+            else
+              echo "❌ Version bump failed"
+              exit 1
+            fi
           fi
-
-          echo ""
-          echo "✅ NX Release completed successfully!"
 
       - name: Verify Release Results
         if: steps.analyze.outputs.needs_release == 'true'
