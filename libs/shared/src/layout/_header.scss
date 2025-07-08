@@ -1,0 +1,20 @@
+.site-header {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  background-color: $color-primary;
+  color: $color-text-light;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: $z-index-header;
+
+  nav a {
+    margin-left: $spacing-md;
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
