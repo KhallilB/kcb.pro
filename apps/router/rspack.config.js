@@ -9,10 +9,6 @@ module.exports = {
   resolve: {
     alias: {
       '@shared-styles': join(__dirname, '../../libs/shared/src/styles.scss'),
-      '@shared-variables': join(
-        __dirname,
-        '../../libs/shared/src/base/_variables.scss'
-      ),
     },
   },
   devServer: {

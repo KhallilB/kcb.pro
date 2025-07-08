@@ -1,0 +1,32 @@
+.text-left {
+  text-align: left !important;
+}
+.text-center {
+  text-align: center !important;
+}
+.text-right {
+  text-align: right !important;
+}
+
+.text-xs {
+  font-size: $font-xs !important;
+}
+.text-sm {
+  font-size: $font-sm !important;
+}
+.text-lg {
+  font-size: $font-lg !important;
+}
+.text-xl {
+  font-size: $font-xl !important;
+}
+
+.text-bold {
+  font-weight: 700 !important;
+}
+.text-normal {
+  font-weight: 400 !important;
+}
+.text-muted {
+  color: var(--color-text-secondary) !important;
+}
