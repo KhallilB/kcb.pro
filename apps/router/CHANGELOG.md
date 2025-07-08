@@ -1,3 +1,17 @@
+## 0.2.0 (2025-07-08)
+
+### 🩹 Fixes
+
+- **shared:** import handling ([ea97974](https://github.com/KhallilB/kcb.pro/commit/ea97974))
+
+### 🧱 Updated Dependencies
+
+- Updated home to 0.2.0
+
+### ❤️ Thank You
+
+- KhallilB
+
 ## 0.1.1 (2025-07-08)
 
 ### 🧱 Updated Dependencies

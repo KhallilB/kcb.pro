@@ -1,3 +1,17 @@
+## 0.2.0 (2025-07-08)
+
+### 🚀 Features
+
+- **shared:** add base styling properties ([d7d2cb1](https://github.com/KhallilB/kcb.pro/commit/d7d2cb1))
+
+### 🩹 Fixes
+
+- **shared:** import handling ([ea97974](https://github.com/KhallilB/kcb.pro/commit/ea97974))
+
+### ❤️ Thank You
+
+- KhallilB
+
 ## 0.1.1 (2025-07-08)
 
 This was a version bump only for home to align it with other projects, there were no code changes.
