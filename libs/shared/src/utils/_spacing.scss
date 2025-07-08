@@ -1,0 +1,16 @@
+$spacing-scale: (
+  0: 0,
+  1: $spacing-xs,
+  2: $spacing-sm,
+  3: $spacing-md,
+  4: $spacing-lg,
+);
+
+@each $key, $value in $spacing-scale {
+  .m-#{$key} {
+    margin: $value !important;
+  }
+  .p-#{$key} {
+    padding: $value !important;
+  }
+}
