@@ -1,0 +1,16 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/z-index' as *;
+
+.site-footer {
+  width: 100%;
+  padding: $spacing-md;
+  background-color: $color-bg-dark;
+  color: $color-text-light;
+  text-align: center;
+  z-index: $z-index-footer;
+
+  a {
+    color: inherit;
+    text-decoration: underline;
+  }
+}

@@ -1,0 +1,20 @@
+@function rem($pixels, $base: 16) {
+  @return ($pixels / $base) * 1rem;
+}
+
+@function em($pixels, $context: 16) {
+  @return ($pixels / $context) * 1em;
+}
+
+@function spacing($scale) {
+  @return map-get(
+    (
+      xs: $spacing-xs,
+      sm: $spacing-sm,
+      md: $spacing-md,
+      lg: $spacing-lg,
+      xl: $spacing-xl,
+    ),
+    $scale
+  );
+}

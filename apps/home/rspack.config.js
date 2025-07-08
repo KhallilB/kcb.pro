@@ -6,6 +6,11 @@ module.exports = {
   output: {
     path: join(__dirname, '../../dist/apps/home'),
   },
+  resolve: {
+    alias: {
+      '@shared-styles': join(__dirname, '../../libs/shared/src/styles.scss'),
+    },
+  },
   devServer: {
     port: 4201,
     historyApiFallback: {
