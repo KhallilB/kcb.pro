@@ -6,15 +6,15 @@ on:
   workflow_dispatch:
     inputs:
       force_release:
-        description: 'Force release even if no conventional commits detected'
+        description: 'Force release even if no changes detected'
         required: false
         type: boolean
       target_projects:
-        description: 'Specific projects to release (comma-separated, leave empty for all)'
+        description: 'Specific projects to release (comma-separated)'
         required: false
         default: ''
       release_type:
-        description: 'Override release type (auto uses conventional commits)'
+        description: 'Release type'
         required: false
         type: choice
         options:
@@ -33,7 +33,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -53,364 +53,109 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Analyze Conventional Commits
-        id: analyze
+      - name: Check for Changes
+        id: changes
         run: |
-          echo "🔍 Analyzing conventional commits..."
-
-          # Determine commit range to analyze
+          # Determine commit range
           if [ "${{ github.event_name }}" = "push" ]; then
-            # For push events (including PR merges), check commits in the push
             if [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
-              COMMIT_RANGE="${{ github.event.before }}..HEAD"
+              RANGE="${{ github.event.before }}..HEAD"
             else
-              # First push to branch
-              COMMIT_RANGE="HEAD~1..HEAD"
+              RANGE="HEAD~1..HEAD"
             fi
           else
-            # For manual dispatch, check since last release per project
-            COMMIT_RANGE="HEAD~10..HEAD"  # fallback range
+            RANGE="HEAD~10..HEAD"
           fi
 
-          echo "📋 Analyzing commit range: $COMMIT_RANGE"
-
-          # Show the commits we're analyzing
-          echo "📝 Commits in range:"
-          git log $COMMIT_RANGE --oneline | sed 's/^/  /'
-
-          # Check for conventional commits in the range
-          CONVENTIONAL_COMMITS=$(git log $COMMIT_RANGE --oneline --grep="^feat" --grep="^fix" --grep="^chore" --grep="^docs" --grep="^style" --grep="^refactor" --grep="^perf" --grep="^test" --grep="^build" --grep="^ci" --grep="^revert" --grep="BREAKING CHANGE" --extended-regexp)
-
-          # Also check each commit message for conventional format (handles squash merges)
-          MANUAL_CHECK_COMMITS=$(git log $COMMIT_RANGE --pretty=format:"%h %s" | grep -E "^[a-f0-9]+ (feat|fix|chore|docs|style|refactor|perf|test|build|ci)(\(.+\))?:")
-
-          # Also check for conventional commits since last release for each project
-          echo ""
-          echo "🔍 Checking per-project since last release:"
-          PROJECT_HAS_CHANGES=false
-
-          for project in router home shared; do
-            LAST_TAG=$(git tag --list "${project}@*" --sort=-version:refname | head -1)
-            if [ -n "$LAST_TAG" ]; then
-              echo "  $project (since $LAST_TAG):"
-              PROJECT_COMMITS=$(git log ${LAST_TAG}..HEAD --oneline --grep="^feat" --grep="^fix" --grep="^chore" --grep="^docs" --grep="^style" --grep="^refactor" --grep="^perf" --grep="^test" --grep="^build" --grep="^ci" --grep="BREAKING CHANGE" --extended-regexp)
-              
-              # Also check for any commits affecting this project's files
-              PROJECT_FILE_CHANGES=$(git log ${LAST_TAG}..HEAD --oneline --name-only | grep -E "(apps/${project}/|libs/${project}/|packages/${project}/)" | wc -l)
-              
-              if [ -n "$PROJECT_COMMITS" ] || [ "$PROJECT_FILE_CHANGES" -gt 0 ]; then
-                echo "    ✅ Changes detected"
-                if [ -n "$PROJECT_COMMITS" ]; then
-                  echo "$PROJECT_COMMITS" | sed 's/^/      /'
-                fi
-                if [ "$PROJECT_FILE_CHANGES" -gt 0 ]; then
-                  echo "      📁 $PROJECT_FILE_CHANGES file(s) changed"
-                fi
-                PROJECT_HAS_CHANGES=true
-              else
-                echo "    ❌ No changes detected"
-              fi
-            else
-              echo "  $project: No previous releases (will release)"
-              PROJECT_HAS_CHANGES=true
-            fi
-          done
-
-          # Determine if release is needed
-          NEEDS_RELEASE=false
-          if [ -n "$CONVENTIONAL_COMMITS" ] || [ -n "$MANUAL_CHECK_COMMITS" ] || [ "$PROJECT_HAS_CHANGES" = "true" ]; then
-            echo ""
-            echo "✅ Found changes requiring release:"
-            [ -n "$CONVENTIONAL_COMMITS" ] && echo "$CONVENTIONAL_COMMITS" | sed 's/^/  📝 /'
-            [ -n "$MANUAL_CHECK_COMMITS" ] && echo "$MANUAL_CHECK_COMMITS" | sed 's/^/  🔍 /'
-            NEEDS_RELEASE=true
-          elif [ "${{ github.event.inputs.force_release }}" == "true" ]; then
-            echo "✅ Force release requested"
-            NEEDS_RELEASE=true
-          else
-            echo "❌ No conventional commits or changes found"
-          fi
-
-          # Check if this is first release
-          FIRST_RELEASE=false
-          if ! git tag --list "*@*" | head -1 | grep -q "@"; then
-            echo "🎉 First release detected"
-            FIRST_RELEASE=true
-            NEEDS_RELEASE=true
-          fi
-
-          # Set outputs
-          echo "needs_release=$NEEDS_RELEASE" >> $GITHUB_OUTPUT
-          echo "is_first_release=$FIRST_RELEASE" >> $GITHUB_OUTPUT
-          echo "commit_range=$COMMIT_RANGE" >> $GITHUB_OUTPUT
-
-          # Show current project versions
-          echo ""
-          echo "📦 Current project versions:"
-          for dir in apps libs packages; do
-            if [ -d "$dir" ]; then
-              find "$dir" -maxdepth 2 -name "package.json" -type f | while read file; do
-                if [ -f "$file" ]; then
-                  PROJECT_NAME=$(basename $(dirname "$file"))
-                  VERSION=$(grep '"version"' "$file" | cut -d'"' -f4 2>/dev/null || echo "unknown")
-                  echo "  $PROJECT_NAME: $VERSION"
-                fi
-              done
-            fi
-          done
-
-      - name: Determine Release Strategy
-        if: steps.analyze.outputs.needs_release == 'true'
-        id: strategy
-        run: |
-          echo "🎯 Determining release strategy..."
-
-          # Analyze the types of conventional commits we found
-          COMMIT_RANGE="${{ steps.analyze.outputs.commit_range }}"
+          # Check for conventional commits
+          CONVENTIONAL_COMMITS=$(git log $RANGE --oneline --grep="^feat" --grep="^fix" --grep="^chore" --grep="^docs" --grep="^style" --grep="^refactor" --grep="^perf" --grep="^test" --grep="^build" --grep="^ci" --grep="BREAKING CHANGE" --extended-regexp || true)
 
           # Check for breaking changes
-          BREAKING_CHANGES=$(git log $COMMIT_RANGE --grep="BREAKING CHANGE" --grep="!" --extended-regexp --oneline)
+          BREAKING_CHANGES=$(git log $RANGE --grep="BREAKING CHANGE" --grep="!" --extended-regexp --oneline || true)
 
           # Check for features
-          FEATURES=$(git log $COMMIT_RANGE --grep="^feat" --extended-regexp --oneline)
+          FEATURES=$(git log $RANGE --grep="^feat" --extended-regexp --oneline || true)
 
-          # Check for fixes and other changes
-          FIXES=$(git log $COMMIT_RANGE --grep="^fix" --extended-regexp --oneline)
-          OTHER_CHANGES=$(git log $COMMIT_RANGE --grep="^chore" --grep="^docs" --grep="^style" --grep="^refactor" --grep="^perf" --extended-regexp --oneline)
-
-          # Determine version bump type
+          # Determine release type
           if [ -n "$BREAKING_CHANGES" ]; then
             RELEASE_TYPE="major"
-            echo "📈 Detected breaking changes - will use MAJOR version bump"
           elif [ -n "$FEATURES" ]; then
             RELEASE_TYPE="minor"
-            echo "📈 Detected features - will use MINOR version bump"
-          elif [ -n "$FIXES" ] || [ -n "$OTHER_CHANGES" ]; then
-            RELEASE_TYPE="patch"
-            echo "📈 Detected fixes/changes - will use PATCH version bump"
           else
             RELEASE_TYPE="patch"
-            echo "📈 Default to PATCH version bump"
           fi
 
           # Override if manual release type specified
           if [ "${{ github.event.inputs.release_type }}" != "auto" ] && [ -n "${{ github.event.inputs.release_type }}" ]; then
             RELEASE_TYPE="${{ github.event.inputs.release_type }}"
-            echo "🎛️ Manual override: using $RELEASE_TYPE version bump"
           fi
 
-          echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
-          echo "✅ Will use release type: $RELEASE_TYPE"
+          # Check if release is needed
+          NEEDS_RELEASE=false
+          if [ -n "$CONVENTIONAL_COMMITS" ] || [ "${{ github.event.inputs.force_release }}" == "true" ]; then
+            NEEDS_RELEASE=true
+          fi
 
-      - name: Run NX Release
-        if: steps.analyze.outputs.needs_release == 'true'
+          # Check if this is first release
+          FIRST_RELEASE=false
+          if ! git tag --list "*@*" | head -1 | grep -q "@"; then
+            FIRST_RELEASE=true
+            NEEDS_RELEASE=true
+          fi
+
+          echo "needs_release=$NEEDS_RELEASE" >> $GITHUB_OUTPUT
+          echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
+          echo "is_first_release=$FIRST_RELEASE" >> $GITHUB_OUTPUT
+
+          if [ "$NEEDS_RELEASE" = "true" ]; then
+            echo "✅ Release needed (type: $RELEASE_TYPE)"
+          else
+            echo "ℹ️ No release needed"
+          fi
+
+      - name: Release
+        if: steps.changes.outputs.needs_release == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
         run: |
-          echo "🚀 Running NX Release..."
-          echo "🔄 Using individual NX release commands for better control..."
-
-          # Clean git state first
-          echo "🧹 Ensuring clean git state..."
-          git add package-lock.json || echo "No package-lock.json to add"
-          git commit -m "chore: update package-lock.json" || echo "No changes in package-lock.json"
-
-          # Step 1: Version bump
-          VERSION_CMD="npx nx release version ${{ steps.strategy.outputs.release_type }} --verbose --git-commit --git-tag"
+          # Build release command (skip pushing, we'll do it at the end)
+          RELEASE_CMD="npx nx release ${{ steps.changes.outputs.release_type }} --verbose --skip-publish"
 
           # Add target projects if specified
           if [ -n "${{ github.event.inputs.target_projects }}" ]; then
-            VERSION_CMD="$VERSION_CMD --projects=${{ github.event.inputs.target_projects }}"
-            echo "🎯 Targeting specific projects: ${{ github.event.inputs.target_projects }}"
+            RELEASE_CMD="$RELEASE_CMD --projects=${{ github.event.inputs.target_projects }}"
           fi
 
           # Add first release flag if needed
-          if [ "${{ steps.analyze.outputs.is_first_release }}" == "true" ]; then
-            VERSION_CMD="$VERSION_CMD --first-release"
-            echo "🎉 Running first release"
+          if [ "${{ steps.changes.outputs.is_first_release }}" == "true" ]; then
+            RELEASE_CMD="$RELEASE_CMD --first-release"
           fi
 
-          echo "Executing version: $VERSION_CMD"
-
-          # Try version command
-          if $VERSION_CMD; then
-            echo "✅ Version bump completed successfully!"
-            VERSION_SUCCESS=true
-          else
-            echo "⚠️ NX version command failed, trying without git integration..."
-            echo ""
-            
-            # Alternative: Version without git, then handle git manually
-            ALT_VERSION_CMD="npx nx release version ${{ steps.strategy.outputs.release_type }} --verbose --stage-changes --git-commit=false --git-tag=false"
-            if [ -n "${{ github.event.inputs.target_projects }}" ]; then
-              ALT_VERSION_CMD="$ALT_VERSION_CMD --projects=${{ github.event.inputs.target_projects }}"
-            fi
-            if [ "${{ steps.analyze.outputs.is_first_release }}" == "true" ]; then
-              ALT_VERSION_CMD="$ALT_VERSION_CMD --first-release"
-            fi
-            
-            echo "Trying alternative: $ALT_VERSION_CMD"
-            if $ALT_VERSION_CMD; then
-              echo "✅ Alternative version bump succeeded!"
-              VERSION_SUCCESS=true
-              
-              # Manually handle git operations
-              echo "📝 Manually handling git operations..."
-              git add .
-              
-              # Create commit
-              if git commit -m "chore(release): version bumps for ${{ steps.strategy.outputs.release_type }} release"; then
-                echo "✅ Changes committed"
-              else
-                echo "⚠️ No changes to commit (versions may already be correct)"
-              fi
-              
-              # Create tags manually
-              echo "🏷️ Creating tags manually..."
-              TAGS_CREATED=0
-              for dir in apps libs packages; do
-                if [ -d "$dir" ]; then
-                  find "$dir" -maxdepth 2 -name "package.json" -type f | while read file; do
-                    if [ -f "$file" ]; then
-                      PROJECT_NAME=$(basename $(dirname "$file"))
-                      VERSION=$(grep '"version"' "$file" | cut -d'"' -f4 2>/dev/null)
-                      if [ -n "$VERSION" ] && [ "$VERSION" != "unknown" ]; then
-                        TAG="${PROJECT_NAME}@${VERSION}"
-                        if git tag -f "$TAG"; then
-                          echo "🏷️ Created tag: $TAG"
-                          TAGS_CREATED=$((TAGS_CREATED + 1))
-                        else
-                          echo "⚠️ Failed to create tag $TAG"
-                        fi
-                      fi
-                    fi
-                  done
-                fi
-              done
-              
-              if [ $TAGS_CREATED -gt 0 ]; then
-                echo "✅ Created $TAGS_CREATED tag(s)"
-              else
-                echo "⚠️ No tags were created"
-              fi
-            else
-              echo "❌ Both version commands failed"
-              VERSION_SUCCESS=false
-            fi
-          fi
-
-          # Step 2: Generate changelogs (only if version succeeded)
-          if [ "$VERSION_SUCCESS" = "true" ]; then
-            CHANGELOG_CMD="npx nx release changelog --verbose"
-            if [ -n "${{ github.event.inputs.target_projects }}" ]; then
-              CHANGELOG_CMD="$CHANGELOG_CMD --projects=${{ github.event.inputs.target_projects }}"
-            fi
-            
-            echo "Executing changelog: $CHANGELOG_CMD"
-            if $CHANGELOG_CMD; then
-              echo "✅ Changelog generation completed!"
-            else
-              echo "⚠️ Changelog generation failed, but continuing..."
-              echo "This is often not critical for the release process"
-            fi
-            
-            # Push changes
-            echo "📤 Pushing changes and tags..."
-            if git push --follow-tags origin main; then
-              echo "✅ Successfully pushed changes and tags"
-            else
-              echo "⚠️ Push failed, but release may still be successful"
-              echo "You may need to push manually: git push --follow-tags origin main"
-            fi
-            
-            echo "✅ NX Release process completed!"
-          else
-            echo "❌ Version bump failed completely"
-            echo ""
-            echo "🔍 **Debugging Information:**"
-            echo "Current working directory: $(pwd)"
-            echo "Git status:"
-            git status --porcelain || echo "Git status failed"
-            echo ""
-            echo "Current project versions:"
-            for dir in apps libs packages; do
-              if [ -d "$dir" ]; then
-                find "$dir" -maxdepth 2 -name "package.json" -type f | while read file; do
-                  if [ -f "$file" ]; then
-                    PROJECT_NAME=$(basename $(dirname "$file"))
-                    VERSION=$(grep '"version"' "$file" | cut -d'"' -f4 2>/dev/null || echo "unknown")
-                    echo "  $PROJECT_NAME: $VERSION"
-                  fi
-                done
-              fi
-            done
-            echo ""
-            echo "🆘 **Manual Fix Required:**"
-            echo "Run these commands locally to debug:"
-            echo "  npx nx release --printConfig"
-            echo "  npx nx release version ${{ steps.strategy.outputs.release_type }} --dry-run --verbose"
-            echo "  npx nx release version ${{ steps.strategy.outputs.release_type }} --verbose --git-commit=false --git-tag=false"
-            exit 1
-          fi
-
-      - name: Verify Release Results
-        if: steps.analyze.outputs.needs_release == 'true'
-        id: verify
-        run: |
-          echo "🔍 Verifying release results..."
-
-          # Check if any new tags were created
-          NEW_TAGS=$(git tag --points-at HEAD | grep "@" || true)
-
-          if [ -n "$NEW_TAGS" ]; then
-            echo "✅ New release tags created:"
-            echo "$NEW_TAGS" | sed 's/^/  🏷️  /'
-            echo "has_new_releases=true" >> $GITHUB_OUTPUT
-            
-            # Store new tags for use in GitHub releases
-            echo "$NEW_TAGS" > /tmp/new_tags.txt
-            
-            echo ""
-            echo "📦 Released project versions:"
-            echo "$NEW_TAGS" | while read tag; do
-              if [ -n "$tag" ]; then
-                PROJECT=$(echo "$tag" | cut -d'@' -f1)
-                VERSION=$(echo "$tag" | cut -d'@' -f2)
-                echo "  $PROJECT: $VERSION"
-              fi
-            done
-          else
-            echo "❌ No new release tags found"
-            echo "has_new_releases=false" >> $GITHUB_OUTPUT
-          fi
-
-          # Show what files were changed
-          echo ""
-          echo "📝 Files modified in this release:"
-          git log -1 --name-only --pretty=format: | grep -E '\.(json|md)$' | sed 's/^/  📄 /' || echo "  No files modified"
+          echo "Running: $RELEASE_CMD"
+          $RELEASE_CMD
 
       - name: Create GitHub Releases
-        if: steps.verify.outputs.has_new_releases == 'true'
+        if: steps.changes.outputs.needs_release == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "📝 Creating GitHub releases..."
+          # Get new tags created by NX release
+          NEW_TAGS=$(git tag --points-at HEAD | grep "@" || true)
 
-          # Read new tags from temporary file
-          if [ ! -f "/tmp/new_tags.txt" ]; then
-            echo "❌ No new tags file found"
-            exit 1
+          if [ -z "$NEW_TAGS" ]; then
+            echo "No new tags found"
+            exit 0
           fi
 
-          while read -r TAG; do
+          echo "Creating GitHub release drafts for: $NEW_TAGS"
+
+          echo "$NEW_TAGS" | while read -r TAG; do
             if [ -n "$TAG" ] && echo "$TAG" | grep -q "@"; then
               PROJECT=$(echo "$TAG" | cut -d'@' -f1)
               VERSION=$(echo "$TAG" | cut -d'@' -f2)
               
-              echo "Creating GitHub release for $PROJECT v$VERSION..."
-              
-              # Find changelog file for this project
+              # Find changelog
               CHANGELOG_FILE=""
               for dir in "apps" "libs" "packages"; do
                 if [ -f "$dir/$PROJECT/CHANGELOG.md" ]; then
@@ -419,96 +164,58 @@ jobs:
                 fi
               done
               
-              # Extract release notes from changelog
-              RELEASE_NOTES="🚀 **Release $VERSION**"$'\n\n'"This release was automatically generated from conventional commits."
-              
+              # Extract release notes
               if [ -f "$CHANGELOG_FILE" ]; then
-                echo "📄 Found changelog: $CHANGELOG_FILE"
-                
-                # Extract the content for this version
-                VERSION_CONTENT=$(awk "
-                  /^## .*$VERSION/ { flag=1; next }
-                  /^## / && flag { exit }
-                  flag && !/^$/ { print }
-                " "$CHANGELOG_FILE" | head -50)
-                
-                if [ -n "$VERSION_CONTENT" ]; then
-                  RELEASE_NOTES="$VERSION_CONTENT"
-                else
-                  RELEASE_NOTES="🚀 **Release $VERSION**"$'\n\n'"This release contains updates to $PROJECT."
-                fi
-              else
-                echo "⚠️  No changelog found for $PROJECT"
+                RELEASE_NOTES=$(awk "/^## .*$VERSION/ { flag=1; next } /^## / && flag { exit } flag && !/^$/ { print }" "$CHANGELOG_FILE" | head -20)
               fi
               
-              # Create GitHub release (as draft for review)
-              if gh release create "$TAG" \
+              if [ -z "$RELEASE_NOTES" ]; then
+                RELEASE_NOTES="Release $VERSION for $PROJECT"
+              fi
+              
+              # Create GitHub release as DRAFT
+              gh release create "$TAG" \
                 --draft \
                 --title "$PROJECT v$VERSION" \
                 --notes "$RELEASE_NOTES" \
-                --generate-notes; then
-                echo "✅ Created draft release: $PROJECT v$VERSION"
-              else
-                echo "❌ Failed to create release for $TAG"
-              fi
+                --generate-notes || echo "Failed to create release draft for $TAG"
             fi
-          done < /tmp/new_tags.txt
+          done
 
-          echo ""
-          echo "🎉 All GitHub releases created as drafts!"
-          echo "👀 Review and publish at: https://github.com/${{ github.repository }}/releases"
+      - name: Push Release
+        if: steps.changes.outputs.needs_release == 'true'
+        run: |
+          echo "🚀 Pushing all release changes and tags..."
 
-      - name: Release Summary
+          # Push all changes and tags to remote
+          git push --follow-tags origin main
+
+          echo "✅ Release pushed successfully!"
+          echo "📝 Draft releases created - review and publish at:"
+          echo "   https://github.com/${{ github.repository }}/releases"
+
+      - name: Summary
         if: always()
         run: |
-          echo ""
-          echo "📊 Release Workflow Summary"
-          echo "=========================="
-          echo "🔧 Triggered by: ${{ github.event_name }}"
-          echo "🌟 Release needed: ${{ steps.analyze.outputs.needs_release }}"
-          echo "🎯 First release: ${{ steps.analyze.outputs.is_first_release }}"
+          echo "## Release Summary"
+          echo "- Triggered by: ${{ github.event_name }}"
+          echo "- Release needed: ${{ steps.changes.outputs.needs_release }}"
+          echo "- Release type: ${{ steps.changes.outputs.release_type }}"
 
-          if [ "${{ steps.analyze.outputs.needs_release }}" == "true" ]; then
-            if [ "${{ steps.verify.outputs.has_new_releases }}" == "true" ]; then
-              echo "✅ **SUCCESS**: Release completed!"
+          if [ "${{ steps.changes.outputs.needs_release }}" == "true" ]; then
+            NEW_TAGS=$(git tag --points-at HEAD | grep "@" || true)
+            if [ -n "$NEW_TAGS" ]; then
+              echo "- New draft releases created:"
+              echo "$NEW_TAGS" | sed 's/^/  - /'
               echo ""
-              echo "🏷️  **New Tags Created:**"
-              git tag --points-at HEAD | grep "@" | sed 's/^/   • /' || echo "   None"
-              echo ""
-              echo "📝 **Next Steps:**"
-              echo "   1. Review draft releases: https://github.com/${{ github.repository }}/releases"
-              echo "   2. Publish releases when ready"
-              echo "   3. Verify deployment pipelines (if any)"
-            else
-              echo "⚠️  **WARNING**: Release was attempted but no new versions were created"
-              echo ""
-              echo "🔍 **Debug Info:**"
-              echo "   • Conventional commits detected: ✅"
-              echo "   • Release type determined: ${{ steps.strategy.outputs.release_type || 'patch' }}"
-              echo "   • This might indicate NX configuration issues"
-              echo ""
-              echo "🆘 **Manual Fix:**"
-              if [ -n "${{ steps.strategy.outputs.release_type }}" ]; then
-                echo "   npx nx release version ${{ steps.strategy.outputs.release_type }} --projects=router,home,shared"
-              else
-                echo "   npx nx release version patch --projects=router,home,shared"
-              fi
+              echo "🎉 Success! Next steps:"
+              echo "1. Review draft releases: https://github.com/${{ github.repository }}/releases"
+              echo "2. Publish releases when ready"
             fi
           else
-            echo "ℹ️  **INFO**: No release needed"
             echo ""
-            echo "💡 **To trigger a release, use conventional commits:**"
-            echo "   • feat: new feature (minor bump)"
-            echo "   • fix: bug fix (patch bump)"
-            echo "   • feat!: breaking change (major bump)"
-            echo "   • chore, docs, style, etc. (patch bump)"
-            echo ""
-            echo "🧪 **Test Examples:**"
-            echo "   git commit -m \"fix: this should bump all projects\""
-            echo "   git commit -m \"feat(router): add new navigation\""
-            echo "   git commit -m \"feat!: redesign API\""
-            echo ""
-            echo "🔧 **Or use manual trigger:**"
-            echo "   • Go to Actions → Release → Run workflow"
-            echo "   • Enable 'Force release' option"
+            echo "💡 To trigger a release, use conventional commits:"
+            echo "- feat: new feature (minor)"
+            echo "- fix: bug fix (patch)" 
+            echo "- feat!: breaking change (major)"
           fi
