@@ -183,6 +183,8 @@ jobs:
           done
 
       - name: Push Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: steps.changes.outputs.needs_release == 'true'
         run: |
           echo "🚀 Pushing all release changes and tags..."
