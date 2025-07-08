@@ -1,5 +1,4 @@
-// @use './container';
-// @use './footer';
-// @use './grid';
-// @use './header';
-// @use './navbar';
+@use './container' as *;
+@use './footer' as *;
+@use './grid' as *;
+@use './header' as *;
