@@ -1,3 +1,9 @@
+## 0.2.2 (2025-08-02)
+
+### 🧱 Updated Dependencies
+
+- Updated home to 0.2.2
+
 ## 0.2.1 (2025-07-08)
 
 ### 🧱 Updated Dependencies
