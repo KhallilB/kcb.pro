@@ -3,10 +3,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@home": ["apps/home/src/entry.ts"],
-      "@kcb/shared": ["libs/shared/src/index.ts"],
-      "@shared-styles": ["libs/shared/src/styles.scss"],
-      "@shared-variables": ["libs/shared/src/base/_variables.scss"]
+      "home/Module": ["apps/home/src/remote-entry.ts"],
+      "projects/Module": ["apps/projects/src/remote-entry.ts"]
     }
   }
 }
