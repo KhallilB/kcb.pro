@@ -14,8 +14,10 @@
     "**/*": "prettier --write --ignore-unknown"
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.1.11",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "tailwindcss": "^4.1.11"
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
@@ -38,7 +40,7 @@
     "husky": "^9.1.7",
     "jiti": "^2.5.1",
     "lint-staged": "^16.1.4",
-    "prettier": "3.6.2",
+    "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.38.0",
