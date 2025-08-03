@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "strict": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "verbatimModuleSyntax": true,
+    "useDefineForClassFields": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "@packages/*": ["./packages/*"]
+    }
+  },
+  "exclude": [
+    // build outputs
+    "**/dist",
+    "**/build",
+    "node_modules",
+
+    // ESLint configs (root and shared package)
+    "eslint.config.*",
+    "packages/eslint-config/**"
+  ]
+}
