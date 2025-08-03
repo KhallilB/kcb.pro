@@ -2,23 +2,34 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "composite": true,
-    "noEmit": true, // Vite does the build
-    "rootDir": ".", // allows vite.config.ts at the app root
-    "tsBuildInfoFile": "../../node_modules/.cache/tsbuildinfo/router",
+    "noEmit": true, // Vite handles builds
+    "rootDir": ".", // okay; just used for project structure checks
+    "tsBuildInfoFile": "../../node_modules/.cache/tsbuildinfo/router-app",
+    "jsx": "react-jsx",
 
-    // app-local alias
-    "baseUrl": "./src",
+    // Keep baseUrl at repo root so @packages/* remains correct.
+    // Add an app-local alias without breaking the inherited one.
     "paths": {
-      "@/*": ["./*"]
-    }
+      "@/*": ["./src/*"]
+    },
+
+    "types": ["vite/client"]
   },
-  "include": ["src", "vite.config.ts", "env.d.ts"],
+  "include": ["src", "env.d.ts"],
   "exclude": [
     "dist",
     "build",
     "node_modules",
+
     // keep ESLint config out of this project's TS program
     "../../eslint.config.*",
-    "../../packages/eslint-config/**"
+    "../../packages/eslint-config/**",
+
+    // Node/Vite configs live in tsconfig.node.json
+    "vite.config.ts",
+    "vitest.config.ts",
+    "postcss.config.ts",
+    "tailwind.config.ts",
+    "scripts"
   ]
 }
