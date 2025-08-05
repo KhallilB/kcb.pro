@@ -155,26 +155,3 @@ jobs:
 
       - name: Run tests
         run: bun run test
-
-  # Summary job that depends on all other jobs
-  ci-summary:
-    runs-on: ubuntu-latest
-    needs: [detect-changes, lint, typecheck, build, test]
-    if: always()
-
-    steps:
-      - name: Check CI Results
-        run: |
-          echo "CI Summary:"
-          echo "Changes detected: ${{ needs.detect-changes.result }}"
-          echo "Lint: ${{ needs.lint.result }}"
-          echo "TypeCheck: ${{ needs.typecheck.result }}"
-          echo "Build: ${{ needs.build.result }}"
-          echo "Test: ${{ needs.test.result }}"
-
-          if [[ "${{ needs.lint.result }}" == "failure" || "${{ needs.typecheck.result }}" == "failure" || "${{ needs.build.result }}" == "failure" || "${{ needs.test.result }}" == "failure" ]]; then
-            echo "❌ CI failed"
-            exit 1
-          else
-            echo "✅ CI passed"
-          fi
