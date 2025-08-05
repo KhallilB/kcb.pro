@@ -18,7 +18,8 @@
         "linkReferences": false
       },
       "gitRawCommitsOpts": {
-        "path": "apps/home/"
+        "path": "apps/home/",
+        "grep": "^(?!.*(?:chore.*release|fix.*release|chore.*bump|fix.*bump|chore.*workflow|fix.*workflow|chore.*yml|fix.*yml|chore.*yaml|fix.*yaml)).*"
       }
     }
   }
