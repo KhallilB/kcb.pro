@@ -86,7 +86,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   release-home:
-    needs: detect-changes
+    needs: [detect-changes, release-router]
     if: |
       (github.event_name == 'push' && needs.detect-changes.outputs.home == 'true') ||
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'apps/home'))
@@ -121,7 +121,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   release-styles:
-    needs: detect-changes
+    needs: [detect-changes, release-home]
     if: |
       (github.event_name == 'push' && needs.detect-changes.outputs.styles == 'true') ||
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'libs/styles'))
