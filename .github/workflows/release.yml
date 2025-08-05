@@ -21,6 +21,11 @@ on:
         default: false
         type: boolean
 
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
 jobs:
   detect-changes:
     runs-on: ubuntu-latest
