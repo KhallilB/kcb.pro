@@ -88,8 +88,12 @@ jobs:
   release-home:
     needs: [detect-changes, release-router]
     if: |
-      (github.event_name == 'push' && needs.detect-changes.outputs.home == 'true') ||
-      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'apps/home'))
+      always() &&
+      (
+        (github.event_name == 'push' && needs.detect-changes.outputs.home == 'true') ||
+        (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'apps/home'))
+      ) &&
+      (needs.release-router.result == 'success' || needs.release-router.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -123,8 +127,12 @@ jobs:
   release-styles:
     needs: [detect-changes, release-home]
     if: |
-      (github.event_name == 'push' && needs.detect-changes.outputs.styles == 'true') ||
-      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'libs/styles'))
+      always() &&
+      (
+        (github.event_name == 'push' && needs.detect-changes.outputs.styles == 'true') ||
+        (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'libs/styles'))
+      ) &&
+      (needs.release-home.result == 'success' || needs.release-home.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
