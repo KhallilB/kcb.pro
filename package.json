@@ -7,8 +7,12 @@
     "libs/*"
   ],
   "scripts": {
-    "dev:router": "bun --cwd apps/router dev",
+    "///************* DEVELOPMENT *************///": "",
+    "dev": "bun --cwd apps/router dev",
     "dev:home": "bun --cwd apps/home dev",
+    "///************* BUILD *************///": "",
+    "build": "bun --cwd apps/home build && bun --cwd apps/router build",
+    "build:home": "bun --cwd apps/home build",
     "prepare": "husky"
   },
   "lint-staged": {
