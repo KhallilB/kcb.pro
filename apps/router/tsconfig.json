@@ -1,20 +1,8 @@
 {
+  "extends": "../../tsconfig.app.json",
   "compilerOptions": {
-    "jsx": "react-jsx",
-    "allowJs": false,
-    "esModuleInterop": false,
-    "allowSyntheticDefaultImports": true,
-    "strict": true
+    "tsBuildInfoFile": "../../node_modules/.cache/tsbuildinfo/router-app",
+    "outDir": "../../dist/apps/router"
   },
-  "files": [],
-  "include": [],
-  "references": [
-    {
-      "path": "./tsconfig.app.json"
-    },
-    {
-      "path": "./tsconfig.spec.json"
-    }
-  ],
-  "extends": "../../tsconfig.base.json"
+  "include": ["src", "../home/src"]
 }

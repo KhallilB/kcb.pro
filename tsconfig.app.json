@@ -1,0 +1,32 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "types": ["vite/client"],
+    "rootDir": ".",
+    "paths": {
+      "@home": ["apps/home/src/entry.tsx"],
+      "@styles/*": ["libs/styles/src/*"],
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src", "env.d.ts"],
+  "exclude": [
+    "dist",
+    "build",
+    "node_modules",
+
+    // ESLint configs
+    "../../eslint.config.*",
+    "../../packages/eslint-config/**",
+
+    // Build/config files
+    "vite.config.ts",
+    "vitest.config.ts",
+    "postcss.config.ts",
+    "tailwind.config.ts",
+    "scripts"
+  ]
+}

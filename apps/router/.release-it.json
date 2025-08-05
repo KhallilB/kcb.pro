@@ -1,0 +1,22 @@
+{
+  "extends": "../../.release-it.json",
+  "git": {
+    "commitMessage": "chore: release router v${version}",
+    "tagName": "router@${version}",
+    "tagAnnotation": "Release router v${version}"
+  },
+  "github": {
+    "releaseName": "Router v${version}"
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "preset": "angular",
+      "infile": "CHANGELOG.md",
+      "header": "# Changelog - Router App\n\nAll notable changes to the router app will be documented in this file.",
+      "context": {
+        "linkCompare": false,
+        "linkReferences": false
+      }
+    }
+  }
+}

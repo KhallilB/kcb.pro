@@ -1,0 +1,22 @@
+{
+  "extends": "../../.release-it.json",
+  "git": {
+    "commitMessage": "chore: release home v${version}",
+    "tagName": "home@${version}",
+    "tagAnnotation": "Release home v${version}"
+  },
+  "github": {
+    "releaseName": "Home v${version}"
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "preset": "angular",
+      "infile": "CHANGELOG.md",
+      "header": "# Changelog - Home App\n\nAll notable changes to the home app will be documented in this file.",
+      "context": {
+        "linkCompare": false,
+        "linkReferences": false
+      }
+    }
+  }
+}

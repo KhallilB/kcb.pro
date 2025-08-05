@@ -1,20 +1,2 @@
-### react ###
-.DS_*
-*.log
-logs
-**/*.backup.*
-**/*.back.*
-.env
-
-tmp
-dist
-.nx/cache
-.nx/installation
-.nx/workspace-data
-node_modules
-
-
-.cursor/rules/nx-rules.mdc
-.github/instructions/nx.instructions.md
-vite.config.*.timestamp*
-vitest.config.*.timestamp*
+/node_modules
+/dist
