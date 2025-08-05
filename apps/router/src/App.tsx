@@ -1,5 +1,17 @@
+import { lazy } from 'react'
+import { createBrowserRouter, RouterProvider } from 'react-router'
+
+const Home = lazy(() => import('@home'))
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <Home />
+  }
+])
+
 function App() {
-  return <div className="bg-primary text-3xl">Routing App</div>
+  return <RouterProvider router={router} />
 }
 
 export default App
