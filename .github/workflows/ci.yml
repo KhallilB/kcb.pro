@@ -1,0 +1,158 @@
+name: CI - Build, Lint, and Test
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # Detect changes to determine which apps need to be checked
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      home-changed: ${{ steps.changes.outputs.home }}
+      router-changed: ${{ steps.changes.outputs.router }}
+      libs-changed: ${{ steps.changes.outputs.libs }}
+      root-changed: ${{ steps.changes.outputs.root }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for changes
+        uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            home:
+              - 'apps/home/**'
+            router:
+              - 'apps/router/**'
+            libs:
+              - 'libs/**'
+            root:
+              - '*.json'
+              - '*.ts'
+              - '*.js'
+              - '.github/**'
+              - 'eslint.config.*'
+              - 'vitest.config.*'
+
+  # Lint check
+  lint:
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: always() && (needs.detect-changes.outputs.home-changed == 'true' || needs.detect-changes.outputs.router-changed == 'true' || needs.detect-changes.outputs.libs-changed == 'true' || needs.detect-changes.outputs.root-changed == 'true')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Run ESLint
+        run: bun run lint
+
+  # TypeScript type checking
+  typecheck:
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: always() && (needs.detect-changes.outputs.home-changed == 'true' || needs.detect-changes.outputs.router-changed == 'true' || needs.detect-changes.outputs.root-changed == 'true')
+
+    strategy:
+      matrix:
+        app: [home, router]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: TypeCheck ${{ matrix.app }}
+        run: bun run typecheck:${{ matrix.app }}
+        if: (matrix.app == 'home' && needs.detect-changes.outputs.home-changed == 'true') || (matrix.app == 'router' && needs.detect-changes.outputs.router-changed == 'true') || needs.detect-changes.outputs.root-changed == 'true'
+
+  # Build check
+  build:
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: always() && (needs.detect-changes.outputs.home-changed == 'true' || needs.detect-changes.outputs.router-changed == 'true' || needs.detect-changes.outputs.root-changed == 'true')
+
+    strategy:
+      matrix:
+        app: [home, router]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build ${{ matrix.app }} app
+        run: bun run build:${{ matrix.app }}
+        if: (matrix.app == 'home' && needs.detect-changes.outputs.home-changed == 'true') || (matrix.app == 'router' && needs.detect-changes.outputs.router-changed == 'true') || needs.detect-changes.outputs.root-changed == 'true'
+
+  # Test execution
+  test:
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: always() && (needs.detect-changes.outputs.home-changed == 'true' || needs.detect-changes.outputs.router-changed == 'true' || needs.detect-changes.outputs.root-changed == 'true')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Run tests
+        run: bun run test
+
+  # Summary job that depends on all other jobs
+  ci-summary:
+    runs-on: ubuntu-latest
+    needs: [detect-changes, lint, typecheck, build, test]
+    if: always()
+
+    steps:
+      - name: Check CI Results
+        run: |
+          echo "CI Summary:"
+          echo "Changes detected: ${{ needs.detect-changes.result }}"
+          echo "Lint: ${{ needs.lint.result }}"
+          echo "TypeCheck: ${{ needs.typecheck.result }}"
+          echo "Build: ${{ needs.build.result }}"
+          echo "Test: ${{ needs.test.result }}"
+
+          if [[ "${{ needs.lint.result }}" == "failure" || "${{ needs.typecheck.result }}" == "failure" || "${{ needs.build.result }}" == "failure" || "${{ needs.test.result }}" == "failure" ]]; then
+            echo "❌ CI failed"
+            exit 1
+          else
+            echo "✅ CI passed"
+          fi
