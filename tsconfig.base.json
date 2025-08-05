@@ -1,12 +1,30 @@
 {
-  "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@home": ["apps/home/src/entry.ts"],
-      "@kcb/shared": ["libs/shared/src/index.ts"],
-      "@shared-styles": ["libs/shared/src/styles.scss"],
-      "@shared-variables": ["libs/shared/src/base/_variables.scss"]
-    }
-  }
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "strict": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "verbatimModuleSyntax": true,
+    "useDefineForClassFields": true,
+    "moduleDetection": "force",
+
+    "baseUrl": "."
+  },
+  "exclude": [
+    // build outputs
+    "**/dist",
+    "**/build",
+    "node_modules",
+
+    // ESLint configs (root and shared package)
+    "eslint.config.*",
+    "packages/eslint-config/**"
+  ]
 }

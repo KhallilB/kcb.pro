@@ -1,20 +1,8 @@
 {
+  "extends": "../../tsconfig.app.json",
   "compilerOptions": {
-    "jsx": "react-jsx",
-    "allowJs": false,
-    "esModuleInterop": false,
-    "allowSyntheticDefaultImports": true,
-    "strict": true
+    "outDir": "../../dist/apps/home",
+    "tsBuildInfoFile": "../../node_modules/.cache/tsbuildinfo/home-app"
   },
-  "files": [],
-  "include": [],
-  "references": [
-    {
-      "path": "./tsconfig.app.json"
-    },
-    {
-      "path": "./tsconfig.spec.json"
-    }
-  ],
-  "extends": "../../tsconfig.base.json"
+  "include": ["src"]
 }

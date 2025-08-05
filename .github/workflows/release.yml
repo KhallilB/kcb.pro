@@ -5,219 +5,152 @@ on:
     branches: [main]
   workflow_dispatch:
     inputs:
-      force_release:
-        description: 'Force release even if no changes detected'
-        required: false
-        type: boolean
-      target_projects:
-        description: 'Specific projects to release (comma-separated)'
-        required: false
-        default: ''
-      release_type:
-        description: 'Release type'
-        required: false
+      target:
+        description: 'Target to release (apps/*, libs/*, or all)'
+        required: true
+        default: 'all'
         type: choice
         options:
-          - auto
-          - major
-          - minor
-          - patch
-        default: auto
+          - all
+          - apps/router
+          - apps/home
+          - libs/styles
+      dry_run:
+        description: 'Dry run (preview only)'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
-  issues: write
   pull-requests: write
+  issues: write
 
 jobs:
-  release:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      router: ${{ steps.changes.outputs.router }}
+      home: ${{ steps.changes.outputs.home }}
+      styles: ${{ steps.changes.outputs.styles }}
+      any-changes: ${{ steps.changes.outputs.router == 'true' || steps.changes.outputs.home == 'true' || steps.changes.outputs.styles == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            router:
+              - 'apps/router/**'
+            home:
+              - 'apps/home/**'
+            styles:
+              - 'libs/styles/**'
+
+  release-router:
+    needs: detect-changes
+    if: |
+      (github.event_name == 'push' && needs.detect-changes.outputs.router == 'true') ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'apps/router'))
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: oven-sh/setup-bun@v2
         with:
-          node-version: 20
-          cache: npm
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
 
       - name: Configure Git
         run: |
-          git config --global user.name "release-bot"
-          git config --global user.email "release-bot@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Check for Changes
-        id: changes
+      - name: Release Router App
+        working-directory: apps/router
         run: |
-          # Determine commit range
-          if [ "${{ github.event_name }}" = "push" ]; then
-            if [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
-              RANGE="${{ github.event.before }}..HEAD"
-            else
-              RANGE="HEAD~1..HEAD"
-            fi
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            bun x release-it --dry-run
           else
-            RANGE="HEAD~10..HEAD"
+            bun x release-it --ci
           fi
-
-          # Check for conventional commits
-          CONVENTIONAL_COMMITS=$(git log $RANGE --oneline --grep="^feat" --grep="^fix" --grep="^chore" --grep="^docs" --grep="^style" --grep="^refactor" --grep="^perf" --grep="^test" --grep="^build" --grep="^ci" --grep="BREAKING CHANGE" --extended-regexp || true)
-
-          # Check for breaking changes
-          BREAKING_CHANGES=$(git log $RANGE --grep="BREAKING CHANGE" --grep="!" --extended-regexp --oneline || true)
-
-          # Check for features
-          FEATURES=$(git log $RANGE --grep="^feat" --extended-regexp --oneline || true)
-
-          # Determine release type
-          if [ -n "$BREAKING_CHANGES" ]; then
-            RELEASE_TYPE="major"
-          elif [ -n "$FEATURES" ]; then
-            RELEASE_TYPE="minor"
-          else
-            RELEASE_TYPE="patch"
-          fi
-
-          # Override if manual release type specified
-          if [ "${{ github.event.inputs.release_type }}" != "auto" ] && [ -n "${{ github.event.inputs.release_type }}" ]; then
-            RELEASE_TYPE="${{ github.event.inputs.release_type }}"
-          fi
-
-          # Check if release is needed
-          NEEDS_RELEASE=false
-          if [ -n "$CONVENTIONAL_COMMITS" ] || [ "${{ github.event.inputs.force_release }}" == "true" ]; then
-            NEEDS_RELEASE=true
-          fi
-
-          # Check if this is first release
-          FIRST_RELEASE=false
-          if ! git tag --list "*@*" | head -1 | grep -q "@"; then
-            FIRST_RELEASE=true
-            NEEDS_RELEASE=true
-          fi
-
-          echo "needs_release=$NEEDS_RELEASE" >> $GITHUB_OUTPUT
-          echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
-          echo "is_first_release=$FIRST_RELEASE" >> $GITHUB_OUTPUT
-
-          if [ "$NEEDS_RELEASE" = "true" ]; then
-            echo "✅ Release needed (type: $RELEASE_TYPE)"
-          else
-            echo "ℹ️ No release needed"
-          fi
-
-      - name: Release
-        if: steps.changes.outputs.needs_release == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+
+  release-home:
+    needs: detect-changes
+    if: |
+      (github.event_name == 'push' && needs.detect-changes.outputs.home == 'true') ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'apps/home'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Configure Git
         run: |
-          # Build release command (skip pushing, we'll do it at the end)
-          RELEASE_CMD="npx nx release ${{ steps.changes.outputs.release_type }} --verbose --skip-publish"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Add target projects if specified
-          if [ -n "${{ github.event.inputs.target_projects }}" ]; then
-            RELEASE_CMD="$RELEASE_CMD --projects=${{ github.event.inputs.target_projects }}"
-          fi
-
-          # Add first release flag if needed
-          if [ "${{ steps.changes.outputs.is_first_release }}" == "true" ]; then
-            RELEASE_CMD="$RELEASE_CMD --first-release"
-          fi
-
-          echo "Running: $RELEASE_CMD"
-          $RELEASE_CMD
-
-      - name: Create GitHub Releases
-        if: steps.changes.outputs.needs_release == 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Release Home App
+        working-directory: apps/home
         run: |
-          # Get new tags created by NX release
-          NEW_TAGS=$(git tag --points-at HEAD | grep "@" || true)
-
-          if [ -z "$NEW_TAGS" ]; then
-            echo "No new tags found"
-            exit 0
-          fi
-
-          echo "Creating GitHub release drafts for: $NEW_TAGS"
-
-          echo "$NEW_TAGS" | while read -r TAG; do
-            if [ -n "$TAG" ] && echo "$TAG" | grep -q "@"; then
-              PROJECT=$(echo "$TAG" | cut -d'@' -f1)
-              VERSION=$(echo "$TAG" | cut -d'@' -f2)
-              
-              # Find changelog
-              CHANGELOG_FILE=""
-              for dir in "apps" "libs" "packages"; do
-                if [ -f "$dir/$PROJECT/CHANGELOG.md" ]; then
-                  CHANGELOG_FILE="$dir/$PROJECT/CHANGELOG.md"
-                  break
-                fi
-              done
-              
-              # Extract release notes
-              if [ -f "$CHANGELOG_FILE" ]; then
-                RELEASE_NOTES=$(awk "/^## .*$VERSION/ { flag=1; next } /^## / && flag { exit } flag && !/^$/ { print }" "$CHANGELOG_FILE" | head -20)
-              fi
-              
-              if [ -z "$RELEASE_NOTES" ]; then
-                RELEASE_NOTES="Release $VERSION for $PROJECT"
-              fi
-              
-              # Create GitHub release as DRAFT
-              gh release create "$TAG" \
-                --draft \
-                --title "$PROJECT v$VERSION" \
-                --notes "$RELEASE_NOTES" \
-                --generate-notes || echo "Failed to create release draft for $TAG"
-            fi
-          done
-
-      - name: Push Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: steps.changes.outputs.needs_release == 'true'
-        run: |
-          echo "🚀 Pushing all release changes and tags..."
-
-          # Push all changes and tags to remote
-          git push --follow-tags origin main
-
-          echo "✅ Release pushed successfully!"
-          echo "📝 Draft releases created - review and publish at:"
-          echo "   https://github.com/${{ github.repository }}/releases"
-
-      - name: Summary
-        if: always()
-        run: |
-          echo "## Release Summary"
-          echo "- Triggered by: ${{ github.event_name }}"
-          echo "- Release needed: ${{ steps.changes.outputs.needs_release }}"
-          echo "- Release type: ${{ steps.changes.outputs.release_type }}"
-
-          if [ "${{ steps.changes.outputs.needs_release }}" == "true" ]; then
-            NEW_TAGS=$(git tag --points-at HEAD | grep "@" || true)
-            if [ -n "$NEW_TAGS" ]; then
-              echo "- New draft releases created:"
-              echo "$NEW_TAGS" | sed 's/^/  - /'
-              echo ""
-              echo "🎉 Success! Next steps:"
-              echo "1. Review draft releases: https://github.com/${{ github.repository }}/releases"
-              echo "2. Publish releases when ready"
-            fi
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            bun x release-it --dry-run
           else
-            echo ""
-            echo "💡 To trigger a release, use conventional commits:"
-            echo "- feat: new feature (minor)"
-            echo "- fix: bug fix (patch)" 
-            echo "- feat!: breaking change (major)"
+            bun x release-it --ci
           fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  release-styles:
+    needs: detect-changes
+    if: |
+      (github.event_name == 'push' && needs.detect-changes.outputs.styles == 'true') ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'libs/styles'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Release Styles Library
+        working-directory: libs/styles
+        run: |
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            bun x release-it --dry-run
+          else
+            bun x release-it --ci
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

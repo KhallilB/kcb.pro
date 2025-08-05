@@ -1,5 +1,12 @@
 {
   "name": "home",
-  "version": "0.2.2",
-  "private": true
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  }
 }
