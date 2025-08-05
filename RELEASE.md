@@ -160,12 +160,157 @@ git commit -m "chore(router): update dependencies"
 
 ### Manual Version Override
 
-If you need to specify a version manually:
+To override the version calculation:
 
 ```bash
-cd apps/router && release-it --increment=major
-cd apps/router && release-it --new-version=2.0.0
+bun x release-it --increment=major
+bun x release-it --increment=minor
+bun x release-it --increment=patch
 ```
+
+## Adding New Apps or Libraries
+
+When adding a new app or library to the monorepo, follow these steps to integrate it with the automated release system:
+
+### 1. Create Release Configuration
+
+Create a `.release-it.json` file in your new component directory:
+
+```json
+{
+  "git": {
+    "commitMessage": "chore(component-name): release v${version}",
+    "tagName": "component-name@${version}",
+    "tagAnnotation": "Release component-name v${version}"
+  },
+  "github": {
+    "release": true,
+    "releaseName": "component-name@${version}"
+  },
+  "npm": {
+    "publish": false
+  }
+}
+```
+
+### 2. Update Release Workflow
+
+Modify `.github/workflows/release.yml`:
+
+#### A. Add Path Filter Detection
+
+In the `detect-changes` job, add:
+
+```yaml
+detect-changes:
+  outputs:
+    # ... existing outputs
+    component-name: ${{ steps.changes.outputs.component-name }}
+  steps:
+    - uses: dorny/paths-filter@v3
+      id: changes
+      with:
+        filters: |
+          # ... existing filters
+          component-name:
+            - 'apps/component-name/**'  # or 'libs/component-name/**'
+```
+
+#### B. Add Release Job
+
+Add a new release job in the sequential chain:
+
+```yaml
+release-component-name:
+  needs: [detect-changes, release-previous-component] # Maintain sequence
+  if: |
+    always() &&
+    (
+      (github.event_name == 'push' && needs.detect-changes.outputs.component-name == 'true') ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'apps/component-name'))
+    ) &&
+    (needs.release-previous-component.result == 'success' || needs.release-previous-component.result == 'skipped')
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: latest
+
+    - name: Install dependencies
+      run: bun install
+
+    - name: Configure Git
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+    - name: Release Component Name
+      working-directory: apps/component-name # or libs/component-name
+      run: |
+        if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+          bun x release-it --dry-run
+        else
+          bun x release-it --ci
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+#### C. Update Workflow Dispatch Options
+
+Add the new component to manual trigger options:
+
+```yaml
+workflow_dispatch:
+  inputs:
+    target:
+      options:
+        - all
+        - apps/router
+        - apps/home
+        - libs/styles
+        - apps/component-name # Add this
+```
+
+#### D. Update Sequential Dependencies
+
+**Important**: Update any subsequent jobs to depend on your new job instead of the previous one to maintain the sequential chain.
+
+### 3. Update PR Preview Workflow
+
+Modify `.github/workflows/release-pr.yml` to add corresponding path filters and preview jobs for the new component.
+
+### 4. Key Considerations
+
+- **Sequential Execution**: Jobs run one after another to prevent Git ref lock conflicts
+- **Conditional Logic**: Use `always()` and result checks to handle skipped dependencies
+- **Working Directory**: Set correct `working-directory` for release commands
+- **Naming Convention**: Follow `release-{component-name}` pattern for job names
+- **Dependency Chain**: Each new job should depend on the previous one in the sequence
+
+### 5. Testing
+
+After setup:
+
+1. Make a change to your new component
+2. Commit using conventional commit format
+3. Push to main or create a PR to test the workflow
+4. Verify the release job runs in the correct sequence
+
+### Example: Adding `apps/dashboard`
+
+1. Create `apps/dashboard/.release-it.json`
+2. Add `dashboard` path filter and output
+3. Create `release-dashboard` job depending on `release-styles`
+4. Update any subsequent jobs to depend on `release-dashboard`
+5. Add `apps/dashboard` to workflow dispatch options
+
+This ensures seamless integration with the existing automated release system.
 
 ## Best Practices
 
