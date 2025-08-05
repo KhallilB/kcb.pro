@@ -1,4 +1,4 @@
 {
   "files": [],
-  "references": [{ "path": "./apps/router" }]
+  "references": [{ "path": "./apps/router" }, { "path": "./apps/home" }, { "path": "./libs/styles" }]
 }
