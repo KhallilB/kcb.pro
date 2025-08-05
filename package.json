@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "dev:router": "bun --cwd apps/router dev",
+    "dev:home": "bun --cwd apps/home dev",
     "prepare": "husky"
   },
   "lint-staged": {
