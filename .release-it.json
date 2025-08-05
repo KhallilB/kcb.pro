@@ -1,0 +1,24 @@
+{
+  "git": {
+    "commitMessage": "chore: release ${name} v${version}",
+    "tagName": "${name}@${version}",
+    "tagAnnotation": "Release ${name} v${version}",
+    "requireCleanWorkingDir": false
+  },
+  "npm": {
+    "publish": false
+  },
+  "github": {
+    "release": true,
+    "releaseName": "${name} v${version}",
+    "autoGenerate": true
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "preset": "angular",
+      "infile": "CHANGELOG.md",
+      "header": "# Changelog\n\nAll notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.",
+      "strictSemVer": true
+    }
+  }
+}

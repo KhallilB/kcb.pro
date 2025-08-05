@@ -1,0 +1,151 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Target to release (apps/*, libs/*, or all)'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - apps/router
+          - apps/home
+          - libs/styles
+      dry_run:
+        description: 'Dry run (preview only)'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      router: ${{ steps.changes.outputs.router }}
+      home: ${{ steps.changes.outputs.home }}
+      styles: ${{ steps.changes.outputs.styles }}
+      any-changes: ${{ steps.changes.outputs.router == 'true' || steps.changes.outputs.home == 'true' || steps.changes.outputs.styles == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            router:
+              - 'apps/router/**'
+            home:
+              - 'apps/home/**'
+            styles:
+              - 'libs/styles/**'
+
+  release-router:
+    needs: detect-changes
+    if: |
+      (github.event_name == 'push' && needs.detect-changes.outputs.router == 'true') ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'apps/router'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Release Router App
+        working-directory: apps/router
+        run: |
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            bun x release-it --dry-run
+          else
+            bun x release-it --ci
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  release-home:
+    needs: detect-changes
+    if: |
+      (github.event_name == 'push' && needs.detect-changes.outputs.home == 'true') ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'apps/home'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Release Home App
+        working-directory: apps/home
+        run: |
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            bun x release-it --dry-run
+          else
+            bun x release-it --ci
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  release-styles:
+    needs: detect-changes
+    if: |
+      (github.event_name == 'push' && needs.detect-changes.outputs.styles == 'true') ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'libs/styles'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Release Styles Library
+        working-directory: libs/styles
+        run: |
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            bun x release-it --dry-run
+          else
+            bun x release-it --ci
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

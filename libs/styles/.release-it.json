@@ -1,0 +1,22 @@
+{
+  "extends": "../../.release-it.json",
+  "git": {
+    "commitMessage": "chore: release styles v${version}",
+    "tagName": "styles@${version}",
+    "tagAnnotation": "Release styles v${version}"
+  },
+  "github": {
+    "releaseName": "Styles v${version}"
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "preset": "angular",
+      "infile": "CHANGELOG.md",
+      "header": "# Changelog - Styles Library\n\nAll notable changes to the styles library will be documented in this file.",
+      "context": {
+        "linkCompare": false,
+        "linkReferences": false
+      }
+    }
+  }
+}
