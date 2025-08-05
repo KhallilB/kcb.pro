@@ -7,5 +7,10 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     port: 3000
+  },
+  resolve: {
+    alias: {
+      '@styles/*': '../../libs/styles/src/*'
+    }
   }
 })

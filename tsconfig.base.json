@@ -17,7 +17,8 @@
 
     "baseUrl": ".",
     "paths": {
-      "@packages/*": ["./packages/*"]
+      "@home/*": ["apps/home/src/*"],
+      "@styles/*": ["libs/styles/src/*"]
     }
   },
   "exclude": [
