@@ -15,11 +15,7 @@
     "useDefineForClassFields": true,
     "moduleDetection": "force",
 
-    "baseUrl": ".",
-    "paths": {
-      "@home": ["apps/home/src/entry.tsx"],
-      "@styles/*": ["libs/styles/src/*"]
-    }
+    "baseUrl": "."
   },
   "exclude": [
     // build outputs

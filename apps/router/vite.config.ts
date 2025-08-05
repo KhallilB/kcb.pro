@@ -14,5 +14,9 @@ export default defineConfig({
       '@home': path.resolve(__dirname, '../../apps/home/src/entry.tsx'),
       '@styles': path.resolve(__dirname, '../../libs/styles/src')
     }
+  },
+  build: {
+    outDir: '../../dist/apps/router',
+    emptyOutDir: true
   }
 })
