@@ -2,20 +2,11 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "composite": true,
-    "noEmit": true, // Vite handles builds
-    "rootDir": ".", // okay; just used for project structure checks
+    "noEmit": true,
     "tsBuildInfoFile": "../../node_modules/.cache/tsbuildinfo/router-app",
-    "jsx": "react-jsx",
-
-    // Keep baseUrl at repo root so @packages/* remains correct.
-    // Add an app-local alias without breaking the inherited one.
-    "paths": {
-      "@/*": ["./src/*"]
-    },
-
-    "types": ["vite/client"]
+    "jsx": "react-jsx"
   },
-  "include": ["src", "env.d.ts"],
+  "include": ["src", "env.d.ts", "../home/src/entry.tsx"],
   "exclude": [
     "dist",
     "build",

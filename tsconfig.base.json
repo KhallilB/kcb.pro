@@ -17,7 +17,7 @@
 
     "baseUrl": ".",
     "paths": {
-      "@home/*": ["apps/home/src/*"],
+      "@home": ["apps/home/src/entry.tsx"],
       "@styles/*": ["libs/styles/src/*"]
     }
   },
