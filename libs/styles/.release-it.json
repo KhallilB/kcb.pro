@@ -18,7 +18,8 @@
         "linkReferences": false
       },
       "gitRawCommitsOpts": {
-        "path": "libs/styles/"
+        "path": "libs/styles/",
+        "grep": "^(?!.*(?:chore.*release|fix.*release|chore.*bump|fix.*bump|chore.*workflow|fix.*workflow|chore.*yml|fix.*yml|chore.*yaml|fix.*yaml)).*"
       }
     }
   }
