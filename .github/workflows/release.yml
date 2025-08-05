@@ -56,6 +56,9 @@ jobs:
       (github.event_name == 'push' && needs.detect-changes.outputs.router == 'true') ||
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'apps/router'))
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+      tag: ${{ steps.release.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -75,26 +78,32 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Release Router App
+        id: release
         working-directory: apps/router
         run: |
           if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
-            bun x release-it --dry-run
+            bun x release-it --dry-run --no-git.push --no-github.release
           else
-            bun x release-it --ci
+            # Run release-it but disable git push and github release
+            VERSION=$(bun x release-it --ci --no-git.push --no-github.release --dry-run | grep -o 'Release [0-9]\+\.[0-9]\+\.[0-9]\+' | cut -d' ' -f2 || echo "")
+            if [ -n "$VERSION" ]; then
+              bun x release-it --ci --no-git.push --no-github.release
+              echo "version=$VERSION" >> $GITHUB_OUTPUT
+              echo "tag=router@$VERSION" >> $GITHUB_OUTPUT
+            fi
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   release-home:
-    needs: [detect-changes, release-router]
+    needs: detect-changes
     if: |
-      always() &&
-      (
-        (github.event_name == 'push' && needs.detect-changes.outputs.home == 'true') ||
-        (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'apps/home'))
-      ) &&
-      (needs.release-router.result == 'success' || needs.release-router.result == 'skipped')
+      (github.event_name == 'push' && needs.detect-changes.outputs.home == 'true') ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'apps/home'))
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+      tag: ${{ steps.release.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -114,26 +123,32 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Release Home App
+        id: release
         working-directory: apps/home
         run: |
           if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
-            bun x release-it --dry-run
+            bun x release-it --dry-run --no-git.push --no-github.release
           else
-            bun x release-it --ci
+            # Run release-it but disable git push and github release
+            VERSION=$(bun x release-it --ci --no-git.push --no-github.release --dry-run | grep -o 'Release [0-9]\+\.[0-9]\+\.[0-9]\+' | cut -d' ' -f2 || echo "")
+            if [ -n "$VERSION" ]; then
+              bun x release-it --ci --no-git.push --no-github.release
+              echo "version=$VERSION" >> $GITHUB_OUTPUT
+              echo "tag=home@$VERSION" >> $GITHUB_OUTPUT
+            fi
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   release-styles:
-    needs: [detect-changes, release-home]
+    needs: detect-changes
     if: |
-      always() &&
-      (
-        (github.event_name == 'push' && needs.detect-changes.outputs.styles == 'true') ||
-        (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'libs/styles'))
-      ) &&
-      (needs.release-home.result == 'success' || needs.release-home.result == 'skipped')
+      (github.event_name == 'push' && needs.detect-changes.outputs.styles == 'true') ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'libs/styles'))
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+      tag: ${{ steps.release.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -153,12 +168,101 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Release Styles Library
+        id: release
         working-directory: libs/styles
         run: |
           if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
-            bun x release-it --dry-run
+            bun x release-it --dry-run --no-git.push --no-github.release
           else
-            bun x release-it --ci
+            # Run release-it but disable git push and github release
+            VERSION=$(bun x release-it --ci --no-git.push --no-github.release --dry-run | grep -o 'Release [0-9]\+\.[0-9]\+\.[0-9]\+' | cut -d' ' -f2 || echo "")
+            if [ -n "$VERSION" ]; then
+              bun x release-it --ci --no-git.push --no-github.release
+              echo "version=$VERSION" >> $GITHUB_OUTPUT
+              echo "tag=libs/styles@$VERSION" >> $GITHUB_OUTPUT
+            fi
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  push-releases:
+    needs: [release-router, release-home, release-styles]
+    if: |
+      always() &&
+      github.event.inputs.dry_run != 'true' &&
+      (
+        needs.release-router.result == 'success' ||
+        needs.release-home.result == 'success' ||
+        needs.release-styles.result == 'success'
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Pull latest changes
+        run: |
+          git pull origin main --rebase
+
+      - name: Push all tags and commits
+        run: |
+          # Push all commits and tags
+          git push origin main --follow-tags
+
+          # Push any remaining tags that might not have been pushed
+          git push origin --tags
+
+  create-github-releases:
+    needs: [push-releases, release-router, release-home, release-styles]
+    if: |
+      always() &&
+      github.event.inputs.dry_run != 'true' &&
+      needs.push-releases.result == 'success' &&
+      (
+        needs.release-router.result == 'success' ||
+        needs.release-home.result == 'success' ||
+        needs.release-styles.result == 'success'
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Create GitHub Releases
+        run: |
+          # Create GitHub releases for each component that was released
+          if [ "${{ needs.release-router.result }}" = "success" ] && [ -n "${{ needs.release-router.outputs.tag }}" ]; then
+            cd apps/router
+            bun x release-it --ci --no-increment --no-git.commit --no-git.tag --no-git.push --github.release
+            cd ../..
+          fi
+
+          if [ "${{ needs.release-home.result }}" = "success" ] && [ -n "${{ needs.release-home.outputs.tag }}" ]; then
+            cd apps/home
+            bun x release-it --ci --no-increment --no-git.commit --no-git.tag --no-git.push --github.release
+            cd ../..
+          fi
+
+          if [ "${{ needs.release-styles.result }}" = "success" ] && [ -n "${{ needs.release-styles.outputs.tag }}" ]; then
+            cd libs/styles
+            bun x release-it --ci --no-increment --no-git.commit --no-git.tag --no-git.push --github.release
+            cd ../..
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
