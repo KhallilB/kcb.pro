@@ -16,6 +16,9 @@
       "context": {
         "linkCompare": false,
         "linkReferences": false
+      },
+      "gitRawCommitsOpts": {
+        "path": "libs/styles/"
       }
     }
   }
