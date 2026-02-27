@@ -27,5 +27,6 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["app"]
+  "include": ["app"],
+  "exclude": ["app/**/*.test.ts", "app/**/*.test.tsx", "tests", "playwright.config.ts", "vitest.config.ts"]
 }
