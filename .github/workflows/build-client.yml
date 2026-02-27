@@ -16,17 +16,22 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: 1.2.2
 
       - name: Build
         run: |
-          bun install
+          bun install --frozen-lockfile
           bun run build:client
 
       - name: Setup git
         run: |
           git config --global user.name "KhallilB"
           git config --global user.email "khallilbailey@gmail.com"
+
+      - name: Clean workspace before switching branches
+        run: |
+          git reset --hard
+          git clean -fd
 
       - name: Merge to main
         run: |
