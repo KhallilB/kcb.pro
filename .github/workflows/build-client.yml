@@ -5,6 +5,9 @@ on:
     branches:
       - prod-client
 
+permissions:
+  contents: write
+
 jobs:
   client:
     runs-on: ubuntu-latest
