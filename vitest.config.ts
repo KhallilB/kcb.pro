@@ -1,9 +1,19 @@
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@app': '/app',
+      '@server': '/server',
+    },
+  },
   test: {
-    globals: true,
     environment: 'jsdom',
-    setupFiles: ['./vitest.setup.ts']
-  }
+    setupFiles: ['./app/test/setup.ts'],
+    globals: true,
+    include: ['app/**/*.test.ts', 'app/**/*.test.tsx'],
+    coverage: {
+      reporter: ['text', 'html'],
+    },
+  },
 })

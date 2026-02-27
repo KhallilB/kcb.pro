@@ -1,0 +1,44 @@
+name: Build & Merge Prod Server
+
+on:
+  push:
+    branches:
+      - prod-server
+
+permissions:
+  contents: write
+
+jobs:
+  server:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.2.2
+
+      - name: Build
+        run: |
+          bun install --frozen-lockfile
+          bun run build:server
+
+      - name: Setup git
+        run: |
+          git config --global user.name "KhallilB"
+          git config --global user.email "khallilbailey@gmail.com"
+
+      - name: Clean workspace before switching branches
+        run: |
+          git reset --hard
+          git clean -fd
+
+      - name: Merge to main
+        run: |
+          git fetch origin main prod-server
+          git checkout -B main origin/main
+          git merge --no-edit --allow-unrelated-histories -X theirs origin/prod-server
+          git push origin main

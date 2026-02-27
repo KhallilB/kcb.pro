@@ -1,4 +1,32 @@
 {
-  "files": [],
-  "references": [{ "path": "./apps/router" }, { "path": "./apps/home" }, { "path": "./libs/styles" }]
+  "compilerOptions": {
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "rootDir": ".",
+    "outDir": "build",
+    "paths": {
+      "@app/*": ["./app/*"],
+      "@server/*": ["./server/*"]
+    },
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["app"],
+  "exclude": ["app/**/*.test.ts", "app/**/*.test.tsx", "tests", "playwright.config.ts", "vitest.config.ts"]
 }
