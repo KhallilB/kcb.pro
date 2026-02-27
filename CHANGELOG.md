@@ -2,6 +2,8 @@
 
 
 
+## [0.3.1](https://github.com/KhallilB/kcb/compare/v0.3.0...v0.3.1) (2026-02-27)
+
 # 0.3.0 (2026-02-27)
 
 
