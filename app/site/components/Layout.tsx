@@ -5,6 +5,7 @@ import { useHomeView } from '../home-view'
 import { pageMeta } from '../meta'
 import { useSite } from '../site'
 import { TomeStage } from './TomeStage'
+import { ViewToggle } from './ViewToggle'
 
 const NAV = [
   { to: '/work', label: 'Work' },
@@ -13,15 +14,16 @@ const NAV = [
 ]
 
 export function Layout() {
-  const { asOf, profile } = useSite()
+  const { asOf, profile, tome } = useSite()
   const { pathname } = useLocation()
   const [view, setView] = useHomeView()
-  const [hydrated, setHydrated] = useState(false)
+  // Unknown until hydration; false hides the book and its toggle for good.
+  const [tomeWorks, setTomeWorks] = useState<boolean | null>(null)
   const isHome = pathname === '/'
-  const tomeOpen = isHome && view === 'tome'
+  const canTome = isHome && tomeWorks === true
 
-  useEffect(() => setHydrated(true), [])
-  const stageOn = hydrated && tomeOpen
+  useEffect(() => setTomeWorks(tome.supportsWebGL()), [tome])
+  const stageOn = canTome && view === 'tome'
   // Mirrors the inline script's flag in index.html; clearing it reveals the list.
   useEffect(() => {
     const flags = document.documentElement.dataset
@@ -43,8 +45,19 @@ export function Layout() {
 
   return (
     <>
-      {stageOn && <TomeStage onList={showList} />}
-      <div className="shell" inert={stageOn ? true : undefined}>
+      {stageOn && (
+        <TomeStage onList={showList} onFail={() => setTomeWorks(false)} />
+      )}
+      {canTome && (
+        <ViewToggle
+          view={stageOn ? 'tome' : 'list'}
+          onChange={(next) => (next === 'list' ? showList() : setView('tome'))}
+        />
+      )}
+      <div
+        className={canTome ? 'shell shell--toggle' : 'shell'}
+        inert={stageOn ? true : undefined}
+      >
         <a className="skip" href="#content">
           Skip to content
         </a>
@@ -62,17 +75,6 @@ export function Layout() {
                   </NavLink>
                 </li>
               ))}
-              {isHome && hydrated && !tomeOpen && (
-                <li>
-                  <button
-                    type="button"
-                    className="nav__tome"
-                    onClick={() => setView('tome')}
-                  >
-                    Open the tome
-                  </button>
-                </li>
-              )}
             </ul>
           </nav>
         </header>

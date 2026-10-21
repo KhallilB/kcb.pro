@@ -48,6 +48,17 @@ describe('home', () => {
     expect(cards[2]).toHaveTextContent('Planned · Apr 2027')
   })
 
+  it('describes each project in words, with no picture', () => {
+    const { container } = visit('/')
+    const cards = within(screen.getByRole('region', { name: 'Selected work' })).getAllByRole(
+      'article'
+    )
+    expect(cards[0]).toHaveTextContent('files each game you play under the version that played it')
+    expect(cards[1]).toHaveTextContent('every fighter is a plain text file')
+    expect(cards[2]).toHaveTextContent('layers a city’s open data')
+    expect(container.querySelector('.card svg, .card img, .wip')).toBeNull()
+  })
+
   it('lists the three work studies', () => {
     visit('/')
     const section = screen.getByRole('region', { name: 'Work studies' })
@@ -110,6 +121,13 @@ describe('project page', () => {
     expect(spec).toHaveTextContent('Role')
     expect(spec).toHaveTextContent('WebGPU')
     expect(spec).toHaveTextContent('Planned · Jan 2027')
+  })
+
+  it('holds an empty build log until GitHub and the changelog are linked', () => {
+    visit('/work/deck-workshop')
+    const log = screen.getByRole('region', { name: 'Build log' })
+    expect(log).toHaveTextContent('Nothing linked yet')
+    expect(within(log).queryByRole('img')).toBeNull()
   })
 
   it('renders every brief section as a heading with a contents link', () => {

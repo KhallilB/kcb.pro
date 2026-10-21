@@ -27,6 +27,8 @@ export interface Project extends Dated {
   kind: ProjectKind
   title: string
   summary: string
+  // What it is, in a short paragraph; stands in for screenshots that do not exist yet.
+  about: string
   // Season sequence; lower ships first.
   order: number
   role: string

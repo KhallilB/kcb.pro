@@ -6,6 +6,7 @@ export function project(overrides: Partial<Project> = {}): Project {
     kind: 'endeavor',
     title: 'Alpha',
     summary: 'Does one useful thing.',
+    about: 'A small tool that does one useful thing well.',
     status: 'planned',
     startsOn: '2027-01-04',
     order: 1,

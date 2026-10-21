@@ -6,6 +6,8 @@ export const projects: Project[] = [
     kind: 'site',
     title: 'The Gallery',
     summary: 'This site: every project dated, every claim checkable.',
+    about:
+      'The site you are on: a ruled index and a leather tome over one catalog, every page prerendered and every claim dated.',
     status: 'in-progress',
     startsOn: '2026-10-19',
     order: 0,
@@ -41,6 +43,8 @@ export const projects: Project[] = [
     kind: 'endeavor',
     title: 'Deck Workshop',
     summary: 'Tune a Hearthstone deck and know what each change did.',
+    about:
+      'A desktop app that keeps every version of a Hearthstone deck, files each game you play under the version that played it, and says honestly whether a change helped.',
     status: 'in-progress',
     startsOn: '2026-09-20',
     order: 1,
@@ -113,6 +117,8 @@ export const projects: Project[] = [
     kind: 'endeavor',
     title: 'Mugen Arena',
     summary: 'A 3D arena battler where every fighter is a file you can edit.',
+    about:
+      'A browser fighting game where every fighter is a plain text file. Change a move’s frames or hitbox and fight with it seconds later.',
     status: 'planned',
     startsOn: '2027-01-04',
     order: 2,
@@ -191,6 +197,8 @@ export const projects: Project[] = [
     kind: 'endeavor',
     title: 'Wander',
     summary: 'The city as layers: then and now on the street you stand on.',
+    about:
+      'A walking map that layers a city’s open data on the street you stand on: tree species, historic photos, public art and local history.',
     status: 'planned',
     startsOn: '2027-04-12',
     order: 3,

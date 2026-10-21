@@ -27,7 +27,7 @@ export function validateCatalog(catalog: Catalog): string[] {
 
   for (const p of catalog.projects) {
     const words = texts(
-      [p.title, p.summary, p.role, p.domain, p.signature, ...p.stack],
+      [p.title, p.summary, p.about, p.role, p.domain, p.signature, ...p.stack],
       p.brief
     )
     for (const text of words) {
@@ -35,6 +35,7 @@ export function validateCatalog(catalog: Catalog): string[] {
         errors.push(`"${p.slug}" has placeholder text: ${text}`)
       }
     }
+    if (!p.about.trim()) errors.push(`"${p.slug}" needs an about paragraph`)
     if (p.status === 'shipped' && !p.shippedOn) {
       errors.push(`"${p.slug}" is shipped but has no shippedOn date`)
     }
