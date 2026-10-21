@@ -11,7 +11,8 @@ export default defineConfig({
     headless: true,
   },
   webServer: {
-    command: 'bun run dev:client --host 127.0.0.1 --port 4173',
+    command:
+      'bun run build:client && bun scripts/serve-build.ts',
     url: 'http://127.0.0.1:4173',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

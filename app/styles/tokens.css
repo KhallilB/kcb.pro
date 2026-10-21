@@ -1,0 +1,82 @@
+/* Only file allowed raw colour or size literals. Palette and type from the Portfolio Tome. */
+:root {
+  /* One look in every scheme, like the book itself. */
+  color-scheme: light;
+
+  --paper: #f3ead6;
+  --surface: #ece0c4;
+  --hairline: #d3c19c;
+  --ink: #2d2318;
+  --secondary: #6f5d45;
+  --accent: #17785c;
+  --accent-soft: rgba(23, 120, 92, 0.14);
+  --gold: #caa24c;
+  --passing: #17785c;
+  --in-progress: #b07a1e;
+  --mist: #e4eae8;
+  --mist-edge: #f3f5f4;
+  --glow: rgba(26, 138, 118, 0.42);
+  --ui: rgba(24, 32, 34, 0.72);
+  --ui-ink: #f2ede2;
+
+  --font-head: 'Cinzel', 'Trajan Pro', Georgia, serif;
+  --font-body: 'EB Garamond', Garamond, Georgia, serif;
+
+  --text-display: 3.75rem;
+  --lh-display: 4.25rem;
+  --text-h1: 2.5rem;
+  --lh-h1: 3rem;
+  --text-h2: 1.625rem;
+  --lh-h2: 2.125rem;
+  --text-h3: 1.25rem;
+  --lh-h3: 1.75rem;
+  --text-body: 1.1875rem;
+  --lh-body: 1.85rem;
+  --text-small: 1.0625rem;
+  --lh-small: 1.5rem;
+  --text-meta: 0.9375rem;
+  --lh-meta: 1.375rem;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  --max-width: 1080px;
+  --gutter: 24px;
+  --margin: 32px;
+  --measure: 62ch;
+  --radius-card: 6px;
+  --radius-control: 999px;
+  --rule: 1px;
+  --focus: 2px;
+  --mark-size: 8px;
+  --nudge: 2px;
+  --dot: 0.32em;
+
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --fast: 150ms;
+  --slow: 600ms;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --text-display: 2.5rem;
+    --lh-display: 2.875rem;
+    --text-h1: 2rem;
+    --lh-h1: 2.5rem;
+    --margin: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --fast: 0ms;
+    --slow: 0ms;
+  }
+}
