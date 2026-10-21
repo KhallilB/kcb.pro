@@ -30,19 +30,21 @@ async function stubEngine(page: Page) {
 test('the tome opens over the home page and steps aside for the list', async ({ page }) => {
   await stubEngine(page)
   await page.goto('/')
-  const listButton = page.getByRole('button', { name: 'List view' })
-  await expect(listButton).toBeVisible()
+  const view = page.getByRole('group', { name: 'View' })
+  await expect(view.getByRole('button', { name: 'Tome' })).toHaveAttribute('aria-pressed', 'true')
   await expect(page.locator('.tome[data-ready] canvas')).toHaveAttribute(
     'data-chapters',
     'deckWorkshop,mugenArena,wander'
   )
 
-  await listButton.click()
-  await expect(listButton).toHaveCount(0)
+  await view.getByRole('button', { name: 'List' }).click()
+  await expect(view.getByRole('button', { name: 'List' })).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.locator('.tome')).toHaveCount(0)
   await expect(
     page.getByRole('heading', { level: 1, name: 'Frontend engineer building deep, useful web apps.' })
   ).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Open the tome' })).toBeVisible()
+  await view.getByRole('button', { name: 'Tome' }).click()
+  await expect(page.locator('.tome[data-ready] canvas')).toBeAttached()
 })
 
 test('without WebGL the home page is the plain list', async ({ page }) => {
@@ -54,7 +56,7 @@ test('without WebGL the home page is the plain list', async ({ page }) => {
   await expect(
     page.getByRole('heading', { level: 1, name: 'Frontend engineer building deep, useful web apps.' })
   ).toBeVisible()
-  await expect(page.getByRole('button', { name: 'List view' })).toHaveCount(0)
+  await expect(page.getByRole('group', { name: 'View' })).toHaveCount(0)
 })
 
 test('home names the work and what is being built now', async ({ page }) => {
@@ -76,8 +78,8 @@ test('home names the work and what is being built now', async ({ page }) => {
 test('a keyboard user reaches a project page and back to the index', async ({ page }) => {
   await preferList(page)
   await page.goto('/')
-  // The stored choice applies after hydration; wait for it before tabbing.
-  await expect(page.getByRole('button', { name: 'Open the tome' })).toBeVisible()
+  // Wait for hydration to clear the loading flag before tabbing.
+  await expect(page.locator('html[data-tome]')).toHaveCount(0)
   await page.keyboard.press('Tab')
   await expect(page.getByRole('link', { name: 'Skip to content' })).toBeFocused()
 

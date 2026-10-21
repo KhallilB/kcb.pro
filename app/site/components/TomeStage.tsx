@@ -3,21 +3,24 @@ import { useNavigate } from 'react-router'
 import { tomeData } from '@app/tome/copy'
 import { useSite } from '../site'
 
-// Full-viewport book over the home page; any failure hands the visitor the plain list.
-export function TomeStage({ onList }: { onList: () => void }) {
+// Full-viewport book over the home page. onList: the reader left; onFail: it cannot run here.
+export function TomeStage({
+  onList,
+  onFail,
+}: {
+  onList: () => void
+  onFail: () => void
+}) {
   const { asOf, tome } = useSite()
   const navigate = useNavigate()
   const host = useRef<HTMLDivElement>(null)
   const [ready, setReady] = useState(false)
-  const leave = useRef(onList)
-  leave.current = onList
+  const handlers = useRef({ onList, onFail })
+  handlers.current = { onList, onFail }
 
   useEffect(() => {
     const el = host.current
-    if (!el || !tome.supportsWebGL()) {
-      leave.current()
-      return
-    }
+    if (!el) return
     let cancelled = false
     let destroy: (() => void) | null = null
     tome
@@ -26,14 +29,14 @@ export function TomeStage({ onList }: { onList: () => void }) {
         if (cancelled) return
         destroy = mountTome(el, {
           data: tomeData(asOf),
-          onList: () => leave.current(),
+          onList: () => handlers.current.onList(),
           onNavigate: (path) => navigate(path),
         })
         if (destroy) setReady(true)
-        else leave.current()
+        else handlers.current.onFail()
       })
       .catch(() => {
-        if (!cancelled) leave.current()
+        if (!cancelled) handlers.current.onFail()
       })
     return () => {
       cancelled = true
@@ -49,9 +52,6 @@ export function TomeStage({ onList }: { onList: () => void }) {
       <div className="tome__vignette" aria-hidden="true" />
       <div ref={host} className="tome__host" />
       {!ready && <p className="tome__loading">Opening the tome…</p>}
-      <button type="button" className="tome__list" onClick={onList}>
-        List view
-      </button>
     </div>
   )
 }

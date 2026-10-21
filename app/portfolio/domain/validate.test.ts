@@ -36,6 +36,11 @@ describe('validateCatalog', () => {
     expect(errors).toContain('"alpha" is shipped but has no shippedOn date')
   })
 
+  it('refuses a project with no paragraph saying what it is', () => {
+    const errors = validateCatalog(catalog([project({ about: '  ' })]))
+    expect(errors).toContain('"alpha" needs an about paragraph')
+  })
+
   it('refuses links that go nowhere', () => {
     const errors = validateCatalog(
       catalog([project({ links: [{ label: 'Source', href: '#' }] })])

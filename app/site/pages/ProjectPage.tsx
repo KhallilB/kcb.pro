@@ -1,7 +1,7 @@
 import { Link, useParams } from 'react-router'
 import { findProject } from '@app/portfolio/domain/catalog'
 import { Brief } from '../components/Brief'
-import { ProductMark } from '../components/ProductMark'
+import { BuildLog } from '../components/BuildLog'
 import { StatusChip } from '../components/StatusChip'
 import { useSite } from '../site'
 import { NotFound } from './NotFound'
@@ -20,6 +20,7 @@ export function ProjectPage() {
         </p>
         <h1 className="h1">{project.title}</h1>
         <p className="lede">{project.summary}</p>
+        <p className="about">{project.about}</p>
         <div className="spec" role="group" aria-label="Spec">
           <dl>
             <div>
@@ -54,12 +55,7 @@ export function ProjectPage() {
           )}
         </div>
       </header>
-      <figure className="figure">
-        <div className="figure__surface">
-          <ProductMark slug={project.slug} />
-        </div>
-        <figcaption className="secondary">{project.signature}</figcaption>
-      </figure>
+      <BuildLog />
       <Brief sections={project.brief} />
     </article>
   )

@@ -2,7 +2,6 @@ import { Link } from 'react-router'
 import { featured, nowBuilding } from '@app/portfolio/domain/catalog'
 import { formatLabel } from '@app/portfolio/domain/status'
 import { formatDay, formatMonth } from '@app/portfolio/domain/dates'
-import { ProductMark } from '../components/ProductMark'
 import { StatusChip } from '../components/StatusChip'
 import { useSite } from '../site'
 
@@ -43,9 +42,6 @@ export function Home() {
         <div className="cards">
           {work.map((project) => (
             <article key={project.slug} className="card">
-              <div className="card__thumb">
-                <ProductMark slug={project.slug} />
-              </div>
               <div className="card__body">
                 <h3 className="card__title">
                   <Link to={`/work/${project.slug}`} className="card__link">
@@ -53,6 +49,7 @@ export function Home() {
                   </Link>
                 </h3>
                 <p className="secondary">{project.summary}</p>
+                <p className="card__about">{project.about}</p>
                 <StatusChip item={project} />
               </div>
             </article>

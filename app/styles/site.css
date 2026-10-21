@@ -267,13 +267,6 @@ a {
   border-color: var(--secondary);
 }
 
-.card__thumb {
-  aspect-ratio: 16 / 10;
-  background: var(--surface);
-  display: grid;
-  place-items: center;
-}
-
 .card__body {
   display: grid;
   gap: var(--space-2);
@@ -295,27 +288,6 @@ a {
   content: '';
   position: absolute;
   inset: 0;
-}
-
-.mark {
-  inline-size: 60%;
-  max-inline-size: 220px;
-  block-size: auto;
-}
-
-.mark__ink {
-  stroke: var(--ink);
-  stroke-width: 2;
-  fill: none;
-}
-
-.mark__fill {
-  fill: var(--ink);
-}
-
-.mark__accent {
-  stroke: var(--accent);
-  fill: var(--accent);
 }
 
 /* Status: shape and word, never colour alone. */
@@ -445,26 +417,6 @@ a {
   display: flex;
   gap: var(--space-5);
   margin-block-start: var(--space-5);
-}
-
-.figure {
-  margin-block-end: var(--space-8);
-}
-
-.figure__surface {
-  aspect-ratio: 3 / 1;
-  background: var(--surface);
-  border: var(--rule) solid var(--hairline);
-  border-radius: var(--radius-card);
-  display: grid;
-  place-items: center;
-}
-
-.figure figcaption {
-  margin-block-start: var(--space-3);
-  font-size: var(--text-small);
-  line-height: var(--lh-small);
-  max-inline-size: var(--measure);
 }
 
 /* Reading layout: contents in the rail, prose in the column. */
