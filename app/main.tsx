@@ -1,21 +1,31 @@
 import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { RouterProvider } from 'react-router'
-import router from '@app/routes'
+import { createRoot, hydrateRoot } from 'react-dom/client'
+import { BrowserRouter } from 'react-router'
+import '@fontsource/cinzel/500.css'
+import '@fontsource/cinzel/700.css'
+import '@fontsource/eb-garamond/400.css'
+import '@fontsource/eb-garamond/400-italic.css'
+import '@fontsource/eb-garamond/500.css'
+import '@fontsource/eb-garamond/600.css'
+import './styles/tokens.css'
+import './styles/site.css'
+import './styles/tome.css'
+import { AppRoutes } from './site/AppRoutes'
+import { SiteProvider } from './site/site-context'
 
-import './index.css'
-import React from 'react'
+const root = document.getElementById('root')
 
-const rootElement = document.getElementById('root')
-
-if (rootElement) {
-  const root = createRoot(rootElement)
-
-  const strictModeElement = React.createElement(
-    StrictMode,
-    null,
-    React.createElement(RouterProvider, { router })
+if (root) {
+  const app = (
+    <StrictMode>
+      <SiteProvider asOf={__BUILD_DAY__}>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </SiteProvider>
+    </StrictMode>
   )
-
-  root.render(strictModeElement)
+  // Prerendered pages hydrate; the dev server starts empty.
+  if (root.hasChildNodes()) hydrateRoot(root, app)
+  else createRoot(root).render(app)
 }

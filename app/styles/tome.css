@@ -1,0 +1,227 @@
+/* Site type in the Tome's voice: Cinzel titles over EB Garamond reading text. */
+body {
+  font-variant-numeric: lining-nums;
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 0%, var(--mist-edge), transparent 70%),
+    var(--paper);
+}
+
+.display,
+.h1,
+.h2,
+.h3,
+.card__title,
+.wordmark {
+  font-family: var(--font-head);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.display {
+  max-inline-size: 16ch;
+}
+
+.wordmark {
+  font-size: var(--text-h3);
+}
+
+.lede,
+.secondary {
+  font-style: italic;
+}
+
+.card {
+  background: var(--paper);
+  border-color: var(--hairline);
+}
+
+.card__thumb,
+.figure__surface {
+  background: var(--surface);
+}
+
+.nav__link {
+  font-family: var(--font-head);
+  font-size: var(--text-meta);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.nav__tome {
+  font: 500 var(--text-meta) var(--font-body);
+  color: var(--ui-ink);
+  background: var(--ui);
+  border: 0;
+  border-radius: var(--radius-control);
+  padding: var(--space-1) var(--space-4);
+  cursor: pointer;
+}
+
+.mark__accent {
+  stroke: var(--accent);
+  fill: var(--accent);
+}
+
+/* While the book loads or is open, the list beneath stays out of sight. */
+html[data-tome] .shell {
+  visibility: hidden;
+}
+
+html[data-tome='pending'] body {
+  background:
+    radial-gradient(ellipse 40% 45% at 50% 52%, var(--glow), transparent 70%),
+    radial-gradient(ellipse 75% 70% at 50% 50%, var(--mist), var(--mist-edge) 85%);
+}
+
+/* The overlay: a misty void holding the floating book. */
+.tome {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 40% 45% at 50% 52%, var(--glow), transparent 70%),
+    radial-gradient(ellipse 75% 70% at 50% 50%, var(--mist), var(--mist-edge) 85%);
+  background-color: var(--mist);
+  color: var(--ink);
+  font-family: var(--font-body);
+}
+
+.tome__fog {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0.55;
+  pointer-events: none;
+  background: var(--mist-edge);
+  animation: drift 38s ease-in-out infinite alternate;
+}
+
+.tome__fog--a {
+  inline-size: 46vmax;
+  block-size: 30vmax;
+  inset-inline-start: -8vmax;
+  inset-block-start: 8vh;
+}
+
+.tome__fog--b {
+  inline-size: 40vmax;
+  block-size: 28vmax;
+  inset-inline-end: -10vmax;
+  inset-block-end: 4vh;
+  animation-duration: 46s;
+  animation-direction: alternate-reverse;
+}
+
+.tome__fog--c {
+  inline-size: 30vmax;
+  block-size: 20vmax;
+  inset-inline-start: 30vw;
+  inset-block-end: -10vmax;
+  opacity: 0.4;
+  animation-duration: 52s;
+}
+
+@keyframes drift {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(6vmax, -3vmax);
+  }
+}
+
+.tome__vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  background: radial-gradient(ellipse 70% 62% at 50% 48%, transparent 55%, rgba(20, 30, 28, 0.22) 100%);
+}
+
+.tome__host,
+.tome__stage {
+  position: absolute;
+  inset: 0;
+}
+
+.tome__stage {
+  touch-action: none;
+}
+
+.tome__stage canvas {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.tome__list {
+  position: absolute;
+  z-index: 5;
+  inset-inline-end: var(--space-4);
+  inset-block-start: calc(var(--space-4) + env(safe-area-inset-top, 0px));
+  font: 500 var(--text-meta) var(--font-body);
+  color: var(--ui-ink);
+  background: var(--ui);
+  border: 0;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-control);
+  cursor: pointer;
+}
+
+.tome__loading,
+.tome__hint {
+  position: absolute;
+  z-index: 5;
+  inset-inline-start: 50%;
+  transform: translateX(-50%);
+  font: italic 400 var(--text-meta) var(--font-body);
+  color: var(--secondary);
+  text-align: center;
+  pointer-events: none;
+}
+
+.tome__loading {
+  inset-block-start: 50%;
+}
+
+.tome__hint {
+  inset-block-end: calc(10px + env(safe-area-inset-bottom, 0px));
+  inline-size: max-content;
+  max-inline-size: calc(100vw - 32px);
+  padding: var(--space-1) var(--space-3);
+  background: rgba(243, 245, 244, 0.7);
+  border-radius: var(--radius-control);
+  transition: opacity var(--slow) ease;
+}
+
+.tome__hint.gone {
+  opacity: 0;
+}
+
+.tome__tip {
+  position: fixed;
+  z-index: 6;
+  pointer-events: none;
+  font: 500 var(--text-meta) var(--font-body);
+  color: var(--ui-ink);
+  background: var(--ui);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-card);
+  white-space: nowrap;
+}
+
+.sr-only {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tome__fog {
+    animation: none;
+  }
+}
