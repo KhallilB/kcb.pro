@@ -24,7 +24,7 @@ export function WorkIndex() {
               <Link to={`/work/${project.slug}`} className="row__title">
                 {project.title}
               </Link>
-              <span className="row__summary secondary">{project.summary}</span>
+              <span className="row__summary">{project.about}</span>
             </span>
             <span className="row__meta">
               <StatusChip item={project} />

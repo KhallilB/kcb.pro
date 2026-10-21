@@ -46,6 +46,8 @@ export interface Study extends Dated {
   title: string
   format: StudyFormat
   question: string
+  // What it is, in a short paragraph.
+  about: string
   builtSlice: string
   kitPiece: string
   // Project slugs this study hands a kit piece to.

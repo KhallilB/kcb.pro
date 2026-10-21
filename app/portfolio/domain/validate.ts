@@ -49,7 +49,7 @@ export function validateCatalog(catalog: Catalog): string[] {
   const projectSlugs = new Set(catalog.projects.map((p) => p.slug))
   for (const s of catalog.studies) {
     const words = texts(
-      [s.title, s.question, s.builtSlice, s.kitPiece],
+      [s.title, s.question, s.about, s.builtSlice, s.kitPiece],
       s.brief
     )
     for (const text of words) {
@@ -57,6 +57,7 @@ export function validateCatalog(catalog: Catalog): string[] {
         errors.push(`Study "${s.slug}" has placeholder text: ${text}`)
       }
     }
+    if (!s.about.trim()) errors.push(`Study "${s.slug}" needs an about paragraph`)
     for (const fed of s.feeds) {
       if (!projectSlugs.has(fed)) {
         errors.push(`Study "${s.slug}" feeds unknown project "${fed}"`)

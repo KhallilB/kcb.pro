@@ -3,6 +3,7 @@ import { findProject } from '@app/portfolio/domain/catalog'
 import { formatMonth } from '@app/portfolio/domain/dates'
 import { formatLabel } from '@app/portfolio/domain/status'
 import { Brief } from '../components/Brief'
+import { BuildLog } from '../components/BuildLog'
 import { StatusChip } from '../components/StatusChip'
 import { useSite } from '../site'
 import { NotFound } from './NotFound'
@@ -29,7 +30,7 @@ export function StudiesIndex() {
               <Link to={`/studies/${study.slug}`} className="row__title">
                 {study.title}
               </Link>
-              <span className="row__summary secondary">{study.question}</span>
+              <span className="row__summary">{study.about}</span>
             </span>
             <span className="row__meta secondary">{formatLabel(study.format)}</span>
           </li>
@@ -56,6 +57,7 @@ export function StudyPage() {
         </p>
         <h1 className="h1">{study.title}</h1>
         <p className="lede">{study.question}</p>
+        <p className="about">{study.about}</p>
         <div className="spec" role="group" aria-label="Spec">
           <dl>
             <div>
@@ -90,6 +92,7 @@ export function StudyPage() {
           </dl>
         </div>
       </header>
+      <BuildLog />
       <Brief sections={study.brief} />
     </article>
   )

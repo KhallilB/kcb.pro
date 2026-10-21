@@ -26,6 +26,7 @@ export function study(overrides: Partial<Study> = {}): Study {
     title: 'Study one',
     format: 'teardown',
     question: 'Why does it work?',
+    about: 'A one-week look at how one interface works.',
     builtSlice: 'A slice.',
     kitPiece: 'A piece.',
     feeds: [],

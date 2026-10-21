@@ -42,8 +42,9 @@ async function visit(path: string, hooks: TomeHooks) {
 const page = () => document.querySelector('.shell') as HTMLElement
 const stage = () => document.querySelector('.tome')
 const toggle = () => screen.queryByRole('group', { name: 'View' })
+const NAMES = { Tome: '3D book', List: '2D list' }
 const option = (name: 'Tome' | 'List') =>
-  within(screen.getByRole('group', { name: 'View' })).getByRole('button', { name })
+  within(screen.getByRole('group', { name: 'View' })).getByRole('button', { name: NAMES[name] })
 
 beforeEach(() => sessionStorage.clear())
 
@@ -51,6 +52,8 @@ describe('the tome on the home page', () => {
   it('opens over the page and keeps the page behind it inert', async () => {
     const { hooks, calls } = fakeEngine()
     await visit('/', hooks)
+    expect(option('Tome')).toHaveTextContent('3D')
+    expect(option('List')).toHaveTextContent('2D')
     expect(option('Tome')).toHaveAttribute('aria-pressed', 'true')
     expect(option('List')).toHaveAttribute('aria-pressed', 'false')
     expect(page()).toHaveAttribute('inert')

@@ -125,6 +125,11 @@ html[data-tome='pending'] body {
   inset: 0;
 }
 
+/* The book renders below a strip reserved for the view toggle, so the toggle never sits on it. */
+.tome__host {
+  inset-block-start: calc(var(--toggle-h) + 2 * var(--space-4) + env(safe-area-inset-top, 0px));
+}
+
 .tome__stage {
   touch-action: none;
 }
