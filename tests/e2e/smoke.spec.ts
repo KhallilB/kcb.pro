@@ -21,6 +21,7 @@ async function stubEngine(page: Page) {
       contentType: 'text/javascript',
       body: `export function mountTome(host, opts) {
         const c = document.createElement('canvas'); c.dataset.chapters = Object.keys(opts.data.chapters).join(',');
+        c.style.cssText = 'display:block;width:100%;height:100%';
         host.append(c); return () => host.replaceChildren();
       }`,
     })
@@ -31,21 +32,46 @@ test('the tome opens over the home page and steps aside for the list', async ({ 
   await stubEngine(page)
   await page.goto('/')
   const view = page.getByRole('group', { name: 'View' })
-  await expect(view.getByRole('button', { name: 'Tome' })).toHaveAttribute('aria-pressed', 'true')
+  await expect(view.getByRole('button', { name: '3D book' })).toHaveAttribute('aria-pressed', 'true')
   await expect(page.locator('.tome[data-ready] canvas')).toHaveAttribute(
     'data-chapters',
     'deckWorkshop,mugenArena,wander'
   )
 
-  await view.getByRole('button', { name: 'List' }).click()
-  await expect(view.getByRole('button', { name: 'List' })).toHaveAttribute('aria-pressed', 'true')
+  await view.getByRole('button', { name: '2D list' }).click()
+  await expect(view.getByRole('button', { name: '2D list' })).toHaveAttribute('aria-pressed', 'true')
   await expect(page.locator('.tome')).toHaveCount(0)
   await expect(
     page.getByRole('heading', { level: 1, name: 'Frontend engineer building deep, useful web apps.' })
   ).toBeVisible()
-  await view.getByRole('button', { name: 'Tome' }).click()
+  await view.getByRole('button', { name: '3D book' }).click()
   await expect(page.locator('.tome[data-ready] canvas')).toBeAttached()
 })
+
+type Box = { x: number; y: number; width: number; height: number }
+const overlaps = (a: Box, b: Box) =>
+  a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height
+
+for (const size of [{ width: 1280, height: 800 }, { width: 375, height: 700 }]) {
+  test(`the toggle covers nothing in either view at ${size.width}px`, async ({ page }) => {
+    await stubEngine(page)
+    await page.setViewportSize(size)
+    await page.goto('/')
+    const toggle = page.getByRole('group', { name: 'View' })
+    await expect(page.locator('.tome[data-ready] canvas')).toBeAttached()
+    const t3 = (await toggle.boundingBox())!
+    const book = (await page.locator('.tome__host').boundingBox())!
+    expect(overlaps(t3, book), '3D: toggle over the book').toBe(false)
+
+    await toggle.getByRole('button', { name: '2D list' }).click()
+    await expect(page.locator('.tome')).toHaveCount(0)
+    const t2 = (await toggle.boundingBox())!
+    const content = page.locator('.header a, .header h1, main h1, main p').filter({ visible: true })
+    for (const box of await content.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().toJSON()))) {
+      expect(overlaps(t2, box), `2D: toggle over ${JSON.stringify(box)}`).toBe(false)
+    }
+  })
+}
 
 test('without WebGL the home page is the plain list', async ({ page }) => {
   await page.addInitScript(() => {

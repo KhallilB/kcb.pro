@@ -9,6 +9,7 @@ type Pair = [string, string]
 interface Chapter {
   title: string
   summary: string
+  about: string
   status: string
   notes: Pair[]
   facts: Pair[]
@@ -32,17 +33,9 @@ export interface TomeData {
     path: string
   }[]
   chapters: {
-    deckWorkshop: Chapter & {
-      versions: { label: string; change: string; wins: number; losses: number }[]
-    }
+    deckWorkshop: Chapter
     mugenArena: Chapter
-    wander: Chapter & {
-      layerNames: { trees: string; then: string; art: string }
-      treeCaption: string
-      trees: [number, number, number][]
-      photos: [number, number][]
-      art: [number, number][]
-    }
+    wander: Chapter
   }
 }
 
@@ -52,11 +45,17 @@ function project(slug: string): Project {
   return p
 }
 
-function chapter(slug: string, asOf: IsoDay, notes: Pair[], facts: Pair[]): Chapter {
+function chapter(
+  slug: string,
+  asOf: IsoDay,
+  notes: Pair[],
+  facts: Pair[]
+): Chapter {
   const p = project(slug)
   return {
     title: p.title,
     summary: p.summary,
+    about: p.about,
     status: statusLine(p, asOf),
     notes,
     facts,
@@ -102,35 +101,45 @@ export function tomeData(asOf: IsoDay): TomeData {
       path: `/studies/${s.slug}`,
     })),
     chapters: {
-      deckWorkshop: {
-        ...chapter(
-          'deck-workshop',
-          asOf,
+      deckWorkshop: chapter(
+        'deck-workshop',
+        asOf,
+        [
           [
-            ['The problem', 'Players tune decks by feel and paste over the old list, so nobody knows whether the last change helped.'],
-            ['The approach', 'A Rust watcher tails the game’s log and files every game under the version that played it.'],
-            ['The proof', 'A record under twenty games says so, and a rate always comes with its range.'],
+            'The problem',
+            'Players tune decks by feel and paste over the old list, so nobody knows whether the last change helped.',
           ],
           [
-            ['Built with', 'Tauri · Rust · Svelte'],
-            ['Data', 'On your machine'],
-            ['Season', 'Sep to Dec 2026'],
-          ]
-        ),
-        versions: [
-          { label: 'v1', change: 'Imported from a deck code', wins: 13, losses: 11 },
-          { label: 'v2', change: 'Cut two four-drops for removal', wins: 18, losses: 13 },
-          { label: 'v3', change: 'Tried a greedier curve', wins: 5, losses: 4 },
-          { label: 'v4', change: 'Rolled back to v2, one card swapped', wins: 2, losses: 1 },
+            'The approach',
+            'A Rust watcher tails the game’s log and files every game under the version that played it.',
+          ],
+          [
+            'The proof',
+            'A record under twenty games says so, and a rate always comes with its range.',
+          ],
         ],
-      },
+        [
+          ['Built with', 'Tauri · Rust · Svelte'],
+          ['Data', 'On your machine'],
+          ['Season', 'Sep to Dec 2026'],
+        ]
+      ),
       mugenArena: chapter(
         'mugen-arena',
         asOf,
         [
-          ['The idea', 'Every fighter is a text file: states, commands, animations and hits. Edit a move and fight with it seconds later.'],
-          ['Determinism', 'The same inputs give the same frames in every browser, proven by replaying a match and comparing state hashes.'],
-          ['Assets', 'Kenney’s CC0 characters and arena. Nothing from anyone who did not license it.'],
+          [
+            'The idea',
+            'Every fighter is a text file: states, commands, animations and hits. Edit a move and fight with it seconds later.',
+          ],
+          [
+            'Determinism',
+            'The same inputs give the same frames in every browser, proven by replaying a match and comparing state hashes.',
+          ],
+          [
+            'Assets',
+            'Kenney’s CC0 characters and arena. Nothing from anyone who did not license it.',
+          ],
         ],
         [
           ['Domain', 'Simulation'],
@@ -138,30 +147,29 @@ export function tomeData(asOf: IsoDay): TomeData {
           ['Season', 'Jan to Mar 2027'],
         ]
       ),
-      wander: {
-        ...chapter(
-          'wander',
-          asOf,
+      wander: chapter(
+        'wander',
+        asOf,
+        [
           [
-            ['The problem', 'Maps answer how to get there. Wander answers what this place is, what was here, and what that tree is.'],
-            ['Launch cities', 'New York, London, Paris, San Francisco and Melbourne, each dataset license-checked first.'],
-            ['Offline', 'Each city compiles to static tiles, so a walk keeps working when the signal drops.'],
+            'The problem',
+            'Maps answer how to get there. Wander answers what this place is, what was here, and what that tree is.',
           ],
           [
-            ['Domain', 'Geospatial'],
-            ['Boundary', 'Offline tiles'],
-            ['Season', 'Apr to Jun 2027'],
-          ]
-        ),
-        layerNames: { trees: 'Trees', then: 'Then & now', art: 'Public art' },
-        treeCaption: 'Red oak, planted 1998. Street tree census.',
-        trees: [
-          [90, 128, 13], [170, 128, 11], [300, 128, 14], [420, 128, 12], [650, 128, 13],
-          [90, 362, 12], [330, 362, 14], [470, 362, 11], [700, 362, 13], [252, 250, 12], [582, 60, 11],
+            'Launch cities',
+            'New York, London, Paris, San Francisco and Melbourne, each dataset license-checked first.',
+          ],
+          [
+            'Offline',
+            'Each city compiles to static tiles, so a walk keeps working when the signal drops.',
+          ],
         ],
-        photos: [[140, 250], [420, 250], [690, 430]],
-        art: [[230, 50], [560, 250], [360, 430]],
-      },
+        [
+          ['Domain', 'Geospatial'],
+          ['Boundary', 'Offline tiles'],
+          ['Season', 'Apr to Jun 2027'],
+        ]
+      ),
     },
   }
 }

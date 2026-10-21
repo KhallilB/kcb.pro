@@ -1,8 +1,8 @@
 import type { HomeView } from '../home-view'
 
-const OPTIONS: { view: HomeView; label: string }[] = [
-  { view: 'tome', label: 'Tome' },
-  { view: 'list', label: 'List' },
+const OPTIONS: { view: HomeView; label: string; spoken: string }[] = [
+  { view: 'tome', label: '3D', spoken: ' book' },
+  { view: 'list', label: '2D', spoken: ' list' },
 ]
 
 // A brass slider in a leather track: the same control in both views, so switching never moves it.
@@ -25,6 +25,7 @@ export function ViewToggle({
           onClick={() => view !== o.view && onChange(o.view)}
         >
           {o.label}
+          <span className="sr-only">{o.spoken}</span>
         </button>
       ))}
     </div>

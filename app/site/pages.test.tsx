@@ -101,6 +101,13 @@ describe('layout', () => {
 })
 
 describe('work index', () => {
+  it('describes every project in its row', () => {
+    visit('/work')
+    const rows = within(screen.getByRole('main')).getAllByRole('listitem')
+    expect(rows[1]).toHaveTextContent('files each game you play under the version that played it')
+    expect(rows[2]).toHaveTextContent('every fighter is a plain text file')
+  })
+
   it('lists live work first, then what is next', () => {
     visit('/work')
     const rows = within(screen.getByRole('main')).getAllByRole('listitem')
@@ -181,6 +188,12 @@ describe('studies', () => {
     ).toBeInTheDocument()
     expect(screen.getByText('Teardown')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Wander' })).toHaveAttribute('href', '/work/wander')
+  })
+
+  it('says what a study is and holds an empty build log', () => {
+    visit('/studies/figma-canvas')
+    expect(screen.getByRole('main')).toHaveTextContent('rebuild of its pan, zoom')
+    expect(screen.getByRole('region', { name: 'Build log' })).toHaveTextContent('Nothing linked yet')
   })
 
   it('lists all three studies on the index', () => {

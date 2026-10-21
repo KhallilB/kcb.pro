@@ -41,6 +41,11 @@ describe('validateCatalog', () => {
     expect(errors).toContain('"alpha" needs an about paragraph')
   })
 
+  it('refuses a study with no paragraph saying what it is', () => {
+    const errors = validateCatalog(catalog([project()], [study({ about: '' })]))
+    expect(errors).toContain('Study "study-one" needs an about paragraph')
+  })
+
   it('refuses links that go nowhere', () => {
     const errors = validateCatalog(
       catalog([project({ links: [{ label: 'Source', href: '#' }] })])

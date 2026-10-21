@@ -7,6 +7,8 @@ export const studies: Study[] = [
     format: 'teardown',
     question:
       'How does an infinite canvas stay crisp and smooth with other people on it?',
+    about:
+      'A teardown of how Figma’s infinite canvas stays smooth with other people on it, and a one-week rebuild of its pan, zoom and live cursors.',
     builtSlice:
       'Pan, pinch-zoom, wheel normalization and cursor presence with interpolation over a small relay.',
     kitPiece:
@@ -41,6 +43,8 @@ export const studies: Study[] = [
     format: 'teardown',
     question:
       'Why do map labels yield to each other without flickering as you zoom and pan?',
+    about:
+      'A teardown of how map apps choose which labels to show as you zoom and pan, and a one-week rebuild of a label placer that never flickers.',
     builtSlice:
       'A priority-ordered label placer with a collision index, hysteresis, fades and keyboard navigation.',
     kitPiece: 'The label placer, used by Wander.',
@@ -73,6 +77,8 @@ export const studies: Study[] = [
     title: 'A state benefits application, reimagined',
     format: 'legacy',
     question: 'How do you make a 40-field statutory form survivable on a phone?',
+    about:
+      'A reimagining of a state benefits application for people applying on a phone, with a slice that survives a lost signal and keeps the legal text intact.',
     builtSlice:
       'A resumable, schema-driven form with the legal text kept and plain-language errors.',
     kitPiece: 'The resumable form engine and the two-register text component.',

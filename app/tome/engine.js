@@ -140,23 +140,23 @@ export function mountTome(host, opts) {
   function smallcaps(ctx, text, x, y, color = P.muted, align = 'left') { ctx.fillStyle = color; ctx.font = font(20, 500, HEAD); spaced(ctx, 3); ctx.textAlign = align; ctx.fillText(text.toUpperCase(), x, y); spaced(ctx, 0); ctx.textAlign = 'left'; }
   function para(ctx, m, text, y, size = 32, lh = 44, x = m.L, w = m.w) { ctx.fillStyle = P.ink; ctx.font = font(size, 400); return wrap(ctx, text, x, y, w, lh); }
 
-  // Interactive state lives here; faces redraw from it.
-  const S = { version: 1, startup: 4, frame: 5, layers: { trees: true, then: false, art: false } };
   const D = data.chapters;
-  const ACTIVE = 2, RECOVERY = 9, GAMES_NEEDED = 20;
-  // Wilson score interval: honest bounds for a win rate on a small sample.
-  const wilson = (w, n, z = 1.96) => { const p = w / n, d = 1 + z * z / n, c = (p + z * z / (2 * n)) / d, h = (z * Math.sqrt(p * (1 - p) / n + z * z / (4 * n * n))) / d; return [Math.max(0, c - h), Math.min(1, c + h)]; };
   const centered = (ctx, text, x, y) => { ctx.textAlign = 'center'; ctx.fillText(text, x, y); ctx.textAlign = 'left'; };
-  const pill = (ctx, x, y, w, h, on, label) => {
-    ctx.beginPath(); ctx.roundRect(x, y, w, h, h / 2); ctx.fillStyle = on ? P.accent : 'rgba(255,250,235,0.6)'; ctx.fill();
-    ctx.strokeStyle = on ? P.accent : P.rule; ctx.lineWidth = 2; ctx.stroke();
-    ctx.fillStyle = on ? '#f7f0dd' : P.ink; ctx.font = font(28, 600); centered(ctx, label, x + w / 2, y + h / 2 + 10);
-  };
   const chapterHead = (ctx, m, d) => {
     heading(ctx, m, d.title, 250, 72);
     ctx.fillStyle = P.muted; ctx.font = font(30, 400, BODY, true); centered(ctx, d.summary, m.cx, 345);
   };
   const footnote = (ctx, m, text, y = TH - 160) => { ctx.fillStyle = P.muted; ctx.font = font(26, 400, BODY, true); centered(ctx, text, m.cx, y); };
+  const chapterPage = (ctx, title, folio, d) => {
+    const m = parchment(ctx, 'R', title, folio);
+    chapterHead(ctx, m, d);
+    let y = para(ctx, m, d.about, 450, 34, 50) + 40;
+    rule(ctx, m, y);
+    smallcaps(ctx, 'Build log', m.L, y + 64);
+    ctx.fillStyle = P.muted; ctx.font = font(30, 400, BODY, true);
+    wrap(ctx, 'Nothing linked yet. Commits and the changelog appear here once the GitHub repo is connected.', m.L, y + 116, m.w, 42);
+    footnote(ctx, m, d.status, TH - 158);
+  };
   const notesPage = (ctx, side, title, folio, d) => {
     const m = parchment(ctx, side, title, folio);
     heading(ctx, m, 'Notes', 262, 56);
@@ -224,107 +224,14 @@ export function mountTome(host, opts) {
       ctx.fillStyle = P.muted; ctx.font = font(28, 400, BODY, true); ctx.fillText(`as of ${data.asOf}`, m.L + 36, y + 176);
     },
 
-    // Chapter I: the version rail. Tap a version; records under the threshold refuse to show a rate.
-    deckWorkshop(ctx, hs) {
-      const d = D.deckWorkshop, m = parchment(ctx, 'R', 'Chapter I', '1');
-      chapterHead(ctx, m, d);
-      const yMain = 520, yBranch = 430, nodes = [[m.L + 70, yMain], [m.L + 290, yMain], [m.L + 520, yBranch], [m.R - 70, yMain]];
-      ctx.strokeStyle = P.ink; ctx.lineWidth = 5; ctx.lineCap = 'round';
-      ctx.beginPath(); ctx.moveTo(nodes[0][0], yMain); ctx.lineTo(nodes[3][0], yMain); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(nodes[1][0], yMain); ctx.bezierCurveTo(nodes[1][0] + 120, yMain, nodes[2][0] - 120, yBranch, nodes[2][0], yBranch); ctx.stroke();
-      d.versions.forEach((v, i) => {
-        const [x, y] = nodes[i], on = S.version === i;
-        ctx.fillStyle = on ? P.accent : P.parch; ctx.strokeStyle = on ? P.accent : P.ink; ctx.lineWidth = 5;
-        ctx.beginPath(); ctx.arc(x, y, on ? 24 : 18, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = P.ink; ctx.font = font(26, 600); centered(ctx, v.label, x, y + (i === 2 ? -44 : 62));
-        hs.push({ x: x - 50, y: y - 50, w: 100, h: 100, act: () => { S.version = i; redraw('deckWorkshop'); } });
-      });
-      const v = d.versions[S.version], n = v.wins + v.losses, y0 = 640;
-      rule(ctx, m, y0);
-      smallcaps(ctx, `Version ${S.version + 1}`, m.L, y0 + 56);
-      ctx.fillStyle = P.ink; ctx.font = font(34, 600); ctx.fillText(v.change, m.L, y0 + 106);
-      ctx.fillStyle = P.muted; ctx.font = font(30, 400); ctx.fillText(`${v.wins} wins · ${v.losses} losses · ${n} games`, m.L, y0 + 152);
-      const bx = m.L, bw = m.w, by = y0 + 210;
-      if (n >= GAMES_NEEDED) {
-        const [lo, hi] = wilson(v.wins, n), p = v.wins / n, X = (f) => bx + bw * f;
-        ctx.fillStyle = 'rgba(255,250,235,0.6)'; ctx.fillRect(bx, by, bw, 46); ctx.strokeStyle = P.rule; ctx.lineWidth = 2; ctx.strokeRect(bx, by, bw, 46);
-        ctx.fillStyle = 'rgba(23,120,92,0.3)'; ctx.fillRect(X(lo), by, X(hi) - X(lo), 46);
-        ctx.strokeStyle = P.muted; ctx.setLineDash([6, 6]); ctx.beginPath(); ctx.moveTo(X(0.5), by - 10); ctx.lineTo(X(0.5), by + 56); ctx.stroke(); ctx.setLineDash([]);
-        ctx.fillStyle = P.accent; ctx.fillRect(X(p) - 3, by - 8, 6, 62);
-        ctx.fillStyle = P.muted; ctx.font = font(24, 400, BODY, true); ctx.fillText('0%', bx, by + 86); ctx.textAlign = 'right'; ctx.fillText('100%', bx + bw, by + 86); ctx.textAlign = 'left'; centered(ctx, 'even', X(0.5), by + 86);
-        ctx.fillStyle = P.ink; ctx.font = font(32, 600); ctx.fillText(`Win rate ${Math.round(p * 100)}%, likely ${Math.round(lo * 100)} to ${Math.round(hi * 100)}%`, bx, by + 150);
-      } else {
-        ctx.fillStyle = P.accent; ctx.font = font(36, 600); ctx.fillText('Not enough games yet.', bx, by + 30);
-        ctx.fillStyle = P.muted; ctx.font = font(30, 400, BODY, true); wrap(ctx, `${GAMES_NEEDED - n} more and this reads as a range, not a guess.`, bx, by + 80, bw, 40);
-      }
-      footnote(ctx, m, 'Sample deck, illustrative record · tap a version', TH - 200);
-      footnote(ctx, m, d.status, TH - 158);
-    },
+    // Chapters say what each project is; images wait for real screenshots.
+    deckWorkshop(ctx) { chapterPage(ctx, 'Chapter I', '1', D.deckWorkshop); },
     deckWorkshopNotes(ctx) { notesPage(ctx, 'L', D.deckWorkshop.title, '2', D.deckWorkshop); },
 
-    // Chapter II: the frame strip. Tap a frame to pose the fighter; change the startup and the strip rewrites.
-    mugenArena(ctx, hs) {
-      const d = D.mugenArena, m = parchment(ctx, 'R', 'Chapter II', '3');
-      chapterHead(ctx, m, d);
-      const total = S.startup + ACTIVE + RECOVERY; S.frame = Math.min(S.frame, total - 1);
-      const phase = S.frame < S.startup ? 'startup' : S.frame < S.startup + ACTIVE ? 'active' : 'recovery';
-      const reach = phase === 'startup' ? (S.frame + 1) / S.startup : phase === 'active' ? 1 : 1 - (S.frame - S.startup - ACTIVE + 1) / RECOVERY;
-      // Stick fighter facing right; hurt capsule in blue, hit capsule in red while active.
-      const fx = m.L + 210, fy = 690;
-      ctx.fillStyle = 'rgba(255,250,235,0.55)'; ctx.fillRect(m.L, 400, m.w, 330); ctx.strokeStyle = P.rule; ctx.lineWidth = 2; ctx.strokeRect(m.L, 400, m.w, 330);
-      ctx.strokeStyle = 'rgba(47,77,128,0.7)'; ctx.lineWidth = 4; ctx.setLineDash([10, 8]); ctx.beginPath(); ctx.roundRect(fx - 52, 448, 104, 250, 52); ctx.stroke(); ctx.setLineDash([]);
-      ctx.strokeStyle = P.ink; ctx.lineWidth = 9; ctx.lineCap = 'round';
-      ctx.beginPath(); ctx.arc(fx, 488, 26, 0, Math.PI * 2); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(fx, 514); ctx.lineTo(fx - 6, 610); ctx.lineTo(fx - 46, fy); ctx.moveTo(fx - 6, 610); ctx.lineTo(fx + 40, fy); ctx.stroke();
-      const sx = fx + 4, sy = 548, hx = sx + 40 + 210 * reach, hy = sy - 6;
-      ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx + 30 + 90 * reach, sy + 36 - 40 * reach); ctx.lineTo(hx, hy); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(sx, sy + 6); ctx.lineTo(sx - 34, sy + 52); ctx.lineTo(sx - 4, sy + 74); ctx.stroke();
-      if (phase === 'active') { ctx.strokeStyle = '#b5481f'; ctx.lineWidth = 5; ctx.beginPath(); ctx.roundRect(hx - 40, hy - 26, 92, 52, 26); ctx.stroke(); ctx.fillStyle = 'rgba(181,72,31,0.16)'; ctx.fill(); }
-      ctx.fillStyle = P.muted; ctx.font = font(26, 400, BODY, true); ctx.textAlign = 'right'; ctx.fillText(`Frame ${S.frame + 1} of ${total}: ${phase}`, m.R - 20, 440); ctx.textAlign = 'left';
-      // The strip itself.
-      const gap = 4, cw = Math.min(48, (m.w - gap * (total - 1)) / total), stripW = total * cw + (total - 1) * gap, x0 = m.cx - stripW / 2, y0 = 770;
-      const COL = { startup: '#3c8a5a', active: '#b5481f', recovery: '#2f4d80' };
-      for (let i = 0; i < total; i++) {
-        const k = i < S.startup ? 'startup' : i < S.startup + ACTIVE ? 'active' : 'recovery', x = x0 + i * (cw + gap);
-        ctx.fillStyle = COL[k]; ctx.globalAlpha = k === 'recovery' ? 0.55 : 0.9; ctx.fillRect(x, y0, cw, 70); ctx.globalAlpha = 1;
-        if (i === S.frame) { ctx.strokeStyle = P.ink; ctx.lineWidth = 5; ctx.strokeRect(x - 4, y0 - 4, cw + 8, 78); }
-        hs.push({ x, y: y0 - 10, w: cw + gap, h: 90, act: () => { S.frame = i; redraw('mugenArena'); } });
-      }
-      ctx.fillStyle = P.muted; ctx.font = font(24, 400, BODY, true);
-      [['startup', '#3c8a5a'], ['active', '#b5481f'], ['recovery', '#2f4d80']].forEach(([k, c], i) => { const lx = m.L + i * 220; ctx.fillStyle = c; ctx.fillRect(lx, y0 + 96, 22, 22); ctx.fillStyle = P.muted; ctx.fillText(k, lx + 32, y0 + 116); });
-      // The fighter file: one number you can edit.
-      const fy0 = 950;
-      ctx.fillStyle = 'rgba(40,30,20,0.06)'; ctx.fillRect(m.L, fy0, m.w, 96); ctx.strokeStyle = P.rule; ctx.lineWidth = 2; ctx.strokeRect(m.L, fy0, m.w, 96);
-      ctx.fillStyle = P.ink; ctx.font = font(34, 500); ctx.fillText(`jab.startup = ${S.startup}`, m.L + 28, fy0 + 60);
-      const btn = (x, label, delta) => { ctx.beginPath(); ctx.arc(x, fy0 + 48, 30, 0, Math.PI * 2); ctx.fillStyle = P.accent; ctx.fill(); ctx.fillStyle = '#f7f0dd'; ctx.font = font(40, 600); centered(ctx, label, x, fy0 + 61); hs.push({ x: x - 40, y: fy0, w: 80, h: 96, act: () => { S.startup = Math.max(2, Math.min(8, S.startup + delta)); redraw('mugenArena'); } }); };
-      btn(m.R - 150, '−', -1); btn(m.R - 70, '+', 1);
-      ctx.fillStyle = P.ink; ctx.font = font(30, 600); centered(ctx, `Jab. Startup ${S.startup}. Active ${ACTIVE}. Recovery ${RECOVERY}.`, m.cx, fy0 + 160);
-      footnote(ctx, m, d.status + ' · tap a frame, or edit the startup', TH - 158);
-    },
+    mugenArena(ctx) { chapterPage(ctx, 'Chapter II', '3', D.mugenArena); },
     mugenArenaNotes(ctx) { notesPage(ctx, 'L', D.mugenArena.title, '4', D.mugenArena); },
 
-    // Chapter III: the layer dial. Toggle layers over a sample street.
-    wander(ctx, hs) {
-      const d = D.wander, m = parchment(ctx, 'R', 'Chapter III', '5');
-      chapterHead(ctx, m, d);
-      const bx = m.L, by = 400, bw = m.w, bh = 470;
-      ctx.fillStyle = S.layers.then ? 'rgba(178,140,86,0.18)' : 'rgba(232,236,226,0.7)'; ctx.fillRect(bx, by, bw, bh);
-      ctx.save(); ctx.beginPath(); ctx.rect(bx, by, bw, bh); ctx.clip();
-      ctx.strokeStyle = S.layers.then ? 'rgba(120,88,48,0.55)' : 'rgba(80,90,84,0.45)'; ctx.lineCap = 'butt';
-      for (const [w, pts] of [[30, [[bx, by + 150], [bx + bw, by + 150]]], [30, [[bx, by + 340], [bx + bw, by + 340]]], [24, [[bx + 230, by], [bx + 230, by + bh]]], [24, [[bx + 560, by], [bx + 560, by + bh]]], [34, [[bx, by + bh], [bx + bw, by + 40]]]]) { ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(...pts[0]); ctx.lineTo(...pts[1]); ctx.stroke(); }
-      if (S.layers.trees) for (const [x, y, r] of d.trees) { ctx.fillStyle = 'rgba(30,107,88,0.85)'; ctx.beginPath(); ctx.arc(bx + x, by + y, r, 0, Math.PI * 2); ctx.fill(); }
-      if (S.layers.then) for (const [x, y] of d.photos) { ctx.fillStyle = '#efe2c4'; ctx.strokeStyle = '#7d5f22'; ctx.lineWidth = 3; ctx.fillRect(bx + x - 30, by + y - 22, 60, 44); ctx.strokeRect(bx + x - 30, by + y - 22, 60, 44); ctx.fillStyle = 'rgba(125,95,34,0.45)'; ctx.fillRect(bx + x - 22, by + y - 14, 44, 28); }
-      if (S.layers.art) for (const [x, y] of d.art) { ctx.fillStyle = '#5e3a66'; ctx.beginPath(); ctx.moveTo(bx + x, by + y - 20); ctx.lineTo(bx + x + 18, by + y); ctx.lineTo(bx + x, by + y + 20); ctx.lineTo(bx + x - 18, by + y); ctx.fill(); }
-      ctx.restore();
-      ctx.strokeStyle = P.rule; ctx.lineWidth = 2; ctx.strokeRect(bx, by, bw, bh);
-      const on = Object.entries(S.layers).filter(([, v]) => v).map(([k]) => d.layerNames[k]);
-      ctx.fillStyle = P.muted; ctx.font = font(26, 400, BODY, true); ctx.fillText(on.length ? `Showing ${on.join(', ').toLowerCase()}` : 'The plain base map', bx + 16, by + bh - 18);
-      const keys = ['trees', 'then', 'art'], pw = (m.w - 40) / 3;
-      keys.forEach((k, i) => { const x = m.L + i * (pw + 20), y = 920; pill(ctx, x, y, pw, 70, S.layers[k], d.layerNames[k]); hs.push({ x, y, w: pw, h: 70, act: () => { S.layers[k] = !S.layers[k]; redraw('wander'); } }); });
-      ctx.fillStyle = P.ink; ctx.font = font(30, 600); centered(ctx, S.layers.trees ? d.treeCaption : 'Every datum links to its dataset row.', m.cx, 1060);
-      footnote(ctx, m, 'Sample street, illustrative layers · tap a layer', TH - 200);
-      footnote(ctx, m, d.status, TH - 158);
-    },
+    wander(ctx) { chapterPage(ctx, 'Chapter III', '5', D.wander); },
     wanderNotes(ctx) { notesPage(ctx, 'L', D.wander.title, '6', D.wander); },
 
     studies(ctx, hs) {
@@ -1558,7 +1465,8 @@ export function mountTome(host, opts) {
     return { z: fit(2 * W + 0.16, H + 0.46), x: 0 };
   }
   function resize() {
-    const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+    // The host reserves room for the view toggle, so size to the stage, not the window.
+    const w = stage.clientWidth || innerWidth, h = stage.clientHeight || innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
     const f = fitTarget(); camZ = f.z; camX = f.x;
   }
   addEventListener('resize', resize, sig);

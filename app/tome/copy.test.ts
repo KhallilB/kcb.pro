@@ -49,10 +49,11 @@ describe('tome data', () => {
     }
   })
 
-  it('keeps the sample deck honest: each version has a record and a change', () => {
-    for (const v of data.chapters.deckWorkshop.versions) {
-      expect(v.wins + v.losses).toBeGreaterThan(0)
-      expect(v.change.length).toBeGreaterThan(0)
+  it('says what each chapter is in the catalog’s own words, with no sample data', () => {
+    for (const p of featured(content.projects)) {
+      const chapter = Object.values(data.chapters).find((c) => c.title === p.title)
+      expect(chapter?.about).toBe(p.about)
+      expect(Object.keys(chapter ?? {})).toEqual(['title', 'summary', 'about', 'status', 'notes', 'facts'])
     }
   })
 })
