@@ -147,11 +147,13 @@ describe('the tome on the home page', () => {
     expect(calls[0].insetTop()).toBeGreaterThan(0)
   })
 
-  it('moves into the header in 2D instead of floating', async () => {
+  it('keeps one toggle in one place across both views', async () => {
     const { hooks } = fakeEngine()
     await visit('/', hooks)
+    const before = toggle()
     fireEvent.click(option('List'))
-    expect(within(screen.getByRole('banner')).getByRole('group', { name: 'View' })).toBeInTheDocument()
+    expect(toggle()).toBe(before)
+    expect(page()).not.toContainElement(toggle())
   })
 
   it('stays outside the inert page so it works while the book is open', async () => {
@@ -208,11 +210,34 @@ describe('the tome on the home page', () => {
     expect(option('List')).toHaveAttribute('aria-pressed', 'true')
   })
 
-  it('never opens on other pages', async () => {
+  it('offers the toggle on other pages without opening the book unasked', async () => {
     const { hooks, calls } = fakeEngine()
     await visit('/work', hooks)
     expect(calls).toHaveLength(0)
-    expect(toggle()).toBeNull()
+    expect(option('List')).toHaveAttribute('aria-pressed', 'true')
     expect(page()).not.toHaveAttribute('inert')
+  })
+
+  it('opens the book over another page at that page’s chapter, and steps back to it', async () => {
+    const { hooks, calls, shows } = fakeEngine()
+    await visit('/work/wander', hooks)
+    fireEvent.click(option('Tome'))
+    await act(async () => {})
+    expect(calls).toHaveLength(1)
+    expect(shows).toEqual(['wander'])
+    expect(page()).toHaveAttribute('inert')
+
+    fireEvent.click(option('List'))
+    expect(page()).not.toHaveAttribute('inert')
+    expect(screen.getByRole('heading', { level: 1, name: 'Wander' })).toBeInTheDocument()
+  })
+
+  it('leaves the book for the page of the chapter being read', async () => {
+    const { hooks } = fakeEngine('mount', 'mugen-arena')
+    await visit('/work/wander', hooks)
+    fireEvent.click(option('Tome'))
+    await act(async () => {})
+    fireEvent.click(option('List'))
+    expect(screen.getByRole('heading', { level: 1, name: 'Mugen Arena' })).toBeInTheDocument()
   })
 })
