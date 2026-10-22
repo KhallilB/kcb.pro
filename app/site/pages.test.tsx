@@ -145,11 +145,14 @@ describe('project page', () => {
     )
   })
 
-  it('shows no source link for a private repo', () => {
-    visit('/work/bezl')
+  it.each([
+    ['bezl', 'https://github.com/KhallilB/bezl'],
+    ['kbui', 'https://github.com/KhallilB/kbui'],
+  ])('links %s to its public source', (slug, href) => {
+    visit(`/work/${slug}`)
     expect(
-      within(screen.getByRole('main')).queryByRole('link', { name: /Source/ })
-    ).not.toBeInTheDocument()
+      within(screen.getByRole('main')).getByRole('link', { name: /Source/ })
+    ).toHaveAttribute('href', href)
   })
 
   it('shows source only where it is public', () => {

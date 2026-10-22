@@ -54,7 +54,7 @@ export const projects: Project[] = [
       'Running other programs from a desktop app: live terminals inside one window, permissions enforced by the tools themselves rather than requested in a prompt, and a record you can check afterwards.',
     signature:
       'One writer per task: reviewers that are stopped from editing by the assistant’s own sandbox, not by a polite request.',
-    links: [],
+    links: [{ label: 'Source', href: 'https://github.com/KhallilB/bezl' }],
     brief: [
       {
         heading: 'The problem',
@@ -107,7 +107,7 @@ export const projects: Project[] = [
       'Design tokens, accessible components, and rules that a build checks instead of a reviewer having to remember them.',
     signature:
       'The anatomy line: one comment at the top of each stylesheet that names a component’s classes and attributes, so any framework can render it the same way.',
-    links: [],
+    links: [{ label: 'Source', href: 'https://github.com/KhallilB/kbui' }],
     brief: [
       {
         heading: 'The problem',
