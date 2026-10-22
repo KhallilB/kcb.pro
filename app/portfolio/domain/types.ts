@@ -37,6 +37,8 @@ export interface Project extends Dated {
   signature: string
   links: Link[]
   brief: BriefSection[]
+  // false keeps the entry valid but off the site; omitted means listed.
+  listed?: boolean
 }
 
 export type StudyFormat = 'teardown' | 'legacy'

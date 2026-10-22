@@ -59,4 +59,11 @@ describe('validateCatalog', () => {
     )
     expect(errors).toContain('Study "study-one" feeds unknown project "ghost"')
   })
+
+  it('refuses a study that feeds a hidden project', () => {
+    const errors = validateCatalog(
+      catalog([project({ listed: false })], [study({ feeds: ['alpha'] })])
+    )
+    expect(errors).toContain('Study "study-one" feeds hidden project "alpha"')
+  })
 })

@@ -47,6 +47,9 @@ export function validateCatalog(catalog: Catalog): string[] {
   }
 
   const projectSlugs = new Set(catalog.projects.map((p) => p.slug))
+  const hiddenSlugs = new Set(
+    catalog.projects.filter((p) => p.listed === false).map((p) => p.slug)
+  )
   for (const s of catalog.studies) {
     const words = texts(
       [s.title, s.question, s.about, s.builtSlice, s.kitPiece],
@@ -61,6 +64,8 @@ export function validateCatalog(catalog: Catalog): string[] {
     for (const fed of s.feeds) {
       if (!projectSlugs.has(fed)) {
         errors.push(`Study "${s.slug}" feeds unknown project "${fed}"`)
+      } else if (hiddenSlugs.has(fed)) {
+        errors.push(`Study "${s.slug}" feeds hidden project "${fed}"`)
       }
     }
   }

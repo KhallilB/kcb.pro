@@ -1,4 +1,10 @@
-import { featured, nowBuilding, sitePaths, workIndex } from './catalog'
+import {
+  featured,
+  nowBuilding,
+  published,
+  sitePaths,
+  workIndex,
+} from './catalog'
 import { catalog, project, study } from './fixtures'
 
 describe('catalog', () => {
@@ -60,5 +66,14 @@ describe('catalog', () => {
       '/studies/labels',
       '/about',
     ])
+  })
+
+  it('publishes listed projects only, and every study', () => {
+    const hidden = project({ slug: 'hidden', listed: false })
+    const shown = published(
+      catalog([building, hidden, next], [study({ slug: 'labels' })])
+    )
+    expect(shown.projects.map((p) => p.slug)).toEqual(['building', 'next'])
+    expect(shown.studies.map((s) => s.slug)).toEqual(['labels'])
   })
 })

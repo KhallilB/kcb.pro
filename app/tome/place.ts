@@ -2,9 +2,8 @@
 export const TOME_PLACES = [
   'contents',
   'about',
-  'deck-workshop',
-  'mugen-arena',
-  'wander',
+  'bezl',
+  'kbui',
   'studies',
   'contact',
 ] as const

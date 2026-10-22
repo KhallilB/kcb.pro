@@ -73,7 +73,7 @@ describe('the tome on the home page', () => {
   it('hands the engine the portfolio’s own chapters', async () => {
     const { hooks, calls } = fakeEngine()
     await visit('/', hooks)
-    expect(calls[0].data.chapters.mugenArena.title).toBe('Mugen Arena')
+    expect(calls[0].data.chapters.kbui.title).toBe('kbui')
     expect(calls[0].data.asOf).toBe('21 October 2026')
   })
 
@@ -108,13 +108,13 @@ describe('the tome on the home page', () => {
 
   it('opens at the chapter the visitor last read as a page', async () => {
     const { hooks, calls, shows } = fakeEngine()
-    await visit('/work/wander', hooks)
+    await visit('/work/kbui', hooks)
     expect(calls).toHaveLength(0)
 
     fireEvent.click(wordmark())
     await act(async () => {})
     expect(calls).toHaveLength(1)
-    expect(shows).toEqual(['wander'])
+    expect(shows).toEqual(['kbui'])
   })
 
   it('lands the list on the chapter the book was open at', async () => {
@@ -126,11 +126,11 @@ describe('the tome on the home page', () => {
       .mockImplementation(function (this: Element) {
         scrolled.push(this)
       })
-    const { hooks } = fakeEngine('mount', 'wander')
+    const { hooks } = fakeEngine('mount', 'kbui')
     await visit('/', hooks)
     fireEvent.click(option('List'))
     await waitFor(() => expect(scrolled).toHaveLength(1))
-    expect(scrolled[0]).toHaveAttribute('data-place', 'wander')
+    expect(scrolled[0]).toHaveAttribute('data-place', 'kbui')
     scroll.mockRestore()
   })
 
@@ -220,24 +220,24 @@ describe('the tome on the home page', () => {
 
   it('opens the book over another page at that page’s chapter, and steps back to it', async () => {
     const { hooks, calls, shows } = fakeEngine()
-    await visit('/work/wander', hooks)
+    await visit('/work/kbui', hooks)
     fireEvent.click(option('Tome'))
     await act(async () => {})
     expect(calls).toHaveLength(1)
-    expect(shows).toEqual(['wander'])
+    expect(shows).toEqual(['kbui'])
     expect(page()).toHaveAttribute('inert')
 
     fireEvent.click(option('List'))
     expect(page()).not.toHaveAttribute('inert')
-    expect(screen.getByRole('heading', { level: 1, name: 'Wander' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'kbui' })).toBeInTheDocument()
   })
 
   it('leaves the book for the page of the chapter being read', async () => {
-    const { hooks } = fakeEngine('mount', 'mugen-arena')
-    await visit('/work/wander', hooks)
+    const { hooks } = fakeEngine('mount', 'bezl')
+    await visit('/work/kbui', hooks)
     fireEvent.click(option('Tome'))
     await act(async () => {})
     fireEvent.click(option('List'))
-    expect(screen.getByRole('heading', { level: 1, name: 'Mugen Arena' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Bezl' })).toBeInTheDocument()
   })
 })

@@ -7,7 +7,7 @@ import type { IsoDay } from './portfolio/domain/types'
 
 export { sitePaths } from './portfolio/domain/catalog'
 export { validateCatalog } from './portfolio/domain/validate'
-export { content } from './portfolio/content'
+export { catalog, content } from './portfolio/content'
 
 export const buildDay: IsoDay = __BUILD_DAY__
 

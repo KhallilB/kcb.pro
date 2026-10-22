@@ -64,16 +64,16 @@ Then spot-check one:
 
 ```bash
 URL=https://www.kcb.pro   # or a <hash>.kcb-pro.pages.dev deploy URL
-for p in / /work/deck-workshop /definitely-not-a-page; do
+for p in / /work/bezl /definitely-not-a-page; do
   printf '%-24s ' "$p"; curl -s -o /dev/null -w '%{http_code}\n' "$URL$p"
 done
 ```
 
-| Path                  | Expect | Why                                                   |
-| --------------------- | ------ | ----------------------------------------------------- |
-| `/`                   | 200    | The home page.                                        |
-| `/work/deck-workshop` | 200    | A prerendered project page.                           |
-| an unknown path       | 404    | Pages serves `build/404.html` with a real 404 status. |
+| Path            | Expect | Why                                                   |
+| --------------- | ------ | ----------------------------------------------------- |
+| `/`             | 200    | The home page.                                        |
+| `/work/bezl`    | 200    | A prerendered project page.                           |
+| an unknown path | 404    | Pages serves `build/404.html` with a real 404 status. |
 
 To confirm the page is the real site rather than an error page:
 `curl -s $URL/ | grep -o '<title>[^<]*'` should print the site title.

@@ -26,7 +26,7 @@ export function mountTome(host, opts) {
   // ---------- palette and type ----------
   const P = { parch: '#f1e5c8', parchEdge: '#d9c497', ink: '#33261a', muted: '#7b6649', rule: '#c5ad82', accent: '#17785c', accentSoft: 'rgba(23,120,92,0.16)', gold: '#caa24c', goldDark: '#7d5f22', leather: '#3c4c66', leatherDark: '#26324a' };
   const SECT = ['#7b2a33', '#8a5a1e', '#9b2f2a', '#1e6b58', '#2f4d80', '#5e3a66'];
-  const FACE_COLOR = { contents: SECT[0], about: SECT[0], deckWorkshop: SECT[1], deckWorkshopNotes: SECT[1], mugenArena: SECT[2], mugenArenaNotes: SECT[2], wander: SECT[3], wanderNotes: SECT[3], studies: SECT[4], studyNotes: SECT[4], contact: SECT[5], colophon: SECT[5] };
+  const FACE_COLOR = { contents: SECT[0], about: SECT[0], bezl: SECT[1], bezlNotes: SECT[1], kbui: SECT[2], kbuiNotes: SECT[2], studies: SECT[4], studyNotes: SECT[4], contact: SECT[5], colophon: SECT[5] };
   let curColor = null;
   const HEAD = '"Cinzel", "Trajan Pro", Georgia, serif';
   const BODY = '"EB Garamond", Garamond, Georgia, serif';
@@ -198,7 +198,7 @@ export function mountTome(host, opts) {
     contents(ctx, hs) {
       const m = parchment(ctx, 'R', 'Contents', 'i');
       heading(ctx, m, 'Contents', 260);
-      const rows = [['About', 'Who wrote this book', 'ii', 2, 0], [D.deckWorkshop.title, 'Chapter I', '1', 2, 1], [D.mugenArena.title, 'Chapter II', '3', 3, 2], [D.wander.title, 'Chapter III', '5', 4, 3], ['Work studies', 'Three short deep dives', '7', 5, 4], ['Contact', 'Where to find me', '9', 6, 5], ['Colophon', 'How this book was made', '10', 7, 5]];
+      const rows = [['About', 'Who wrote this book', 'ii', 2, 0], [D.bezl.title, 'Chapter I', '1', 2, 1], [D.kbui.title, 'Chapter II', '3', 3, 2], ['Work studies', 'Three short deep dives', '5', 4, 4], ['Contact', 'Where to find me', '7', 5, 5], ['Colophon', 'How this book was made', '8', 6, 5]];
       let y = 360;
       for (const [t, s, n, go, ci] of rows) {
         ctx.fillStyle = SECT[ci]; ctx.globalAlpha = 0.9; ctx.beginPath(); ctx.roundRect(m.L, y + 10, 14, 68, 4); ctx.fill(); ctx.globalAlpha = 1;
@@ -225,17 +225,14 @@ export function mountTome(host, opts) {
     },
 
     // Chapters say what each project is; images wait for real screenshots.
-    deckWorkshop(ctx) { chapterPage(ctx, 'Chapter I', '1', D.deckWorkshop); },
-    deckWorkshopNotes(ctx) { notesPage(ctx, 'L', D.deckWorkshop.title, '2', D.deckWorkshop); },
+    bezl(ctx) { chapterPage(ctx, 'Chapter I', '1', D.bezl); },
+    bezlNotes(ctx) { notesPage(ctx, 'L', D.bezl.title, '2', D.bezl); },
 
-    mugenArena(ctx) { chapterPage(ctx, 'Chapter II', '3', D.mugenArena); },
-    mugenArenaNotes(ctx) { notesPage(ctx, 'L', D.mugenArena.title, '4', D.mugenArena); },
-
-    wander(ctx) { chapterPage(ctx, 'Chapter III', '5', D.wander); },
-    wanderNotes(ctx) { notesPage(ctx, 'L', D.wander.title, '6', D.wander); },
+    kbui(ctx) { chapterPage(ctx, 'Chapter II', '3', D.kbui); },
+    kbuiNotes(ctx) { notesPage(ctx, 'L', D.kbui.title, '4', D.kbui); },
 
     studies(ctx, hs) {
-      const m = parchment(ctx, 'R', 'Studies', '7');
+      const m = parchment(ctx, 'R', 'Studies', '5');
       heading(ctx, m, 'Work studies', 260, 64);
       let y = 360;
       for (const s of data.studies) {
@@ -251,13 +248,13 @@ export function mountTome(host, opts) {
       para(ctx, m, 'One-week deep dives, each ending in a small working piece a project will reuse.', y + 56, 28, 38);
     },
     studyNotes(ctx) {
-      const m = parchment(ctx, 'L', 'Notes', '8');
+      const m = parchment(ctx, 'L', 'Notes', '6');
       heading(ctx, m, 'Why these three', 262, 56);
       let y = 350;
       for (const s of data.studies) { smallcaps(ctx, s.short, m.L, y); y = para(ctx, m, s.why, y + 50, 30, 42) + 34; }
     },
     contact(ctx, hs) {
-      const m = parchment(ctx, 'R', 'Contact', '9');
+      const m = parchment(ctx, 'R', 'Contact', '7');
       heading(ctx, m, 'Find me', 280, 70);
       let y = para(ctx, m, data.contactLine, 400, 34, 48) + 30;
       rule(ctx, m, y);
@@ -269,7 +266,7 @@ export function mountTome(host, opts) {
       }
     },
     colophon(ctx) {
-      const m = parchment(ctx, 'L', 'Colophon', '10');
+      const m = parchment(ctx, 'L', 'Colophon', '8');
       heading(ctx, m, 'Colophon', 270);
       let y = 400;
       for (const [k, v] of [['Type', 'Cinzel for titles, EB Garamond for reading.'], ['Pages', 'Painted in the browser, then wrapped onto pages in Three.js that bend as they turn.'], ['Covers', 'Leather, brass and an emerald, all made in code with no image files.'], ['Chapters', 'A ribbon marks where each chapter starts.'], ['Access', 'Everything here is also a plain website: press L, or use the 3D/2D switch at the top.'], ['Bound', data.asOf]]) {
@@ -1113,11 +1110,11 @@ export function mountTome(host, opts) {
   }
 
   // ---------- sheets ----------
-  const SHEETS = [['contents', 'about'], ['deckWorkshop', 'deckWorkshopNotes'], ['mugenArena', 'mugenArenaNotes'], ['wander', 'wanderNotes'], ['studies', 'studyNotes'], ['contact', 'colophon']];
+  const SHEETS = [['contents', 'about'], ['bezl', 'bezlNotes'], ['kbui', 'kbuiNotes'], ['studies', 'studyNotes'], ['contact', 'colophon']];
   const N = SHEETS.length;
   SHEETS.forEach(([f, b]) => { PARTNER[f] = b; PARTNER[b] = f; });
   // A chapter starts at a sheet and owns every sheet up to the next chapter; its ribbon is tucked at its first sheet.
-  const CHAPTERS = [{ label: 'Contents', color: SECT[0], sheet: 0 }, { label: 'Workshop', color: SECT[1], sheet: 1 }, { label: 'Arena', color: SECT[2], sheet: 2 }, { label: 'Wander', color: SECT[3], sheet: 3 }, { label: 'Studies', color: SECT[4], sheet: 4 }, { label: 'Contact', color: '#e6d9b8', sheet: 5 }];
+  const CHAPTERS = [{ label: 'Contents', color: SECT[0], sheet: 0 }, { label: 'Bezl', color: SECT[1], sheet: 1 }, { label: 'kbui', color: SECT[2], sheet: 2 }, { label: 'Studies', color: SECT[4], sheet: 3 }, { label: 'Contact', color: '#e6d9b8', sheet: 4 }];
   const chapterOf = (st) => { let c = 0; for (let i = 0; i < CHAPTERS.length; i++) if (st - 1 >= CHAPTERS[i].sheet) c = i; return st === 0 ? -1 : c; };
   const tabTex = (labelText, color, flip) => paint(160, 256, (ctx, w, h) => {
     ctx.fillStyle = color; ctx.fillRect(0, 0, w, h); seed = 11 + labelText.length;
@@ -1355,7 +1352,7 @@ export function mountTome(host, opts) {
 
   // ---------- navigation ----------
   // state 0 = closed; 1 = cover open; 1 + k = k sheets turned.
-  const SPREADS = ['The closed tome', 'Ex libris and contents', 'About and chapter one, Deck Workshop', 'Deck Workshop notes and chapter two, Mugen Arena', 'Mugen Arena notes and chapter three, Wander', 'Wander notes and the work studies', 'Why these studies, and contact', 'Colophon and the last page'];
+  const SPREADS = ['The closed tome', 'Ex libris and contents', `About and chapter one, ${D.bezl.title}`, `${D.bezl.title} notes and chapter two, ${D.kbui.title}`, `${D.kbui.title} notes and the work studies`, 'Why these studies, and contact', 'Colophon and the last page'];
   let current = 0, focus = 'right', ribbonHinted = false;
   const portrait = () => camera.aspect < 0.85;
   function goTo(target, fromFocus) {
@@ -1380,8 +1377,8 @@ export function mountTome(host, opts) {
     else hint.classList.add('gone');
   }
   // Site places (see place.ts) to spreads, and the face being read back to its place.
-  const PLACE_AT = { contents: [1, 'right'], about: [2, 'left'], 'deck-workshop': [2, 'right'], 'mugen-arena': [3, 'right'], wander: [4, 'right'], studies: [5, 'right'], contact: [6, 'right'] };
-  const FACE_PLACE = { contents: 'contents', about: 'about', deckWorkshop: 'deck-workshop', deckWorkshopNotes: 'deck-workshop', mugenArena: 'mugen-arena', mugenArenaNotes: 'mugen-arena', wander: 'wander', wanderNotes: 'wander', studies: 'studies', studyNotes: 'studies', contact: 'contact', colophon: 'contact' };
+  const PLACE_AT = { contents: [1, 'right'], about: [2, 'left'], bezl: [2, 'right'], kbui: [3, 'right'], studies: [4, 'right'], contact: [5, 'right'] };
+  const FACE_PLACE = { contents: 'contents', about: 'about', bezl: 'bezl', bezlNotes: 'bezl', kbui: 'kbui', kbuiNotes: 'kbui', studies: 'studies', studyNotes: 'studies', contact: 'contact', colophon: 'contact' };
   function placeNow() {
     if (current === 0) return null;
     if (current === 1) return 'contents';

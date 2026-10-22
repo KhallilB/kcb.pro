@@ -37,7 +37,7 @@ test('the tome opens over the home page and steps aside for the list', async ({ 
   await expect(view.getByRole('button', { name: '3D book' })).toHaveAttribute('aria-pressed', 'true')
   await expect(page.locator('.tome[data-ready] canvas')).toHaveAttribute(
     'data-chapters',
-    'deckWorkshop,mugenArena,wander'
+    'bezl,kbui'
   )
 
   await view.getByRole('button', { name: '2D list' }).click()
@@ -108,10 +108,10 @@ test('home names the work and what is being built now', async ({ page }) => {
   await expect(
     page.getByRole('heading', { level: 1, name: 'Frontend engineer building web apps that do real work.' })
   ).toBeVisible()
-  await expect(page.getByTestId('now-building')).toContainText('Now building Deck Workshop')
+  await expect(page.getByTestId('now-building')).toContainText('Now building Bezl')
   await expect(
     page.getByRole('region', { name: 'Selected work' }).getByRole('article')
-  ).toHaveCount(3)
+  ).toHaveCount(2)
   expect(errors, 'hydration must not log errors').toEqual([])
 })
 
@@ -125,18 +125,18 @@ test('a keyboard user reaches a project page and back to the index', async ({ pa
   await page.keyboard.press('Tab')
   await expect(page.getByRole('link', { name: 'Skip to content' })).toBeFocused()
 
-  await page.getByRole('link', { name: 'Mugen Arena' }).first().focus()
+  await page.getByRole('link', { name: 'kbui' }).first().focus()
   await page.keyboard.press('Enter')
-  await expect(page).toHaveURL(/\/work\/mugen-arena$/)
-  await expect(page.getByRole('heading', { level: 1, name: 'Mugen Arena' })).toBeVisible()
-  await expect(page).toHaveTitle('Mugen Arena · Khallil Bailey')
+  await expect(page).toHaveURL(/\/work\/kbui$/)
+  await expect(page.getByRole('heading', { level: 1, name: 'kbui' })).toBeVisible()
+  await expect(page).toHaveTitle('kbui · Khallil Bailey')
 
   await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Work' }).click()
   await expect(page.getByRole('heading', { level: 1, name: 'Work' })).toBeVisible()
 })
 
 test('every project page is served as prerendered HTML', async ({ request }) => {
-  for (const slug of ['deck-workshop', 'mugen-arena', 'wander', 'gallery']) {
+  for (const slug of ['bezl', 'kbui', 'gallery']) {
     // No redirect: Pages 308s a folder index to a trailing-slash URL the site never links.
     const response = await request.get(`/work/${slug}`, { maxRedirects: 0 })
     expect(response.status(), `/work/${slug}`).toBe(200)
@@ -144,7 +144,9 @@ test('every project page is served as prerendered HTML', async ({ request }) => 
   }
 })
 
-test('an unknown path gets the 404 page with a 404 status', async ({ page }) => {
+test('an unknown or hidden path gets the 404 page with a 404 status', async ({ page }) => {
+  const hidden = await page.goto('/work/wander')
+  expect(hidden?.status()).toBe(404)
   const response = await page.goto('/work/ghost')
   expect(response?.status()).toBe(404)
   await expect(
@@ -155,7 +157,7 @@ test('an unknown path gets the 404 page with a 404 status', async ({ page }) => 
 test('the phone layout has no horizontal scroll at 320 px', async ({ page }) => {
   await preferList(page)
   await page.setViewportSize({ width: 320, height: 700 })
-  for (const path of ['/', '/work', '/work/deck-workshop', '/studies/map-labels']) {
+  for (const path of ['/', '/work', '/work/bezl', '/studies/map-labels']) {
     await page.goto(path)
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth

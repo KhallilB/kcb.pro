@@ -33,9 +33,8 @@ export interface TomeData {
     path: string
   }[]
   chapters: {
-    deckWorkshop: Chapter
-    mugenArena: Chapter
-    wander: Chapter
+    bezl: Chapter
+    kbui: Chapter
   }
 }
 
@@ -66,11 +65,11 @@ function chapter(
 const STUDY_NOTES: Record<string, { short: string; why: string }> = {
   'figma-canvas': {
     short: 'Figma canvas',
-    why: 'All three projects need smooth dragging and zooming: the map, the frame strip and the version timeline.',
+    why: 'Smooth dragging and zooming is the hardest part of any canvas, and Figma manages it with many people on screen at once.',
   },
   'map-labels': {
     short: 'Map labels',
-    why: 'Labels that make room without flickering are the hardest part of Wander’s map, and few people explain how it’s done.',
+    why: 'Labels that make room without flickering are one of the hardest parts of a map, and few people explain how it’s done.',
   },
   'benefits-application': {
     short: 'Benefits form',
@@ -86,7 +85,7 @@ export function tomeData(asOf: IsoDay): TomeData {
     asOf: formatLongDay(asOf),
     nowBuilding: live?.title ?? 'Between projects',
     about: [
-      'I build web apps that do real work. I chose each project in this book to learn one hard area of engineering: desktop apps, real-time games, and maps made from open data.',
+      'I build web apps that do real work. This book holds the two things I am building now: Bezl, a desktop app for running AI coding assistants side by side, and kbui, the design system my projects share.',
       'Everything here shows the date it was last true. If something isn’t finished, it says so.',
     ],
     contactLine:
@@ -101,73 +100,50 @@ export function tomeData(asOf: IsoDay): TomeData {
       path: `/studies/${s.slug}`,
     })),
     chapters: {
-      deckWorkshop: chapter(
-        'deck-workshop',
+      bezl: chapter(
+        'bezl',
         asOf,
         [
           [
             'The problem',
-            'Players tweak decks by feel and overwrite the old list, so nobody knows if the last change helped.',
+            'Several AI coding assistants on one codebase step on each other, and afterwards nobody can say who changed what.',
           ],
           [
-            'How it works',
-            'The app reads the game’s log as you play and files each game under the deck version you used.',
+            'One writer',
+            'Each task has one assistant that may write and any number that may only read, held in place by each tool’s own sandbox.',
           ],
           [
-            'Honest numbers',
-            'With fewer than twenty games it says so, and every win rate shows how sure it is.',
+            'Proven so far',
+            'Three terminals took a 20 MB stream each with no bytes lost and 2 ms typing latency. Memory is the open question.',
           ],
         ],
         [
-          ['Built with', 'Tauri · Rust · Svelte'],
+          ['Built with', 'Tauri · Rust · React'],
           ['Data', 'On your machine'],
-          ['Season', 'Sep to Dec 2026'],
+          ['Started', 'Oct 2026'],
         ]
       ),
-      mugenArena: chapter(
-        'mugen-arena',
+      kbui: chapter(
+        'kbui',
         asOf,
         [
           [
             'The idea',
-            'Every fighter is a text file: moves, inputs, animations and hits. Change a move and fight with it seconds later.',
+            'One set of tokens, plain CSS that any framework can render, and a thin React layer for behaviour.',
           ],
           [
-            'Same every time',
-            'The same button presses give the same fight in every browser, checked by replaying matches frame by frame.',
+            'The contract',
+            'Each stylesheet opens with an anatomy line naming its classes and attributes. The build fails when it is missing.',
           ],
           [
-            'Art',
-            'Free-to-use characters and arena from Kenney. Nothing borrowed without permission.',
+            'Checked',
+            'Every story is rendered in a real browser and scanned for accessibility problems on each run.',
           ],
         ],
         [
-          ['Area', 'Real-time games'],
-          ['Hard part', 'WebGPU'],
-          ['Season', 'Jan to Mar 2027'],
-        ]
-      ),
-      wander: chapter(
-        'wander',
-        asOf,
-        [
-          [
-            'The problem',
-            'Maps tell you how to get there. Wander tells you what this place is, what was here, and what that tree is.',
-          ],
-          [
-            'Launch cities',
-            'New York, London, Paris, San Francisco and Melbourne, with every dataset’s licence checked first.',
-          ],
-          [
-            'Works offline',
-            'Each city’s map is saved ahead of time, so a walk keeps working when the signal drops.',
-          ],
-        ],
-        [
-          ['Area', 'Maps'],
-          ['Hard part', 'Offline maps'],
-          ['Season', 'Apr to Jun 2027'],
+          ['Built with', 'CSS · React · Base UI'],
+          ['Used by', 'loupe; Bezl planned'],
+          ['Started', 'Oct 2026'],
         ]
       ),
     },

@@ -73,17 +73,19 @@ export function StudyPage() {
               <dt>What it gives the projects</dt>
               <dd>{study.kitPiece}</dd>
             </div>
-            <div>
-              <dt>Used by</dt>
-              <dd>
-                {fed.map((p, i) => (
-                  <span key={p.slug}>
-                    {i > 0 && ', '}
-                    <Link to={`/work/${p.slug}`}>{p.title}</Link>
-                  </span>
-                ))}
-              </dd>
-            </div>
+            {fed.length > 0 && (
+              <div>
+                <dt>Used by</dt>
+                <dd>
+                  {fed.map((p, i) => (
+                    <span key={p.slug}>
+                      {i > 0 && ', '}
+                      <Link to={`/work/${p.slug}`}>{p.title}</Link>
+                    </span>
+                  ))}
+                </dd>
+              </div>
+            )}
             <div>
               <dt>Status</dt>
               <dd>
