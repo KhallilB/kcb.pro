@@ -1,8 +1,13 @@
+import { published } from '../domain/catalog'
 import type { Catalog } from '../domain/types'
 import { projects } from './projects'
 import { studies } from './studies'
 
-export const content: Catalog = { projects, studies }
+// Every entry, hidden ones included; the build validates this.
+export const catalog: Catalog = { projects, studies }
+
+// What the site and the book show.
+export const content: Catalog = published(catalog)
 
 export const profile = {
   name: 'Khallil Bailey',

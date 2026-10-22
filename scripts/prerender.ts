@@ -6,9 +6,11 @@ const BUILD = 'build'
 const SSR = 'build-ssr'
 
 const server = await import(join(process.cwd(), SSR, 'entry-server.js'))
-const { renderPage, sitePaths, content, validateCatalog, buildDay } = server
+const { renderPage, sitePaths, catalog, content, validateCatalog, buildDay } =
+  server
 
-const errors: string[] = validateCatalog(content)
+// Hidden entries stay valid so they can come back by deleting one line.
+const errors: string[] = validateCatalog(catalog)
 if (errors.length > 0) {
   console.error(`Catalog failed validation:\n${errors.join('\n')}`)
   process.exit(1)

@@ -2,6 +2,13 @@ import type { Catalog, Project, ProjectStatus } from './types'
 
 const byOrder = (a: Project, b: Project) => a.order - b.order
 
+export function published(catalog: Catalog): Catalog {
+  return {
+    projects: catalog.projects.filter((p) => p.listed !== false),
+    studies: catalog.studies,
+  }
+}
+
 export function nowBuilding(projects: Project[]): Project | undefined {
   return projects
     .filter((p) => p.kind === 'endeavor' && p.status === 'in-progress')
