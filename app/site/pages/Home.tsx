@@ -15,8 +15,8 @@ export function Home() {
       <section className="masthead">
         <h1 className="display">{profile.headline}</h1>
         <p className="lede">
-          Three products, each built to learn one hard domain, shipped,
-          measured and written up.
+          Three apps I’m building, each one to learn a hard area of engineering.
+          Every project shows where it stands and when that was last true.
         </p>
         {live && (
           <p className="live" data-testid="now-building">

@@ -13,6 +13,6 @@ describe('renderPage', () => {
   it('renders the not-found page with a 404 status', () => {
     const page = renderPage('/missing', '2026-10-21')
     expect(page.status).toBe(404)
-    expect(page.html).toContain('This page moved or never existed.')
+    expect(page.html).toContain('There’s nothing at this address.')
   })
 })

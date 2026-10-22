@@ -44,7 +44,7 @@ test('the tome opens over the home page and steps aside for the list', async ({ 
   await expect(view.getByRole('button', { name: '2D list' })).toHaveAttribute('aria-pressed', 'true')
   await expect(page.locator('.tome')).toBeHidden()
   await expect(
-    page.getByRole('heading', { level: 1, name: 'Frontend engineer building deep, useful web apps.' })
+    page.getByRole('heading', { level: 1, name: 'Frontend engineer building web apps that do real work.' })
   ).toBeVisible()
   await view.getByRole('button', { name: '3D book' }).click()
   await expect(page.locator('.tome[data-shown][data-ready] canvas')).toBeVisible()
@@ -94,7 +94,7 @@ test('without WebGL the home page is the plain list', async ({ page }) => {
   })
   await page.goto('/')
   await expect(
-    page.getByRole('heading', { level: 1, name: 'Frontend engineer building deep, useful web apps.' })
+    page.getByRole('heading', { level: 1, name: 'Frontend engineer building web apps that do real work.' })
   ).toBeVisible()
   await expect(page.getByRole('group', { name: 'View' })).toHaveCount(0)
 })
@@ -106,7 +106,7 @@ test('home names the work and what is being built now', async ({ page }) => {
   await page.goto('/')
 
   await expect(
-    page.getByRole('heading', { level: 1, name: 'Frontend engineer building deep, useful web apps.' })
+    page.getByRole('heading', { level: 1, name: 'Frontend engineer building web apps that do real work.' })
   ).toBeVisible()
   await expect(page.getByTestId('now-building')).toContainText('Now building Deck Workshop')
   await expect(
@@ -148,7 +148,7 @@ test('an unknown path gets the 404 page with a 404 status', async ({ page }) => 
   const response = await page.goto('/work/ghost')
   expect(response?.status()).toBe(404)
   await expect(
-    page.getByRole('heading', { level: 1, name: 'This page moved or never existed.' })
+    page.getByRole('heading', { level: 1, name: 'There’s nothing at this address.' })
   ).toBeVisible()
 })
 

@@ -4,10 +4,10 @@ export function NotFound() {
   return (
     <article className="page-head">
       <p className="mono secondary">404</p>
-      <h1 className="h1">This page moved or never existed.</h1>
+      <h1 className="h1">There’s nothing at this address.</h1>
       <p>
         <Link to="/work" className="link">
-          Everything I have built <span aria-hidden="true">→</span>
+          See all my work <span aria-hidden="true">→</span>
         </Link>
       </p>
     </article>
