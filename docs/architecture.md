@@ -15,6 +15,21 @@ domain rules (status lines, dates, ordering, validation)
    └──► 3D book: the same facts painted onto the Tome's pages in the browser
 ```
 
+## Running it
+
+You need [Bun](https://bun.sh) 1.3.11 or newer. Run `bun install` once, then:
+
+| Command                    | What it does                                                         |
+| -------------------------- | -------------------------------------------------------------------- |
+| `bun run dev`              | Starts the dev server with hot reload.                               |
+| `bun run build`            | Typechecks, builds, and prerenders every page into `build/`.         |
+| `bun run preview`          | Serves `build/` the way Cloudflare Pages will, on port 4173.         |
+| `bun run test`             | Unit and component tests (Vitest).                                   |
+| `bun run test:integration` | Renders pages on the server, as the build does, and checks the HTML. |
+| `bun run test:e2e`         | Builds the site and drives it in a real browser (Playwright).        |
+| `bun run check`            | Everything CI runs: lint, build, and all three test suites.          |
+| `bun run deploy`           | Uploads `build/` to Cloudflare Pages by hand. Normally CI does this. |
+
 ## The four parts of `app/`
 
 ### `app/portfolio/content`: what the site says
