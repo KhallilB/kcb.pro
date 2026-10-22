@@ -19,7 +19,7 @@ describe('home', () => {
     expect(
       screen.getByRole('heading', {
         level: 1,
-        name: 'Frontend engineer building deep, useful web apps.',
+        name: 'Frontend engineer building web apps that do real work.',
       })
     ).toBeInTheDocument()
   })
@@ -53,9 +53,9 @@ describe('home', () => {
     const cards = within(screen.getByRole('region', { name: 'Selected work' })).getAllByRole(
       'article'
     )
-    expect(cards[0]).toHaveTextContent('files each game you play under the version that played it')
+    expect(cards[0]).toHaveTextContent('records each game you play against the version you played it with')
     expect(cards[1]).toHaveTextContent('every fighter is a plain text file')
-    expect(cards[2]).toHaveTextContent('layers a city’s open data')
+    expect(cards[2]).toHaveTextContent('what a city’s open data knows')
     expect(container.querySelector('.card svg, .card img, .wip')).toBeNull()
   })
 
@@ -95,7 +95,7 @@ describe('layout', () => {
   it('stamps the footer with the build day', () => {
     visit('/')
     expect(screen.getByRole('contentinfo')).toHaveTextContent(
-      'Built and measured, as of 21 Oct 2026'
+      'Last updated 21 Oct 2026'
     )
   })
 })
@@ -104,7 +104,7 @@ describe('work index', () => {
   it('describes every project in its row', () => {
     visit('/work')
     const rows = within(screen.getByRole('main')).getAllByRole('listitem')
-    expect(rows[1]).toHaveTextContent('files each game you play under the version that played it')
+    expect(rows[1]).toHaveTextContent('records each game you play against the version you played it with')
     expect(rows[2]).toHaveTextContent('every fighter is a plain text file')
   })
 
@@ -133,7 +133,7 @@ describe('project page', () => {
   it('holds an empty build log until GitHub and the changelog are linked', () => {
     visit('/work/deck-workshop')
     const log = screen.getByRole('region', { name: 'Build log' })
-    expect(log).toHaveTextContent('Nothing linked yet')
+    expect(log).toHaveTextContent('Nothing here yet')
     expect(within(log).queryByRole('img')).toBeNull()
   })
 
@@ -141,7 +141,7 @@ describe('project page', () => {
     visit('/work/deck-workshop')
     const headings = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)
     expect(headings).toContain('The problem')
-    expect(headings).toContain('Signature component')
+    expect(headings).toContain('The key piece')
     const toc = screen.getByRole('navigation', { name: 'On this page' })
     expect(within(toc).getByRole('link', { name: 'The problem' })).toHaveAttribute(
       'href',
@@ -168,9 +168,9 @@ describe('project page', () => {
   it('sends an unknown project to the not-found page', () => {
     visit('/work/nope')
     expect(
-      screen.getByRole('heading', { level: 1, name: 'This page moved or never existed.' })
+      screen.getByRole('heading', { level: 1, name: 'There’s nothing at this address.' })
     ).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Everything I have built/ })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /See all my work/ })).toHaveAttribute(
       'href',
       '/work'
     )
@@ -192,8 +192,8 @@ describe('studies', () => {
 
   it('says what a study is and holds an empty build log', () => {
     visit('/studies/figma-canvas')
-    expect(screen.getByRole('main')).toHaveTextContent('rebuild of its pan, zoom')
-    expect(screen.getByRole('region', { name: 'Build log' })).toHaveTextContent('Nothing linked yet')
+    expect(screen.getByRole('main')).toHaveTextContent('rebuild of its panning, zooming')
+    expect(screen.getByRole('region', { name: 'Build log' })).toHaveTextContent('Nothing here yet')
   })
 
   it('lists all three studies on the index', () => {

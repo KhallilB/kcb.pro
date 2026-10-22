@@ -3,36 +3,36 @@ import type { Study } from '../domain/types'
 export const studies: Study[] = [
   {
     slug: 'figma-canvas',
-    title: 'Figma’s canvas pan, zoom and multiplayer cursors',
+    title: 'How Figma’s canvas stays smooth with everyone on it',
     format: 'teardown',
     question:
-      'How does an infinite canvas stay crisp and smooth with other people on it?',
+      'How does an endless canvas stay sharp and smooth while other people move around on it?',
     about:
-      'A teardown of how Figma’s infinite canvas stays smooth with other people on it, and a one-week rebuild of its pan, zoom and live cursors.',
+      'A close look at how Figma’s endless canvas stays smooth with other people on it, followed by a one-week rebuild of its panning, zooming and live cursors.',
     builtSlice:
-      'Pan, pinch-zoom, wheel normalization and cursor presence with interpolation over a small relay.',
+      'Panning, pinch-to-zoom, consistent scrolling across mice and trackpads, and other people’s cursors gliding smoothly over a small server.',
     kitPiece:
-      'The gesture layer behind Wander’s map, Mugen Arena’s frame strip and Deck Workshop’s version rail.',
+      'The gesture code behind Wander’s map, Mugen Arena’s frame strip and Deck Workshop’s version timeline.',
     feeds: ['wander', 'mugen-arena', 'deck-workshop'],
     status: 'planned',
     startsOn: '2026-11-02',
     brief: [
       {
-        heading: 'What I inspect',
+        heading: 'What I’ll look at',
         body: [
-          'Canvas versus DOM rendering, device pixel ratio, how wheel, trackpad and pinch deltas are normalized across devices, and how cursors look continuous at low update rates.',
+          'Whether Figma draws with a canvas or with page elements, how it handles high-resolution screens, how it makes scrolling, trackpads and pinching feel the same on every device, and how other people’s cursors look smooth even though their positions only arrive a few times a second.',
         ],
       },
       {
-        heading: 'Hypothesis',
+        heading: 'My guess',
         body: [
-          'Smoothness is interpolation between sparse updates; crispness is redrawing at the zoomed scale rather than scaling a bitmap.',
+          'Cursors look smooth because the app fills in the motion between the few updates it receives. Shapes stay sharp because they are redrawn at each zoom level, rather than an image being stretched.',
         ],
       },
       {
-        heading: 'Proof',
+        heading: 'How I’ll prove it',
         body: [
-          'A frame budget at 5x zoom with 1,000 shapes, synthetic pointer tests, and a table of input devices and their delta behaviour. Scope stops at pan, zoom and cursors: no selection sync, no CRDT.',
+          'A speed test at five times zoom with 1,000 shapes on screen, automated tests that simulate pointers, and a table showing how different mice and trackpads report movement. The scope stops at panning, zooming and cursors: no shared selection and no real-time document syncing.',
         ],
       },
     ],
@@ -42,32 +42,32 @@ export const studies: Study[] = [
     title: 'How Apple Maps and Google Maps decide which labels you see',
     format: 'teardown',
     question:
-      'Why do map labels yield to each other without flickering as you zoom and pan?',
+      'How do map labels make room for each other without flickering as you zoom and move around?',
     about:
-      'A teardown of how map apps choose which labels to show as you zoom and pan, and a one-week rebuild of a label placer that never flickers.',
+      'A close look at how map apps choose which labels to show as you zoom and move around, followed by a one-week rebuild of a label system that never flickers.',
     builtSlice:
-      'A priority-ordered label placer with a collision index, hysteresis, fades and keyboard navigation.',
-    kitPiece: 'The label placer, used by Wander.',
+      'A label system that places the most important labels first, keeps winners steady, fades changes in and out, and can be explored with a keyboard.',
+    kitPiece: 'The label system, used by Wander.',
     feeds: ['wander'],
     status: 'planned',
     startsOn: '2027-04-05',
     brief: [
       {
-        heading: 'What I inspect',
+        heading: 'What I’ll look at',
         body: [
-          'Which labels win when they collide, how priority shifts with zoom, why labels fade instead of popping, and how they stay put while panning. MapLibre’s open collision code is the documented counterpart; no tiles, fonts or assets are copied.',
+          'Which label wins when two overlap, how that changes as you zoom, why labels fade rather than pop, and how they stay still while you drag the map. MapLibre’s open-source label code is the public reference; none of its map tiles, fonts or other files are copied.',
         ],
       },
       {
-        heading: 'Hypothesis',
+        heading: 'My guess',
         body: [
-          'A priority-ordered greedy placement over a spatial index each frame, with hysteresis so a label that won keeps winning for a while, and fades that hide placement changes.',
+          'Every frame, labels are placed in order of importance, skipping any that would overlap one already placed. A label that won a spot keeps it for a while so it doesn’t flicker, and fades cover up the moments when the winners change.',
         ],
       },
       {
-        heading: 'Proof',
+        heading: 'How I’ll prove it',
         body: [
-          '5,000 candidate labels placed under 4 ms a frame in a worker, deterministic for the same viewport, with flicker tests across synthetic pans and an accessibility twin that lists the visible labels.',
+          'Placing 5,000 possible labels in under 4 milliseconds a frame, in a background thread, with the same result every time for the same view. Automated tests drag the map around and check for flicker, and a screen-reader-friendly list shows which labels are visible.',
         ],
       },
     ],
@@ -76,32 +76,33 @@ export const studies: Study[] = [
     slug: 'benefits-application',
     title: 'A state benefits application, reimagined',
     format: 'legacy',
-    question: 'How do you make a 40-field statutory form survivable on a phone?',
+    question: 'How do you make a 40-question legal form bearable to fill in on a phone?',
     about:
-      'A reimagining of a state benefits application for people applying on a phone, with a slice that survives a lost signal and keeps the legal text intact.',
+      'A redesign of a state benefits application for people applying on their phones, with a working version that survives a dropped connection and keeps the legal wording intact.',
     builtSlice:
-      'A resumable, schema-driven form with the legal text kept and plain-language errors.',
-    kitPiece: 'The resumable form engine and the two-register text component.',
+      'A form you can pause and pick up later, driven by a description of its questions, that keeps the legal wording and explains mistakes in plain language.',
+    kitPiece:
+      'The pause-and-resume form system, and a text component that shows plain language with the official wording one tap away.',
     feeds: ['wander', 'deck-workshop'],
     status: 'planned',
     startsOn: '2027-06-28',
     brief: [
       {
-        heading: 'Who it serves',
+        heading: 'Who it’s for',
         body: [
-          'People applying on a phone with prepaid data, shared devices and interrupted sessions. The public application form is the schema; applicants are synthetic; no real portal accounts.',
+          'People applying on a phone with prepaid data, a shared device, or a session that keeps getting interrupted. The questions come from the real public application form. The applicants are made up, and no real government accounts are used.',
         ],
       },
       {
-        heading: 'Proposed features',
+        heading: 'What I’d change',
         body: [
-          'Save and resume with a code, a plain-language layer over the legal text with the original one tap away, a “what you will need” checklist up front, and an advisory eligibility pre-check that shows its rule.',
+          'Save your progress and come back later with a code. Show a plain-language version of the legal text, with the original one tap away. Put a checklist of what you’ll need at the very start. Offer a quick, non-binding check of whether you’re likely to qualify, and show the rule it used.',
         ],
       },
       {
-        heading: 'Proof',
+        heading: 'How I’ll prove it',
         body: [
-          'Works with JavaScript off and on, WCAG 2.2 AA, usable at 320 px; interruption tests for reload, timeout and the back button; a before-and-after task-time table from five volunteers; a one-page memo addressed to the agency.',
+          'It works with JavaScript turned on or off, meets the WCAG 2.2 AA accessibility standard, and is usable on a 320-pixel-wide screen. Tests cover reloading the page, timing out and pressing the back button. Five volunteers will try the old and new versions so I can compare how long each takes, and the results go into a one-page memo written for the agency.',
         ],
       },
     ],

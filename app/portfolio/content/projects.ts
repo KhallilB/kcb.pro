@@ -5,35 +5,35 @@ export const projects: Project[] = [
     slug: 'gallery',
     kind: 'site',
     title: 'The Gallery',
-    summary: 'This site: every project dated, every claim checkable.',
+    summary: 'This site. Every project on it is dated, so you can see what is real.',
     about:
-      'The site you are on: a ruled index and a leather tome over one catalog, every page prerendered and every claim dated.',
+      'The site you are reading: a plain list of my work and a leather book that holds the same pages, both built from one set of content and published as static pages.',
     status: 'in-progress',
     startsOn: '2026-10-19',
     order: 0,
     role: 'Design and engineering',
-    stack: ['React 19', 'Vite', 'React Router', 'Cloudflare Pages'],
-    domain: 'Build-time data and content architecture.',
-    signature: 'The ruled index with an as-of stamp on every status.',
+    stack: ['React 19', 'Vite', 'React Router', 'Three.js', 'Cloudflare Pages'],
+    domain: 'Content checked at build time, published as static pages.',
+    signature: 'A date next to every status, so nothing looks finished before it is.',
     links: [{ label: 'Source', href: 'https://github.com/KhallilB/kcb.pro' }],
     brief: [
       {
-        heading: 'The problem',
+        heading: 'Why it exists',
         body: [
-          'Portfolios now look polished by default, so polish proves nothing. This site shows work you can open, dated and measured, with the decisions written down.',
+          'Most portfolios look polished now, so polish alone says very little. This one shows work you can open and check: each project says when it started, where it stands today, and why I made the choices I did.',
         ],
       },
       {
         heading: 'How it is built',
         body: [
-          'Every route is prerendered to static HTML at build, then React hydrates it. Content lives in typed modules that a validator checks at build, so a missing field or leftover filler text fails the build instead of reaching a page.',
-          'Styling is hand-written CSS on one token file: one sans, one mono, warm paper, one vermilion accent for links, focus and the live dot.',
+          'Every page is turned into plain HTML when the site is built, so it loads fast and works without JavaScript. React then takes over in the browser. All the content lives in a few typed files, and the build checks them first: a missing field or leftover filler text stops the build instead of reaching the site.',
+          'The look comes from the book on the home page: Cinzel for headings, EB Garamond for reading, warm parchment, and one deep green for links and highlights. All of it is hand-written CSS driven by a single file of design tokens.',
         ],
       },
       {
         heading: 'What comes next',
         body: [
-          'An evidence contract: each project publishes an evidence file from CI, and its card shows status and numbers from that file, marked unverified when it is missing. Then live embeds, the system map and a history scrubber.',
+          'Proof that updates itself. Each project will publish a small file of results from its own test runs, and its card here will show those numbers, or say clearly when they are missing. After that: live demos you can try on the page, a map of how the projects connect, and a way to scroll back through each project’s history.',
         ],
       },
     ],
@@ -42,72 +42,72 @@ export const projects: Project[] = [
     slug: 'deck-workshop',
     kind: 'endeavor',
     title: 'Deck Workshop',
-    summary: 'Tune a Hearthstone deck and know what each change did.',
+    summary: 'Change your Hearthstone deck and find out whether the change helped.',
     about:
-      'A desktop app that keeps every version of a Hearthstone deck, files each game you play under the version that played it, and says honestly whether a change helped.',
+      'A desktop app that saves every version of your Hearthstone deck, records each game you play against the version you played it with, and tells you honestly whether a change made things better.',
     status: 'in-progress',
     startsOn: '2026-09-20',
     order: 1,
     role: 'Design and engineering',
     stack: ['Tauri 2', 'Rust', 'Svelte 5', 'TypeScript', 'SQLite'],
     domain:
-      'Local-first desktop architecture, streaming log parsing into an event-sourced game record, draw probability and small-sample statistics.',
+      'Desktop apps that keep your data on your own machine, reading a game’s log as it is written, and statistics that stay honest with only a few games to go on.',
     signature:
-      'The version rail: a deck’s history as a line of versions, each carrying its games, record and uncertainty band.',
+      'The version timeline: your deck’s history as a line of versions, each showing its games, its record and how sure that record is.',
     links: [],
     brief: [
       {
         heading: 'The problem',
         body: [
-          'Players tune decks by feel and paste over the old list, so nobody knows whether the last change helped. Deck Workshop keeps every change as a version, files each game under the version that played it, and shows what the change did with honest uncertainty.',
+          'Most players tweak their decks by feel and overwrite the old list, so they never really know whether the last change helped. Deck Workshop saves each change as a new version, files every game under the version that played it, and shows what the change actually did, including how uncertain that is.',
         ],
       },
       {
-        heading: 'Core loop',
+        heading: 'How it works',
         body: [
-          'Import a deck code or build a deck. Mark the cards that define it. Try a change and watch the curve, early plays and draw odds move before committing. Play. The log watcher files each game under its version. Compare two versions in plain language, then keep the change or roll back.',
+          'Paste in a deck code or build a deck from scratch, then mark the cards it is built around. Try out a change and see, before you commit to it, how it shifts your mana curve, your early turns and your chances of drawing key cards. Then go and play. The app reads the game’s log in the background and files each game under the right version. Afterwards, compare any two versions in plain language, and keep the change or go back.',
         ],
       },
       {
-        heading: 'Signature component',
+        heading: 'The key piece',
         body: [
-          'The version rail. Every change is a node; trying a change splits the rail, keeping it merges the branch, rolling back moves the head. Each node carries its games, record and an uncertainty band, and under the threshold it reads “not enough games yet” in place of a percentage.',
+          'The version timeline. Every change is a point on a line. Trying something out starts a side branch, keeping it joins the branch back in, and going back moves you to an earlier point. Each point shows its games, its win–loss record and a range for how confident that record is. With too few games, it says “not enough games yet” instead of showing a percentage it can’t back up.',
         ],
       },
       {
-        heading: 'What it teaches',
+        heading: 'What I’ll learn',
         body: [
-          'A Rust file watcher tailing the game’s Power.log, a streaming parser that turns log lines into an event-sourced game record, the deckstring format (base64 over varints), hypergeometric draw odds, and statistics that refuse to invent a win rate from twelve games.',
+          'Watching a file from Rust as the game writes to it. Turning a stream of raw log lines into a clean history of each game. Reading and writing Hearthstone’s compact deck codes. Working out the exact odds of drawing a card. And statistics that refuse to invent a win rate from twelve games.',
         ],
       },
       {
-        heading: 'Boundary pushed',
+        heading: 'Hard parts',
         body: [
-          'Tauri 2 with Rust owning the file system and the log watcher; a parser that tolerates partial lines, client restarts and patches that change the log; the same Svelte UI built for the browser against fixtures, so this site can embed it.',
+          'Rust handles the files and the log watching, inside a Tauri 2 desktop shell. The log reader has to cope with half-written lines, the game restarting and patches that change the log format. The same Svelte interface also builds for the browser using sample data, so this site can show a working demo.',
         ],
       },
       {
-        heading: 'AI in the product',
+        heading: 'Use of AI',
         body: [
-          'Optional and read-only. A local Ollama model, one cloud provider or a compatible endpoint explains a comparison through typed tools that read the deck and its games. It cites the games it used, never edits a deck, never crafts or dusts, and never states an unobserved card as fact.',
+          'Optional, and it can only read. You can ask a model to explain a comparison: one running on your own machine through Ollama, one cloud provider, or any compatible service. It reads your deck and games through a small set of tools, points to the games it used, and never changes a deck, crafts or disenchants cards, or claims to know a card it hasn’t seen.',
         ],
       },
       {
-        heading: 'How it is verified',
+        heading: 'How I’ll test it',
         body: [
-          'Parser golden tests over recorded log fixtures, deckstring round-trip property tests, draw odds checked against closed-form values, storage migration tests, a Playwright walk of the browser build, and native smoke tests on macOS and Windows. Every push already runs a gate of format, architecture, types, tests, backlog traceability and the desktop build contract.',
+          'The log reader is checked against recorded real logs. Deck codes are checked to come back exactly as they went in. Draw odds are compared with values worked out by hand. Saved-data upgrades get their own tests, the browser build is clicked through automatically, and quick checks run on macOS and Windows. Every push already runs formatting, structure, type and test checks, plus a check that every piece of work traces back to a planned task.',
         ],
       },
       {
-        heading: 'Data and IP',
+        heading: 'Data and rights',
         body: [
-          'Card data from HearthstoneJSON. No Blizzard card art in the repo or the embed; cards render as text frames. Hearthstone is named only to say what the tool works with.',
+          'Card data comes from HearthstoneJSON. There is no Blizzard card art in the code or the demo; cards appear as text. Hearthstone is named only to say what the app works with.',
         ],
       },
       {
-        heading: 'First slice',
+        heading: 'First milestone',
         body: [
-          'Import a deck code, save it as version one, and show the curve and opening-hand odds, in the browser build on fixture cards.',
+          'Paste a deck code, save it as version one, and see its mana curve and the odds of each opening hand, in the browser version using sample cards.',
         ],
       },
     ],
@@ -116,78 +116,78 @@ export const projects: Project[] = [
     slug: 'mugen-arena',
     kind: 'endeavor',
     title: 'Mugen Arena',
-    summary: 'A 3D arena battler where every fighter is a file you can edit.',
+    summary: 'A 3D fighting game where every fighter is a file you can edit.',
     about:
-      'A browser fighting game where every fighter is a plain text file. Change a move’s frames or hitbox and fight with it seconds later.',
+      'A fighting game in the browser where every fighter is a plain text file. Change how a move works and fight with the new version seconds later.',
     status: 'planned',
     startsOn: '2027-01-04',
     order: 2,
     role: 'Design and engineering',
     stack: ['TypeScript', 'React 19', 'WebGPU', 'Web Workers', 'WebRTC'],
     domain:
-      'Deterministic real-time simulation: a fixed-step loop, a character-file interpreter, 3D capsule collision, input buffering and rollback netcode.',
+      'Real-time game simulation that plays out exactly the same on every computer: a fixed game clock, a reader for fighter files, 3D hit detection, input timing and online play that hides lag.',
     signature:
-      'The frame strip: a move’s startup, active and recovery frames, scrubbable, with its hit capsules drawn on the 3D fighter.',
+      'The frame strip: a move laid out frame by frame, which you can scrub through while the 3D fighter shows exactly where it can hit and be hit.',
     links: [],
     brief: [
       {
         heading: 'The problem',
         body: [
-          'M.U.G.E.N proved people love building fighters as much as playing them, but its characters are opaque files tuned by trial and error, and most borrow art nobody licensed. Mugen Arena keeps the idea, every fighter is a text file, and makes the file live: edit a move, fight with it seconds later, and see every frame.',
+          'M.U.G.E.N showed that people love building fighters as much as playing them. But its characters are hard-to-read files tuned by trial and error, and many of them use art nobody had the right to use. Mugen Arena keeps the core idea, that every fighter is a text file, and makes that file come alive: change a move, fight with it seconds later, and see every frame of it.',
         ],
       },
       {
-        heading: 'Core loop',
+        heading: 'How it works',
         body: [
-          'Pick two fighters and an arena. Fight locally or against the CPU. Open any fighter’s file, change a move’s startup, damage or hit capsule, watch it in the frame strip, save, and fight again. Share a fighter as one file or a link.',
+          'Pick two fighters and an arena, then fight a friend on the same keyboard or the computer. Open any fighter’s file and change a move: how quickly it comes out, how much damage it does, or where it can hit. Watch the change in the frame strip, save, and fight again. Share a fighter as a single file or a link.',
         ],
       },
       {
-        heading: 'Signature component',
+        heading: 'The key piece',
         body: [
-          'The frame strip. Every frame of a move is a cell marked startup, active or recovery. Scrub it and the 3D fighter poses at that frame with its hit and hurt capsules drawn on the model. Editing a cell edits the file.',
+          'The frame strip. Every frame of a move is a cell, marked as wind-up, hitting or recovery. Drag across it and the 3D fighter strikes that exact pose, with the areas where it can hit and be hit drawn on the model. Editing a cell edits the file.',
         ],
       },
       {
-        heading: 'The character file',
+        heading: 'The fighter file',
         body: [
-          'Plain text in four sections: states (a state machine with entry conditions), commands (motion inputs with buffer windows), animations (CC0 skeletal clips with frame timings) and hits (capsules, damage, hitstun, knockback). The editor validates against a schema and points at the line that failed.',
+          'Plain text in four parts: states (what the fighter is doing and what can interrupt it), commands (the button sequences for each move and how much timing slack they allow), animations (free-to-use 3D animations with their timing) and hits (where a hit lands, its damage, and how far it knocks the other fighter back). The editor checks the file as you type and points to the exact line with a problem.',
         ],
       },
       {
-        heading: 'What it teaches',
+        heading: 'What I’ll learn',
         body: [
-          'A fixed 60 Hz step decoupled from rendering, a parser and interpreter for the fighter format, capsule collision in 3D, motion-input recognition over an input buffer, fixed-point math for cross-browser determinism, and rollback netcode that saves, restores and resimulates frames.',
+          'A game clock that ticks 60 times a second no matter how fast the screen draws. A reader for the fighter file format. Detecting hits in 3D. Recognising special-move inputs like quarter-circle-forward. Doing the maths in a way that gives identical results in every browser. And online play that predicts your opponent’s moves and quietly corrects itself when the real input arrives.',
         ],
       },
       {
-        heading: 'Boundary pushed',
+        heading: 'Hard parts',
         body: [
-          'WebGPU rendering with a WebGL fallback; the simulation in a worker on fixed-point math so the same inputs give the same frames in every browser; a replay test that compares state hashes frame by frame across engines; rollback over WebRTC data channels as a later slice.',
+          'Drawing with WebGPU, falling back to WebGL where it isn’t available. Running the game logic in a background thread with maths that rounds the same way everywhere, so the same inputs always give the same fight. Proving that with a test that replays a match in several browsers and compares the game state frame by frame. Online play over a direct browser-to-browser connection comes later.',
         ],
       },
       {
-        heading: 'AI in the product',
+        heading: 'Use of AI',
         body: [
-          'None. The CPU opponent is a scripted fighter written in the same file format, readable and editable like any other.',
+          'None. The computer opponent is a scripted fighter written in the same file format, so you can read it and change it like any other fighter.',
         ],
       },
       {
-        heading: 'How it is verified',
+        heading: 'How I’ll test it',
         body: [
-          'Parser golden tests and schema error tests, capsule collision unit tests, motion-input tests on recorded input streams, a determinism replay with per-frame state hashes, frame-time budgets for render and simulation, and a measured input-to-frame latency.',
+          'The file reader is checked against known-good files, and broken files must produce clear error messages. Hit detection and special-move inputs get their own tests using recorded inputs. A replay test checks that every frame comes out identical. And there are time budgets for drawing and game logic, plus a measured delay between pressing a button and seeing the result.',
         ],
       },
       {
-        heading: 'Assets and IP',
+        heading: 'Art and rights',
         body: [
-          'Kenney’s Animated Characters Bundle and Mini Arena, both CC0. No sprites, sounds or characters from the M.U.G.E.N community. The working name is screened before launch.',
+          'Characters and the arena come from Kenney’s Animated Characters Bundle and Mini Arena, both free to use for anything. Nothing comes from the M.U.G.E.N community’s sprites, sounds or characters. The name will be checked for conflicts before launch.',
         ],
       },
       {
-        heading: 'First slice',
+        heading: 'First milestone',
         body: [
-          'One fighter and one arena: walk, jump and one attack defined in the file, its frame strip, and two players on one keyboard.',
+          'One fighter in one arena who can walk, jump and throw one attack, all defined in the file, with its frame strip and two players on one keyboard.',
         ],
       },
     ],
@@ -196,70 +196,70 @@ export const projects: Project[] = [
     slug: 'wander',
     kind: 'endeavor',
     title: 'Wander',
-    summary: 'The city as layers: then and now on the street you stand on.',
+    summary: 'A map of what is around you, then and now.',
     about:
-      'A walking map that layers a city’s open data on the street you stand on: tree species, historic photos, public art and local history.',
+      'A walking map that shows what a city’s open data knows about the street you are on: the trees, old photos, public art and local history.',
     status: 'planned',
     startsOn: '2027-04-12',
     order: 3,
     role: 'Design and engineering',
     stack: ['TypeScript', 'React 19', 'MapLibre GL', 'PMTiles', 'WebGPU'],
-    domain: 'Geospatial rendering and data pipelines.',
+    domain: 'Drawing maps fast, and turning public city data into maps that work offline.',
     signature:
-      'The layer dial: a thumb control that blends translucent map layers, paired with a then-and-now slider aligned by device orientation.',
+      'The layer dial: a thumb control that fades map layers in and out, paired with a slider that lines an old photo up with the street in front of you.',
     links: [],
     brief: [
       {
         heading: 'The problem',
         body: [
-          'Maps answer “how do I get there”. Wander answers “what is this place, what was here, what is that tree”, in the cities whose open data makes that true.',
+          'Map apps are great at answering “how do I get there?” Wander answers different questions: what is this place, what used to be here, and what kind of tree is that? It works in cities that publish enough open data to answer them.',
         ],
       },
       {
-        heading: 'Core loop',
+        heading: 'How it works',
         body: [
-          'Open the map where you stand. Dial layers: then-and-now photos, street trees by species, public art, history from Wikipedia, your notes. Point the phone to align a historic photo with the street, pin the places you touched into a walk, and share it.',
+          'Open the map where you are standing and turn on the layers you care about: old and new photos side by side, street trees by species, public art, history from Wikipedia, and your own notes. Point your phone at the street to line an old photo up with today’s view. Save the places you visited as a walk and share it.',
         ],
       },
       {
-        heading: 'Signature component',
+        heading: 'The key piece',
         body: [
-          'The layer dial, a radial control that stacks translucent layers and sets each one’s opacity with a thumb, paired with the then-and-now slider aligned by device orientation.',
+          'The layer dial: a round control that stacks see-through map layers, with each one faded in or out by your thumb. It works alongside the then-and-now slider, which uses your phone’s direction to line photos up with the street.',
         ],
       },
       {
         heading: 'Launch cities',
         body: [
-          'New York, London, Paris, San Francisco and Melbourne, each dataset license-checked before the season. Everywhere else: an OpenStreetMap base with Wikipedia geosearch and geotagged Commons photos.',
+          'New York, London, Paris, San Francisco and Melbourne. Every dataset’s licence is checked before work starts. Anywhere else gets a basic version: an OpenStreetMap base map, nearby Wikipedia articles, and geotagged photos from Wikimedia Commons.',
         ],
       },
       {
-        heading: 'What it teaches',
+        heading: 'What I’ll learn',
         body: [
-          'Vector tiles, projections, tile caching for offline use, sensor fusion, and a build-time pipeline that compiles each city’s open data into static tiles.',
+          'How map data is cut into tiles and drawn, how the round earth is flattened onto a screen, saving tiles for offline use, combining phone sensors to work out which way you are facing, and a build step that turns each city’s open data into ready-made map files.',
         ],
       },
       {
-        heading: 'Boundary pushed',
+        heading: 'Hard parts',
         body: [
-          'Static PMTiles built per city; WebGPU rendering where available with a WebGL fallback; a plain map when every sensor is denied.',
+          'Each city becomes a single file of map tiles, built ahead of time. Maps draw with WebGPU where the browser supports it and fall back to WebGL elsewhere. If you refuse every sensor permission, you still get a plain, working map.',
         ],
       },
       {
-        heading: 'AI in the product',
+        heading: 'Use of AI',
         body: [
-          'None. Species, dates and history come from data, and every datum links to its source dataset and row.',
+          'None. Tree species, dates and history all come from published data, and every fact links back to the exact dataset and row it came from.',
         ],
       },
       {
-        heading: 'How it is verified',
+        heading: 'How I’ll test it',
         body: [
-          'Pipeline tests on fixture datasets, layer state machine tests, gesture tests with synthetic pointers, an offline walk end to end, and a frame-time budget while panning.',
+          'The data pipeline is tested on small sample datasets. The logic that turns layers on and off gets its own tests, as do gestures using simulated touches. A full walk is tested with the network switched off, and panning the map has to stay within a time budget for each frame.',
         ],
       },
       {
-        heading: 'First slice',
-        body: ['One city, the base map, the tree layer and a place sheet.'],
+        heading: 'First milestone',
+        body: ['One city, the base map, the tree layer, and a panel that tells you about the place you tapped.'],
       },
     ],
   },

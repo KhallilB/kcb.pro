@@ -66,15 +66,15 @@ function chapter(
 const STUDY_NOTES: Record<string, { short: string; why: string }> = {
   'figma-canvas': {
     short: 'Figma canvas',
-    why: 'Its gesture layer is the one thing all three endeavors need: the map, the frame strip and the version rail.',
+    why: 'All three projects need smooth dragging and zooming: the map, the frame strip and the version timeline.',
   },
   'map-labels': {
     short: 'Map labels',
-    why: 'Labels that yield without flicker are the hardest part of Wander’s map, and nobody has written down how they work.',
+    why: 'Labels that make room without flickering are the hardest part of Wander’s map, and few people explain how it’s done.',
   },
   'benefits-application': {
     short: 'Benefits form',
-    why: 'Software millions are forced to use, rebuilt to survive a phone and a lost signal, with a memo an agency could act on.',
+    why: 'A form millions of people have to fill in, rebuilt to work on a phone and survive a dropped signal.',
   },
 }
 
@@ -86,11 +86,11 @@ export function tomeData(asOf: IsoDay): TomeData {
     asOf: formatLongDay(asOf),
     nowBuilding: live?.title ?? 'Between projects',
     about: [
-      'I build deep, useful web apps. Each project in this book was chosen to learn one hard engineering domain: local-first desktop software, real-time simulation, and maps built from open data.',
-      'Every claim here carries the date it was last true. If something is unfinished, it says so.',
+      'I build web apps that do real work. I chose each project in this book to learn one hard area of engineering: desktop apps, real-time games, and maps made from open data.',
+      'Everything here shows the date it was last true. If something isn’t finished, it says so.',
     ],
     contactLine:
-      'I am looking for frontend roles where the hard part is the interface.',
+      'I’m looking for frontend roles where the interface is the hard part.',
     github: { label: 'github.com/KhallilB', href: profile.github },
     studies: content.studies.map((s) => ({
       slug: s.slug,
@@ -107,15 +107,15 @@ export function tomeData(asOf: IsoDay): TomeData {
         [
           [
             'The problem',
-            'Players tune decks by feel and paste over the old list, so nobody knows whether the last change helped.',
+            'Players tweak decks by feel and overwrite the old list, so nobody knows if the last change helped.',
           ],
           [
-            'The approach',
-            'A Rust watcher tails the game’s log and files every game under the version that played it.',
+            'How it works',
+            'The app reads the game’s log as you play and files each game under the deck version you used.',
           ],
           [
-            'The proof',
-            'A record under twenty games says so, and a rate always comes with its range.',
+            'Honest numbers',
+            'With fewer than twenty games it says so, and every win rate shows how sure it is.',
           ],
         ],
         [
@@ -130,20 +130,20 @@ export function tomeData(asOf: IsoDay): TomeData {
         [
           [
             'The idea',
-            'Every fighter is a text file: states, commands, animations and hits. Edit a move and fight with it seconds later.',
+            'Every fighter is a text file: moves, inputs, animations and hits. Change a move and fight with it seconds later.',
           ],
           [
-            'Determinism',
-            'The same inputs give the same frames in every browser, proven by replaying a match and comparing state hashes.',
+            'Same every time',
+            'The same button presses give the same fight in every browser, checked by replaying matches frame by frame.',
           ],
           [
-            'Assets',
-            'Kenney’s CC0 characters and arena. Nothing from anyone who did not license it.',
+            'Art',
+            'Free-to-use characters and arena from Kenney. Nothing borrowed without permission.',
           ],
         ],
         [
-          ['Domain', 'Simulation'],
-          ['Boundary', 'WebGPU'],
+          ['Area', 'Real-time games'],
+          ['Hard part', 'WebGPU'],
           ['Season', 'Jan to Mar 2027'],
         ]
       ),
@@ -153,20 +153,20 @@ export function tomeData(asOf: IsoDay): TomeData {
         [
           [
             'The problem',
-            'Maps answer how to get there. Wander answers what this place is, what was here, and what that tree is.',
+            'Maps tell you how to get there. Wander tells you what this place is, what was here, and what that tree is.',
           ],
           [
             'Launch cities',
-            'New York, London, Paris, San Francisco and Melbourne, each dataset license-checked first.',
+            'New York, London, Paris, San Francisco and Melbourne, with every dataset’s licence checked first.',
           ],
           [
-            'Offline',
-            'Each city compiles to static tiles, so a walk keeps working when the signal drops.',
+            'Works offline',
+            'Each city’s map is saved ahead of time, so a walk keeps working when the signal drops.',
           ],
         ],
         [
-          ['Domain', 'Geospatial'],
-          ['Boundary', 'Offline tiles'],
+          ['Area', 'Maps'],
+          ['Hard part', 'Offline maps'],
           ['Season', 'Apr to Jun 2027'],
         ]
       ),
