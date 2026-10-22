@@ -12,8 +12,8 @@ export const studies: Study[] = [
     builtSlice:
       'Panning, pinch-to-zoom, consistent scrolling across mice and trackpads, and other people’s cursors gliding smoothly over a small server.',
     kitPiece:
-      'The gesture code behind Wander’s map, Mugen Arena’s frame strip and Deck Workshop’s version timeline.',
-    feeds: ['wander', 'mugen-arena', 'deck-workshop'],
+      'Gesture code for panning and zooming a large canvas smoothly on any mouse or trackpad.',
+    feeds: [],
     status: 'planned',
     startsOn: '2026-11-02',
     brief: [
@@ -47,8 +47,8 @@ export const studies: Study[] = [
       'A close look at how map apps choose which labels to show as you zoom and move around, followed by a one-week rebuild of a label system that never flickers.',
     builtSlice:
       'A label system that places the most important labels first, keeps winners steady, fades changes in and out, and can be explored with a keyboard.',
-    kitPiece: 'The label system, used by Wander.',
-    feeds: ['wander'],
+    kitPiece: 'A label system that makes room for the most important labels without flickering.',
+    feeds: [],
     status: 'planned',
     startsOn: '2027-04-05',
     brief: [
@@ -83,7 +83,7 @@ export const studies: Study[] = [
       'A form you can pause and pick up later, driven by a description of its questions, that keeps the legal wording and explains mistakes in plain language.',
     kitPiece:
       'The pause-and-resume form system, and a text component that shows plain language with the official wording one tap away.',
-    feeds: ['wander', 'deck-workshop'],
+    feeds: [],
     status: 'planned',
     startsOn: '2027-06-28',
     brief: [

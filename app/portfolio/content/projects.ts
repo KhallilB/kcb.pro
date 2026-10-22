@@ -39,8 +39,112 @@ export const projects: Project[] = [
     ],
   },
   {
+    slug: 'bezl',
+    kind: 'endeavor',
+    title: 'Bezl',
+    summary: 'AI coding assistants side by side, with a record of who did what.',
+    about:
+      'A desktop app that runs Codex, Claude Code and Gemini CLI as separate workers on one task. One of them may change the code, the others may only read and review it, and every step is written to a local log that is only ever added to.',
+    status: 'in-progress',
+    startsOn: '2026-10-22',
+    order: 1,
+    role: 'Design and engineering',
+    stack: ['Tauri 2', 'Rust', 'React 19', 'TypeScript', 'xterm.js'],
+    domain:
+      'Running other programs from a desktop app: live terminals inside one window, permissions enforced by the tools themselves rather than requested in a prompt, and a record you can check afterwards.',
+    signature:
+      'One writer per task: reviewers that are stopped from editing by the assistant’s own sandbox, not by a polite request.',
+    links: [],
+    brief: [
+      {
+        heading: 'The problem',
+        body: [
+          'Running more than one AI coding assistant on the same code gets messy quickly. Two of them edit the same file, a reviewer starts making changes of its own, and afterwards nobody can say who did what. Bezl gives each task one assistant that may write, any number that may only read, and a record of everything that happened.',
+        ],
+      },
+      {
+        heading: 'How it works',
+        body: [
+          'Bezl opens the official command-line tools in terminals inside one window, each signed in with its own account. It never calls a provider’s API, never holds anyone’s credentials, and never passes one assistant’s output to another. Each task gets its own copy of the repository, and the rules for what each assistant may do travel with the task.',
+        ],
+      },
+      {
+        heading: 'What is proven so far',
+        body: [
+          'Three short experiments ran on 22 Oct 2026, each with a pass mark set before it started.',
+          'Three terminals each received a 20 MB stream with no bytes lost and 2 ms typing latency. Peak memory went past the original 300 MB limit, so it was replaced by two limits the real terminal has to meet: under 150 MB at rest and under 600 MB during a burst.',
+          'Ghostty’s terminal engine produced a correct text snapshot of a vim screen, but only when built with the Homebrew release of Zig 0.15.',
+          'Codex in read-only mode was blocked from writing a file by the operating system. The same check for Claude Code and Gemini CLI has not run yet.',
+        ],
+      },
+      {
+        heading: 'What comes next',
+        body: [
+          'The core in Rust: tasks, workers and the permissions each one holds, with the log stored as events that are only ever added to. The interface is planned on kbui.',
+        ],
+      },
+      {
+        heading: 'Use of AI',
+        body: [
+          'Bezl directs AI assistants but adds none of its own. It starts the tools you already use and records what they do.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'kbui',
+    kind: 'endeavor',
+    title: 'kbui',
+    summary: 'One design system for all my projects: tokens, CSS and React.',
+    about:
+      'A small design system that keeps every value in one token file, all styling in plain CSS that any framework can use, and behaviour in a thin React layer. Tests check that the pieces stay in agreement.',
+    status: 'in-progress',
+    startsOn: '2026-10-16',
+    order: 2,
+    role: 'Design and engineering',
+    stack: ['TypeScript', 'CSS', 'React 19', 'Base UI', 'Storybook'],
+    domain:
+      'Design tokens, accessible components, and rules that a build checks instead of a reviewer having to remember them.',
+    signature:
+      'The anatomy line: one comment at the top of each stylesheet that names a component’s classes and attributes, so any framework can render it the same way.',
+    links: [],
+    brief: [
+      {
+        heading: 'The problem',
+        body: [
+          'Every project needs buttons, fields and dialogs, and each one tends to grow its own slightly different set. kbui is one shared set, so a fix or an accessibility improvement reaches every project at once.',
+        ],
+      },
+      {
+        heading: 'How it works',
+        body: [
+          'Colours, spacing and type live in one file in the W3C design tokens format, with light and dark values side by side. Styling is plain CSS keyed on class names and data attributes, so it does not depend on React. The React layer uses Base UI for focus, keyboard and screen-reader behaviour, and adds only the right classes and attributes.',
+        ],
+      },
+      {
+        heading: 'How it stays honest',
+        body: [
+          'The build fails if a token points at one that does not exist, if a stylesheet uses a raw colour, or if a component is missing its test or its story. Every story is also rendered in a real browser and scanned for accessibility problems. The last recorded run passed all 28 component tests and all 16 stories.',
+        ],
+      },
+      {
+        heading: 'Who uses it',
+        body: [
+          'loupe uses it today, and Bezl’s interface is planned on it. Projects install it straight from its folder, so it has no version numbers yet. A project that builds in the cloud will need released versions first.',
+        ],
+      },
+      {
+        heading: 'What comes next',
+        body: [
+          'About twenty more components, including layout and text, each with a complete anatomy line. After that, the plan is to let people describe a screen in plain language and have kbui check the result against its own design rules. None of that is built yet.',
+        ],
+      },
+    ],
+  },
+  {
     slug: 'deck-workshop',
     kind: 'endeavor',
+    listed: false,
     title: 'Deck Workshop',
     summary: 'Change your Hearthstone deck and find out whether the change helped.',
     about:
@@ -115,6 +219,7 @@ export const projects: Project[] = [
   {
     slug: 'mugen-arena',
     kind: 'endeavor',
+    listed: false,
     title: 'Mugen Arena',
     summary: 'A 3D fighting game where every fighter is a file you can edit.',
     about:
@@ -195,6 +300,7 @@ export const projects: Project[] = [
   {
     slug: 'wander',
     kind: 'endeavor',
+    listed: false,
     title: 'Wander',
     summary: 'A map of what is around you, then and now.',
     about:

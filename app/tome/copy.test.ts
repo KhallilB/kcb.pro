@@ -13,22 +13,28 @@ function strings(value: unknown): string[] {
 }
 
 describe('tome data', () => {
-  it('titles its three chapters after the featured endeavors, in order', () => {
-    const { deckWorkshop, mugenArena, wander } = data.chapters
-    expect([deckWorkshop.title, mugenArena.title, wander.title]).toEqual(
+  it('titles its two chapters after the featured endeavors, in order', () => {
+    const { bezl, kbui } = data.chapters
+    expect([bezl.title, kbui.title]).toEqual(
       featured(content.projects).map((p) => p.title)
     )
   })
 
   it('dates each chapter with the same status line the site shows', () => {
-    expect(data.chapters.deckWorkshop.status).toBe('In progress · as of 21 Oct 2026')
-    expect(data.chapters.mugenArena.status).toBe('Planned · Jan 2027')
-    expect(data.chapters.wander.status).toBe('Planned · Apr 2027')
+    expect(data.chapters.bezl.status).toBe('In progress · as of 21 Oct 2026')
+    expect(data.chapters.kbui.status).toBe('In progress · as of 21 Oct 2026')
     expect(data.asOf).toBe('21 October 2026')
   })
 
   it('names what is being built now', () => {
-    expect(data.nowBuilding).toBe('Deck Workshop')
+    expect(data.nowBuilding).toBe('Bezl')
+  })
+
+  it('never names a hidden project', () => {
+    const text = strings(data).join(' ')
+    for (const name of ['Deck Workshop', 'Mugen Arena', 'Wander']) {
+      expect(text).not.toContain(name)
+    }
   })
 
   it('links every study to a page the site prerenders', () => {
@@ -46,6 +52,8 @@ describe('tome data', () => {
       expect(chapter.facts).toHaveLength(3)
       expect(chapter.notes.length).toBeLessThanOrEqual(3)
       for (const [, note] of chapter.notes) expect(note.length).toBeLessThanOrEqual(190)
+      // The chapter page sets the summary on one italic line; longer clips at both edges.
+      expect(chapter.summary.length, chapter.title).toBeLessThanOrEqual(70)
     }
   })
 

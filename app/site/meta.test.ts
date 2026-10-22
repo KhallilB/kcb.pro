@@ -6,9 +6,9 @@ describe('pageMeta', () => {
   })
 
   it('titles a project page with its name and summary', () => {
-    expect(pageMeta('/work/wander')).toEqual({
-      title: 'Wander · Khallil Bailey',
-      description: 'A map of what is around you, then and now.',
+    expect(pageMeta('/work/kbui')).toEqual({
+      title: 'kbui · Khallil Bailey',
+      description: 'One design system for all my projects: tokens, CSS and React.',
       status: 200,
     })
   })
