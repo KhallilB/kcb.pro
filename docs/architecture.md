@@ -4,15 +4,21 @@ kcb.pro is a small React site that is built ahead of time into static HTML files
 served from Cloudflare Pages. There is no server and no database. Everything the site
 says comes from two TypeScript files of content.
 
-```text
-content (projects.ts, studies.ts)
-   │
-   ▼
-domain rules (status lines, dates, ordering, validation)
-   │
-   ├──► 2D site: React pages ──► prerendered to build/*.html at build time
-   │
-   └──► 3D book: the same facts painted onto the Tome's pages in the browser
+```mermaid
+flowchart TD
+    content["app/portfolio/content<br/>what the site says"]
+    domain["app/portfolio/domain<br/>dates, status lines, order, checks"]
+    site["app/site<br/>React pages"]
+    tome["app/tome<br/>the 3D book"]
+    build[("build/<br/>one HTML file per page")]
+    browser(["the visitor's browser"])
+
+    content --> domain
+    domain --> site
+    domain --> tome
+    site -- "bun run build" --> build
+    build --> browser
+    tome -- "loaded only when the book opens" --> browser
 ```
 
 ## Running it

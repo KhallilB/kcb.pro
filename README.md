@@ -1,70 +1,69 @@
 # kcb.pro
 
-**A portfolio that is also a book.** Live at [kcb.pro](https://kcb.pro).
+My portfolio, live at [kcb.pro](https://kcb.pro).
 
-You land on a leather tome floating in a pale green fog. Click it and the clasps
-unhook, the cover swings open, and the pages bend as they turn. Pull a ribbon and it
-drops you at a chapter. Every page in it is also a plain, fast website, one switch
-away in the corner.
+When you open it, you get a book. It's leather, it has brass corners and a green gem
+on the cover, and it floats. Click it and the clasps come off and it opens. You can
+flip through the pages, or pull one of the ribbons hanging out the bottom to skip to a
+chapter.
 
-## What's inside
+If you'd rather not read a book (fair), hit 2D in the corner and you get a normal
+website with the same stuff on it.
 
-Three things I'm building, each picked to make me learn something hard:
+## What's in it
 
-- **Deck Workshop**: change your Hearthstone deck and find out whether the change
-  actually helped.
-- **Mugen Arena**: a fighting game where every fighter is a text file. Tweak a move,
-  then fight with it seconds later.
-- **Wander**: a walking map of what's around you, then and now.
+Three projects I'm working on:
 
-There are also three **work studies**: one-week deep dives into how a piece of
-software works, or how it should. Each one ends with a small part that a project
-will reuse.
+- Deck Workshop keeps every version of your Hearthstone deck, so you can tell
+  whether a change actually helped.
+- Mugen Arena is a fighting game where each fighter is a text file. Edit a move, then
+  go fight with it.
+- Wander is a map that tells you what's around you, and what used to be there.
 
-One house rule: **everything is dated.** Each status says when it was last true.
-Nothing is called finished before it is.
+There are also three "work studies". In each one I spend a week figuring out how
+something works (Figma's canvas, map labels) or how it should work (a state benefits
+form).
 
-## How it's put together
+Everything has a date on it. If something isn't done yet, it says so.
 
-```text
-  a few typed files of content
-            │
-            ▼
-  rules that date, order and sanity-check them
-            │
-     ┌──────┴──────┐
-     ▼             ▼
-  the website    the book
-  (React,        (Three.js, every page
-  prerendered    painted in the browser)
-  to HTML)
+## How it works
+
+All the words live in two TypeScript files. The build reads them and complains if
+anything looks off: a missing date, a "TODO" left in, a link to nowhere. If they pass,
+it writes out a plain HTML file for every page. That's the 2D site, and it works even
+with JavaScript turned off.
+
+The book reads the same two files, but it does it in your browser.
+
+```mermaid
+flowchart LR
+    words["projects.ts<br/>studies.ts"]
+    words -- "when the site is built" --> html["an HTML file<br/>for every page"]
+    words -- "when you open the book" --> book["the 3D book"]
+    html --> host[("Cloudflare Pages")]
 ```
 
-- **One source of truth.** Every word on the site and in the book comes from the same
-  handful of TypeScript files. If one contains placeholder text, a missing date or a
-  broken link, the build refuses to finish.
-- **The website is just HTML.** Every page is rendered ahead of time, so it loads
-  instantly and works without JavaScript or a graphics card. React wakes up afterwards
-  for the extra touches.
-- **The book is made entirely of code.** No 3D models and no image files. The
-  leather, the brass corners, the emerald on the cover and the parchment are all
-  drawn in code when the page loads.
-- **The book never forgets your page.** Switch to the website and it zooms into the
-  page you were reading, then goes to sleep without using any processing power. Switch
-  back and it opens right where you left off. Read about Wander on the website, press
-  3D, and the book opens at Wander.
+There are no 3D models or images in the book. The leather, the brass, the gem and
+every page are drawn by code when it loads. Depending on who you ask, that's either
+very cool or slightly unhinged.
 
-## Made with
+Switching to 2D doesn't throw the book away. It zooms into the page you were on and
+goes to sleep, so it isn't eating your battery in the background. Switch back and it
+opens where you left it.
 
-React 19 · TypeScript · Vite · Three.js · hand-written CSS · Bun · Cloudflare Pages
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> Closed
+    Closed --> Open: click the cover
+    Open --> Asleep: switch to 2D
+    Asleep --> Open: switch back to 3D, same page
+```
 
-Type is set in Cinzel and EB Garamond.
+## Built with
 
-## Curious about the internals?
+React, TypeScript, Vite and Three.js, with plain hand-written CSS. Bun runs
+everything locally, and the site is hosted on Cloudflare Pages. The fonts are Cinzel
+and EB Garamond.
 
-The [docs](docs/) explain how the pieces fit, how the book works, and how a deploy
-happens.
-
----
-
-Built by [Khallil Bailey](https://github.com/KhallilB).
+If you want the gory details, they're in [docs/](docs/).
