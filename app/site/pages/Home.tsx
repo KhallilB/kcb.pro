@@ -41,7 +41,7 @@ export function Home() {
         </div>
         <div className="cards">
           {work.map((project) => (
-            <article key={project.slug} className="card">
+            <article key={project.slug} className="card" data-place={project.slug}>
               <div className="card__body">
                 <h3 className="card__title">
                   <Link to={`/work/${project.slug}`} className="card__link">
@@ -57,7 +57,7 @@ export function Home() {
         </div>
       </section>
 
-      <section className="section" aria-labelledby="work-studies">
+      <section className="section" aria-labelledby="work-studies" data-place="studies">
         <div className="section__head">
           <h2 id="work-studies" className="h3">
             Work studies

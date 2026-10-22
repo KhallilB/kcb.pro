@@ -1,6 +1,7 @@
-import { act, fireEvent, render, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import type { TomeData } from '@app/tome/copy'
+import type { TomePlace } from '@app/tome/place'
 import { AppRoutes } from './AppRoutes'
 import { SiteProvider } from './site-context'
 import type { TomeHooks } from './site'
@@ -13,19 +14,26 @@ interface Mounted {
   insetTop: () => number
 }
 
-function fakeEngine(result: 'mount' | 'fail' = 'mount') {
+function fakeEngine(result: 'mount' | 'fail' = 'mount', reading: TomePlace | null = null) {
   const calls: Mounted[] = []
-  const destroyed: number[] = []
+  const shows: (TomePlace | null)[] = []
+  const log = { hides: 0, destroyed: 0 }
   const hooks: TomeHooks = {
     supportsWebGL: () => true,
     load: async () => ({
       mountTome: (host, opts) => {
         calls.push({ host, ...opts })
-        return result === 'fail' ? null : () => destroyed.push(calls.length)
+        if (result === 'fail') return null
+        return {
+          destroy: () => log.destroyed++,
+          show: (place) => shows.push(place),
+          hide: () => log.hides++,
+          place: () => reading,
+        }
       },
     }),
   }
-  return { hooks, calls, destroyed }
+  return { hooks, calls, shows, log }
 }
 
 async function visit(path: string, hooks: TomeHooks) {
@@ -43,6 +51,7 @@ async function visit(path: string, hooks: TomeHooks) {
 const page = () => document.querySelector('.shell') as HTMLElement
 const stage = () => document.querySelector('.tome')
 const toggle = () => screen.queryByRole('group', { name: 'View' })
+const wordmark = () => document.querySelector('.wordmark') as HTMLElement
 const NAMES = { Tome: '3D book', List: '2D list' }
 const option = (name: 'Tome' | 'List') =>
   within(screen.getByRole('group', { name: 'View' })).getByRole('button', { name: NAMES[name] })
@@ -68,19 +77,68 @@ describe('the tome on the home page', () => {
     expect(calls[0].data.asOf).toBe('21 October 2026')
   })
 
-  it('toggles to the plain list and back with one control', async () => {
-    const { hooks, calls, destroyed } = fakeEngine()
+  it('toggles to the plain list and back without rebuilding the book', async () => {
+    const { hooks, calls, shows, log } = fakeEngine()
     await visit('/', hooks)
     fireEvent.click(option('List'))
     expect(option('List')).toHaveAttribute('aria-pressed', 'true')
-    expect(stage()).toBeNull()
+    expect(stage()).toHaveAttribute('inert')
     expect(page()).not.toHaveAttribute('inert')
-    expect(destroyed).toHaveLength(1)
+    expect(log).toEqual({ hides: 1, destroyed: 0 })
 
     fireEvent.click(option('Tome'))
     await act(async () => {})
     expect(option('Tome')).toHaveAttribute('aria-pressed', 'true')
-    expect(calls).toHaveLength(2)
+    expect(stage()).not.toHaveAttribute('inert')
+    expect(calls).toHaveLength(1)
+    expect(shows).toEqual([null])
+  })
+
+  it('keeps the book open at its page while the visitor reads a linked page', async () => {
+    const { hooks, calls, shows, log } = fakeEngine()
+    await visit('/', hooks)
+    act(() => calls[0].onNavigate('/studies/map-labels'))
+    expect(log.hides).toBe(1)
+
+    fireEvent.click(wordmark())
+    await act(async () => {})
+    expect(calls).toHaveLength(1)
+    expect(shows).toEqual(['studies'])
+  })
+
+  it('opens at the chapter the visitor last read as a page', async () => {
+    const { hooks, calls, shows } = fakeEngine()
+    await visit('/work/wander', hooks)
+    expect(calls).toHaveLength(0)
+
+    fireEvent.click(wordmark())
+    await act(async () => {})
+    expect(calls).toHaveLength(1)
+    expect(shows).toEqual(['wander'])
+  })
+
+  it('lands the list on the chapter the book was open at', async () => {
+    const scrolled: Element[] = []
+    // jsdom has no scrolling.
+    Element.prototype.scrollIntoView ??= () => {}
+    const scroll = vi
+      .spyOn(Element.prototype, 'scrollIntoView')
+      .mockImplementation(function (this: Element) {
+        scrolled.push(this)
+      })
+    const { hooks } = fakeEngine('mount', 'wander')
+    await visit('/', hooks)
+    fireEvent.click(option('List'))
+    await waitFor(() => expect(scrolled).toHaveLength(1))
+    expect(scrolled[0]).toHaveAttribute('data-place', 'wander')
+    scroll.mockRestore()
+  })
+
+  it('lets go of the book when the site closes', async () => {
+    const { hooks, log } = fakeEngine()
+    const view = await visit('/', hooks)
+    view.unmount()
+    expect(log.destroyed).toBe(1)
   })
 
   it('tells the engine how much of the top the toggle needs', async () => {
