@@ -126,8 +126,9 @@ test('a keyboard user reaches a project page and back to the index', async ({ pa
 
 test('every project page is served as prerendered HTML', async ({ request }) => {
   for (const slug of ['deck-workshop', 'mugen-arena', 'wander', 'gallery']) {
-    const response = await request.get(`/work/${slug}`)
-    expect(response.ok()).toBe(true)
+    // No redirect: Pages 308s a folder index to a trailing-slash URL the site never links.
+    const response = await request.get(`/work/${slug}`, { maxRedirects: 0 })
+    expect(response.status(), `/work/${slug}`).toBe(200)
     expect(await response.text()).toContain('<h1 class="h1">')
   }
 })
