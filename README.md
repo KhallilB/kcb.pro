@@ -1,35 +1,70 @@
 # kcb.pro
 
-The Gallery: a portfolio where every project is dated and every claim is checkable. It holds three endeavors (Deck Workshop, Mugen Arena, Wander) and three work studies.
+The portfolio of Khallil Bailey, live at [kcb.pro](https://kcb.pro).
 
-The home page opens as the Tome, a 3D leather book built in Three.js r128, ported from the Portfolio Tome artifact. Its chapters are painted from the same catalog as the site. The prerendered list underneath is the fallback for no JavaScript, no WebGL, and anyone who picks "List view".
+It shows three projects (Deck Workshop, Mugen Arena and Wander) and three short
+"work studies". Every project page says when it started, where it stands, and when
+that was last true.
 
-## Layout
+The home page opens as **the Tome**: a 3D leather book you can open, page through and
+pull ribbons on. A toggle in the corner switches to a plain 2D site with the same
+content. The 2D pages are prerendered HTML, so they also work without JavaScript and
+on devices without WebGL.
 
-| Path | Owns |
-| --- | --- |
-| `app/portfolio/domain` | Rules: status lines, dates, catalog order, content validation |
-| `app/portfolio/content` | The published projects, studies and profile, as typed data |
-| `app/site` | Routes, pages, components, page titles |
-| `app/tome` | The book: `engine.js` (scene, pages, ribbons, chapter faces) and `copy.ts` (chapter text from the catalog) |
-| `app/styles` | `tokens.css` (the only place for colour and size literals) and `site.css` |
-| `app/entry-server.tsx` | Server render used by the prerender step |
-| `scripts/prerender.ts` | Writes one HTML file per route into `build/`; fails the build on catalog errors |
-| `scripts/serve-build.ts` | Serves `build/` the way Cloudflare Pages does, for e2e tests |
+## Run it
 
-## Commands
+You need [Bun](https://bun.sh) 1.3.11 or newer.
 
-```sh
+```bash
 bun install
-bun run dev:client          # dev server
-bun run build:client        # typecheck, client build, SSR build, prerender
-bun run test:unit           # domain, content, pages, server render
-bun run test:e2e            # Playwright against the prerendered build
-bun run deploy:client       # Cloudflare Pages
+bun run dev
 ```
 
-Set `BUILD_DAY=YYYY-MM-DD` to pin the as-of stamp; it defaults to the build day in UTC.
+Then open the URL Vite prints (usually http://localhost:5173).
 
-## Adding a project
+## Everyday commands
 
-Add an entry to `app/portfolio/content/projects.ts`. The build validates it: unique slug, no filler text, a ship date when shipped, real link destinations. A project page and a work-index row appear on the next build.
+| Command                    | What it does                                                         |
+| -------------------------- | -------------------------------------------------------------------- |
+| `bun run dev`              | Starts the dev server with hot reload.                               |
+| `bun run build`            | Typechecks, builds, and prerenders every page into `build/`.         |
+| `bun run preview`          | Serves `build/` the way Cloudflare Pages will, on port 4173.         |
+| `bun run test`             | Unit and component tests (Vitest).                                   |
+| `bun run test:integration` | Renders pages on the server, as the build does, and checks the HTML. |
+| `bun run test:e2e`         | Builds the site and drives it in a real browser (Playwright).        |
+| `bun run check`            | Everything CI runs: lint, build, and all three test suites.          |
+| `bun run deploy`           | Uploads `build/` to Cloudflare Pages by hand. Normally CI does this. |
+
+Run `bun run check` before opening a pull request. If it passes locally, CI will
+almost always pass too.
+
+## Where things live
+
+```text
+app/
+  portfolio/   The content and the rules about it
+    content/   Projects, studies and profile, as typed data. Edit these to change the site.
+    domain/    Status lines, dates, ordering and validation
+  site/        Routes, pages, layout and the 3D/2D toggle
+  tome/        The 3D book: the Three.js engine and the text painted on its pages
+  styles/      Design tokens and site CSS
+scripts/       Prerendering and the local Pages-style server
+tests/e2e/     Browser tests
+docs/          Guides (below)
+```
+
+## Guides
+
+- [How the site fits together](docs/architecture.md): content to rules to pages to
+  static HTML, and where each kind of change belongs.
+- [Adding or editing a project or study](docs/content.md): the fields, the checks
+  the build runs, and what the 3D book needs.
+- [How the Tome works](docs/the-tome.md): loading, the engine's handle, switching
+  between 3D and 2D, and how to debug the 3D scene.
+- [Deploying](docs/deploying.md): how CI ships to Cloudflare Pages, and how to check a
+  deploy.
+
+## How changes ship
+
+Every pull request runs the full check and gets a preview URL. Merging to `main`
+deploys to production. If any check fails, nothing deploys.
