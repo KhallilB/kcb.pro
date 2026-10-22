@@ -45,6 +45,21 @@ body {
 /* While the book loads or is open, the list beneath stays out of sight. */
 html[data-tome] .shell {
   visibility: hidden;
+  /* Hidden only once the book has faded in over it. */
+  transition: visibility 0s linear var(--slow);
+}
+
+/* Leaving the book, the page rises into place as the book fades. */
+html[data-tome-left] .header,
+html[data-tome-left] .main {
+  animation: page-rise var(--slow) var(--ease) calc(var(--slow) / 5) both;
+}
+
+@keyframes page-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
 }
 
 html[data-tome='pending'] body {
@@ -65,6 +80,29 @@ html[data-tome='pending'] body {
   background-color: var(--mist);
   color: var(--ink);
   font-family: var(--font-body);
+  transition:
+    opacity var(--slow) var(--ease),
+    transform var(--slow) var(--ease);
+}
+
+/* Asleep: the engine dollies into the page while the overlay swells and fades past the reader. */
+.tome:not([data-shown]) {
+  opacity: 0;
+  transform: scale(1.06);
+  visibility: hidden;
+  pointer-events: none;
+  /* Opacity lags so the dolly into the page reads before the fade. */
+  transition:
+    opacity var(--slow) cubic-bezier(0.65, 0, 0.35, 1),
+    transform var(--slow) var(--ease),
+    visibility 0s linear var(--slow);
+}
+
+@starting-style {
+  .tome[data-shown] {
+    opacity: 0;
+    transform: scale(1.06);
+  }
 }
 
 .tome__fog {
@@ -123,6 +161,14 @@ html[data-tome='pending'] body {
 .tome__stage {
   position: absolute;
   inset: 0;
+}
+
+.tome__host {
+  transition: opacity var(--slow) var(--ease);
+}
+
+.tome:not([data-ready]) .tome__host {
+  opacity: 0;
 }
 
 .tome__stage {
@@ -200,9 +246,13 @@ html[data-tome='pending'] body {
   white-space: nowrap;
 }
 
-/* View toggle: a brass slider set into a leather track. */
+/* View toggle: a brass slider set into a leather track. Fixed at the content column's
+   top-right in both views, over the header's empty slot, so switching never moves it. */
 .view-toggle {
-  position: relative;
+  position: fixed;
+  z-index: 30;
+  inset-block-start: calc(var(--space-6) + env(safe-area-inset-top, 0px));
+  inset-inline-end: max(var(--margin), (100% - var(--max-width)) / 2);
   display: grid;
   grid-template-columns: 1fr 1fr;
   inline-size: var(--toggle-w);
@@ -234,14 +284,6 @@ html[data-tome='pending'] body {
 
 .view-toggle[data-view='list'] .view-toggle__thumb {
   transform: translateX(100%);
-}
-
-/* Over the book it floats in the corner; the engine frames the book below it. */
-.tome ~ .view-toggle {
-  position: fixed;
-  z-index: 30;
-  inset-inline-end: var(--space-4);
-  inset-block-start: calc(var(--space-4) + env(safe-area-inset-top, 0px));
 }
 
 .view-toggle__option {
@@ -280,11 +322,17 @@ html[data-tome='pending'] body {
   outline-offset: 3px;
 }
 
-/* In the header the toggle closes the nav row; on phones it shares the wordmark's row. */
+/* The header keeps the toggle's slot at the end of the nav row; on phones, the wordmark's row. */
 .shell--toggle .header {
   display: grid;
   grid-template-columns: 1fr auto auto;
   align-items: center;
+}
+
+.shell--toggle .header::after {
+  content: '';
+  inline-size: var(--toggle-w);
+  block-size: var(--toggle-h);
 }
 
 @media (max-width: 760px) {
@@ -301,7 +349,7 @@ html[data-tome='pending'] body {
     grid-area: nav;
   }
 
-  .shell--toggle .header .view-toggle {
+  .shell--toggle .header::after {
     grid-area: toggle;
   }
 }

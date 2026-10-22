@@ -23,7 +23,8 @@ async function stubEngine(page: Page) {
         const c = document.createElement('canvas'); c.dataset.chapters = Object.keys(opts.data.chapters).join(',');
         c.style.cssText = 'display:block;width:100%;height:100%';
         c.dataset.insetTop = String(opts.insetTop());
-        host.append(c); return () => host.replaceChildren();
+        host.append(c);
+        return { destroy: () => host.replaceChildren(), show() {}, hide() {}, place: () => null };
       }`,
     })
   )
@@ -41,12 +42,13 @@ test('the tome opens over the home page and steps aside for the list', async ({ 
 
   await view.getByRole('button', { name: '2D list' }).click()
   await expect(view.getByRole('button', { name: '2D list' })).toHaveAttribute('aria-pressed', 'true')
-  await expect(page.locator('.tome')).toHaveCount(0)
+  await expect(page.locator('.tome')).toBeHidden()
   await expect(
     page.getByRole('heading', { level: 1, name: 'Frontend engineer building deep, useful web apps.' })
   ).toBeVisible()
   await view.getByRole('button', { name: '3D book' }).click()
-  await expect(page.locator('.tome[data-ready] canvas')).toBeAttached()
+  await expect(page.locator('.tome[data-shown][data-ready] canvas')).toBeVisible()
+  await expect(page.locator('.tome canvas'), 'the book is kept, not rebuilt').toHaveCount(1)
 })
 
 type Box = { x: number; y: number; width: number; height: number }
@@ -66,12 +68,21 @@ for (const size of [{ width: 1280, height: 800 }, { width: 375, height: 700 }]) 
     expect(insetTop, '3D: no full-width strip is reserved').toBeLessThan(size.height * 0.2)
 
     await toggle.getByRole('button', { name: '2D list' }).click()
-    await expect(page.locator('.tome')).toHaveCount(0)
+    await expect(page.locator('.tome')).toBeHidden()
     const t2 = (await toggle.boundingBox())!
-    expect(await page.locator('.header .view-toggle').count(), '2D: toggle lives in the header').toBe(1)
+    expect(t2, 'the toggle does not move between views').toEqual(t3)
     const content = page.locator('.header a, main h1, main p').filter({ visible: true })
     for (const box of await content.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().toJSON()))) {
       expect(overlaps(t2, box), `2D: toggle over ${JSON.stringify(box)}`).toBe(false)
+    }
+
+    // Other pages keep the toggle in the same place, still covering nothing.
+    for (const link of ['Work', 'Studies']) {
+      await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: link }).click()
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+      expect(await toggle.boundingBox(), `${link}: toggle in place`).toEqual(t3)
+      const boxes = await content.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().toJSON()))
+      for (const box of boxes) expect(overlaps(t2, box), `${link}: toggle over ${JSON.stringify(box)}`).toBe(false)
     }
   })
 }
