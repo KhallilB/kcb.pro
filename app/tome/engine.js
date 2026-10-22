@@ -1517,7 +1517,8 @@ export function mountTome(host, opts) {
     const flippedFrac = sheets.reduce((a, s) => a + ease(s.t), 0) / N;
     const leftT = PT * flippedFrac * co, rightT = PT * (1 - flippedFrac * co) + 0.0001;
     // Open, both stacks sit at one height (half the block each side) so no page rises or sinks as leaves cross; closed, the full block is on the right.
-    const HB = PT * (1 - co) + PT / 2 * co, LB = PT / 2 * co;
+    // The left half forms under the landing cover; grown any earlier it floats past the spine as a sliver.
+    const HB = PT * (1 - co) + PT / 2 * co, LB = PT / 2 * co * smooth((co - 0.8) / 0.2);
     blockR.scale.z = HB; blockR.position.set(W / 2, 0, -PT + HB / 2);
     blockL.visible = LB > 0.002; blockL.scale.z = Math.max(LB, 0.0001); blockL.position.set(-W / 2, 0, -PT + LB / 2);
     backCover.position.set(0, 0, -PT - CT);
