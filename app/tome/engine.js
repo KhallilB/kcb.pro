@@ -154,7 +154,7 @@ export function mountTome(host, opts) {
     rule(ctx, m, y);
     smallcaps(ctx, 'Build log', m.L, y + 64);
     ctx.fillStyle = P.muted; ctx.font = font(30, 400, BODY, true);
-    wrap(ctx, 'Nothing linked yet. Commits and the changelog appear here once the GitHub repo is connected.', m.L, y + 116, m.w, 42);
+    wrap(ctx, 'Nothing here yet. Recent changes will appear once the project’s code is connected.', m.L, y + 116, m.w, 42);
     footnote(ctx, m, d.status, TH - 158);
   };
   const notesPage = (ctx, side, title, folio, d) => {
@@ -198,7 +198,7 @@ export function mountTome(host, opts) {
     contents(ctx, hs) {
       const m = parchment(ctx, 'R', 'Contents', 'i');
       heading(ctx, m, 'Contents', 260);
-      const rows = [['About', 'Who wrote this book', 'ii', 2, 0], [D.deckWorkshop.title, 'Chapter I', '1', 2, 1], [D.mugenArena.title, 'Chapter II', '3', 3, 2], [D.wander.title, 'Chapter III', '5', 4, 3], ['Work studies', 'Three explorable essays', '7', 5, 4], ['Contact', 'Where to find me', '9', 6, 5], ['Colophon', 'How this book was made', '10', 7, 5]];
+      const rows = [['About', 'Who wrote this book', 'ii', 2, 0], [D.deckWorkshop.title, 'Chapter I', '1', 2, 1], [D.mugenArena.title, 'Chapter II', '3', 3, 2], [D.wander.title, 'Chapter III', '5', 4, 3], ['Work studies', 'Three short deep dives', '7', 5, 4], ['Contact', 'Where to find me', '9', 6, 5], ['Colophon', 'How this book was made', '10', 7, 5]];
       let y = 360;
       for (const [t, s, n, go, ci] of rows) {
         ctx.fillStyle = SECT[ci]; ctx.globalAlpha = 0.9; ctx.beginPath(); ctx.roundRect(m.L, y + 10, 14, 68, 4); ctx.fill(); ctx.globalAlpha = 1;
@@ -248,7 +248,7 @@ export function mountTome(host, opts) {
         y = yy + 52;
       }
       rule(ctx, m, y);
-      para(ctx, m, 'One-week explorable essays, each with a built slice that hands the kit one piece.', y + 56, 28, 38);
+      para(ctx, m, 'One-week deep dives, each ending in a small working piece a project will reuse.', y + 56, 28, 38);
     },
     studyNotes(ctx) {
       const m = parchment(ctx, 'L', 'Notes', '8');
@@ -261,7 +261,7 @@ export function mountTome(host, opts) {
       heading(ctx, m, 'Find me', 280, 70);
       let y = para(ctx, m, data.contactLine, 400, 34, 48) + 30;
       rule(ctx, m, y);
-      for (const [k, v, act] of [['Code', data.github.label, () => window.open(data.github.href, '_blank', 'noopener')], ['Everything as a list', 'kcb.pro/work', () => onNavigate('/work')]]) {
+      for (const [k, v, act] of [['Code', data.github.label, () => window.open(data.github.href, '_blank', 'noopener')], ['All my work', 'kcb.pro/work', () => onNavigate('/work')]]) {
         smallcaps(ctx, k, m.L, y + 56);
         ctx.fillStyle = P.accent; ctx.font = font(40, 600); ctx.fillText(v, m.L, y + 112);
         hs.push({ x: m.L, y: y + 20, w: m.w, h: 120, act });
@@ -272,7 +272,7 @@ export function mountTome(host, opts) {
       const m = parchment(ctx, 'L', 'Colophon', '10');
       heading(ctx, m, 'Colophon', 270);
       let y = 400;
-      for (const [k, v] of [['Type', 'Cinzel for titles, EB Garamond for reading.'], ['Pages', 'Painted to canvas, mapped onto planes in Three.js that bend as they turn.'], ['Covers', 'Low-poly leather, brass and an emerald, all built from code.'], ['Chapters', 'A ribbon marks where each chapter starts.'], ['Access', 'Everything here is also a plain list: press L or use the button at the top.'], ['Bound', data.asOf]]) {
+      for (const [k, v] of [['Type', 'Cinzel for titles, EB Garamond for reading.'], ['Pages', 'Painted in the browser, then wrapped onto pages in Three.js that bend as they turn.'], ['Covers', 'Leather, brass and an emerald, all made in code with no image files.'], ['Chapters', 'A ribbon marks where each chapter starts.'], ['Access', 'Everything here is also a plain website: press L, or use the 3D/2D switch at the top.'], ['Bound', data.asOf]]) {
         smallcaps(ctx, k, m.L, y);
         y = para(ctx, m, v, y + 50, 30, 42) + 30;
       }

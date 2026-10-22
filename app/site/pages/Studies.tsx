@@ -15,9 +15,10 @@ export function StudiesIndex() {
       <header className="page-head">
         <h1 className="h1">Work studies</h1>
         <p className="lede">
-          One-week explorable essays: a teardown of a modern system, or a
-          reimagining of software people are forced to use, each with a built
-          slice that hands the kit one piece.
+          Short, one-week deep dives. Each one either takes apart how a
+          well-known app works, or redesigns software people have no choice but
+          to use. Each ends with a small working piece that one of my projects
+          will reuse.
         </p>
       </header>
       <ul className="rows">
@@ -65,15 +66,15 @@ export function StudyPage() {
               <dd>{formatLabel(study.format)}</dd>
             </div>
             <div>
-              <dt>Built slice</dt>
+              <dt>What I’ll build</dt>
               <dd>{study.builtSlice}</dd>
             </div>
             <div>
-              <dt>Gives the kit</dt>
+              <dt>What it gives the projects</dt>
               <dd>{study.kitPiece}</dd>
             </div>
             <div>
-              <dt>Feeds</dt>
+              <dt>Used by</dt>
               <dd>
                 {fed.map((p, i) => (
                   <span key={p.slug}>
