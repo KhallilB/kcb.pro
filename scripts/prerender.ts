@@ -35,8 +35,8 @@ function page(path: string): string {
 
 const paths: string[] = sitePaths(content)
 for (const path of paths) {
-  const file =
-    path === '/' ? join(BUILD, 'index.html') : join(BUILD, path, 'index.html')
+  // <path>.html, not <path>/index.html: Pages 308s a folder index to a trailing-slash URL.
+  const file = path === '/' ? join(BUILD, 'index.html') : join(BUILD, `${path}.html`)
   await mkdir(dirname(file), { recursive: true })
   await writeFile(file, page(path))
 }
