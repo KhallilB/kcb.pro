@@ -1,6 +1,6 @@
 name: CI
 
-# Deploys are Cloudflare Pages Git builds (see DEPLOY.md); this workflow only gates.
+# Gates every change, then uploads the gated build to Cloudflare Pages (see DEPLOY.md).
 on:
   pull_request:
   push:
@@ -38,6 +38,13 @@ jobs:
       - name: Build
         run: bun run build:client
 
+      - name: Keep the build for deploy
+        uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: build
+          retention-days: 3
+
       - name: Unit tests
         run: bun run test:unit
 
@@ -59,3 +66,35 @@ jobs:
             playwright-report
             test-results
           retention-days: 7
+
+  # main ships production; a same-repo PR gets a preview URL. Forks have no secret, so no deploy.
+  deploy:
+    needs: gate
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: deploy-${{ github.ref }}
+      cancel-in-progress: false
+    steps:
+      - name: Fetch the gated build
+        uses: actions/download-artifact@v4
+        with:
+          name: site
+          path: build
+
+      - name: Deploy to Cloudflare Pages
+        id: pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: 0b827447f7f4b7fc3434ebb1a9bdef91
+          wranglerVersion: '4.151.3'
+          command: >-
+            pages deploy build --project-name=kcb-pro
+            --branch=${{ github.head_ref || github.ref_name }}
+            --commit-hash=${{ github.event.pull_request.head.sha || github.sha }}
+            --commit-dirty=true
+
+      - name: Report the URL
+        run: echo "Deployed to ${{ steps.pages.outputs.deployment-url }}" >> "$GITHUB_STEP_SUMMARY"

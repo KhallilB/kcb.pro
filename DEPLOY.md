@@ -1,97 +1,76 @@
 # Deploying kcb.pro
 
-kcb.pro deploys through **Cloudflare Pages Git builds**. A push to `main` builds and
-ships production; any other branch or PR gets a preview URL. GitHub Actions
-(`.github/workflows/ci.yml`) only gates: lint, typecheck, build, unit, integration and
-e2e tests. It never deploys, and it needs no Cloudflare secret.
+kcb.pro is a static, prerendered site on **Cloudflare Pages**. GitHub Actions
+(`.github/workflows/ci.yml`) builds it once, runs every check against that build, and
+only then uploads the same `build/` folder to Pages:
 
-| Thing           | Value                              |
-| --------------- | ---------------------------------- |
-| Cloudflare acct | `0b827447f7f4b7fc3434ebb1a9bdef91` |
-| Pages project   | `kcb-pro` (`kcb-pro.pages.dev`)    |
-| Production      | `main`                             |
-| Output          | `build/`                           |
-| Bun             | `1.3.11` (same in CI and Pages)    |
+| Event                  | Gate | Deploy                                   |
+| ---------------------- | ---- | ---------------------------------------- |
+| Push to `main`         | yes  | **Production** (kcb.pro)                 |
+| PR from this repo      | yes  | Preview: `<branch>.kcb-pro.pages.dev`    |
+| PR from a fork         | yes  | none (forks get no secrets)              |
 
-## One-time dashboard setup
+A failing check means no deploy. The Pages project uses Direct Upload, so it has no
+Git connection and no build settings of its own; the workflow is the whole pipeline.
 
-These are dashboard clicks; nothing in the repo does them.
+| Thing           | Value                                       |
+| --------------- | ------------------------------------------- |
+| Cloudflare acct | `0b827447f7f4b7fc3434ebb1a9bdef91`          |
+| Pages project   | `kcb-pro` (`kcb-pro.pages.dev`)             |
+| Production      | `main`                                      |
+| Output          | `build/`                                    |
+| Bun / Wrangler  | `1.3.11` / `4.151.3`                        |
+| Repo secret     | `CLOUDFLARE_API_TOKEN` (Pages: Edit)        |
 
-### 1. Reconnect the GitHub repo
+## One-time setup
 
-Workers & Pages → **kcb-pro** → Settings → **Builds**.
+### 1. API token and repo secret
 
-- If the Git repository shows as disconnected or errors, choose **Manage** /
-  **Connect**, authorise the Cloudflare Pages GitHub app for `KhallilB/kcb.pro`, and
-  pick that repo.
-- Build system version: **3** (needed for `BUN_VERSION` ≥ 1.2).
+Cloudflare → My Profile → **API Tokens** → Create Token → Custom token:
 
-### 2. Build configuration
+- Permissions: **Account · Cloudflare Pages · Edit**
+- Account resources: the account above only
 
-| Setting                | Value                                                   |
-| ---------------------- | ------------------------------------------------------- |
-| Production branch      | `main`                                                  |
-| Framework preset       | None                                                    |
-| Build command          | `bun install --frozen-lockfile && bun run build:client` |
-| Build output directory | `build`                                                 |
-| Root directory         | `/` (leave blank)                                       |
+Add it to the repo (paste when prompted; it never lands in a file or shell history):
 
-Preview branches: **All non-production branches** (or _None_ to save build minutes).
-The old `prod-client` / `prod-server` preview branches are retired; remove them from
-any include list.
+```bash
+gh secret set CLOUDFLARE_API_TOKEN --repo KhallilB/kcb.pro
+```
 
-Why the install is in the build command: installing with Bun explicitly, and skipping
-Pages' automatic install (below), keeps the build on the same frozen `bun.lock` CI
-uses. `package.json` declares `"packageManager": "bun@1.3.11"` to match.
+Re-run CI on any open PR: the `deploy` job should post a preview URL in the run summary.
 
-### 3. Build variables (Production **and** Preview)
+### 2. Stop Render from deploying
 
-| Variable                  | Value             | Note                                                         |
-| ------------------------- | ----------------- | ------------------------------------------------------------ |
-| `BUN_VERSION`             | `1.3.11`          | Matches CI and `bun.lock`.                                   |
-| `SKIP_DEPENDENCY_INSTALL` | `1`               | Build command does the Bun install.                          |
-| `BUILD_DAY`               | e.g. `2026-10-21` | Optional; pins the gallery's build date (unset = build day). |
+Until the domains move, Render still serves kcb.pro and rebuilds on every push to
+`main`. Before merging to `main`: Render → kcb.pro service → Settings →
+**Auto-Deploy: No**. Render keeps serving its last build.
 
-### 4. Trigger the first build
+### 3. First production deploy
 
-Push a commit to `main` (merging the PR that adds this file does it). Do **not**
-retry the old production deploy: it was built from `a96f5b3`, which no longer
-exists after the Feb 2026 reset of `main`. Then run the checks in [Verifying a deploy](#verifying-a-deploy) against the new
-`<hash>.kcb-pro.pages.dev` URL **before** moving the domain.
-
-### 5. Attach the custom domains
-
-kcb-pro → **Custom domains** → Set up a domain:
-
-1. `kcb.pro`
-2. `www.kcb.pro`
-
-The zone is already on Cloudflare, so Pages offers to write the DNS records: accept
-replacing the existing Render records with proxied CNAMEs to `kcb-pro.pages.dev`.
-Confirm the dashboard shows both as **Active** with a certificate.
-
-Canonical host: today `kcb.pro` 301s to `www`. Keep one direction with a Redirect
-Rule (Rules → Redirect Rules) or a `public/_redirects` entry, not both.
-
-### 6. Retire Render
-
-Only after `https://www.kcb.pro` and `https://kcb.pro` pass the checks below **and**
-no longer return an `rndr-id` response header:
-
-1. Render → kcb.pro service → Settings → **Auto-Deploy: No**.
-2. Watch for a day, then **Suspend** (or delete) the service.
-
-## Verifying a deploy
-
-Run from the repo, logged in to Wrangler:
+Merge to `main`. Check the newest Production row and its URL:
 
 ```bash
 bunx wrangler pages deployment list --project-name kcb-pro
 ```
 
-The newest **Production** row must show `Branch main`, `Source` = the commit you
-pushed (`git rev-parse --short origin/main`), and a non-failed status. Then curl that
-row's deployment URL (and later the custom domains):
+Run [Verifying a deploy](#verifying-a-deploy) against that `<hash>.kcb-pro.pages.dev`
+URL **before** moving the domains.
+
+### 4. Attach the custom domains
+
+Pages → kcb-pro → **Custom domains** → Set up a domain: `www.kcb.pro`, then `kcb.pro`.
+The zone is on Cloudflare, so Pages offers to rewrite the DNS records: accept replacing
+the Render records. Both must show **Active** with a certificate.
+
+`kcb.pro` already 301s to `www` through a Cloudflare rule; keep that one redirect and
+add none in the repo.
+
+### 5. Retire Render
+
+Once both domains pass the checks below with **no** `rndr-id` header, suspend (later
+delete) the Render service.
+
+## Verifying a deploy
 
 ```bash
 URL=https://<hash>.kcb-pro.pages.dev
@@ -101,13 +80,19 @@ done
 curl -sI https://www.kcb.pro | grep -iE '^(server|cf-ray|rndr-id)'
 ```
 
-Expected:
-
-| Path                  | Expect                                 | Why                                                                                               |
-| --------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `/`                   | 200                                    | Body is the app's `index.html`, not Cloudflare's placeholder.                                     |
-| `/work/deck-workshop` | 200                                    | A prerendered project page.                                                                       |
-| unknown path          | 404                                    | Pages serves `build/404.html` with a 404 status.                                                  |
-| custom domain headers | `server: cloudflare`, **no** `rndr-id` | Render no longer in the path.                                                                     |
+| Path                  | Expect                                 | Why                                               |
+| --------------------- | -------------------------------------- | ------------------------------------------------- |
+| `/`                   | 200                                    | The app's `index.html`, not a placeholder.        |
+| `/work/deck-workshop` | 200                                    | A prerendered project page.                       |
+| unknown path          | 404                                    | Pages serves `build/404.html` with a 404 status.  |
+| custom domain headers | `server: cloudflare`, **no** `rndr-id` | Render is out of the path.                        |
 
 Also confirm the body is real: `curl -s $URL/ | grep -o '<title>[^<]*'`.
+
+## Manual deploy
+
+From a clean checkout of `main`, logged in to Wrangler:
+
+```bash
+bun run build:client && bun run deploy:client
+```
