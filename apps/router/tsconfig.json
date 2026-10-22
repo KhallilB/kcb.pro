@@ -1,8 +1,0 @@
-{
-  "extends": "../../tsconfig.app.json",
-  "compilerOptions": {
-    "tsBuildInfoFile": "../../node_modules/.cache/tsbuildinfo/router-app",
-    "outDir": "../../dist/apps/router"
-  },
-  "include": ["src", "../home/src"]
-}
