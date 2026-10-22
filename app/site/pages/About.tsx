@@ -8,28 +8,30 @@ export function About() {
       <header className="page-head">
         <h1 className="h1">About</h1>
         <p className="lede">
-          {profile.role}. I build deep, useful web apps and write down how they
-          were made.
+          {profile.role}. I build web apps that do real work, and I write down
+          how I made them.
         </p>
       </header>
       <div className="prose prose--solo">
         <h2 className="h2">How I work</h2>
         <p>
-          Each project is chosen to learn one hard engineering domain no other
-          project here covers: local-first desktop software that reads its own
-          evidence from game logs, a deterministic real-time simulation, and a
-          map built from open city data.
+          I pick each project to learn one hard area of engineering that the
+          others don’t cover: a desktop app that keeps your data on your own
+          machine and learns from a game’s logs, a fighting game that plays out
+          exactly the same on every computer, and a map built from cities’ open
+          data.
         </p>
         <p>
-          Every claim on this site carries a date. Status comes from the
-          project, not from adjectives, and nothing is shown as finished before
-          it is.
+          Everything on this site has a date next to it. A project’s status
+          says where it really stands, not how I’d like it to sound, and
+          nothing is called finished before it is.
         </p>
         <p>
-          AI speeds the mechanical parts of the work, such as test scaffolding,
-          codemods and first drafts. Architecture, hard UI code and visual
-          design stay mine, and each repo keeps a ledger of what AI drafted,
-          what I rewrote and what I rejected.
+          I use AI to speed up the repetitive parts of the work, like setting up
+          tests, making the same change across many files, and first drafts.
+          The overall design, the tricky interface code and the visual design
+          are mine. Each project keeps a record of what AI drafted, what I
+          rewrote and what I threw away.
         </p>
         <h2 className="h2">Elsewhere</h2>
         <ul className="plain">
@@ -40,7 +42,7 @@ export function About() {
           </li>
           <li>
             <Link to="/work" className="link">
-              Everything I have built <span aria-hidden="true">→</span>
+              See all my work <span aria-hidden="true">→</span>
             </Link>
           </li>
         </ul>

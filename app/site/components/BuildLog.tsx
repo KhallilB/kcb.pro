@@ -6,8 +6,8 @@ export function BuildLog() {
         Build log
       </h2>
       <p className="build-log__empty">
-        Nothing linked yet. Commits and the changelog show here once the
-        GitHub repo is connected.
+        Nothing here yet. Recent changes will appear once the project’s code
+        is connected.
       </p>
     </section>
   )

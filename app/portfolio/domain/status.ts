@@ -2,7 +2,7 @@ import { formatDay, formatMonth } from './dates'
 import type { Dated, IsoDay, ProjectStatus, StudyFormat } from './types'
 
 export const formatLabel = (format: StudyFormat) =>
-  format === 'teardown' ? 'Teardown' : 'Reimagining'
+  format === 'teardown' ? 'Teardown' : 'Redesign'
 
 const LABELS: Record<ProjectStatus, string> = {
   planned: 'Planned',

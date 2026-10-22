@@ -146,7 +146,7 @@ export function Layout() {
         </main>
         <footer className="footer" data-place="contact">
           <span>
-            Built and measured, as of{' '}
+            Last updated{' '}
             <time dateTime={asOf} className="mono">
               {formatDay(asOf)}
             </time>

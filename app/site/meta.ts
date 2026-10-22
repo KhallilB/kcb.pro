@@ -8,7 +8,7 @@ export interface PageMeta {
 }
 
 const DEFAULT_DESCRIPTION =
-  'Three products, each built to learn one hard domain, shipped, measured and written up.'
+  'Three apps I’m building, each one to learn a hard area of engineering, with every project dated.'
 
 const titled = (name: string) => `${name} · ${profile.name}`
 

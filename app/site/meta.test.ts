@@ -8,14 +8,14 @@ describe('pageMeta', () => {
   it('titles a project page with its name and summary', () => {
     expect(pageMeta('/work/wander')).toEqual({
       title: 'Wander · Khallil Bailey',
-      description: 'The city as layers: then and now on the street you stand on.',
+      description: 'A map of what is around you, then and now.',
       status: 200,
     })
   })
 
   it('titles a study page with the study', () => {
     expect(pageMeta('/studies/figma-canvas').title).toBe(
-      'Figma’s canvas pan, zoom and multiplayer cursors · Khallil Bailey'
+      'How Figma’s canvas stays smooth with everyone on it · Khallil Bailey'
     )
   })
 
