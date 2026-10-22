@@ -1379,10 +1379,21 @@ export function mountTome(host, opts) {
     if (current >= 1 && !ribbonHinted) { ribbonHinted = true; hint.textContent = 'Pull a colored ribbon to jump to a chapter'; hint.classList.remove('gone'); setTimeout(() => hint.classList.add('gone'), 4500); }
     else hint.classList.add('gone');
   }
+  // Site places (see place.ts) to spreads, and the face being read back to its place.
+  const PLACE_AT = { contents: [1, 'right'], about: [2, 'left'], 'deck-workshop': [2, 'right'], 'mugen-arena': [3, 'right'], wander: [4, 'right'], studies: [5, 'right'], contact: [6, 'right'] };
+  const FACE_PLACE = { contents: 'contents', about: 'about', deckWorkshop: 'deck-workshop', deckWorkshopNotes: 'deck-workshop', mugenArena: 'mugen-arena', mugenArenaNotes: 'mugen-arena', wander: 'wander', wanderNotes: 'wander', studies: 'studies', studyNotes: 'studies', contact: 'contact', colophon: 'contact' };
+  function placeNow() {
+    if (current === 0) return null;
+    if (current === 1) return 'contents';
+    const left = SHEETS[current - 2][1], right = SHEETS[current - 1] && SHEETS[current - 1][0];
+    return FACE_PLACE[(portrait() && focus === 'left') || !right ? left : right] || null;
+  }
+  function turnTo(place) { const at = PLACE_AT[place]; if (!at) return; focus = at[1]; goTo(at[0], true); }
   function next() { if (portrait() && current >= 1 && focus === 'left') { focus = 'right'; return; } goTo(current + 1); }
   function prev() { if (portrait() && current >= 1 && focus === 'right') { focus = 'left'; return; } goTo(current - 1); }
 
   addEventListener('keydown', (e) => {
+    if (!awake) return;
     if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); next(); }
     else if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); prev(); }
     else if (e.key === 'Home') goTo(0);
@@ -1437,6 +1448,8 @@ export function mountTome(host, opts) {
   });
   let hoverCover = false, hoverRibbon = -1;
   stage.addEventListener('pointerup', (e) => {
+    const tr = stage.getBoundingClientRect();
+    lastTap = { x: ((e.clientX - tr.left) / tr.width) * 2 - 1, y: -((e.clientY - tr.top) / tr.height) * 2 + 1, at: performance.now() };
     if (dragSpot) { dragSpot = null; down = null; return; }
     if (!down) return;
     const dx = e.clientX - down.x, dy = e.clientY - down.y, hit = down.hit; down = null;
@@ -1474,6 +1487,23 @@ export function mountTome(host, opts) {
   }
   addEventListener('resize', resize, sig);
 
+  // ---------- sleep ----------
+  // Hidden, the camera dollies into the page last touched, then the loop stops; show() reverses it.
+  let awake = true, started = false, running = false, doze = 0, dozeTo = 0, aimX = 0, aimY = 0, lastTap = null;
+  const DOZE = 0.6;
+  function sleep() {
+    if (!awake) return;
+    awake = false; dozeTo = 1; tip.hidden = true;
+    const tap = lastTap && performance.now() - lastTap.at < 1500 ? lastTap : { x: 0, y: 0 };
+    const halfH = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camZ;
+    aimX = tap.x * halfH * camera.aspect * 0.7; aimY = tap.y * halfH * 0.7;
+  }
+  function wake(place) {
+    awake = true; dozeTo = 0;
+    if (place) turnTo(place);
+    if (started && !running && alive) { running = true; last = performance.now(); resize(); raf = requestAnimationFrame(loop); }
+  }
+
   // ---------- loop ----------
   let last = performance.now(), openO = 0, clock = 0;
   function step(s, now, dt) {
@@ -1487,7 +1517,8 @@ export function mountTome(host, opts) {
     const flippedFrac = sheets.reduce((a, s) => a + ease(s.t), 0) / N;
     const leftT = PT * flippedFrac * co, rightT = PT * (1 - flippedFrac * co) + 0.0001;
     // Open, both stacks sit at one height (half the block each side) so no page rises or sinks as leaves cross; closed, the full block is on the right.
-    const HB = PT * (1 - co) + PT / 2 * co, LB = PT / 2 * co;
+    // The left half forms under the landing cover; grown any earlier it floats past the spine as a sliver.
+    const HB = PT * (1 - co) + PT / 2 * co, LB = PT / 2 * co * smooth((co - 0.8) / 0.2);
     blockR.scale.z = HB; blockR.position.set(W / 2, 0, -PT + HB / 2);
     blockL.visible = LB > 0.002; blockL.scale.z = Math.max(LB, 0.0001); blockL.position.set(-W / 2, 0, -PT + LB / 2);
     backCover.position.set(0, 0, -PT - CT);
@@ -1535,26 +1566,33 @@ export function mountTome(host, opts) {
     if (!reduce) { for (let i = 0; i < MC; i++) { mp[i * 3 + 1] += dt * 0.05; if (mp[i * 3 + 1] > 1.6) mp[i * 3 + 1] = -1.6; } motes.geometry.attributes.position.needsUpdate = true; }
     const f = fitTarget(); camZ += (f.z - camZ) * Math.min(1, dt * 3); camX += (f.x - camX) * Math.min(1, dt * 3);
     camY += ((current === 0 ? -0.16 : -0.2) + f.y - camY) * Math.min(1, dt * 3);
+    doze = reduce ? dozeTo : dozeTo > doze ? Math.min(dozeTo, doze + dt / DOZE) : Math.max(dozeTo, doze - dt / DOZE);
+    const dz = ease(doze), z = camZ * (1 - 0.62 * dz), lx = camX + aimX * dz, ly = camY + aimY * dz;
     // Camera looks down a little so the floor reads as a plane the shadow lies on.
-    const pitch = THREE.MathUtils.degToRad(10 * (1 - openO) + 6 * openO);
-    camera.position.set(camX, camY + camZ * Math.tan(pitch), camZ); camera.lookAt(camX, camY, 0);
+    const pitch = THREE.MathUtils.degToRad((10 * (1 - openO) + 6 * openO) * (1 - dz));
+    camera.position.set(lx, ly + z * Math.tan(pitch), z); camera.lookAt(lx, ly, 0);
     renderer.render(scene, camera);
-    if (alive) raf = requestAnimationFrame(loop);
+    if (alive && (awake || doze < 1)) raf = requestAnimationFrame(loop); else running = false;
   }
 
   const fontsReady = Promise.all([document.fonts.load('700 60px "Cinzel"'), document.fonts.load('500 20px "Cinzel"'), document.fonts.load('400 30px "EB Garamond"'), document.fonts.load('italic 400 30px "EB Garamond"'), document.fonts.load('600 30px "EB Garamond"')]).catch(() => {});
   Promise.race([fontsReady, new Promise((r) => setTimeout(r, 2500))]).then(() => {
     Object.keys(faceTex).forEach(redraw); Object.keys(faceTex).forEach(redraw);
     if (!alive) return;
-    resize(); raf = requestAnimationFrame(loop);
+    started = running = true; resize(); raf = requestAnimationFrame(loop);
   });
 
-  return function destroy() {
-    alive = false; ac.abort(); cancelAnimationFrame(raf);
-    scene.traverse((o) => {
-      if (o.geometry) o.geometry.dispose();
-      for (const m of [].concat(o.material || [])) { for (const v of Object.values(m)) if (v && v.isTexture) v.dispose(); m.dispose(); }
-    });
-    renderer.dispose(); host.replaceChildren();
+  return {
+    show: wake,
+    hide: sleep,
+    place: placeNow,
+    destroy() {
+      alive = false; ac.abort(); cancelAnimationFrame(raf);
+      scene.traverse((o) => {
+        if (o.geometry) o.geometry.dispose();
+        for (const m of [].concat(o.material || [])) { for (const v of Object.values(m)) if (v && v.isTexture) v.dispose(); m.dispose(); }
+      });
+      renderer.dispose(); host.replaceChildren();
+    },
   };
 }
