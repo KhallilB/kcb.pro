@@ -12,13 +12,15 @@ website with the same stuff on it.
 
 ## What's in it
 
-Three projects I'm working on:
+Two projects I'm working on:
 
-- Deck Workshop keeps every version of your Hearthstone deck, so you can tell
-  whether a change actually helped.
-- Mugen Arena is a fighting game where each fighter is a text file. Edit a move, then
-  go fight with it.
-- Wander is a map that tells you what's around you, and what used to be there.
+- Bezl runs several AI coding assistants on the same task in one window. One of them
+  may write, the others may only review, and everything they do is logged.
+- kbui is the design system my projects share: one set of tokens, plain CSS, and
+  React components on top.
+
+Deck Workshop, Mugen Arena and Wander are still in the content files, hidden from the
+site for now.
 
 There are also three "work studies". In each one I spend a week figuring out how
 something works (Figma's canvas, map labels) or how it should work (a state benefits

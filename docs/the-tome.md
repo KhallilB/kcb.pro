@@ -31,7 +31,7 @@ The Tome is the 3D book on the home page. It's built with Three.js r128 and live
 ```ts
 const book = mountTome(host, { data, onList, onNavigate, insetTop })
 
-book.show(place) // wake up; turn to a place such as 'wander' if given
+book.show(place) // wake up; turn to a place such as 'kbui' if given
 book.hide() // zoom into the page and go to sleep
 book.place() // which chapter is open now, or null while closed
 book.destroy() // free the WebGL context and every texture
@@ -57,14 +57,13 @@ The book is built once and then kept. Switching to 2D doesn't destroy it:
   | Book chapter      | Site page                  |
   | ----------------- | -------------------------- |
   | About             | `/about`                   |
-  | Deck Workshop     | `/work/deck-workshop`      |
-  | Mugen Arena       | `/work/mugen-arena`        |
-  | Wander            | `/work/wander`             |
+  | Bezl              | `/work/bezl`               |
+  | kbui              | `/work/kbui`               |
   | Work studies      | `/studies` and every study |
   | Contents, Contact | stay where you are         |
 
-  Press 3D on `/work/wander` and the book opens at Wander. Turn to Mugen Arena and
-  press 2D, and you land on `/work/mugen-arena`. On the home page, 2D scrolls the list
+  Press 3D on `/work/kbui` and the book opens at kbui. Turn to Bezl and press 2D,
+  and you land on `/work/bezl`. On the home page, 2D scrolls the list
   to the card for the chapter you were reading instead.
 
 With "reduce motion" turned on, every transition is instant.
