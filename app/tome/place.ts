@@ -22,3 +22,11 @@ export function placeOfPath(pathname: string): TomePlace | null {
   if (section === 'work' && slug && isTomePlace(slug)) return slug
   return null
 }
+
+// The 2D page that says what a book place says; null where the list itself is that page.
+export function pathOfPlace(place: TomePlace): string | null {
+  if (place === 'about') return '/about'
+  if (place === 'studies') return '/studies'
+  if (place === 'contents' || place === 'contact') return null
+  return `/work/${place}`
+}

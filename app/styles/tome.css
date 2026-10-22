@@ -246,9 +246,13 @@ html[data-tome='pending'] body {
   white-space: nowrap;
 }
 
-/* View toggle: a brass slider set into a leather track. */
+/* View toggle: a brass slider set into a leather track. Fixed at the content column's
+   top-right in both views, over the header's empty slot, so switching never moves it. */
 .view-toggle {
-  position: relative;
+  position: fixed;
+  z-index: 30;
+  inset-block-start: calc(var(--space-6) + env(safe-area-inset-top, 0px));
+  inset-inline-end: max(var(--margin), (100% - var(--max-width)) / 2);
   display: grid;
   grid-template-columns: 1fr 1fr;
   inline-size: var(--toggle-w);
@@ -280,14 +284,6 @@ html[data-tome='pending'] body {
 
 .view-toggle[data-view='list'] .view-toggle__thumb {
   transform: translateX(100%);
-}
-
-/* Over the book it floats in the corner; the engine frames the book below it. */
-.tome ~ .view-toggle {
-  position: fixed;
-  z-index: 30;
-  inset-inline-end: var(--space-4);
-  inset-block-start: calc(var(--space-4) + env(safe-area-inset-top, 0px));
 }
 
 .view-toggle__option {
@@ -326,11 +322,17 @@ html[data-tome='pending'] body {
   outline-offset: 3px;
 }
 
-/* In the header the toggle closes the nav row; on phones it shares the wordmark's row. */
+/* The header keeps the toggle's slot at the end of the nav row; on phones, the wordmark's row. */
 .shell--toggle .header {
   display: grid;
   grid-template-columns: 1fr auto auto;
   align-items: center;
+}
+
+.shell--toggle .header::after {
+  content: '';
+  inline-size: var(--toggle-w);
+  block-size: var(--toggle-h);
 }
 
 @media (max-width: 760px) {
@@ -347,7 +349,7 @@ html[data-tome='pending'] body {
     grid-area: nav;
   }
 
-  .shell--toggle .header .view-toggle {
+  .shell--toggle .header::after {
     grid-area: toggle;
   }
 }

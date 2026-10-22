@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, NavLink, Outlet, useLocation } from 'react-router'
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router'
 import { formatDay } from '@app/portfolio/domain/dates'
 import type { TomeHandle } from '@app/tome/engine.js'
-import { placeOfPath, type TomePlace } from '@app/tome/place'
+import { pathOfPlace, placeOfPath, type TomePlace } from '@app/tome/place'
 import { useHomeView } from '../home-view'
 import { pageMeta } from '../meta'
 import { useSite } from '../site'
@@ -18,14 +18,17 @@ const NAV = [
 export function Layout() {
   const { asOf, profile, tome } = useSite()
   const { pathname } = useLocation()
+  const navigate = useNavigate()
   const [view, setView] = useHomeView()
   // Unknown until hydration; false hides the book and its toggle for good.
   const [tomeWorks, setTomeWorks] = useState<boolean | null>(null)
   const isHome = pathname === '/'
-  const canTome = isHome && tomeWorks === true
+  const canTome = tomeWorks === true
+  // Off home the book opens only where the reader asked for it, never on arrival.
+  const [tomePath, setTomePath] = useState<string | null>(null)
 
   useEffect(() => setTomeWorks(tome.supportsWebGL()), [tome])
-  const stageOn = canTome && view === 'tome'
+  const stageOn = canTome && view === 'tome' && (isHome || pathname === tomePath)
   // Once built the book stays mounted, asleep, across views and pages.
   const [built, setBuilt] = useState(false)
   if (stageOn && !built) setBuilt(true)
@@ -58,16 +61,26 @@ export function Layout() {
     return () => clearTimeout(done)
   }, [stageOn])
 
-  // Leaving the book lands the list on the chapter being read, focus on the content.
+  // Leaving the book shows the chapter being read: its card on home, else its page.
   const showList = () => {
     const place = engine.current?.place()
     setView('list')
+    setTomePath(null)
+    const page = !isHome && place && place !== placeOfPath(pathname) && pathOfPlace(place)
+    if (page) navigate(page)
     requestAnimationFrame(() => {
-      const spot = place && document.querySelector(`[data-place="${place}"]`)
+      const spot = isHome && place && document.querySelector(`[data-place="${place}"]`)
       if (spot) spot.scrollIntoView({ block: 'center' })
-      else window.scrollTo(0, 0)
+      else if (isHome || page) window.scrollTo(0, 0)
       document.getElementById('content')?.focus({ preventScroll: true })
     })
+  }
+  const showTome = () => {
+    if (!isHome) {
+      setTomePath(pathname)
+      arrival.current = placeOfPath(pathname)
+    }
+    setView('tome')
   }
   useEffect(() => {
     document.title = pageMeta(pathname).title
@@ -80,7 +93,7 @@ export function Layout() {
     <ViewToggle
       ref={toggleRef}
       view={stageOn ? 'tome' : 'list'}
-      onChange={(next) => (next === 'list' ? showList() : setView('tome'))}
+      onChange={(next) => (next === 'list' ? showList() : showTome())}
     />
   )
 
@@ -100,15 +113,17 @@ export function Layout() {
           insetTop={insetTop}
         />
       )}
-      {/* Over the book it floats outside the inert page; over the list it sits in the header. */}
-      {stageOn && toggle}
+      {!stageOn && (
+        <a className="skip" href="#content">
+          Skip to content
+        </a>
+      )}
+      {/* One fixed toggle for both views, outside the inert page; the header keeps its slot. */}
+      {toggle}
       <div
         className={canTome ? 'shell shell--toggle' : 'shell'}
         inert={stageOn ? true : undefined}
       >
-        <a className="skip" href="#content">
-          Skip to content
-        </a>
         <header className="header">
           <Link to="/" className="wordmark">
             {profile.name}
@@ -125,7 +140,6 @@ export function Layout() {
               ))}
             </ul>
           </nav>
-          {!stageOn && toggle}
         </header>
         <main id="content" className="main" tabIndex={-1}>
           <Outlet />

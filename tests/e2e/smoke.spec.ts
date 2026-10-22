@@ -70,10 +70,19 @@ for (const size of [{ width: 1280, height: 800 }, { width: 375, height: 700 }]) 
     await toggle.getByRole('button', { name: '2D list' }).click()
     await expect(page.locator('.tome')).toBeHidden()
     const t2 = (await toggle.boundingBox())!
-    expect(await page.locator('.header .view-toggle').count(), '2D: toggle lives in the header').toBe(1)
+    expect(t2, 'the toggle does not move between views').toEqual(t3)
     const content = page.locator('.header a, main h1, main p').filter({ visible: true })
     for (const box of await content.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().toJSON()))) {
       expect(overlaps(t2, box), `2D: toggle over ${JSON.stringify(box)}`).toBe(false)
+    }
+
+    // Other pages keep the toggle in the same place, still covering nothing.
+    for (const link of ['Work', 'Studies']) {
+      await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: link }).click()
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+      expect(await toggle.boundingBox(), `${link}: toggle in place`).toEqual(t3)
+      const boxes = await content.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().toJSON()))
+      for (const box of boxes) expect(overlaps(t2, box), `${link}: toggle over ${JSON.stringify(box)}`).toBe(false)
     }
   })
 }
