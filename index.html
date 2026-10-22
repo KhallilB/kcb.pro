@@ -2,18 +2,27 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link href="/app/index.css" rel="stylesheet" type="text/css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Geist+Mono:wght@100..900&display=swap"
-      rel="stylesheet"
-    />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>KCB</title>
+    <meta name="color-scheme" content="light dark" />
+    <title>Khallil Bailey</title>
+    <meta
+      name="description"
+      content="Three products, each built to learn one hard domain, shipped, measured and written up."
+    />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script>
+      // Home hides the list until the tome mounts; it never stays hidden past 6 s.
+      try {
+        if (location.pathname === '/' && sessionStorage.getItem('kcb:home-view') !== 'list') {
+          var root = document.documentElement
+          root.dataset.tome = 'pending'
+          setTimeout(function () { if (root.dataset.tome === 'pending') delete root.dataset.tome }, 6000)
+        }
+      } catch (e) {}
+    </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"><!--app--></div>
     <script type="module" src="/app/main.tsx"></script>
   </body>
 </html>
