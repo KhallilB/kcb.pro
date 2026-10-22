@@ -1,10 +1,14 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
-import tailwind from '@tailwindcss/vite'
 
-// https://vite.dev/config/
+// One build day for every page; CI can pin it with BUILD_DAY=YYYY-MM-DD.
+const BUILD_DAY = process.env.BUILD_DAY ?? new Date().toISOString().slice(0, 10)
+
 export default defineConfig({
-  plugins: [react(), tailwind()],
+  plugins: [react()],
+  define: {
+    __BUILD_DAY__: JSON.stringify(BUILD_DAY),
+  },
   resolve: {
     alias: {
       '@app': '/app',
@@ -13,12 +17,5 @@ export default defineConfig({
   },
   build: {
     outDir: 'build',
-    rollupOptions: {
-      output: {
-        entryFileNames: 'assets/[name].js',
-        chunkFileNames: 'assets/[name].js',
-        assetFileNames: 'assets/[name].[ext]',
-      },
-    },
   },
 })
