@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef, useState, type Ref } from 'react'
 import type { HomeView } from '../home-view'
 
 const OPTIONS: { view: HomeView; label: string; spoken: string }[] = [
@@ -5,17 +6,33 @@ const OPTIONS: { view: HomeView; label: string; spoken: string }[] = [
   { view: 'list', label: '2D', spoken: ' list' },
 ]
 
-// A brass slider in a leather track: the same control in both views, so switching never moves it.
+// Switching views remounts the toggle elsewhere; the new one starts where the old thumb was.
+let lastShown: HomeView | null = null
+
+// A brass slider in a leather track.
 export function ViewToggle({
   view,
   onChange,
+  ref,
 }: {
   view: HomeView
   onChange: (view: HomeView) => void
+  ref?: Ref<HTMLDivElement>
 }) {
+  const [shown, setShown] = useState(lastShown ?? view)
+  const thumb = useRef<HTMLSpanElement>(null)
+
+  useLayoutEffect(() => {
+    lastShown = view
+    if (shown === view) return
+    // Commit the start position so the slide animates.
+    thumb.current?.getBoundingClientRect()
+    setShown(view)
+  }, [view, shown])
+
   return (
-    <div className="view-toggle" role="group" aria-label="View" data-view={view}>
-      <span className="view-toggle__thumb" aria-hidden="true" />
+    <div ref={ref} className="view-toggle" role="group" aria-label="View" data-view={shown}>
+      <span ref={thumb} className="view-toggle__thumb" aria-hidden="true" />
       {OPTIONS.map((o) => (
         <button
           key={o.view}

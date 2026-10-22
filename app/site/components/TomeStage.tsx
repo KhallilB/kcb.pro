@@ -7,16 +7,18 @@ import { useSite } from '../site'
 export function TomeStage({
   onList,
   onFail,
+  insetTop,
 }: {
   onList: () => void
   onFail: () => void
+  insetTop: () => number
 }) {
   const { asOf, tome } = useSite()
   const navigate = useNavigate()
   const host = useRef<HTMLDivElement>(null)
   const [ready, setReady] = useState(false)
-  const handlers = useRef({ onList, onFail })
-  handlers.current = { onList, onFail }
+  const handlers = useRef({ onList, onFail, insetTop })
+  handlers.current = { onList, onFail, insetTop }
 
   useEffect(() => {
     const el = host.current
@@ -31,6 +33,7 @@ export function TomeStage({
           data: tomeData(asOf),
           onList: () => handlers.current.onList(),
           onNavigate: (path) => navigate(path),
+          insetTop: () => handlers.current.insetTop(),
         })
         if (destroy) setReady(true)
         else handlers.current.onFail()

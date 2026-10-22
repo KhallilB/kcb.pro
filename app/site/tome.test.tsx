@@ -10,6 +10,7 @@ interface Mounted {
   data: TomeData
   onList: () => void
   onNavigate: (path: string) => void
+  insetTop: () => number
 }
 
 function fakeEngine(result: 'mount' | 'fail' = 'mount') {
@@ -80,6 +81,19 @@ describe('the tome on the home page', () => {
     await act(async () => {})
     expect(option('Tome')).toHaveAttribute('aria-pressed', 'true')
     expect(calls).toHaveLength(2)
+  })
+
+  it('tells the engine how much of the top the toggle needs', async () => {
+    const { hooks, calls } = fakeEngine()
+    await visit('/', hooks)
+    expect(calls[0].insetTop()).toBeGreaterThan(0)
+  })
+
+  it('moves into the header in 2D instead of floating', async () => {
+    const { hooks } = fakeEngine()
+    await visit('/', hooks)
+    fireEvent.click(option('List'))
+    expect(within(screen.getByRole('banner')).getByRole('group', { name: 'View' })).toBeInTheDocument()
   })
 
   it('stays outside the inert page so it works while the book is open', async () => {

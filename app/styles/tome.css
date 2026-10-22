@@ -125,11 +125,6 @@ html[data-tome='pending'] body {
   inset: 0;
 }
 
-/* The book renders below a strip reserved for the view toggle, so the toggle never sits on it. */
-.tome__host {
-  inset-block-start: calc(var(--toggle-h) + 2 * var(--space-4) + env(safe-area-inset-top, 0px));
-}
-
 .tome__stage {
   touch-action: none;
 }
@@ -205,12 +200,9 @@ html[data-tome='pending'] body {
   white-space: nowrap;
 }
 
-/* View toggle: a brass slider set into a leather track, fixed so it never moves between views. */
+/* View toggle: a brass slider set into a leather track. */
 .view-toggle {
-  position: fixed;
-  z-index: 30;
-  inset-inline-end: var(--space-4);
-  inset-block-start: calc(var(--space-4) + env(safe-area-inset-top, 0px));
+  position: relative;
   display: grid;
   grid-template-columns: 1fr 1fr;
   inline-size: var(--toggle-w);
@@ -244,9 +236,12 @@ html[data-tome='pending'] body {
   transform: translateX(100%);
 }
 
-/* Over the list it sits in the page's top corner and scrolls away, never over text. */
-.view-toggle[data-view='list'] {
-  position: absolute;
+/* Over the book it floats in the corner; the engine frames the book below it. */
+.tome ~ .view-toggle {
+  position: fixed;
+  z-index: 30;
+  inset-inline-end: var(--space-4);
+  inset-block-start: calc(var(--space-4) + env(safe-area-inset-top, 0px));
 }
 
 .view-toggle__option {
@@ -285,15 +280,29 @@ html[data-tome='pending'] body {
   outline-offset: 3px;
 }
 
-/* Keep the header clear of the fixed toggle. */
+/* In the header the toggle closes the nav row; on phones it shares the wordmark's row. */
 .shell--toggle .header {
-  padding-inline-end: calc(var(--toggle-w) + var(--space-4));
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 760px) {
   .shell--toggle .header {
-    padding-inline-end: 0;
-    padding-block-start: calc(var(--toggle-h) + var(--space-6));
+    grid-template-columns: 1fr auto;
+    grid-template-areas: 'mark toggle' 'nav nav';
+  }
+
+  .shell--toggle .header .wordmark {
+    grid-area: mark;
+  }
+
+  .shell--toggle .header nav {
+    grid-area: nav;
+  }
+
+  .shell--toggle .header .view-toggle {
+    grid-area: toggle;
   }
 }
 

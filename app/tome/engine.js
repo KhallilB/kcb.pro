@@ -2,7 +2,7 @@
 import * as THREE from 'three';
 
 export function mountTome(host, opts) {
-  const { data, onList, onNavigate } = opts;
+  const { data, onList, onNavigate, insetTop } = opts;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const ac = new AbortController(), sig = { signal: ac.signal };
   let alive = true, raf = 0;
@@ -1456,17 +1456,20 @@ export function mountTome(host, opts) {
   motes.geometry.setAttribute('position', new THREE.BufferAttribute(mp, 3)); scene.add(motes);
 
   // ---------- camera fit ----------
-  let camZ = 6, camX = 0, camY = 0;
+  let camZ = 6, camX = 0, camY = 0, inset = 0;
+  // Frames the book in the band below the toggle; y lifts the camera so the book centres in that band.
   function fitTarget() {
     const tan = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)), A = camera.aspect;
-    const fit = (w, h) => Math.max(w / (2 * tan * A), h / (2 * tan));
-    if (current === 0) return { z: fit(CW * 1.45, CH * 1.42), x: 0 };
-    if (portrait()) return { z: fit(W + 0.1, H + 0.46), x: focus === 'left' ? -W / 2 : W / 2 };
-    return { z: fit(2 * W + 0.16, H + 0.46), x: 0 };
+    const band = 1 - inset;
+    const fit = (w, h) => Math.max(w / (2 * tan * A), h / (2 * tan * band));
+    const at = (z, x) => ({ z, x, y: inset * tan * z });
+    if (current === 0) return at(fit(CW * 1.45, CH * 1.42), 0);
+    if (portrait()) return at(fit(W + 0.1, H + 0.46), focus === 'left' ? -W / 2 : W / 2);
+    return at(fit(2 * W + 0.16, H + 0.46), 0);
   }
   function resize() {
-    // The host reserves room for the view toggle, so size to the stage, not the window.
     const w = stage.clientWidth || innerWidth, h = stage.clientHeight || innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+    inset = Math.min(0.3, Math.max(0, insetTop()) / h);
     const f = fitTarget(); camZ = f.z; camX = f.x;
   }
   addEventListener('resize', resize, sig);
@@ -1531,7 +1534,7 @@ export function mountTome(host, opts) {
     if (!reduce) { gem.rotation.x = Math.sin(clock * 0.61) * 0.03; gem.rotation.y = Math.sin(clock * 0.47 + 1.3) * 0.03; }
     if (!reduce) { for (let i = 0; i < MC; i++) { mp[i * 3 + 1] += dt * 0.05; if (mp[i * 3 + 1] > 1.6) mp[i * 3 + 1] = -1.6; } motes.geometry.attributes.position.needsUpdate = true; }
     const f = fitTarget(); camZ += (f.z - camZ) * Math.min(1, dt * 3); camX += (f.x - camX) * Math.min(1, dt * 3);
-    camY += ((current === 0 ? -0.16 : -0.2) - camY) * Math.min(1, dt * 3);
+    camY += ((current === 0 ? -0.16 : -0.2) + f.y - camY) * Math.min(1, dt * 3);
     // Camera looks down a little so the floor reads as a plane the shadow lies on.
     const pitch = THREE.MathUtils.degToRad(10 * (1 - openO) + 6 * openO);
     camera.position.set(camX, camY + camZ * Math.tan(pitch), camZ); camera.lookAt(camX, camY, 0);
