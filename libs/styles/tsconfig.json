@@ -1,6 +1,0 @@
-{
-  "extends": "../../tsconfig.lib.json",
-  "compilerOptions": {
-    "tsBuildInfoFile": "../../node_modules/.cache/tsbuildinfo/styles-lib"
-  }
-}

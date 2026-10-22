@@ -1,42 +1,30 @@
 {
   "name": "kcb.pro",
   "private": true,
-  "version": "0.3.2",
   "type": "module",
   "scripts": {
-    "dev:client": "vite",
-    "dev:server": "wrangler dev",
-    "build": "bun build:client && bun build:server",
-    "build:client": "tsc -b && vite build && vite build --ssr app/entry-server.tsx --outDir build-ssr && bun scripts/prerender.ts",
-    "build:router": "tsc -b && vite build --outDir dist/apps/router",
-    "build:server": "tsc -b && cd server && bun build --minify --no-bundle src/index.ts",
-    "deploy:client": "wrangler pages deploy ./build --project-name kcb-pro",
-    "deploy:server": "wrangler deploy --config wrangler.server.jsonc  --minify",
+    "dev": "vite",
+    "build": "tsc -b && vite build && vite build --ssr app/entry-server.tsx --outDir build-ssr && bun scripts/prerender.ts",
+    "preview": "bun scripts/serve-build.ts",
     "lint": "eslint .",
-    "test:unit": "vitest run --config vitest.config.ts",
+    "typecheck": "tsc -b",
+    "test": "vitest run --config vitest.config.ts",
     "test:integration": "vitest run --config vitest.config.ts integration",
     "test:e2e": "playwright test --config=playwright.config.ts",
-    "gate:hard": "bun run lint && bun run build:client && bun run test:unit && bun run test:integration && bun run test:e2e",
-    "gate:0": "bun run gate:hard",
-    "preview": "vite preview --outDir build",
-    "release": "release-it"
+    "check": "bun run lint && bun run build && bun run test && bun run test:integration && bun run test:e2e",
+    "deploy": "wrangler pages deploy ./build --project-name kcb-pro"
   },
   "dependencies": {
     "@fontsource/cinzel": "5",
     "@fontsource/eb-garamond": "5",
-    "bun": "^1.3.10",
-    "hono": "^4.12.3",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-router": "^7.13.1",
     "three": "0.128.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260226.1",
     "@eslint/js": "^9.39.3",
     "@playwright/test": "^1.58.2",
-    "@release-it/bumper": "^7.0.5",
-    "@release-it/conventional-changelog": "^10.0.5",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/react": "^19.2.14",
@@ -48,44 +36,11 @@
     "globals": "^15.15.0",
     "jsdom": "^26.1.0",
     "prettier": "^3.8.1",
-    "release-it": "^18.1.2",
     "typescript": "~5.7.3",
     "typescript-eslint": "^8.56.1",
     "vite": "^6.4.1",
     "vitest": "^3.2.4",
     "wrangler": "4.151.3"
-  },
-  "release-it": {
-    "$schema": "https://unpkg.com/release-it/schema/release-it.json",
-    "git": {
-      "commitMessage": "chore: release v${version}",
-      "tagName": "v${version}",
-      "requireCleanWorkingDir": true
-    },
-    "github": {
-      "release": true,
-      "autoGenerate": true,
-      "releaseName": "Release v${version}",
-      "tokenRef": "${{ secrets.GITHUB_TOKEN }}",
-      "useChangelog": true
-    },
-    "plugins": {
-      "@release-it/bumper": {
-        "in": "package.json",
-        "preCommit": true,
-        "commitMessage": "chore: bump version to ${version}"
-      },
-      "@release-it/conventional-changelog": {
-        "preset": "angular",
-        "infile": "CHANGELOG.md",
-        "header": "# Changelog\n\n",
-        "template": "# 🚀 Release v{{version}} ({{date}})\n\n{{#each commitGroups}}\n## {{title}}\n{{#each commits}}\n- {{> commit root=@root}}\n{{/each}}\n{{/each}}\n\n{{#if noteGroups}}\n{{#each noteGroups}}\n## {{title}}\n{{#each notes}}\n- {{#if commit.scope}}**{{commit.scope}}:** {{/if}}{{text}}\n{{/each}}\n{{/each}}\n{{/if}}\n\n## 📦 Package Information\n- **Version:** {{version}}\n- **Released:** {{date}}\n- **Commit Count:** {{commitCount}}\n\n<details>\n<summary>🔍 View Detailed Commit Information</summary>\n\n{{#each commits}}\n### {{header}}\n{{#if hash}}**Commit:** [{{shortHash}}]({{@root.repoUrl}}/commit/{{hash}})<br>{{/if}}\n{{#if author}}**Author:** {{author.name}} <{{author.email}}><br>{{/if}}\n{{#if committerDate}}**Date:** {{committerDate}}<br>{{/if}}\n{{#if body}}**Details:**\n```\n{{body}}\n```\n{{/if}}\n{{/each}}\n</details>"
-      }
-    },
-    "hooks": {
-      "after:bump": "bun run build",
-      "after:release": "echo 'Released version ${version}'"
-    }
   },
   "packageManager": "bun@1.3.11"
 }
