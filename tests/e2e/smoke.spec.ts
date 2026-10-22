@@ -22,6 +22,7 @@ async function stubEngine(page: Page) {
       body: `export function mountTome(host, opts) {
         const c = document.createElement('canvas'); c.dataset.chapters = Object.keys(opts.data.chapters).join(',');
         c.style.cssText = 'display:block;width:100%;height:100%';
+        c.dataset.insetTop = String(opts.insetTop());
         host.append(c); return () => host.replaceChildren();
       }`,
     })
@@ -60,13 +61,15 @@ for (const size of [{ width: 1280, height: 800 }, { width: 375, height: 700 }]) 
     const toggle = page.getByRole('group', { name: 'View' })
     await expect(page.locator('.tome[data-ready] canvas')).toBeAttached()
     const t3 = (await toggle.boundingBox())!
-    const book = (await page.locator('.tome__host').boundingBox())!
-    expect(overlaps(t3, book), '3D: toggle over the book').toBe(false)
+    const insetTop = Number(await page.locator('.tome canvas').getAttribute('data-inset-top'))
+    expect(t3.y + t3.height, '3D: book is framed below the toggle').toBeLessThanOrEqual(insetTop)
+    expect(insetTop, '3D: no full-width strip is reserved').toBeLessThan(size.height * 0.2)
 
     await toggle.getByRole('button', { name: '2D list' }).click()
     await expect(page.locator('.tome')).toHaveCount(0)
     const t2 = (await toggle.boundingBox())!
-    const content = page.locator('.header a, .header h1, main h1, main p').filter({ visible: true })
+    expect(await page.locator('.header .view-toggle').count(), '2D: toggle lives in the header').toBe(1)
+    const content = page.locator('.header a, main h1, main p').filter({ visible: true })
     for (const box of await content.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().toJSON()))) {
       expect(overlaps(t2, box), `2D: toggle over ${JSON.stringify(box)}`).toBe(false)
     }
@@ -102,6 +105,8 @@ test('home names the work and what is being built now', async ({ page }) => {
 })
 
 test('a keyboard user reaches a project page and back to the index', async ({ page }) => {
+  // CI browsers have WebGL, so the toggle is on the page; the skip link must still come first.
+  await stubEngine(page)
   await preferList(page)
   await page.goto('/')
   // Wait for hydration to clear the loading flag before tabbing.

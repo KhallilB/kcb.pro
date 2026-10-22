@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { formatDay } from '@app/portfolio/domain/dates'
 import { useHomeView } from '../home-view'
@@ -43,17 +43,24 @@ export function Layout() {
     document.title = pageMeta(pathname).title
   }, [pathname])
 
+  const toggleRef = useRef<HTMLDivElement>(null)
+  // 12px gap so the book never touches the toggle.
+  const insetTop = () => (toggleRef.current?.getBoundingClientRect().bottom ?? 0) + 12
+  const toggle = canTome && (
+    <ViewToggle
+      ref={toggleRef}
+      view={stageOn ? 'tome' : 'list'}
+      onChange={(next) => (next === 'list' ? showList() : setView('tome'))}
+    />
+  )
+
   return (
     <>
       {stageOn && (
-        <TomeStage onList={showList} onFail={() => setTomeWorks(false)} />
+        <TomeStage onList={showList} onFail={() => setTomeWorks(false)} insetTop={insetTop} />
       )}
-      {canTome && (
-        <ViewToggle
-          view={stageOn ? 'tome' : 'list'}
-          onChange={(next) => (next === 'list' ? showList() : setView('tome'))}
-        />
-      )}
+      {/* Over the book it floats outside the inert page; over the list it sits in the header. */}
+      {stageOn && toggle}
       <div
         className={canTome ? 'shell shell--toggle' : 'shell'}
         inert={stageOn ? true : undefined}
@@ -77,6 +84,7 @@ export function Layout() {
               ))}
             </ul>
           </nav>
+          {!stageOn && toggle}
         </header>
         <main id="content" className="main" tabIndex={-1}>
           <Outlet />
