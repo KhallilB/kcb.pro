@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/KhallilB/kcb.pro/main/schema/progress.v1.json",
+  "title": "kcb.pro progress file, version 1",
+  "description": "progress.json at a project's repository root. Entries are append-only and sorted by date, oldest first. kcb.pro also checks that ids are unique, that no date is after the build day, and that project equals the kcb.pro slug.",
+  "type": "object",
+  "required": ["schema", "project", "entries"],
+  "properties": {
+    "schema": { "const": 1 },
+    "project": { "$ref": "#/$defs/text" },
+    "entries": { "type": "array", "items": { "$ref": "#/$defs/entry" } }
+  },
+  "$defs": {
+    "text": { "type": "string", "pattern": "\\S" },
+    "entry": {
+      "type": "object",
+      "required": [
+        "id",
+        "subject",
+        "date",
+        "kind",
+        "title",
+        "result",
+        "measured",
+        "evidence"
+      ],
+      "properties": {
+        "id": { "type": "string", "pattern": "^\\S+$" },
+        "subject": { "$ref": "#/$defs/text" },
+        "date": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+        "kind": { "enum": ["experiment", "tests", "release", "milestone"] },
+        "title": { "$ref": "#/$defs/text" },
+        "passMark": { "$ref": "#/$defs/text" },
+        "result": { "enum": ["pass", "partial", "fail", "not-run"] },
+        "measured": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["label", "value"],
+            "properties": {
+              "label": { "$ref": "#/$defs/text" },
+              "value": { "$ref": "#/$defs/text" }
+            }
+          }
+        },
+        "evidence": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/evidence" }
+        },
+        "commit": { "type": "string", "pattern": "^[0-9a-f]{7,40}$" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "kind": { "enum": ["experiment", "tests"] } }
+          },
+          "then": { "required": ["passMark"] }
+        },
+        {
+          "if": {
+            "properties": { "result": { "not": { "const": "not-run" } } }
+          },
+          "then": { "properties": { "evidence": { "minItems": 1 } } }
+        },
+        {
+          "if": {
+            "properties": {
+              "evidence": { "contains": { "required": ["path"] } }
+            }
+          },
+          "then": { "required": ["commit"] }
+        }
+      ]
+    },
+    "evidence": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["label", "path"],
+          "not": { "required": ["url"] },
+          "properties": {
+            "label": { "$ref": "#/$defs/text" },
+            "path": {
+              "type": "string",
+              "pattern": "^(?!/)(?!(.*/)?\\.\\.(/|$))(?=.*\\S).+$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["label", "url"],
+          "not": { "required": ["path"] },
+          "properties": {
+            "label": { "$ref": "#/$defs/text" },
+            "url": { "type": "string", "pattern": "^https://\\S+$" }
+          }
+        }
+      ]
+    }
+  }
+}
