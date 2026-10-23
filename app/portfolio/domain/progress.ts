@@ -90,7 +90,8 @@ export function validateProgress(
   const at = `"${ctx.slug}" progress.json`
   if (!isRecord(file)) return [`${at} is not a JSON object`]
   const errors: string[] = []
-  if (!READABLE.includes(file.schema as number)) {
+  const readable = READABLE.includes(file.schema as number)
+  if (!readable) {
     errors.push(
       `${at} uses schema ${JSON.stringify(file.schema)}; kcb.pro reads schema ${READABLE.join(' or ')}`
     )
@@ -100,6 +101,8 @@ export function validateProgress(
       `${at} names project ${JSON.stringify(file.project)}; it must be "${ctx.slug}"`
     )
   }
+  // The entry rules below are v1's; another schema's entries are not judged.
+  if (!readable) return errors
   if (!Array.isArray(file.entries))
     return [...errors, `${at} needs an entries list`]
 
@@ -116,11 +119,13 @@ export function validateProgress(
       if (ids.has(entry.id)) errors.push(`${where} repeats an earlier id`)
       ids.add(entry.id)
     }
-    if (typeof entry.date === 'string' && isIsoDay(entry.date)) {
-      if (entry.date < latest) {
+    // A future-dated entry is already an error; it must not move the baseline.
+    const { date } = entry
+    if (typeof date === 'string' && isIsoDay(date) && date <= ctx.buildDay) {
+      if (date < latest) {
         errors.push(`${where} is out of order; entries go oldest first`)
       } else {
-        latest = entry.date
+        latest = date
       }
     }
   })
@@ -143,8 +148,10 @@ function entryErrors(e: Fields, where: string, buildDay: IsoDay): string[] {
   }
   if (!isText(e.title)) errors.push(`${where} needs a title`)
   const needsMark = NEEDS_PASS_MARK.includes(e.kind as string)
-  if ((needsMark || e.passMark !== undefined) && !isText(e.passMark)) {
+  if (needsMark && !isText(e.passMark)) {
     errors.push(`${where} needs a passMark, set before the result`)
+  } else if (!needsMark && e.passMark !== undefined && !isText(e.passMark)) {
+    errors.push(`${where} passMark is blank; omit it or fill it in`)
   }
   if (!isOneOf(PROGRESS_RESULTS, e.result)) {
     errors.push(`${where} has an unknown result ${JSON.stringify(e.result)}`)
@@ -176,7 +183,9 @@ function entryErrors(e: Fields, where: string, buildDay: IsoDay): string[] {
     e.commit !== undefined &&
     !(typeof e.commit === 'string' && HASH.test(e.commit))
   ) {
-    errors.push(`${where} has a commit that is not a hash: ${String(e.commit)}`)
+    errors.push(
+      `${where} has a commit that is not a hash: ${JSON.stringify(e.commit)}`
+    )
   }
   return errors
 }
@@ -205,7 +214,7 @@ const isCommit = (c: unknown) =>
   typeof c.date === 'string' &&
   isIsoDay(c.date) &&
   isOneOf(COMMIT_TYPES, c.type) &&
-  typeof c.subject === 'string' &&
+  isText(c.subject) &&
   typeof c.url === 'string' &&
   c.url.startsWith('https://')
 

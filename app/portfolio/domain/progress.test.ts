@@ -130,7 +130,7 @@ describe('validateProgress', () => {
 
   it('refuses a commit that is not a hash', () => {
     expect(check([entry({ commit: 'main' })])).toContain(
-      `${at} has a commit that is not a hash: main`
+      `${at} has a commit that is not a hash: "main"`
     )
   })
 
@@ -158,6 +158,90 @@ describe('validateProgress', () => {
     )
   })
 
+  it('accepts two entries on the same day', () => {
+    expect(
+      check([entry(), entry({ id: '2026-10-20-beta', subject: 'beta' })])
+    ).toEqual([])
+  })
+
+  it('reports only the out-of-order entry, not the one after it', () => {
+    const errors = check([
+      entry({ id: 'b', date: '2026-10-20' }),
+      entry({ id: 'a', subject: 'other', date: '2026-10-19' }),
+      entry({ id: 'c', subject: 'third', date: '2026-10-20' }),
+    ])
+    expect(errors).toEqual([
+      '"alpha" progress.json entry "a" is out of order; entries go oldest first',
+    ])
+  })
+
+  it('does not let a future-dated entry make later entries out of order', () => {
+    const errors = check([
+      entry({ id: 'a', date: '2026-10-20' }),
+      entry({ id: 'b', subject: 'other', date: '2026-10-22' }),
+      entry({ id: 'c', subject: 'third', date: '2026-10-21' }),
+    ])
+    expect(errors).toEqual([
+      '"alpha" progress.json entry "b" is dated 2026-10-22, after the build day 2026-10-21',
+    ])
+  })
+
+  it.each([null, 5, 'x'])('does not throw on file %j', (file) => {
+    expect(validateProgress(file, ctx)).toEqual([
+      '"alpha" progress.json is not a JSON object',
+    ])
+  })
+
+  it('names the position of each junk entry without throwing', () => {
+    const file = {
+      schema: 1,
+      project: 'alpha',
+      entries: [null, 1, 'a', [], {}],
+    }
+    const errors = validateProgress(file, ctx)
+    for (const n of [1, 2, 3, 4]) {
+      expect(errors).toContain(
+        `"alpha" progress.json entry ${n} is not an object`
+      )
+    }
+    const row = '"alpha" progress.json entry 5'
+    expect(errors).toEqual(
+      expect.arrayContaining([
+        `${row} needs an id with no spaces`,
+        `${row} needs a subject`,
+        `${row} needs a date as YYYY-MM-DD`,
+        `${row} needs a title`,
+        `${row} needs measured as a list of { label, value }`,
+        `${row} needs an evidence list`,
+      ])
+    )
+  })
+
+  it('refuses evidence that is not a list, without throwing', () => {
+    const bad = entry({ evidence: 'RESULT.md' as unknown as Evidence[] })
+    expect(check([bad])).toContain(`${at} needs an evidence list`)
+  })
+
+  it('accepts an empty measured list', () => {
+    expect(check([entry({ measured: [] })])).toEqual([])
+  })
+
+  it.each(['release', 'milestone'] as ProgressKind[])(
+    'refuses a blank pass mark on %s',
+    (kind) => {
+      expect(check([entry({ kind, passMark: '  ' })])).toEqual([
+        `${at} passMark is blank; omit it or fill it in`,
+      ])
+    }
+  )
+
+  it('refuses unreadable schema without running the entry rules', () => {
+    const file = { schema: 2, project: 'alpha', entries: [null, {}] }
+    expect(validateProgress(file, ctx)).toEqual([
+      '"alpha" progress.json uses schema 2; kcb.pro reads schema 1',
+    ])
+  })
+
   it('refuses measured values that are not label and value', () => {
     expect(
       check([entry({ measured: [{ label: 'Median' }] as Measure[] })])
@@ -178,6 +262,17 @@ describe('validateCommits', () => {
 
   it('refuses a malformed commit, by position', () => {
     expect(validateCommits([commit({ date: 'yesterday' })], 'alpha')).toEqual([
+      '"alpha" commit 1 is not a { sha, date, type, subject, url } record',
+    ])
+  })
+
+  it.each([
+    ['sha', { sha: 'nope' }],
+    ['type', { type: 'wip' as never }],
+    ['subject', { subject: '' }],
+    ['url', { url: 'http://github.com/o/r/commit/01e47db' }],
+  ])('refuses a commit with a bad %s', (_field, overrides) => {
+    expect(validateCommits([commit(overrides)], 'alpha')).toEqual([
       '"alpha" commit 1 is not a { sha, date, type, subject, url } record',
     ])
   })
