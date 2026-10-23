@@ -322,6 +322,7 @@ export function evidenceHref(
   commit?: string
 ): string {
   if ('url' in item) return item.url
+  if (!commit) throw new Error(`Evidence "${item.path}" needs a commit`)
   const path = item.path.split('/').map(encodeURIComponent).join('/')
   return `https://github.com/${repo}/blob/${commit}/${path}`
 }

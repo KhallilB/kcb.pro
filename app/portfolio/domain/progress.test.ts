@@ -318,6 +318,12 @@ describe('current', () => {
     expect(current([morning, evening], day).map((e) => e.id)).toEqual(['e'])
   })
 
+  it('includes an entry dated on the day and excludes the day after', () => {
+    const onDay = entry({ id: 'on', subject: 'p', date: '2026-10-21' })
+    const after = entry({ id: 'after', subject: 'q', date: '2026-10-22' })
+    expect(current([onDay, after], day).map((e) => e.id)).toEqual(['on'])
+  })
+
   it('orders same-day subjects with the last written first', () => {
     const x = entry({ id: 'x', subject: 'x' })
     const y = entry({ id: 'y', subject: 'y' })
@@ -340,6 +346,17 @@ describe('progressCounts', () => {
       failed: 1,
       open: 1,
     })
+  })
+})
+
+describe('overallSeal as of a day', () => {
+  it('flips when a later entry for the same subject arrives', () => {
+    const entries = [
+      entry({ id: 'a1', subject: 'a', date: '2026-10-01', result: 'fail' }),
+      entry({ id: 'a2', subject: 'a', date: '2026-10-10', result: 'pass' }),
+    ]
+    expect(overallSeal(entries, '2026-10-05')).toBe('fail')
+    expect(overallSeal(entries, day)).toBe('pass')
   })
 })
 
@@ -368,6 +385,14 @@ describe('quietSince', () => {
       entry({ id: 'b', date: '2026-09-20' }),
     ]
     expect(quietSince(entries, day)).toBe('2026-09-20')
+  })
+
+  it('ignores entries dated after the day', () => {
+    const entries = [
+      entry({ id: 'old', date: '2026-09-01' }),
+      entry({ id: 'future', date: '2026-10-22' }),
+    ]
+    expect(quietSince(entries, day)).toBe('2026-09-01')
   })
 
   it('stays silent within 30 days, or with no entries', () => {
@@ -406,6 +431,12 @@ describe('words and links', () => {
         'KhallilB/bezl'
       )
     ).toBe('https://github.com/o/r/actions/runs/1')
+  })
+
+  it('refuses a repository path with no commit', () => {
+    expect(() =>
+      evidenceHref({ label: 'R', path: 'spikes/x.md' }, 'KhallilB/bezl')
+    ).toThrow('Evidence "spikes/x.md" needs a commit')
   })
 
   it('encodes each path segment, keeping the slashes', () => {
