@@ -13,8 +13,19 @@
         "result": "partial",
         "measured": [
           { "label": "Bytes lost", "value": "None across 3 × 20 MB" },
+          {
+            "label": "Surplus bytes per pane",
+            "value": "1 to 7, source unexplained; no content hash yet, so corruption is not ruled out"
+          },
           { "label": "Echo latency, median", "value": "2 ms" },
-          { "label": "Peak memory", "value": "492 MB" }
+          {
+            "label": "Peak memory, 1 MiB high-water mark",
+            "value": "789 MB"
+          },
+          {
+            "label": "Peak memory, 256 KiB high-water mark",
+            "value": "492 MB"
+          }
         ],
         "evidence": [
           { "label": "RESULT.md", "path": "spikes/01-pty-throughput/RESULT.md" }

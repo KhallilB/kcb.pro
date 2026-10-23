@@ -12,9 +12,11 @@
         "result": "pass",
         "measured": [],
         "evidence": [
-          { "label": "Components", "path": "packages/react/src/components" }
+          { "label": "Button", "path": "packages/react/src/components/Button" },
+          { "label": "Input", "path": "packages/react/src/components/Input" },
+          { "label": "Dialog", "path": "packages/react/src/components/Dialog" }
         ],
-        "commit": "2a5fd82"
+        "commit": "2384527"
       },
       {
         "id": "2026-10-16-component-checks",
@@ -25,7 +27,7 @@
         "passMark": "Every component has a test and a story, and every story renders in a browser with no accessibility violations",
         "result": "pass",
         "measured": [
-          { "label": "Component tests", "value": "28 passed" },
+          { "label": "React package tests", "value": "28 passed" },
           { "label": "Stories scanned", "value": "16 passed" }
         ],
         "evidence": [{ "label": "Story tests", "path": "apps/storybook" }],

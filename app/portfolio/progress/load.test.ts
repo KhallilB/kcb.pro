@@ -28,6 +28,12 @@ describe('loadProgress', () => {
     ).toThrow(/build-data\/progress\/alpha\.json[\s\S]*after the build day/)
   })
 
+  it('takes the slug from the file path, not from the file', () => {
+    expect(() => loadProgress({ '/x/beta.json': data('alpha') }, day)).toThrow(
+      'must be "beta"'
+    )
+  })
+
   it('refuses malformed commits', () => {
     expect(() =>
       loadProgress(
