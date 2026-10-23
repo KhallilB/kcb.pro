@@ -61,9 +61,9 @@ export function About() {
           design system my projects share. This site is the third.
         </p>
         <p>
-          Everything on this site has a date next to it. A project’s status
-          says where it really stands, not how I’d like it to sound, and
-          nothing is called finished before it is.
+          You’ll see dates on everything here. If a project is half-built, it
+          says so. I’d rather be honest about where things stand than make them
+          sound more finished than they are.
         </p>
         <p>
           I lean on AI for the grunt work: scaffolding tests, making the same
