@@ -26,6 +26,8 @@ export function TomeStage({
   const navigate = useNavigate()
   const host = useRef<HTMLDivElement>(null)
   const [ready, setReady] = useState(false)
+  // Mounted over the boot script's mist: appear at once, since a fade would show the page through.
+  const [boot] = useState(() => document.documentElement.dataset.tome === 'pending')
   // navigate changes with every route; the engine must outlive routes.
   const handlers = useRef({ shown, arrival, onList, onFail, insetTop, navigate })
   handlers.current = { shown, arrival, onList, onFail, insetTop, navigate }
@@ -79,6 +81,7 @@ export function TomeStage({
     <div
       className="tome"
       data-ready={ready || undefined}
+      data-boot={(boot && !ready) || undefined}
       data-shown={shown || undefined}
       inert={shown ? undefined : true}
     >
@@ -87,7 +90,38 @@ export function TomeStage({
       <div className="tome__fog tome__fog--c" aria-hidden="true" />
       <div className="tome__vignette" aria-hidden="true" />
       <div ref={host} className="tome__host" />
-      {!ready && <p className="tome__loading">Opening the tome…</p>}
+      {/* Stays mounted after ready so it can fade out as the book fades in. */}
+      <div
+        className="tome__loading"
+        role={ready ? undefined : 'status'}
+        aria-hidden={ready || undefined}
+      >
+        <Lozenge />
+        <p className="tome__loading-text">Opening the tome</p>
+        <span className="tome__loading-rule" aria-hidden="true" />
+      </div>
     </div>
+  )
+}
+
+// The cover's centrepiece: gilt lozenge, teal gem, a fleuron at each point.
+function Lozenge() {
+  const star = 'M0-6L1.5-1.5L6 0L1.5 1.5L0 6L-1.5 1.5L-6 0L-1.5-1.5Z'
+  return (
+    <svg className="tome__lozenge" viewBox="-60 -62 120 124" aria-hidden="true">
+      <path className="tome__fillet" pathLength={1} d="M0-44L30 0L0 44L-30 0Z" />
+      <path className="tome__fillet tome__fillet--inner" pathLength={1} d="M0-38L25 0L0 38L-25 0Z" />
+      <path className="tome__gem" d="M0-20L13 0L0 20L-13 0Z" />
+      <path className="tome__facet" d="M0-20L-13 0L0 0Z" />
+      <path className="tome__facet tome__facet--shade" d="M0 20L13 0L0 0Z" />
+      {[
+        [0, -54],
+        [40, 0],
+        [0, 54],
+        [-40, 0],
+      ].map(([x, y], i) => (
+        <path key={i} className="tome__fleuron" d={star} transform={`translate(${x} ${y})`} />
+      ))}
+    </svg>
   )
 }

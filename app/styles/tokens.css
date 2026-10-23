@@ -16,6 +16,9 @@
   --mist: #e4eae8;
   --mist-edge: #f3f5f4;
   --glow: rgba(26, 138, 118, 0.42);
+  /* The cover's glass gem, for the loading mark. */
+  --gem: #b9dfd5;
+  --gem-deep: #6fae9f;
   --ui: rgba(24, 32, 34, 0.72);
   --ui-ink: #f2ede2;
   /* The book's cover leather and brass, for the view toggle. */
