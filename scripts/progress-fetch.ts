@@ -5,7 +5,7 @@ import { content } from '../app/portfolio/content'
 import { registered } from '../app/portfolio/domain/catalog'
 import { toPublic, type PublicProgress } from '../app/portfolio/domain/progress'
 import type { IsoDay } from '../app/portfolio/domain/types'
-import { collectProgress } from '../app/portfolio/progress/fetch'
+import { chooseToken, collectProgress } from '../app/portfolio/progress/fetch'
 import { loadProgress } from '../app/portfolio/progress/load'
 import { buildDay } from './build-day'
 
@@ -36,7 +36,7 @@ async function main() {
       buildDay: day,
       offline,
       fetch,
-      token: process.env.GITHUB_TOKEN,
+      token: chooseToken(process.env),
       readFixture,
     })
     await mkdir(OUT, { recursive: true })

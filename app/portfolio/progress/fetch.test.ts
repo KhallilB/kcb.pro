@@ -1,5 +1,10 @@
 import { commit, entry, progressFile } from '../domain/fixtures'
-import { collectProgress, type CollectOptions } from './fetch'
+import {
+  chooseToken,
+  collectProgress,
+  type CollectOptions,
+  type GitHubToken,
+} from './fetch'
 
 const bezl = { slug: 'bezl', repo: 'KhallilB/bezl' }
 const kbui = { slug: 'kbui', repo: 'KhallilB/kbui' }
@@ -22,7 +27,7 @@ const fullPage = () =>
     apiCommit(String(i).padStart(7, '0'), '2026-10-20', 'chore: tidy')
   )
 
-function publicRepo(file: unknown = goodFile(), commits: unknown[] = []) {
+function repoRoutes(file: unknown = goodFile(), commits: unknown[] = []) {
   const routes: Record<string, Route> = {
     '/repos/KhallilB/bezl': () =>
       json({ private: false, default_branch: 'trunk' }),
@@ -61,10 +66,10 @@ function options(overrides: Partial<CollectOptions> = {}): CollectOptions {
 }
 
 describe('collectProgress from GitHub', () => {
-  it('reads progress.json from the default branch with 90 days of classified commits', async () => {
+  it('reads progress.json from the default branch with 84 days of classified commits', async () => {
     const full = '01e47db2f079b759ac01a43e4aad0b9f9fe35467'
     const { fetch, calls } = github(
-      publicRepo(goodFile(), [
+      repoRoutes(goodFile(), [
         apiCommit(full, '2026-10-20', 'feat: scaffold Bezl\n\nBody.'),
       ])
     )
@@ -84,7 +89,7 @@ describe('collectProgress from GitHub', () => {
     const history = calls.find((c) => c.url.pathname.endsWith('/commits'))
     expect(Object.fromEntries(history?.url.searchParams ?? [])).toMatchObject({
       sha: 'trunk',
-      since: '2026-07-24T00:00:00Z',
+      since: '2026-07-30T00:00:00Z',
       until: '2026-10-21T23:59:59Z',
       per_page: '100',
       page: '1',
@@ -92,15 +97,18 @@ describe('collectProgress from GitHub', () => {
   })
 
   it('authenticates with GITHUB_TOKEN when it has one', async () => {
-    const withToken = github(publicRepo())
+    const withToken = github(repoRoutes())
     await collectProgress(
       [bezl],
-      options({ fetch: withToken.fetch, token: 't0k' })
+      options({
+        fetch: withToken.fetch,
+        token: { name: 'GITHUB_TOKEN', value: 't0k' },
+      })
     )
     expect(
       withToken.calls.every((c) => c.headers.authorization === 'Bearer t0k')
     ).toBe(true)
-    const anonymous = github(publicRepo())
+    const anonymous = github(repoRoutes())
     await collectProgress([bezl], options({ fetch: anonymous.fetch }))
     expect(anonymous.calls.some((c) => 'authorization' in c.headers)).toBe(
       false
@@ -112,7 +120,7 @@ describe('collectProgress from GitHub', () => {
       Array.from({ length: n }, (_, i) =>
         apiCommit(String(i).padStart(7, '0'), '2026-10-20', 'chore: tidy')
       )
-    const routes = publicRepo()
+    const routes = repoRoutes()
     routes['/repos/KhallilB/bezl/commits'] = (url) =>
       json(url.searchParams.get('page') === '1' ? page(100) : page(1))
     const progress = await collectProgress(
@@ -124,17 +132,14 @@ describe('collectProgress from GitHub', () => {
 
   it.each([
     [
-      'is missing or private',
+      'is not found',
       { '/repos/KhallilB/bezl': missing },
-      'the repository is missing or private',
+      'the repository was not found',
     ],
     [
-      'says it is private',
-      {
-        '/repos/KhallilB/bezl': () =>
-          json({ private: true, default_branch: 'main' }),
-      },
-      'the repository is not public',
+      'names no default branch',
+      { '/repos/KhallilB/bezl': () => json({ private: false }) },
+      'GitHub named no default branch',
     ],
     [
       'has no progress.json',
@@ -151,7 +156,7 @@ describe('collectProgress from GitHub', () => {
   ] as [string, Record<string, Route>, string][])(
     'fails the build, naming the project, when the repository %s',
     async (_, override, message) => {
-      const { fetch } = github({ ...publicRepo(), ...override })
+      const { fetch } = github({ ...repoRoutes(), ...override })
       await expect(collectProgress([bezl], options({ fetch }))).rejects.toThrow(
         `"bezl" (KhallilB/bezl): ${message}`
       )
@@ -162,7 +167,7 @@ describe('collectProgress from GitHub', () => {
     const late = progressFile([entry({ date: '2026-10-22' })], {
       project: 'bezl',
     })
-    const { fetch } = github(publicRepo(late))
+    const { fetch } = github(repoRoutes(late))
     await expect(collectProgress([bezl], options({ fetch }))).rejects.toThrow(
       '"bezl" progress.json entry "2026-10-20-alpha" is dated 2026-10-22, after the build day 2026-10-21'
     )
@@ -188,7 +193,7 @@ describe('collectProgress from GitHub', () => {
 
 describe('collectProgress GitHub failures', () => {
   it('fails, with no partial result, when a later commits page errors', async () => {
-    const routes = publicRepo()
+    const routes = repoRoutes()
     routes['/repos/KhallilB/bezl/commits'] = (url) =>
       url.searchParams.get('page') === '1'
         ? json(fullPage())
@@ -205,7 +210,7 @@ describe('collectProgress GitHub failures', () => {
     [500, '/repos/KhallilB/bezl/contents/progress.json'],
   ])('names status %i when %s answers with it', async (status, path) => {
     const routes = {
-      ...publicRepo(),
+      ...repoRoutes(),
       [path]: () => new Response('', { status }),
     }
     await expect(
@@ -213,30 +218,41 @@ describe('collectProgress GitHub failures', () => {
     ).rejects.toThrow(`"bezl" (KhallilB/bezl): GitHub answered ${status}`)
   })
 
-  it('says the token was rejected on 401', async () => {
-    const routes = {
-      ...publicRepo(),
-      '/repos/KhallilB/bezl': () => new Response('', { status: 401 }),
-    }
-    await expect(
-      collectProgress(
+  it.each(['PROGRESS_TOKEN', 'GITHUB_TOKEN'] as const)(
+    'on a 401 says %s was rejected, without printing it',
+    async (name) => {
+      const routes = {
+        ...repoRoutes(),
+        '/repos/KhallilB/bezl': () => new Response('', { status: 401 }),
+      }
+      const error = await collectProgress(
         [bezl],
-        options({ fetch: github(routes).fetch, token: 'bad' })
+        options({
+          fetch: github(routes).fetch,
+          token: { name, value: 'secret-401' },
+        })
+      ).catch((e: Error) => e.message)
+      expect(error).toContain(
+        `GitHub answered 401 for the repository: ${name} was rejected.`
       )
-    ).rejects.toThrow(/401[\s\S]*token was rejected/)
-  })
+      expect(error).not.toContain('secret-401')
+    }
+  )
 
   it.each([403, 429])(
     'says rate limited on %i and suggests GITHUB_TOKEN only without one',
     async (status) => {
       const routes = {
-        ...publicRepo(),
+        ...repoRoutes(),
         '/repos/KhallilB/bezl': () => new Response('', { status }),
       }
       const run = (token?: string) =>
         collectProgress(
           [bezl],
-          options({ fetch: github(routes).fetch, token })
+          options({
+            fetch: github(routes).fetch,
+            token: token ? { name: 'GITHUB_TOKEN', value: token } : undefined,
+          })
         ).catch((e: Error) => e.message)
       const anonymous = await run()
       expect(anonymous).toMatch(/rate limited/)
@@ -248,7 +264,7 @@ describe('collectProgress GitHub failures', () => {
   )
 
   it('stops after 50 commit pages with a named error', async () => {
-    const routes = publicRepo()
+    const routes = repoRoutes()
     routes['/repos/KhallilB/bezl/commits'] = () => json(fullPage())
     const { fetch, calls } = github(routes)
     await expect(collectProgress([bezl], options({ fetch }))).rejects.toThrow(
@@ -260,7 +276,7 @@ describe('collectProgress GitHub failures', () => {
   })
 
   it('fails clearly when the commits response is not a list', async () => {
-    const routes = publicRepo()
+    const routes = repoRoutes()
     routes['/repos/KhallilB/bezl/commits'] = () => json({ message: 'odd' })
     await expect(
       collectProgress([bezl], options({ fetch: github(routes).fetch }))
@@ -287,7 +303,7 @@ describe('collectProgress GitHub failures', () => {
   })
 
   it('gives every request a timeout signal', async () => {
-    const { fetch, calls } = github(publicRepo())
+    const { fetch, calls } = github(repoRoutes())
     await collectProgress([bezl], options({ fetch }))
     expect(calls.length).toBeGreaterThan(0)
     expect(
@@ -296,7 +312,7 @@ describe('collectProgress GitHub failures', () => {
   })
 
   it('asks for the raw media type on progress.json', async () => {
-    const { fetch, calls } = github(publicRepo())
+    const { fetch, calls } = github(repoRoutes())
     await collectProgress([bezl], options({ fetch }))
     const file = calls.find((c) => c.url.pathname.endsWith('/progress.json'))
     expect(file?.headers.accept).toBe('application/vnd.github.raw+json')
@@ -307,7 +323,7 @@ describe('collectProgress commit mapping', () => {
   const withCommit = (c: unknown) =>
     collectProgress(
       [bezl],
-      options({ fetch: github(publicRepo(goodFile(), [c])).fetch })
+      options({ fetch: github(repoRoutes(goodFile(), [c])).fetch })
     )
 
   it('dates a commit by its committer date, the one GitHub filters on', async () => {
@@ -380,5 +396,78 @@ describe('collectProgress offline', () => {
         options({ offline: true, readFixture: async () => fixture })
       )
     ).rejects.toThrow('has an unknown result "flaky"')
+  })
+})
+
+describe('private repositories and tokens', () => {
+  const progressToken: GitHubToken = {
+    name: 'PROGRESS_TOKEN',
+    value: 'secret-p',
+  }
+
+  it('reads a private repository with a token', async () => {
+    const routes = {
+      ...repoRoutes(),
+      '/repos/KhallilB/bezl': () =>
+        json({ private: true, default_branch: 'trunk' }),
+    }
+    const { fetch, calls } = github(routes)
+    const progress = await collectProgress(
+      [bezl],
+      options({ fetch, token: progressToken })
+    )
+    expect(progress.bezl.file).toEqual(goodFile())
+    expect(
+      calls.every((c) => c.headers.authorization === 'Bearer secret-p')
+    ).toBe(true)
+  })
+
+  it.each([
+    [
+      progressToken,
+      'the repository was not found, or PROGRESS_TOKEN cannot read it.',
+    ],
+    [
+      { name: 'GITHUB_TOKEN', value: 'secret-g' } as GitHubToken,
+      'the repository was not found, or GITHUB_TOKEN cannot read it; private repositories need PROGRESS_TOKEN.',
+    ],
+    [
+      undefined,
+      'the repository was not found, or no token is set; private repositories need PROGRESS_TOKEN.',
+    ],
+  ])('on a 404 names the token in use (case %#)', async (token, message) => {
+    const { fetch } = github({
+      ...repoRoutes(),
+      '/repos/KhallilB/bezl': missing,
+    })
+    const error = await collectProgress(
+      [bezl],
+      options({ fetch, token })
+    ).catch((e: Error) => e.message)
+    expect(error).toContain(`"bezl" (KhallilB/bezl): ${message}`)
+    if (token) expect(error).not.toContain(token.value)
+  })
+})
+
+describe('chooseToken', () => {
+  it('prefers PROGRESS_TOKEN', () => {
+    expect(chooseToken({ PROGRESS_TOKEN: 'p', GITHUB_TOKEN: 'g' })).toEqual({
+      name: 'PROGRESS_TOKEN',
+      value: 'p',
+    })
+  })
+
+  it('skips an empty PROGRESS_TOKEN, as Actions passes an unset secret', () => {
+    expect(chooseToken({ PROGRESS_TOKEN: '', GITHUB_TOKEN: 'g' })).toEqual({
+      name: 'GITHUB_TOKEN',
+      value: 'g',
+    })
+  })
+
+  it('has no token when both are empty or unset', () => {
+    expect(
+      chooseToken({ PROGRESS_TOKEN: '', GITHUB_TOKEN: '' })
+    ).toBeUndefined()
+    expect(chooseToken({})).toBeUndefined()
   })
 })

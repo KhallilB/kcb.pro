@@ -1,6 +1,7 @@
 import { classifyCommit } from '../domain/activity'
 import { addDays } from '../domain/dates'
 import {
+  ACTIVITY_DAYS,
   validateCommits,
   validateProgress,
   type Commit,
@@ -13,20 +14,35 @@ export interface Registered {
   repo: string
 }
 
+export interface GitHubToken {
+  name: 'PROGRESS_TOKEN' | 'GITHUB_TOKEN'
+  value: string
+}
+
 export interface CollectOptions {
   buildDay: IsoDay
   // Fixtures stand in for GitHub in dev and e2e.
   offline: boolean
   fetch: typeof globalThis.fetch
-  token?: string
+  token?: GitHubToken
   readFixture: (slug: string) => Promise<unknown>
 }
 
 const API = 'https://api.github.com'
-const HISTORY_DAYS = 90
 const PAGE_SIZE = 100
 const MAX_PAGES = 50
 const TIMEOUT_MS = 15_000
+
+// Actions passes an unset secret as '', so empty values are skipped.
+export function chooseToken(
+  env: Record<string, string | undefined>
+): GitHubToken | undefined {
+  for (const name of ['PROGRESS_TOKEN', 'GITHUB_TOKEN'] as const) {
+    const value = env[name]
+    if (value) return { name, value }
+  }
+  return undefined
+}
 
 interface ApiCommit {
   sha: string
@@ -88,21 +104,17 @@ async function fromGitHub(
   const about = await get(`/repos/${repo}`)
   if (about.status === 404) {
     throw new Error(
-      'the repository is missing or private. Make it public, or remove "repo" from the project.'
+      `the repository was not found, or ${cannotRead(options.token)}.`
     )
   }
   if (!about.ok)
     throw new Error(unexpected(about, 'the repository', options.token))
-  const meta = (await about.json()) as {
-    private?: boolean
+  const { default_branch: branch } = (await about.json()) as {
     default_branch?: string
   }
-  if (meta.private !== false || !meta.default_branch) {
-    throw new Error(
-      'the repository is not public. Make it public, or remove "repo" from the project.'
-    )
+  if (!branch) {
+    throw new Error('GitHub named no default branch for the repository. Retry.')
   }
-  const branch = meta.default_branch
 
   const raw = await get(
     `/repos/${repo}/contents/progress.json?ref=${encodeURIComponent(branch)}`,
@@ -134,7 +146,7 @@ async function recentCommits(
 ): Promise<Commit[]> {
   const query = new URLSearchParams({
     sha: branch,
-    since: `${addDays(buildDay, 1 - HISTORY_DAYS)}T00:00:00Z`,
+    since: `${addDays(buildDay, 1 - ACTIVITY_DAYS)}T00:00:00Z`,
     until: `${buildDay}T23:59:59Z`,
     per_page: String(PAGE_SIZE),
   })
@@ -185,10 +197,23 @@ export function checkProgress(
   return { file, commits } as ProjectProgress
 }
 
-function unexpected(response: Response, what: string, token?: string): string {
+// Names the variable in use, never its value.
+function cannotRead(token?: GitHubToken): string {
+  if (!token) return 'no token is set; private repositories need PROGRESS_TOKEN'
+  if (token.name === 'PROGRESS_TOKEN') return 'PROGRESS_TOKEN cannot read it'
+  return `${token.name} cannot read it; private repositories need PROGRESS_TOKEN`
+}
+
+function unexpected(
+  response: Response,
+  what: string,
+  token?: GitHubToken
+): string {
   const head = `GitHub answered ${response.status} for ${what}`
   if (response.status === 401) {
-    return `${head}: the token was rejected. Check GITHUB_TOKEN.`
+    return token
+      ? `${head}: ${token.name} was rejected. Replace it; it may have expired.`
+      : `${head}: the request was rejected.`
   }
   if (response.status === 403 || response.status === 429) {
     const hint = token ? '' : ' Set GITHUB_TOKEN to raise the limit.'
@@ -203,11 +228,11 @@ function describe(error: unknown): string {
   return cause ? `${error.message} (${cause})` : error.message
 }
 
-function headers(accept: string, token?: string): Record<string, string> {
+function headers(accept: string, token?: GitHubToken): Record<string, string> {
   return {
     accept,
     'user-agent': 'kcb.pro-build',
     'x-github-api-version': '2022-11-28',
-    ...(token ? { authorization: `Bearer ${token}` } : {}),
+    ...(token ? { authorization: `Bearer ${token.value}` } : {}),
   }
 }
