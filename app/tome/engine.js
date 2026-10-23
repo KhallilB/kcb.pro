@@ -147,10 +147,17 @@ export function mountTome(host, opts) {
     ctx.fillStyle = P.muted; ctx.font = font(30, 400, BODY, true); centered(ctx, d.summary, m.cx, 345);
   };
   const footnote = (ctx, m, text, y = TH - 160) => { ctx.fillStyle = P.muted; ctx.font = font(26, 400, BODY, true); centered(ctx, text, m.cx, y); };
-  const chapterPage = (ctx, title, folio, d) => {
+  const chapterPage = (ctx, title, folio, d, hs) => {
     const m = parchment(ctx, 'R', title, folio);
     chapterHead(ctx, m, d);
     para(ctx, m, d.about, 450, 34, 50);
+    // The way out to the project's 2D page: an outlined button in the accent colour.
+    const bw = 440, bh = 76, bx = m.cx - bw / 2, by = TH - 300;
+    ctx.fillStyle = P.accentSoft; ctx.strokeStyle = P.accent; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, bh / 2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = P.accent; ctx.font = font(32, 600); ctx.textBaseline = 'middle';
+    centered(ctx, 'Open the project page  →', m.cx, by + bh / 2 + 2); ctx.textBaseline = 'alphabetic';
+    hs.push({ x: bx, y: by, w: bw, h: bh, act: () => onNavigate(d.path) });
     footnote(ctx, m, d.status, TH - 158);
   };
   const notesPage = (ctx, side, title, folio, d) => {
@@ -221,10 +228,10 @@ export function mountTome(host, opts) {
     },
 
     // Chapters say what each project is; images wait for real screenshots.
-    bezl(ctx) { chapterPage(ctx, 'Chapter I', '1', D.bezl); },
+    bezl(ctx, hs) { chapterPage(ctx, 'Chapter I', '1', D.bezl, hs); },
     bezlNotes(ctx) { notesPage(ctx, 'L', D.bezl.title, '2', D.bezl); },
 
-    kbui(ctx) { chapterPage(ctx, 'Chapter II', '3', D.kbui); },
+    kbui(ctx, hs) { chapterPage(ctx, 'Chapter II', '3', D.kbui, hs); },
     kbuiNotes(ctx) { notesPage(ctx, 'L', D.kbui.title, '4', D.kbui); },
 
     studies(ctx, hs) {

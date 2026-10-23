@@ -43,6 +43,13 @@ describe('tome data', () => {
     for (const s of data.studies) expect(paths).toContain(s.path)
   })
 
+  it('links each chapter to its project page in 2D', () => {
+    const paths = sitePaths(content)
+    expect(data.chapters.bezl.path).toBe('/work/bezl')
+    expect(data.chapters.kbui.path).toBe('/work/kbui')
+    for (const c of Object.values(data.chapters)) expect(paths).toContain(c.path)
+  })
+
   it('offers email, LinkedIn, code and résumé on the contact page', () => {
     expect(data.contact.map((c) => c.label)).toEqual(['Email', 'LinkedIn', 'Code', 'Résumé'])
     expect(data.contact[0].href).toBe('mailto:hi@kcb.pro')
@@ -66,7 +73,7 @@ describe('tome data', () => {
     for (const p of featured(content.projects)) {
       const chapter = Object.values(data.chapters).find((c) => c.title === p.title)
       expect(chapter?.about).toBe(p.about)
-      expect(Object.keys(chapter ?? {})).toEqual(['title', 'summary', 'about', 'status', 'notes', 'facts'])
+      expect(Object.keys(chapter ?? {})).toEqual(['title', 'summary', 'about', 'status', 'notes', 'facts', 'path'])
     }
   })
 })
