@@ -40,6 +40,11 @@
           "pattern": "\\S"
         },
         "result": { "enum": ["pass", "partial", "fail", "not-run"] },
+        "summary": {
+          "description": "One line on what works and what is left: 1 to 140 characters once trimmed, no line breaks. Required when result is partial.",
+          "type": "string",
+          "pattern": "^[^\\S\\n\\r]*\\S(?:[^\\n\\r]{0,138}\\S)?[^\\S\\n\\r]*$"
+        },
         "measured": {
           "description": "What was measured, as label and value pairs; may be empty.",
           "type": "array",
@@ -64,6 +69,10 @@
         }
       },
       "allOf": [
+        {
+          "if": { "properties": { "result": { "const": "partial" } } },
+          "then": { "required": ["summary"] }
+        },
         {
           "if": {
             "properties": { "kind": { "enum": ["experiment", "tests"] } }

@@ -1,4 +1,5 @@
 import { daysBetween, isIsoDay } from './dates'
+import { isShortLine } from './text'
 import type { IsoDay } from './types'
 
 // Contract version written against; the version before it is still read.
@@ -47,6 +48,8 @@ export interface ProgressEntry {
   // What counted as success, decided before the result.
   passMark?: string
   result: ProgressResult
+  // One line on what works and what is left; required when partial.
+  summary?: string
   measured: Measure[]
   evidence: Evidence[]
   commit?: string
@@ -155,6 +158,13 @@ function entryErrors(e: Fields, where: string, buildDay: IsoDay): string[] {
   }
   if (!isOneOf(PROGRESS_RESULTS, e.result)) {
     errors.push(`${where} has an unknown result ${JSON.stringify(e.result)}`)
+  }
+  if (e.summary !== undefined && !isShortLine(e.summary)) {
+    errors.push(`${where} needs a summary of one line, 1 to 140 characters`)
+  } else if (e.summary === undefined && e.result === 'partial') {
+    errors.push(
+      `${where} is partial, so it needs a summary of what works and what is left`
+    )
   }
   const measured =
     Array.isArray(e.measured) &&

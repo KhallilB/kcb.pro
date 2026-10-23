@@ -149,6 +149,52 @@ const corpus: [string, unknown, boolean][] = [
   ['schema version as a string', { ...file(release()), schema: '1' }, false],
   ['entries not a list', { schema: 1, project: 'bezl', entries: {} }, false],
   ['blank project', { schema: 1, project: ' ', entries: [] }, false],
+  [
+    'partial with a summary',
+    file(release({ result: 'partial', summary: 'Runs; one limit left.' })),
+    true,
+  ],
+  ['partial without a summary', file(release({ result: 'partial' })), false],
+  [
+    'partial with a blank summary',
+    file(release({ result: 'partial', summary: ' ' })),
+    false,
+  ],
+  ['pass with a summary', file(release({ summary: 'Done and shipped.' })), true],
+  ['summary padded with spaces', file(release({ summary: '  Done.  ' })), true],
+  [
+    'summary of 140 characters',
+    file(release({ summary: 'x'.repeat(140) })),
+    true,
+  ],
+  [
+    'summary of 140 characters inside padding',
+    file(release({ summary: ` ${'x'.repeat(140)} ` })),
+    true,
+  ],
+  [
+    'summary of 141 characters',
+    file(release({ summary: 'x'.repeat(141) })),
+    false,
+  ],
+  [
+    'summary of 140 emoji',
+    file(release({ summary: '🙂'.repeat(140) })),
+    true,
+  ],
+  ['blank summary', file(release({ summary: '  ' })), false],
+  ['summary with a line feed', file(release({ summary: 'a\nb' })), false],
+  [
+    'summary with a carriage return',
+    file(release({ summary: 'a\rb' })),
+    false,
+  ],
+  [
+    'summary ending in a line feed',
+    file(release({ summary: 'Done.\n' })),
+    false,
+  ],
+  ['summary that is not a string', file(release({ summary: 5 })), false],
 ]
 
 const paths: [string, boolean][] = [

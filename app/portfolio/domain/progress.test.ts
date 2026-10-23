@@ -256,6 +256,34 @@ describe('validateProgress', () => {
       check([entry({ measured: [{ label: 'Median' }] as Measure[] })])
     ).toContain(`${at} needs measured as a list of { label, value }`)
   })
+
+  it('requires a summary on a partial entry', () => {
+    expect(check([entry({ result: 'partial' })])).toEqual([
+      `${at} is partial, so it needs a summary of what works and what is left`,
+    ])
+    expect(
+      check([entry({ result: 'partial', summary: 'Works; memory is next.' })])
+    ).toEqual([])
+  })
+
+  it('accepts a summary on any result, padded or not', () => {
+    expect(check([entry({ summary: '  Holds up.  ' })])).toEqual([])
+  })
+
+  it.each(['  ', 'x'.repeat(141), 'a\nb', 'a\rb', 5])(
+    'refuses the summary %j',
+    (summary) => {
+      expect(
+        check([entry({ summary: summary as unknown as string })])
+      ).toEqual([`${at} needs a summary of one line, 1 to 140 characters`])
+    }
+  )
+
+  it('reports one problem for a partial entry with a blank summary', () => {
+    expect(check([entry({ result: 'partial', summary: ' ' })])).toEqual([
+      `${at} needs a summary of one line, 1 to 140 characters`,
+    ])
+  })
 })
 
 describe('validateCommits', () => {
