@@ -103,6 +103,18 @@ describe('Ledger', () => {
     )
   })
 
+  it('counts the evidence on each entry', () => {
+    show([
+      entry({
+        evidence: [
+          { label: 'A', path: 'a.md' },
+          { label: 'B', path: 'b.md' },
+        ],
+      }),
+    ])
+    expect(screen.getByText('Evidence (2)')).toBeInTheDocument()
+  })
+
   it('says so when there are no entries yet', () => {
     show([])
     expect(region()).toHaveTextContent(

@@ -68,6 +68,10 @@
   --rule: 1px;
   --focus: 2px;
   --mark-size: 8px;
+  --ring: 1.5px;
+  --anchor-rule: 3px;
+  --fact-min: 180px;
+  --radius-mark: 1px;
   --nudge: 2px;
   --dot: 0.32em;
 

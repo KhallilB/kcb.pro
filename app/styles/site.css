@@ -542,8 +542,9 @@ a {
   scroll-margin-block-start: var(--space-5);
 }
 
+/* Landed-on entry: a rule, never a wash that costs text contrast. */
 .entry:target {
-  background: var(--accent-soft);
+  box-shadow: inset var(--anchor-rule) 0 0 var(--gold);
 }
 
 .entry__main {
@@ -562,7 +563,7 @@ a {
 
 .entry__facts {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--fact-min)), 1fr));
   gap: var(--space-3) var(--gutter);
   font-size: var(--text-small);
   line-height: var(--lh-small);
@@ -604,7 +605,7 @@ a {
 .result__mark {
   inline-size: var(--mark-size);
   block-size: var(--mark-size);
-  border: 1.5px solid currentColor;
+  border: var(--ring) solid currentColor;
   border-radius: 50%;
   color: var(--secondary);
 }
@@ -622,7 +623,7 @@ a {
 .result[data-result='fail'] .result__mark {
   color: var(--failing);
   background: currentColor;
-  border-radius: 1px;
+  border-radius: var(--radius-mark);
   transform: rotate(45deg);
 }
 

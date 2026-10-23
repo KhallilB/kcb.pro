@@ -56,7 +56,7 @@ export function LedgerEntry({
         )}
         {entry.evidence.length > 0 && (
           <details className="entry__evidence">
-            <summary>Evidence</summary>
+            <summary>Evidence ({entry.evidence.length})</summary>
             <ul>
               {entry.evidence.map((item, i) => (
                 <li key={`${item.label}${i}`}>
