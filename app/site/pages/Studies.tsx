@@ -3,6 +3,7 @@ import { findProject } from '@app/portfolio/domain/catalog'
 import { formatMonth } from '@app/portfolio/domain/dates'
 import { formatLabel } from '@app/portfolio/domain/status'
 import { Brief } from '../components/Brief'
+import { BuildLog } from '../components/BuildLog'
 import { StatusChip } from '../components/StatusChip'
 import { useSite } from '../site'
 import { NotFound } from './NotFound'
@@ -94,6 +95,7 @@ export function StudyPage() {
           </dl>
         </div>
       </header>
+      <BuildLog />
       <Brief sections={study.brief} />
     </article>
   )

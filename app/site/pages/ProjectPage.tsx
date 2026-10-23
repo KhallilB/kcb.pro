@@ -1,6 +1,7 @@
 import { Link, useParams } from 'react-router'
 import { findProject } from '@app/portfolio/domain/catalog'
 import { Brief } from '../components/Brief'
+import { BuildLog } from '../components/BuildLog'
 import { StatusChip } from '../components/StatusChip'
 import { useSite } from '../site'
 import { NotFound } from './NotFound'
@@ -54,6 +55,7 @@ export function ProjectPage() {
           )}
         </div>
       </header>
+      <BuildLog />
       <Brief sections={project.brief} />
     </article>
   )
