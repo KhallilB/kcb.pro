@@ -8,7 +8,7 @@ export interface PageMeta {
 }
 
 const DEFAULT_DESCRIPTION =
-  'Three apps I’m building, each one to learn a hard area of engineering, with every project dated.'
+  'Frontend engineer in Los Angeles with more than five years of building product interfaces. What I’m building now, with a date on everything.'
 
 const titled = (name: string) => `${name} · ${profile.name}`
 

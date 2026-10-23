@@ -48,7 +48,7 @@ You need [Bun](https://bun.sh) 1.3.11 or newer. Run `bun install` once, then:
 ### `app/portfolio/content`: what the site says
 
 `projects.ts` and `studies.ts` hold every project and study as typed data, and
-`index.ts` holds the profile (name, headline, GitHub link). To change what the site
+`index.ts` holds the profile (name, headline, contact links, past roles). To change what the site
 says, change these files. See [content.md](content.md).
 
 ### `app/portfolio/domain`: the rules about that content

@@ -1,4 +1,4 @@
-import type { Catalog, Project, ProjectStatus } from './types'
+import type { Catalog, Project, ProjectStatus, Study } from './types'
 
 const byOrder = (a: Project, b: Project) => a.order - b.order
 
@@ -49,6 +49,13 @@ export function workIndex(projects: Project[]): Project[] {
     if (a.status === 'in-progress') return byOrder(a, b)
     return a.startsOn.localeCompare(b.startsOn)
   })
+}
+
+// Home lists finished studies only; planned ones read as a to-do list.
+export function finishedStudies(studies: Study[]): Study[] {
+  return studies
+    .filter((s) => s.status === 'shipped')
+    .sort((a, b) => (b.shippedOn ?? '').localeCompare(a.shippedOn ?? ''))
 }
 
 export function findProject(projects: Project[], slug: string) {

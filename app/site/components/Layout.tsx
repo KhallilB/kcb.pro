@@ -6,6 +6,7 @@ import { pathOfPlace, placeOfPath, type TomePlace } from '@app/tome/place'
 import { useHomeView } from '../home-view'
 import { pageMeta } from '../meta'
 import { useSite } from '../site'
+import { ContactLinks } from './ContactLinks'
 import { TomeStage } from './TomeStage'
 import { ViewToggle } from './ViewToggle'
 
@@ -151,9 +152,7 @@ export function Layout() {
               {formatDay(asOf)}
             </time>
           </span>
-          <a href="https://github.com/KhallilB/kcb.pro" className="link">
-            Source <span aria-hidden="true">↗</span>
-          </a>
+          <ContactLinks className="footer__links" />
         </footer>
       </div>
     </>

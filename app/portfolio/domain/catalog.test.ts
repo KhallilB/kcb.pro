@@ -1,5 +1,6 @@
 import {
   featured,
+  finishedStudies,
   nowBuilding,
   published,
   registered,
@@ -89,5 +90,15 @@ describe('catalog', () => {
     )
     expect(shown.projects.map((p) => p.slug)).toEqual(['building', 'next'])
     expect(shown.studies.map((s) => s.slug)).toEqual(['labels'])
+  })
+
+  it('lists finished studies only, most recently shipped first', () => {
+    const studies = [
+      study({ slug: 'planned' }),
+      study({ slug: 'older', status: 'shipped', shippedOn: '2026-11-08' }),
+      study({ slug: 'started', status: 'in-progress' }),
+      study({ slug: 'newer', status: 'shipped', shippedOn: '2026-12-13' }),
+    ]
+    expect(finishedStudies(studies).map((s) => s.slug)).toEqual(['newer', 'older'])
   })
 })

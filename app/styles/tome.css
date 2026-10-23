@@ -365,29 +365,6 @@ html[data-tome='pending'] body {
   margin-block-start: var(--space-4);
 }
 
-/* Empty state for the commits and changelog that arrive once the repo is linked. */
-.build-log {
-  display: grid;
-  gap: var(--space-2);
-  margin-block-end: var(--space-8);
-  padding: var(--space-5) var(--space-6);
-  border: var(--rule) dashed var(--hairline);
-  border-radius: var(--radius-card);
-}
-
-.build-log__title {
-  font: 700 var(--text-meta) / 1 var(--font-head);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--secondary);
-}
-
-.build-log__empty {
-  font-style: italic;
-  color: var(--secondary);
-  max-inline-size: var(--measure);
-}
-
 @media (prefers-reduced-motion: reduce) {
   .tome__fog {
     animation: none;

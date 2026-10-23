@@ -5,7 +5,7 @@ All of the site's content lives in two files:
 - `app/portfolio/content/projects.ts`
 - `app/portfolio/content/studies.ts`
 
-Your name, headline and GitHub link are in `app/portfolio/content/index.ts`.
+Your name, headline, contact links and past roles are in `app/portfolio/content/index.ts`. The résumé PDF it links to is `public/khallil-bailey-resume.pdf`.
 
 Edit the file, run `bun run dev` to see the result, and run `bun run build` before
 you push. The build checks the content and refuses to finish if something is wrong.
