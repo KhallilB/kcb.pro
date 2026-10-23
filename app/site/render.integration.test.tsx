@@ -14,7 +14,7 @@ describe('renderPage', () => {
   it('renders the journey card and a closed record with every entry anchored', () => {
     const page = renderPage('/work/bezl', '2026-10-21', fixtureProgress)
     expect(page.html).toContain('id="progress"')
-    expect(page.html).toContain('Where it stands')
+    expect(page.html).toContain('<h2 id="progress" class="h2">Progress</h2>')
     expect(page.html).toContain('<details id="record" class="record">')
     expect(page.html).toContain('id="2026-10-20-pty-throughput"')
     expect(page.html).not.toContain('Filter entries')

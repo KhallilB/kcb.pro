@@ -12,7 +12,7 @@ function show(entries: PublicEntry[], goal?: string) {
   )
 }
 
-const card = () => screen.getByRole('region', { name: 'Where it stands' })
+const card = () => screen.getByRole('region', { name: 'Progress' })
 const marks = () => screen.getAllByRole('img')
 const counts = () => card().querySelector('.journey__counts')?.textContent
 
@@ -60,10 +60,10 @@ const six = (): PublicEntry[] => [
 ]
 
 describe('Journey', () => {
-  it('is the progress anchor, headed Where it stands', () => {
+  it('is the progress anchor, headed Progress', () => {
     show(six())
     expect(
-      screen.getByRole('heading', { level: 2, name: 'Where it stands' })
+      screen.getByRole('heading', { level: 2, name: 'Progress' })
     ).toHaveAttribute('id', 'progress')
   })
 
@@ -72,15 +72,15 @@ describe('Journey', () => {
     expect(card()).toHaveTextContent('One window for every assistant.')
   })
 
-  it('draws one mark per step, Done to Up next, each named in words', () => {
+  it('draws one mark per step, Done to Planned, each named in words', () => {
     show(six())
     expect(marks().map((m) => m.getAttribute('aria-label'))).toEqual([
       'Step 1 of 6: Snapshots match, done',
       'Step 2 of 6: App scaffolded, done',
       'Step 3 of 6: Docs ship, done',
       'Step 4 of 6: Terminal output keeps up, in progress',
-      'Step 5 of 6: Reviewers cannot write, up next',
-      'Step 6 of 6: Memory limits hold, up next',
+      'Step 5 of 6: Reviewers cannot write, planned',
+      'Step 6 of 6: Memory limits hold, planned',
     ])
   })
 
@@ -97,12 +97,26 @@ describe('Journey', () => {
     expect(marks().every((m) => m.classList.contains('mark'))).toBe(true)
   })
 
-  it('counts the steps in plain words', () => {
+  it('counts the steps in plain words, done out of the total', () => {
     show(six())
-    expect(counts()).toBe('3 done · 1 in progress · 2 up next')
+    expect(counts()).toBe('3 of 6 done, 1 in progress, 2 planned')
   })
 
-  it('names a rethought step as rethinking, in its mark and the counts', () => {
+  it('starts the counts with the first group present when none is done', () => {
+    show([
+      publicEntry({
+        id: 'a',
+        subject: 'a',
+        result: 'partial',
+        summary: 'Half.',
+      }),
+      publicEntry({ id: 'b', subject: 'b', result: 'not-run' }),
+      publicEntry({ id: 'c', subject: 'c', result: 'not-run' }),
+    ])
+    expect(counts()).toBe('1 in progress, 2 planned')
+  })
+
+  it('names a rethought step in its mark and the counts', () => {
     show([
       publicEntry({ id: 'a', subject: 'a', title: 'Speed holds' }),
       publicEntry({
@@ -115,7 +129,7 @@ describe('Journey', () => {
     expect(marks().at(-1)).toHaveAccessibleName(
       'Step 2 of 2: Sync works, rethinking'
     )
-    expect(counts()).toBe('1 done · 1 rethinking')
+    expect(counts()).toBe('1 of 2 done, 1 being rethought')
   })
 
   it('keeps the steps a list for screen readers despite no bullets', () => {
@@ -126,19 +140,19 @@ describe('Journey', () => {
     )
   })
 
-  it('names rethinking only when a step is being rethought, and skips empty groups', () => {
+  it('names a rethought group only when a step is being rethought, and skips empty groups', () => {
     show([
       publicEntry({ id: 'a', subject: 'a' }),
       publicEntry({ id: 'b', subject: 'b', result: 'fail' }),
     ])
-    expect(card()).toHaveTextContent('1 done · 1 rethinking')
+    expect(counts()).toBe('1 of 2 done, 1 being rethought')
     expect(card()).not.toHaveTextContent('in progress')
-    expect(card()).not.toHaveTextContent('up next')
+    expect(card()).not.toHaveTextContent('planned')
   })
 
-  it('names the first Up next step as Next', () => {
+  it('names the first Planned step as Next up', () => {
     show(six())
-    expect(card()).toHaveTextContent('Next: Reviewers cannot write')
+    expect(card()).toHaveTextContent('Next up: Reviewers cannot write')
   })
 
   it('falls back to the first In progress step', () => {
@@ -152,32 +166,34 @@ describe('Journey', () => {
       }),
       publicEntry({ id: 'b', subject: 'b' }),
     ])
-    expect(card()).toHaveTextContent('Next: Speed holds')
+    expect(card()).toHaveTextContent('Next up: Speed holds')
   })
 
-  it('leaves Next out when every step is done', () => {
+  it('leaves Next up out when every step is done', () => {
     show([publicEntry()])
-    expect(card()).not.toHaveTextContent('Next:')
+    expect(card()).not.toHaveTextContent('Next up')
   })
 
-  it('dates itself as of the build day', () => {
+  it('says it was updated on the build day', () => {
     show(six())
-    expect(card()).toHaveTextContent('As of 21 Oct 2026')
+    expect(card()).toHaveTextContent('Updated 21 Oct 2026')
   })
 
-  it('says Quiet since when the newest entry is over 30 days old', () => {
+  it('says No updates since when the newest entry is over 30 days old', () => {
     show([publicEntry({ date: '2026-09-20' })])
-    expect(card()).toHaveTextContent('Quiet since 20 Sep 2026')
+    expect(card()).toHaveTextContent(
+      'Updated 21 Oct 2026 · No updates since 20 Sep 2026'
+    )
   })
 
-  it('says nothing about quiet within 30 days', () => {
+  it('says nothing about updates stopping within 30 days', () => {
     show([publicEntry({ date: '2026-09-21' })])
-    expect(card()).not.toHaveTextContent('Quiet since')
+    expect(card()).not.toHaveTextContent('No updates since')
   })
 
   it('says so when no step is recorded yet', () => {
     show([])
-    expect(card()).toHaveTextContent('No steps recorded yet.')
+    expect(card()).toHaveTextContent('Nothing logged yet.')
     expect(screen.queryAllByRole('img')).toEqual([])
   })
 })

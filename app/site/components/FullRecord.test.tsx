@@ -55,6 +55,8 @@ function tree(path: string) {
         <Link to="/work/alpha#a1">to a1</Link>
         <Link to="/work/alpha#a2">to a2</Link>
         <Link to="/work/beta#a2">to beta a2</Link>
+        <Link to="/work/alpha">to alpha</Link>
+        <Link to="/work/alpha#the-problem">to the problem</Link>
       </MemoryRouter>
     </SiteProvider>
   )
@@ -69,24 +71,22 @@ const rowIds = () =>
 describe('FullRecord', () => {
   afterEach(() => vi.restoreAllMocks())
 
-  it('starts closed under the summary The full record', () => {
+  it('starts closed under the summary Full history', () => {
     render(tree('/work/alpha'))
     expect(record()).not.toHaveAttribute('open')
-    expect(record().querySelector('summary')).toHaveTextContent(
-      'The full record'
-    )
+    expect(record().querySelector('summary')).toHaveTextContent('Full history')
   })
 
   it('names the record with a level-two heading inside its summary', () => {
     render(tree('/work/alpha'))
     const heading = screen.getByRole('heading', {
       level: 2,
-      name: 'The full record',
+      name: 'Full history',
     })
     expect(heading.closest('summary')).toBe(record().querySelector('summary'))
   })
 
-  it('rows the current step per subject, grouped Done, In progress, Up next', () => {
+  it('rows the current step per subject, grouped Done, In progress, Planned', () => {
     render(tree('/work/alpha'))
     expect(rowIds()).toEqual(['b1', 'a3', 'c1'])
   })
@@ -113,6 +113,9 @@ describe('FullRecord', () => {
       )
     )
     expect(lines.map((line) => line.id)).toEqual(['a2', 'a1'])
+    expect(lines[0].closest('ol')).toHaveAccessibleName(
+      'Earlier updates to Speed holds'
+    )
     expect(lines[0]).toHaveTextContent(
       '5 Oct 2026 · In progress · Fast enough; memory is next.'
     )
@@ -141,6 +144,24 @@ describe('FullRecord', () => {
     expect(landed()).toEqual(['a2'])
     fireEvent.click(screen.getByRole('link', { name: 'to a1' }))
     expect(landed()).toEqual(['a1'])
+  })
+
+  it.each(['to alpha', 'to the problem'])(
+    'clears the landed mark when a navigation lands outside the record (%s)',
+    (name) => {
+      render(tree('/work/alpha'))
+      fireEvent.click(screen.getByRole('link', { name: 'to a2' }))
+      expect(landed()).toEqual(['a2'])
+      fireEvent.click(screen.getByRole('link', { name }))
+      expect(landed()).toEqual([])
+    }
+  )
+
+  it('never marks the record itself as landed', () => {
+    render(tree('/work/alpha#record'))
+    expect(landed()).toEqual([])
+    fireEvent.click(screen.getByRole('link', { name: 'to a2' }))
+    expect(landed()).toEqual(['a2'])
   })
 
   it('moves focus to the entry it lands on, without a second scroll', () => {
@@ -194,6 +215,27 @@ describe('FullRecord', () => {
     container.innerHTML = renderToString(tree(path))
     document.body.append(container)
     expect(container.querySelector('#record')).not.toHaveAttribute('open')
+    const logged = vi.spyOn(console, 'error')
+    const recovered: unknown[] = []
+    let root: Root | undefined
+    await act(async () => {
+      root = hydrateRoot(container, tree(path), {
+        onRecoverableError: (error) => recovered.push(error),
+      })
+    })
+    expect(container.querySelector('#record')).toHaveAttribute('open')
+    expect(recovered).toEqual([])
+    expect(logged).not.toHaveBeenCalled()
+    act(() => root?.unmount())
+    container.remove()
+  })
+
+  it('hydrates without a warning when the browser opened the record first', async () => {
+    const path = '/work/alpha#a2'
+    const container = document.createElement('div')
+    container.innerHTML = renderToString(tree(path))
+    document.body.append(container)
+    ;(container.querySelector('#record') as HTMLDetailsElement).open = true
     const logged = vi.spyOn(console, 'error')
     const recovered: unknown[] = []
     let root: Root | undefined

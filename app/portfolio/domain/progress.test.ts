@@ -502,11 +502,11 @@ describe('status words', () => {
       'Done',
       'In progress',
       'Rethinking',
-      'Up next',
+      'Planned',
     ])
   })
 
-  it('orders groups Done, In progress, Up next, Rethinking', () => {
+  it('orders groups Done, In progress, Planned, Rethinking', () => {
     expect(STATUS_ORDER).toEqual(['pass', 'partial', 'not-run', 'fail'])
   })
 })
@@ -550,7 +550,7 @@ describe('journeySteps', () => {
 })
 
 describe('nextStep', () => {
-  it('is the first Up next step', () => {
+  it('is the first Planned step', () => {
     const steps = [
       entry({ id: 'p', result: 'partial' }),
       entry({ id: 'n1', result: 'not-run' }),

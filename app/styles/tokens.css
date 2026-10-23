@@ -9,7 +9,6 @@
   --ink: #2d2318;
   --secondary: #6f5d45;
   --accent: #17785c;
-  --accent-soft: rgba(23, 120, 92, 0.14);
   --gold: #caa24c;
   --passing: #17785c;
   --in-progress: #9e6c18;
@@ -79,8 +78,6 @@
   --step-size: 14px;
   --ring: 1.5px;
   --anchor-rule: 3px;
-  --nudge: 2px;
-  --dot: 0.32em;
 
   --ease: cubic-bezier(0.2, 0, 0, 1);
   --fast: 150ms;

@@ -170,18 +170,20 @@ test('the journey card and the record are in the prerendered project page', asyn
   expect(html).toContain('id="2026-10-20-pty-throughput"')
 })
 
-test('a project page leads with where it stands, then the brief, then the closed record', async ({
+test('a project page leads with progress, then the brief, then the closed record', async ({
   page,
 }) => {
   await page.goto('/work/bezl')
-  const card = page.getByRole('region', { name: 'Where it stands' })
+  const card = page.getByRole('region', { name: 'Progress', exact: true })
   await expect(card).toContainText(
     'One window that runs AI coding assistants side by side'
   )
   await expect(card.getByRole('img', { name: /^Step \d of 6: / })).toHaveCount(
     6
   )
-  await expect(card).toContainText('Next: A Claude Code reviewer cannot write')
+  await expect(card).toContainText(
+    'Next up: A Claude Code reviewer cannot write'
+  )
   const inOrder = await page.evaluate(() => {
     const follows = (a: string, b: string) =>
       Boolean(

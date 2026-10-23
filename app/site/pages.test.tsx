@@ -132,13 +132,15 @@ describe('project page', () => {
 
   it('tells where Bezl stands, under the header and above the brief', () => {
     visit('/work/bezl')
-    const card = screen.getByRole('region', { name: 'Where it stands' })
+    const card = screen.getByRole('region', { name: 'Progress' })
     expect(card).toHaveTextContent(
       'One window that runs AI coding assistants side by side, with one writer per task.'
     )
-    expect(card).toHaveTextContent('3 done · 1 in progress · 2 up next')
-    expect(card).toHaveTextContent('Next: A Claude Code reviewer cannot write')
-    expect(card).toHaveTextContent('As of 21 Oct 2026')
+    expect(card).toHaveTextContent('3 of 6 done, 1 in progress, 2 planned')
+    expect(card).toHaveTextContent(
+      'Next up: A Claude Code reviewer cannot write'
+    )
+    expect(card).toHaveTextContent('Updated 21 Oct 2026')
     expect(within(card).getAllByRole('img')).toHaveLength(6)
     const brief = screen.getByRole('heading', { level: 2, name: 'The problem' })
     expect(
@@ -195,7 +197,7 @@ describe('project page', () => {
     const log = screen.getByRole('region', { name: 'Build log' })
     expect(log).toHaveTextContent('Nothing here yet')
     expect(within(log).queryByRole('img')).toBeNull()
-    expect(screen.queryByRole('region', { name: 'Where it stands' })).toBeNull()
+    expect(screen.queryByRole('region', { name: 'Progress' })).toBeNull()
     expect(document.getElementById('record')).toBeNull()
   })
 

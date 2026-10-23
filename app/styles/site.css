@@ -507,7 +507,7 @@ a {
   }
 }
 
-/* Where it stands: the goal, one mark per step, what comes next. */
+/* Progress: the goal, one mark per step, what comes next. */
 .journey {
   display: grid;
   gap: var(--space-3);
@@ -584,7 +584,7 @@ a {
     );
 }
 
-/* The full record: closed until asked for or linked to. */
+/* Full history: closed until asked for or linked to. */
 .record {
   margin-block: var(--space-8);
   border-block-start: var(--rule) solid var(--hairline);

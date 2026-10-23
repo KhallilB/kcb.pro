@@ -17,7 +17,7 @@ export function FullRecord({ progress }: { progress: PublicProgress }) {
   const { pathname, hash, key } = useLocation()
   const ref = useRef<HTMLDetailsElement>(null)
 
-  // Path, hash or same-link navigation re-opens; runs before 1b's seek.
+  // Path, hash or same-link navigation re-opens and re-marks the target.
   useEffect(() => {
     const details = ref.current
     if (!details) return
@@ -27,9 +27,10 @@ export function FullRecord({ progress }: { progress: PublicProgress }) {
     const target = document.getElementById(idFromHash(hash))
     if (!target || !details.contains(target)) return
     details.open = true
-    target.dataset.landed = ''
+    if (target !== details) target.dataset.landed = ''
     target.scrollIntoView({ block: 'start' })
-    if (!target.hasAttribute('tabindex')) target.tabIndex = -1
+    if (target.tabIndex < 0 && !target.hasAttribute('tabindex'))
+      target.tabIndex = -1
     target.focus({ preventScroll: true })
   }, [pathname, hash, key])
 
@@ -38,7 +39,7 @@ export function FullRecord({ progress }: { progress: PublicProgress }) {
     // Browsers may open it on fragment navigation before hydration.
     <details id="record" className="record" ref={ref} suppressHydrationWarning>
       <summary className="record__summary">
-        <h2 className="h2">The full record</h2>
+        <h2 className="h2">Full history</h2>
       </summary>
       <ol className="record__rows">
         {steps.map((step) => {
@@ -62,7 +63,7 @@ export function FullRecord({ progress }: { progress: PublicProgress }) {
                 {earlier.length > 0 && (
                   <ol
                     className="record__earlier"
-                    aria-label={`Earlier: ${step.title}`}
+                    aria-label={`Earlier updates to ${step.title}`}
                   >
                     {earlier.map((e) => (
                       <li key={e.id} id={e.id} className="record__line">

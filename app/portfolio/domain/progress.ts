@@ -425,7 +425,7 @@ export function quietSince(entries: PublicEntry[], day: IsoDay): IsoDay | null {
 export const STATUS_WORD: Record<ProgressResult, string> = {
   pass: 'Done',
   partial: 'In progress',
-  'not-run': 'Up next',
+  'not-run': 'Planned',
   fail: 'Rethinking',
 }
 
@@ -454,7 +454,7 @@ export function journeySteps<E extends PublicEntry>(
     .map(({ entry }) => entry)
 }
 
-// First Up next step, else the first In progress one.
+// First Planned step, else the first In progress one.
 export function nextStep<E extends PublicEntry>(steps: E[]): E | undefined {
   return (
     steps.find((s) => s.result === 'not-run') ??
