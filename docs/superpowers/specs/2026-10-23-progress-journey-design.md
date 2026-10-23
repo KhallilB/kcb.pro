@@ -3,6 +3,7 @@
 Date: 2026-10-23
 Status: approved in conversation; spec review passed (round 2 fixes applied)
 Amends: [2026-10-22 progress ledger](2026-10-22-progress-ledger-design.md) and plan 1a, before PR #131 merges. Plan 1b gets a follow-up edit (see "Plan 1b").
+Wording since: during the build the owner chose plainer visitor words. The card heading is "Progress", "Up next" is "Planned", the record is "Full history", and the card reads "3 of 6 done, 1 in progress, 2 planned", "Next up:", "Updated" and "No updates since". `docs/content.md` describes the site as built.
 
 ## Why
 
