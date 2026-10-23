@@ -56,7 +56,7 @@ export const projects: Project[] = [
     domain:
       'Running other programs from a desktop app: live terminals inside one window, permissions enforced by the tools themselves rather than requested in a prompt, and a record you can check afterwards.',
     signature:
-      'One writer per task: reviewers that are stopped from editing by the assistant’s own sandbox, not by a polite request.',
+      'One writer per task: reviewers held read-only by each assistant’s own sandbox, not by a polite request. Proven for Codex so far.',
     links: [],
     brief: [
       {
@@ -74,10 +74,10 @@ export const projects: Project[] = [
       {
         heading: 'What is proven so far',
         body: [
-          'Three short experiments ran on 22 Oct 2026, each with what would count as success decided before it started.',
-          'Terminal output reaches the window with nothing lost, and typing echoes instantly. Memory during heavy bursts is still above the target, so the real terminal now has two memory limits to meet: one at rest and one during heavy output.',
-          'Ghostty’s terminal engine builds quickly and captures an accurate text snapshot of a live vim screen. For now it builds with only one release of its compiler.',
-          'A Codex reviewer was stopped by the operating system when it tried to change a file, and said so. The same check for Claude Code and Gemini CLI has not run yet.',
+          'Three short experiments ran on 22 Oct 2026, each measured against a stated bar for success.',
+          'No terminal output was dropped on the way to the window, and typing echoes with no noticeable delay. Memory during heavy bursts missed the original limit, so it has been replaced by two: one at rest and one during heavy output.',
+          'Ghostty’s terminal engine builds within its time budget and captures a text snapshot of a live vim screen that matches what was typed. For now it needs one specific build of its compiler.',
+          'A Codex probe running read-only was stopped by the operating system when it tried to change a file, and said so. The same check for Claude Code and Gemini CLI has not run yet.',
         ],
       },
       {
@@ -136,7 +136,7 @@ export const projects: Project[] = [
       {
         heading: 'Who uses it',
         body: [
-          'loupe uses it today, and Bezl’s interface is planned on it. Releases are versioned, starting with 0.1.0, so a project that builds in the cloud has a released version to install.',
+          'loupe uses it today, and Bezl’s interface is planned on it. The first release, 0.1.0, is out as downloadable packages, so a project that builds in the cloud can install a fixed version.',
         ],
       },
       {

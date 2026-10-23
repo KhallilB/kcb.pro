@@ -15,8 +15,20 @@ function strings(value: unknown): string[] {
 describe('tome data', () => {
   it('keeps measurements out of the chapters', () => {
     const text = strings(data.chapters).join('\n')
-    expect(text).not.toMatch(/\d\s?(ms|MB|GB|KiB|MiB)\b/)
-    expect(text).not.toContain('Zig')
+    // `%` sits outside `\b`: a word boundary never follows it before a space.
+    expect(text).not.toMatch(
+      /\d[\s-]?(?:(?:ms|[kmgt]i?b|s|secs?|seconds?|mins?|minutes?|x)\b|%)/i
+    )
+    expect(text).not.toMatch(/\d+ (component )?(tests|stories)\b/i)
+    for (const phrase of [
+      'Zig',
+      'instantly',
+      'accurate text snapshot',
+      'builds quickly',
+      'Releases are versioned',
+    ]) {
+      expect(text).not.toContain(phrase)
+    }
   })
 
   it('titles its two chapters after the featured endeavors, in order', () => {

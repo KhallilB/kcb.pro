@@ -2,6 +2,18 @@ import { catalog, content } from './index'
 import { validateCatalog } from '../domain/validate'
 import { featured, nowBuilding, registered } from '../domain/catalog'
 
+// `%` sits outside `\b`: a word boundary never follows it before a space.
+const MEASUREMENT =
+  /\d[\s-]?(?:(?:ms|[kmgt]i?b|s|secs?|seconds?|mins?|minutes?|x)\b|%)/i
+const TEST_COUNT = /\d+ (component )?(tests|stories)\b/i
+// Wording that claimed more than the experiments showed.
+const OVERCLAIMS = [
+  'instantly',
+  'accurate text snapshot',
+  'builds quickly',
+  'Releases are versioned',
+]
+
 describe('published content', () => {
   it('passes every catalog rule, hidden entries included', () => {
     expect(validateCatalog(catalog)).toEqual([])
@@ -18,21 +30,30 @@ describe('published content', () => {
   it.each(['bezl', 'kbui'])('keeps measurements out of the %s copy', (slug) => {
     const p = content.projects.find((project) => project.slug === slug)!
     const text = [
+      p.title,
       p.summary,
       p.about,
       p.goal,
+      p.domain,
+      p.signature,
+      ...p.stack,
       ...p.brief.flatMap((s) => [s.heading, ...s.body]),
     ].join('\n')
-    expect(text).not.toMatch(/\d\s?(ms|MB|GB|KiB|MiB)\b/)
+    expect(text).not.toMatch(MEASUREMENT)
+    expect(text).not.toMatch(TEST_COUNT)
     for (const phrase of [
       'Zig',
       'pass mark',
-      '28 component tests',
-      '16 stories',
       'no version numbers',
+      ...OVERCLAIMS,
     ]) {
       expect(text).not.toContain(phrase)
     }
+  })
+
+  it('scopes the Bezl sandbox claim to the one assistant checked', () => {
+    const bezl = content.projects.find((p) => p.slug === 'bezl')!
+    expect(bezl.signature).toContain('Proven for Codex so far.')
   })
 
   it('registers Bezl and kbui by their public repositories', () => {

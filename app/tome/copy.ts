@@ -110,11 +110,11 @@ export function tomeData(asOf: IsoDay): TomeData {
           ],
           [
             'One writer',
-            'Each task has one assistant that may write and any number that may only read, held in place by each tool’s own sandbox.',
+            'Each task has one assistant that may write and any number that may only read, to be held in place by each tool’s own sandbox.',
           ],
           [
             'Proven so far',
-            'Terminal output reaches the window with nothing lost, and typing echoes instantly. Memory is the open question.',
+            'No terminal output was dropped on the way to the window, and typing echoes with no noticeable delay. Memory is the open question.',
           ],
         ],
         [
