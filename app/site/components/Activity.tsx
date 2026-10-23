@@ -1,19 +1,7 @@
-import { activityWeeks, commitGroups } from '@app/portfolio/domain/activity'
+import { activityWeeks } from '@app/portfolio/domain/activity'
 import { formatDay, formatWeekday } from '@app/portfolio/domain/dates'
-import type { Commit, CommitType } from '@app/portfolio/domain/progress'
+import type { DayCount } from '@app/portfolio/domain/progress'
 import { useSite } from '../site'
-
-const GROUP_LABELS: Record<CommitType, string> = {
-  feat: 'Features',
-  fix: 'Fixes',
-  docs: 'Docs',
-  test: 'Tests',
-  refactor: 'Refactors',
-  chore: 'Chores',
-  other: 'Other',
-}
-
-const PER_GROUP = 5
 
 // Square shade: none, 1, 2–3, 4–6, 7 or more commits.
 function level(count: number): number {
@@ -29,17 +17,9 @@ function plural(n: number, noun: string): string {
   return `${n} ${noun}${n === 1 ? '' : 's'}`
 }
 
-export function Activity({
-  repo,
-  commits,
-}: {
-  repo: string
-  commits: Commit[]
-}) {
+export function Activity({ days }: { days: DayCount[] }) {
   const { asOf } = useSite()
-  const weeks = activityWeeks(commits, asOf)
-  const groups = commitGroups(commits)
-  const days = weeks.flat()
+  const weeks = activityWeeks(days)
   const total = days.reduce((sum, d) => sum + d.count, 0)
   const active = days.filter((d) => d.count > 0).length
 
@@ -48,9 +28,13 @@ export function Activity({
       <h3 id="activity" className="h3">
         Activity
       </h3>
-      <p className="activity__total">
-        {plural(total, 'commit')} in the last 12 weeks
-      </p>
+      {total > 0 ? (
+        <p className="activity__total">
+          {plural(total, 'commit')} in the last 12 weeks
+        </p>
+      ) : (
+        <p className="activity__empty">No commits in the last 12 weeks.</p>
+      )}
       <table className="activity__grid">
         <caption className="sr-only">
           Commits per day for the 12 weeks to {formatDay(asOf)}:{' '}
@@ -98,41 +82,6 @@ export function Activity({
           <span key={n} className="activity__swatch" data-level={n} />
         ))}
         More
-      </p>
-      {groups.length === 0 ? (
-        <p className="ledger__empty">No commits in the last 90 days.</p>
-      ) : (
-        <>
-          <p className="activity__scope mono secondary">
-            Recent commits, last 90 days
-          </p>
-          <div className="activity__groups">
-            {groups.map(({ type, commits: list }) => (
-              <div key={type} className="activity__group">
-                <h4 className="mono secondary">
-                  {GROUP_LABELS[type]} · {list.length}
-                </h4>
-                <ul>
-                  {list.slice(0, PER_GROUP).map((c, i) => (
-                    <li key={`${c.sha}${i}`}>
-                      <a className="link" href={c.url}>
-                        {c.subject}
-                      </a>{' '}
-                      <time className="secondary" dateTime={c.date}>
-                        {formatDay(c.date)}
-                      </time>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
-      <p>
-        <a className="link" href={`https://github.com/${repo}/commits`}>
-          All commits on GitHub <span aria-hidden="true">↗</span>
-        </a>
       </p>
     </section>
   )

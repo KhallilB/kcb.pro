@@ -1,5 +1,12 @@
-import type { Commit, ProgressEntry, ProgressFile } from './progress'
-import type { Catalog, Project, Study } from './types'
+import { addDays } from './dates'
+import {
+  ACTIVITY_DAYS,
+  type Commit,
+  type DayCount,
+  type ProgressEntry,
+  type ProgressFile,
+} from './progress'
+import type { Catalog, IsoDay, Project, Study } from './types'
 
 export function project(overrides: Partial<Project> = {}): Project {
   return {
@@ -74,4 +81,15 @@ export function commit(overrides: Partial<Commit> = {}): Commit {
     url: 'https://github.com/KhallilB/alpha/commit/01e47db',
     ...overrides,
   }
+}
+
+// The days a page ships, ending on end; days not named count none.
+export function days(
+  end: IsoDay,
+  counts: Record<IsoDay, number> = {}
+): DayCount[] {
+  return Array.from({ length: ACTIVITY_DAYS }, (_, i) => {
+    const day = addDays(end, i + 1 - ACTIVITY_DAYS)
+    return { day, count: counts[day] ?? 0 }
+  })
 }

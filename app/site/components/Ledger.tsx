@@ -3,6 +3,7 @@ import { formatDay } from '@app/portfolio/domain/dates'
 import {
   progressCounts,
   quietSince,
+  toPublic,
   type ProgressKind,
   type ProjectProgress,
 } from '@app/portfolio/domain/progress'
@@ -95,7 +96,7 @@ export function Ledger({
       ) : (
         <p className="ledger__empty">No entries yet.</p>
       )}
-      <Activity repo={repo} commits={progress.commits} />
+      <Activity days={toPublic(progress, asOf).days} />
     </section>
   )
 }

@@ -156,9 +156,8 @@ describe('project page', () => {
     const activity = within(
       screen.getByRole('region', { name: 'Progress' })
     ).getByRole('region', { name: 'Activity' })
-    expect(
-      within(activity).getByRole('heading', { name: 'Features · 5' })
-    ).toBeInTheDocument()
+    expect(activity).toHaveTextContent('11 commits in the last 12 weeks')
+    expect(within(activity).queryAllByRole('link')).toEqual([])
   })
 
   it('keeps the empty build log for a project with no progress', () => {

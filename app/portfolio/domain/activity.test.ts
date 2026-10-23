@@ -1,5 +1,5 @@
-import { activityWeeks, classifyCommit, commitGroups } from './activity'
-import { commit } from './fixtures'
+import { activityWeeks, classifyCommit } from './activity'
+import { days } from './fixtures'
 
 describe('classifyCommit', () => {
   it.each([
@@ -22,57 +22,19 @@ describe('classifyCommit', () => {
 })
 
 describe('activityWeeks', () => {
-  it('lays out twelve weeks of days ending on the build day', () => {
-    const weeks = activityWeeks([], '2026-10-21')
+  it('lays the 84 days out as twelve weeks, oldest first, ending on the build day', () => {
+    const weeks = activityWeeks(days('2026-10-21'))
     expect(weeks).toHaveLength(12)
     expect(weeks.every((week) => week.length === 7)).toBe(true)
     expect(weeks[0][0].day).toBe('2026-07-30')
     expect(weeks[11][6].day).toBe('2026-10-21')
   })
 
-  it('counts commits per day and ignores days outside the window', () => {
+  it('keeps each day’s count in its cell', () => {
     const weeks = activityWeeks(
-      [
-        commit({ date: '2026-10-21' }),
-        commit({ sha: 'bbbbbbb', date: '2026-10-21' }),
-        commit({ sha: 'ccccccc', date: '2026-07-29' }),
-      ],
-      '2026-10-21'
+      days('2026-10-21', { '2026-07-30': 1, '2026-10-21': 2 })
     )
-    expect(weeks[11][6].count).toBe(2)
-    expect(weeks.flat().reduce((sum, d) => sum + d.count, 0)).toBe(2)
-  })
-
-  it('does not count a commit dated after the build day', () => {
-    const weeks = activityWeeks([commit({ date: '2026-10-22' })], '2026-10-21')
-    expect(weeks.flat().reduce((sum, d) => sum + d.count, 0)).toBe(0)
-  })
-
-  it('counts a commit on the first window day in the first cell', () => {
-    const weeks = activityWeeks([commit({ date: '2026-07-30' })], '2026-10-21')
     expect(weeks[0][0].count).toBe(1)
-  })
-})
-
-describe('commitGroups', () => {
-  it('returns no groups for no commits', () => {
-    expect(commitGroups([])).toEqual([])
-  })
-
-  it('groups by type in a fixed order, newest first, skipping empty types', () => {
-    const older = commit({ sha: 'aaaaaaa', date: '2026-10-01' })
-    const newer = commit({ sha: 'bbbbbbb', date: '2026-10-09' })
-    const fix = commit({ sha: 'ccccccc', type: 'fix' })
-    const other = commit({ sha: 'ddddddd', type: 'other' })
-    expect(
-      commitGroups([other, older, fix, newer]).map((g) => [
-        g.type,
-        g.commits.map((c) => c.sha),
-      ])
-    ).toEqual([
-      ['feat', ['bbbbbbb', 'aaaaaaa']],
-      ['fix', ['ccccccc']],
-      ['other', ['ddddddd']],
-    ])
+    expect(weeks[11][6].count).toBe(2)
   })
 })
