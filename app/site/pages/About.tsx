@@ -21,10 +21,10 @@ export function About() {
           engineers at a startup, where the frontend is whatever you make it.
         </p>
         <p>
-          My favorite part of the job is when something confusing finally
-          clicks: helping people take fewer steps and make clearer choices.
-          But easy doesn’t have to mean boring, which is why this site’s home
-          page is one of my favorite things.
+          My favorite part of the job is watching something confusing finally
+          click for people: fewer steps, clearer choices, less second-guessing.
+          Simple doesn’t have to mean plain, though. I made this site’s home
+          page a book, and it’s one of my favorite things I’ve built.
         </p>
         <p>
           Off the clock, I’m usually reading, playing basketball or video games,
