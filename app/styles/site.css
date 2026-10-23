@@ -681,6 +681,7 @@ a {
 }
 
 .activity__grid {
+  justify-self: start;
   border-collapse: separate;
   border-spacing: 3px;
 }
@@ -691,7 +692,7 @@ a {
   padding: 0;
 }
 
-.activity__grid td,
+.activity__grid td[data-level],
 .activity__swatch {
   inline-size: var(--cell);
   block-size: var(--cell);
@@ -700,7 +701,7 @@ a {
 }
 
 /* Active days get an edge so the shade is not the only cue (1.4.11). */
-.activity__grid td:not([data-level='0']),
+.activity__grid td[data-level]:not([data-level='0']),
 .activity__swatch:not([data-level='0']) {
   outline: var(--cell-edge) solid var(--ink);
   outline-offset: calc(-1 * var(--cell-edge));
@@ -774,14 +775,14 @@ a {
 }
 
 @media (forced-colors: active) {
-  .activity__grid td,
+  .activity__grid td[data-level],
   .activity__swatch {
     forced-color-adjust: none;
     border: var(--cell-edge) solid CanvasText;
     background: Canvas;
   }
 
-  .activity__grid td:not([data-level='0']),
+  .activity__grid td[data-level]:not([data-level='0']),
   .activity__swatch:not([data-level='0']) {
     outline: none;
     background: CanvasText;

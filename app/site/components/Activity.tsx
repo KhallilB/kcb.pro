@@ -58,7 +58,9 @@ export function Activity({
         </caption>
         <thead>
           <tr>
-            <td />
+            <th scope="col">
+              <span className="sr-only">Day</span>
+            </th>
             {weeks.map((week) => (
               <th key={week[0].day} scope="col">
                 <span className="sr-only">

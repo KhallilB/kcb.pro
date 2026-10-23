@@ -176,6 +176,28 @@ test('the ledger filters by kind once the page is live', async ({ page }) => {
   await expect(ledger.locator('.entry')).toContainText('Release 0.1.0')
 })
 
+for (const size of [{ width: 1280, height: 800 }, { width: 375, height: 700 }]) {
+  test(`the activity squares are square at ${size.width}px`, async ({ page }) => {
+    await page.setViewportSize(size)
+    await page.goto('/work/bezl')
+    const cells = page.locator('.activity__grid td[data-level]')
+    await expect(cells).toHaveCount(84)
+    const boxes = await cells.evaluateAll((els) =>
+      els.map((el) => {
+        const { width, height } = el.getBoundingClientRect()
+        return { width, height }
+      })
+    )
+    for (const { width, height } of boxes) expect(Math.abs(width - height)).toBeLessThanOrEqual(1)
+  })
+}
+
+test('the activity table corner is blank, not an outlined square', async ({ page }) => {
+  await page.goto('/work/bezl')
+  const corner = page.locator('.activity__grid thead tr > :first-child')
+  expect(await corner.evaluate((el) => getComputedStyle(el).outlineStyle)).toBe('none')
+})
+
 test('an unknown or hidden path gets the 404 page with a 404 status', async ({ page }) => {
   const hidden = await page.goto('/work/wander')
   expect(hidden?.status()).toBe(404)
