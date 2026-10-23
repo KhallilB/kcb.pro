@@ -35,9 +35,6 @@ export function Home() {
           <h2 id="selected-work" className="h3">
             Selected work
           </h2>
-          <Link to="/work" className="link">
-            All work <span aria-hidden="true">→</span>
-          </Link>
         </div>
         <div className="cards">
           {work.map((project) => (
@@ -55,6 +52,11 @@ export function Home() {
             </article>
           ))}
         </div>
+        <p className="section__more">
+          <Link to="/work" className="link">
+            All work <span aria-hidden="true">→</span>
+          </Link>
+        </p>
       </section>
 
       <section className="section" aria-labelledby="work-studies" data-place="studies">

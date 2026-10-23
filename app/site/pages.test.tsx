@@ -34,7 +34,7 @@ describe('home', () => {
     expect(live).toHaveTextContent('as of 21 Oct 2026')
   })
 
-  it('features the two endeavors with dated status', () => {
+  it('features ranked work by rank, then links to all of it', () => {
     visit('/')
     const work = screen.getByRole('region', { name: 'Selected work' })
     const cards = within(work).getAllByRole('article')
@@ -44,6 +44,9 @@ describe('home', () => {
     ])
     expect(cards[0]).toHaveTextContent('In progress · as of 21 Oct 2026')
     expect(cards[1]).toHaveTextContent('In progress · as of 21 Oct 2026')
+    const last = within(work).getAllByRole('link').at(-1)
+    expect(last).toHaveAccessibleName('All work')
+    expect(last).toHaveAttribute('href', '/work')
   })
 
   it('describes each project in words, with no picture', () => {

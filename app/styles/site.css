@@ -246,6 +246,10 @@ a {
   margin-block-end: var(--space-4);
 }
 
+.section__more {
+  margin-block-start: var(--space-4);
+}
+
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));

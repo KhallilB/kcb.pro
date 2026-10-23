@@ -16,7 +16,20 @@ export function nowBuilding(projects: Project[]): Project | undefined {
 }
 
 export function featured(projects: Project[]): Project[] {
-  return projects.filter((p) => p.kind === 'endeavor').sort(byOrder)
+  return projects
+    .filter(
+      (p) => p.kind === 'endeavor' && p.listed !== false && p.rank !== undefined
+    )
+    .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+}
+
+// Listed projects with a repo; each must publish a valid progress.json.
+export function registered(
+  projects: Project[]
+): { slug: string; repo: string }[] {
+  return projects.flatMap((p) =>
+    p.repo && p.listed !== false ? [{ slug: p.slug, repo: p.repo }] : []
+  )
 }
 
 const RANK: Record<ProjectStatus, number> = {

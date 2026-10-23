@@ -2,6 +2,7 @@ import {
   featured,
   nowBuilding,
   published,
+  registered,
   sitePaths,
   workIndex,
 } from './catalog'
@@ -39,11 +40,24 @@ describe('catalog', () => {
     expect(nowBuilding([site, next])).toBeUndefined()
   })
 
-  it('features endeavors only, in season order', () => {
-    expect(featured([later, site, next, building]).map((p) => p.slug)).toEqual([
-      'building',
-      'next',
-      'later',
+  it('features ranked endeavors by rank, never by season order', () => {
+    const first = project({ slug: 'first', order: 3, rank: 1 })
+    const second = project({ slug: 'second', order: 1, rank: 2 })
+    const unranked = project({ slug: 'unranked', order: 0 })
+    expect(
+      featured([second, unranked, site, first]).map((p) => p.slug)
+    ).toEqual(['first', 'second'])
+  })
+
+  it('registers listed projects that name a repo', () => {
+    const tracked = project({ slug: 'tracked', repo: 'KhallilB/tracked' })
+    const hidden = project({
+      slug: 'hidden',
+      repo: 'KhallilB/hidden',
+      listed: false,
+    })
+    expect(registered([tracked, hidden, next])).toEqual([
+      { slug: 'tracked', repo: 'KhallilB/tracked' },
     ])
   })
 

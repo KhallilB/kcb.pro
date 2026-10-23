@@ -1,16 +1,23 @@
 import { catalog, content } from './index'
 import { validateCatalog } from '../domain/validate'
-import { featured, nowBuilding } from '../domain/catalog'
+import { featured, nowBuilding, registered } from '../domain/catalog'
 
 describe('published content', () => {
   it('passes every catalog rule, hidden entries included', () => {
     expect(validateCatalog(catalog)).toEqual([])
   })
 
-  it('features exactly Bezl and kbui, in season order', () => {
+  it('features exactly Bezl and kbui, by rank', () => {
     expect(featured(content.projects).map((p) => p.title)).toEqual([
       'Bezl',
       'kbui',
+    ])
+  })
+
+  it('registers Bezl and kbui by their public repositories', () => {
+    expect(registered(content.projects)).toEqual([
+      { slug: 'bezl', repo: 'KhallilB/bezl' },
+      { slug: 'kbui', repo: 'KhallilB/kbui' },
     ])
   })
 

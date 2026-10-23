@@ -48,6 +48,8 @@ export const projects: Project[] = [
     status: 'in-progress',
     startsOn: '2026-10-22',
     order: 1,
+    rank: 1,
+    repo: 'KhallilB/bezl',
     role: 'Design and engineering',
     stack: ['Tauri 2', 'Rust', 'React 19', 'TypeScript', 'xterm.js'],
     domain:
@@ -101,6 +103,8 @@ export const projects: Project[] = [
     status: 'in-progress',
     startsOn: '2026-10-16',
     order: 2,
+    rank: 2,
+    repo: 'KhallilB/kbui',
     role: 'Design and engineering',
     stack: ['TypeScript', 'CSS', 'React 19', 'Base UI', 'Storybook'],
     domain:
