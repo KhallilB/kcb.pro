@@ -21,5 +21,7 @@ export function mountTome(
     insetTop: () => number
     /** Called once, after the first frame is drawn. */
     onReady?: () => void
+    /** Called as the cover starts to open (true) or close (false). */
+    onOpen?: (open: boolean) => void
   }
 ): TomeHandle | null

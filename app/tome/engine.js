@@ -4,6 +4,7 @@ import * as THREE from 'three';
 export function mountTome(host, opts) {
   const { data, onList, onNavigate, insetTop } = opts;
   let onReady = opts.onReady;
+  const onOpen = opts.onOpen || (() => {});
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const ac = new AbortController(), sig = { signal: ac.signal };
   let alive = true, raf = 0;
@@ -1503,7 +1504,7 @@ export function mountTome(host, opts) {
   }
 
   // ---------- loop ----------
-  let last = performance.now(), openO = 0, clock = 0;
+  let last = performance.now(), openO = 0, clock = 0, coverOpen = false;
   function step(s, now, dt) {
     if (s.pending !== null && now >= s.startAt) { if (s.dir !== undefined) s.dir = s.pending > s.t ? 1 : -1; s.target = s.pending; s.pending = null; }
     if (s.t !== s.target) { if (reduce) s.t = s.target; else { const d = dt / (s.dur || DUR); s.t = s.target > s.t ? Math.min(s.target, s.t + d) : Math.max(s.target, s.t - d); } }
@@ -1511,6 +1512,7 @@ export function mountTome(host, opts) {
   function loop(now) {
     const dt = Math.min(0.25, (now - last) / 1000); last = now; clock += dt;
     step(coverState, now, dt); step(claspState, now, dt); sheets.forEach((s) => step(s, now, dt));
+    if (coverState.target > 0 !== coverOpen) { coverOpen = coverState.target > 0; onOpen(coverOpen); }
     const co = ease(coverState.t), cq = ease(claspState.t);
     const flippedFrac = sheets.reduce((a, s) => a + ease(s.t), 0) / N;
     const leftT = PT * flippedFrac * co, rightT = PT * (1 - flippedFrac * co) + 0.0001;

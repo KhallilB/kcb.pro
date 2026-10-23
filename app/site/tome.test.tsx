@@ -13,6 +13,7 @@ interface Mounted {
   onNavigate: (path: string) => void
   insetTop: () => number
   onReady: () => void
+  onOpen: (open: boolean) => void
 }
 
 // firstFrame 'later' leaves the engine drawing until the test calls onReady.
@@ -268,6 +269,29 @@ describe('the tome on the home page', () => {
     expect(stage()).toHaveAttribute('data-stage', 'drawing')
     await act(async () => calls[0].onReady())
     expect(stage()).not.toHaveAttribute('data-stage')
+  })
+
+  it('marks the stage open while the cover is open, so the clouds part', async () => {
+    const { hooks, calls } = fakeEngine()
+    await visit('/', hooks)
+    expect(stage()).not.toHaveAttribute('data-open')
+    act(() => calls[0].onOpen(true))
+    expect(stage()).toHaveAttribute('data-open')
+    act(() => calls[0].onOpen(false))
+    expect(stage()).not.toHaveAttribute('data-open')
+  })
+
+  it('draws every cloud layer through a filter it can find', async () => {
+    const { hooks } = fakeEngine()
+    await visit('/', hooks)
+    const layers = [...document.querySelectorAll('.tome svg rect[filter]')]
+    expect(layers.length).toBeGreaterThanOrEqual(4)
+    for (const rect of layers) {
+      const id = /^url\(#(.+)\)$/.exec(rect.getAttribute('filter') ?? '')?.[1] ?? ''
+      // A space or similar in the id breaks url(#id); the cloud then paints solid black.
+      expect(id).toMatch(/^[\w-]+$/)
+      expect(document.getElementById(id)?.tagName.toLowerCase()).toBe('filter')
+    }
   })
 
   it('says the book is opening until the engine is ready', async () => {

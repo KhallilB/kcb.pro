@@ -28,6 +28,8 @@ export function TomeStage({
   // fetching the engine, drawing its first frame, then ready (the book is on screen).
   const [stage, setStage] = useState<'fetching' | 'drawing' | 'ready'>('fetching')
   const ready = stage === 'ready'
+  // Cover open: the clouds in front of the book part.
+  const [open, setOpen] = useState(false)
   // Mounted over the boot script's mist: appear at once, since a fade would show the page through.
   const [boot] = useState(() => document.documentElement.dataset.tome === 'pending')
   // navigate changes with every route; the engine must outlive routes.
@@ -53,6 +55,9 @@ export function TomeStage({
           insetTop: () => handlers.current.insetTop(),
           onReady: () => {
             if (!cancelled) setStage('ready')
+          },
+          onOpen: (next) => {
+            if (!cancelled) setOpen(next)
           },
         })
         if (!handle) return handlers.current.onFail()
@@ -87,6 +92,7 @@ export function TomeStage({
       className="tome"
       data-ready={ready || undefined}
       data-stage={ready ? undefined : stage}
+      data-open={open || undefined}
       data-boot={(boot && !ready) || undefined}
       data-shown={shown || undefined}
       inert={shown ? undefined : true}
@@ -94,6 +100,7 @@ export function TomeStage({
       <Mist />
       <div className="tome__vignette" aria-hidden="true" />
       <div ref={host} className="tome__host" />
+      <Veil />
       {/* Stays mounted after ready so it can fade out as the book fades in. */}
       <div
         className="tome__loading"
@@ -124,31 +131,39 @@ export function TomeStage({
 // useId may contain characters that break url(#id) references.
 const svgId = (id: string) => `tome${id.replace(/[^\w-]/g, '')}`
 
-// Wisps from an SVG noise filter: drawn once, then drifted, so they read as fog rather than blur.
-function Mist() {
+// Cloud from an SVG noise filter: drawn once, then drifted, so it reads as sky rather than blur.
+function Cloud({ name, frequency, seed, cover }: { name: string; frequency: string; seed: number; cover: string }) {
   const id = svgId(useId())
-  const layers = [
-    { depth: 'far', frequency: '0.004 0.011', seed: 11 },
-    { depth: 'near', frequency: '0.0022 0.006', seed: 4 },
-  ]
+  return (
+    <svg className={name} aria-hidden="true">
+      <filter id={id} x="0" y="0" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency={frequency} numOctaves={4} seed={seed} />
+        {/* Keep only the dense parts of the noise as cloud, in the layer's colour. */}
+        <feColorMatrix type="matrix" values={`0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  ${cover}`} result="cloud" />
+        <feFlood floodColor="currentColor" />
+        <feComposite in2="cloud" operator="in" />
+      </filter>
+      <rect width="100%" height="100%" filter={`url(#${id})`} />
+    </svg>
+  )
+}
+
+// Behind the book: shaded banks far back, pale ones nearer.
+function Mist() {
   return (
     <>
-      {layers.map(({ depth, frequency, seed }) => (
-        <svg key={depth} className={`tome__mist tome__mist--${depth}`} aria-hidden="true">
-          <filter id={`${id}-${depth}`} x="0" y="0" width="100%" height="100%">
-            <feTurbulence type="fractalNoise" baseFrequency={frequency} numOctaves={4} seed={seed} />
-            {/* Keep only the dense parts of the noise as wisps, in the layer's colour. */}
-            <feColorMatrix
-              type="matrix"
-              values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  2.4 0 0 0 -1.05"
-              result="wisps"
-            />
-            <feFlood floodColor="currentColor" />
-            <feComposite in2="wisps" operator="in" />
-          </filter>
-          <rect width="100%" height="100%" filter={`url(#${id}-${depth})`} />
-        </svg>
-      ))}
+      <Cloud name="tome__mist tome__mist--far" frequency="0.0026 0.0065" seed={11} cover="3.2 0 0 0 -1.3" />
+      <Cloud name="tome__mist tome__mist--near" frequency="0.0042 0.011" seed={4} cover="3 0 0 0 -1.35" />
+    </>
+  )
+}
+
+// In front of the closed book; the stage's data-open pushes it aside.
+function Veil() {
+  return (
+    <>
+      <Cloud name="tome__veil tome__veil--left" frequency="0.0032 0.009" seed={23} cover="3 0 0 0 -1.45" />
+      <Cloud name="tome__veil tome__veil--right" frequency="0.0032 0.009" seed={31} cover="3 0 0 0 -1.45" />
     </>
   )
 }

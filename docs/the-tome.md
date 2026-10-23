@@ -33,15 +33,19 @@ builds. The stage's `data-stage` attribute says which (`fetching`, then `drawing
 
 The book counts as ready only when the engine calls `onReady` after its first drawn frame.
 Its first appearance starts with the camera on the cover's centrepiece and pulls back
-over 1.6 seconds, while the 2D lozenge swells and fades into it. The mist behind the book
-is two layers of SVG noise drawn once and drifted by transform.
+over 1.6 seconds, while the 2D lozenge swells and fades into it.
+
+The book floats in a pale, overcast sky: two layers of cloud behind it, shaded banks far
+back and paler ones nearer, drawn once from SVG noise and drifted by transform. Two more
+banks veil the closed book. When the cover starts to open, the engine calls `onOpen(true)`,
+`TomeStage` sets `data-open`, and the veil slides out to either side; closing brings it back.
 
 `mountTome` returns `null` if WebGL fails. The site then hides the toggle and stays 2D.
 
 ## The engine's handle
 
 ```ts
-const book = mountTome(host, { data, onList, onNavigate, insetTop, onReady })
+const book = mountTome(host, { data, onList, onNavigate, insetTop, onReady, onOpen })
 
 book.show(place) // wake up; turn to a place such as 'kbui' if given
 book.hide() // zoom into the page and go to sleep

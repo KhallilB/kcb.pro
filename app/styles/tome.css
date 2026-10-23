@@ -64,8 +64,8 @@ html[data-tome-left] .main {
 
 html[data-tome='pending'] body {
   background:
-    radial-gradient(ellipse 40% 45% at 50% 52%, var(--halo), transparent 70%),
-    radial-gradient(ellipse 75% 70% at 50% 50%, var(--mist), var(--mist-edge) 85%);
+    radial-gradient(ellipse 45% 40% at 50% 50%, var(--sky-light), transparent 72%),
+    radial-gradient(ellipse 85% 80% at 50% 48%, var(--sky), var(--sky-edge));
 }
 
 /* The overlay: a misty void holding the floating book. */
@@ -75,9 +75,9 @@ html[data-tome='pending'] body {
   z-index: 20;
   overflow: hidden;
   background:
-    radial-gradient(ellipse 40% 45% at 50% 52%, var(--halo), transparent 70%),
-    radial-gradient(ellipse 75% 70% at 50% 50%, var(--mist), var(--mist-edge) 85%);
-  background-color: var(--mist);
+    radial-gradient(ellipse 45% 40% at 50% 50%, var(--sky-light), transparent 72%),
+    radial-gradient(ellipse 85% 80% at 50% 48%, var(--sky), var(--sky-edge));
+  background-color: var(--sky);
   color: var(--ink);
   font-family: var(--font-body);
   transition:
@@ -110,7 +110,7 @@ html[data-tome='pending'] body {
   }
 }
 
-/* Mist: noise-drawn wisps, light in front and shaded behind, drifting slowly in opposite directions. */
+/* Cloud: noise-drawn banks, shaded behind and pale in front, drifting slowly in opposite directions. */
 .tome__mist {
   position: absolute;
   inset-block-start: -10%;
@@ -118,15 +118,16 @@ html[data-tome='pending'] body {
   inline-size: 200%;
   block-size: 120%;
   pointer-events: none;
-  color: var(--mist-edge);
+  color: var(--cloud-light);
+  opacity: 0.75;
   animation:
     mist-in 1.6s var(--ease) both,
     mist-drift 140s ease-in-out infinite alternate;
 }
 
 .tome__mist--far {
-  color: var(--mist-deep);
-  opacity: 0.8;
+  color: var(--cloud-dark);
+  opacity: 0.6;
   animation-duration: 1.6s, 200s;
   animation-direction: normal, alternate-reverse;
 }
@@ -143,12 +144,62 @@ html[data-tome='pending'] body {
   }
 }
 
+/* The veil: two cloud banks over the closed book, pushed aside as the cover opens. */
+.tome__veil {
+  position: absolute;
+  inset-block-start: -10%;
+  z-index: 2;
+  inline-size: 75%;
+  block-size: 120%;
+  pointer-events: none;
+  color: var(--cloud-light);
+  opacity: 0.6;
+  transition:
+    translate 1.6s cubic-bezier(0.3, 0, 0.2, 1),
+    opacity 1.6s var(--ease);
+  animation: veil-drift 30s ease-in-out infinite alternate;
+}
+
+.tome__veil--left {
+  inset-inline-start: -10%;
+  mask-image: linear-gradient(to right, black 55%, transparent);
+}
+
+.tome__veil--right {
+  inset-inline-end: -10%;
+  mask-image: linear-gradient(to left, black 55%, transparent);
+  animation-direction: alternate-reverse;
+}
+
+/* Hidden until the book is drawn, so it never covers the loader. */
+.tome:not([data-ready]) .tome__veil {
+  opacity: 0;
+}
+
+.tome[data-open] .tome__veil {
+  opacity: 0.25;
+}
+
+.tome[data-open] .tome__veil--left {
+  translate: -70% 0;
+}
+
+.tome[data-open] .tome__veil--right {
+  translate: 70% 0;
+}
+
+@keyframes veil-drift {
+  to {
+    transform: translateX(4%);
+  }
+}
+
 .tome__vignette {
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 3;
-  background: radial-gradient(ellipse 70% 62% at 50% 48%, transparent 55%, rgba(20, 30, 28, 0.22) 100%);
+  background: radial-gradient(ellipse 66% 58% at 50% 48%, transparent 42%, var(--sky-shade) 100%);
 }
 
 .tome__host,
@@ -722,6 +773,7 @@ html[data-tome='pending'] body {
 
 @media (prefers-reduced-motion: reduce) {
   .tome__mist,
+  .tome__veil,
   .tome__loading::before,
   .tome__loading > *,
   .tome__ring,
@@ -739,7 +791,8 @@ html[data-tome='pending'] body {
 
   .tome__loading,
   .tome__seal,
-  .tome__host {
+  .tome__host,
+  .tome__veil {
     transition: none;
   }
 
