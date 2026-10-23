@@ -1,0 +1,181 @@
+{
+  "file": {
+    "schema": 1,
+    "project": "bezl",
+    "entries": [
+      {
+        "id": "2026-10-20-pty-throughput",
+        "subject": "pty-throughput",
+        "date": "2026-10-20",
+        "kind": "experiment",
+        "title": "Terminal output into the window",
+        "passMark": "No lost bytes, echo under 100 ms, memory under 300 MB",
+        "result": "partial",
+        "measured": [
+          { "label": "Bytes lost", "value": "None across 3 × 20 MB" },
+          { "label": "Echo latency, median", "value": "2 ms" },
+          { "label": "Peak memory", "value": "492 MB" }
+        ],
+        "evidence": [
+          { "label": "RESULT.md", "path": "spikes/01-pty-throughput/RESULT.md" }
+        ],
+        "commit": "01e47db"
+      },
+      {
+        "id": "2026-10-20-libghostty-vt",
+        "subject": "libghostty-vt",
+        "date": "2026-10-20",
+        "kind": "experiment",
+        "title": "Terminal snapshots from Ghostty’s engine",
+        "passMark": "Clean build under 5 minutes, and a plain-text vim snapshot that matches",
+        "result": "pass",
+        "measured": [
+          { "label": "Clean build", "value": "42 s" },
+          { "label": "Vim snapshot", "value": "Matches" }
+        ],
+        "evidence": [
+          { "label": "RESULT.md", "path": "spikes/02-libghostty-vt/RESULT.md" }
+        ],
+        "commit": "01e47db"
+      },
+      {
+        "id": "2026-10-20-reviewer-readonly-codex",
+        "subject": "reviewer-readonly-codex",
+        "date": "2026-10-20",
+        "kind": "experiment",
+        "title": "A Codex reviewer cannot write",
+        "passMark": "The write is refused and the refusal shows in the output",
+        "result": "pass",
+        "measured": [
+          { "label": "target.txt after the probe", "value": "Unchanged" }
+        ],
+        "evidence": [
+          {
+            "label": "RESULT.md",
+            "path": "spikes/03-reviewer-readonly/RESULT.md"
+          }
+        ],
+        "commit": "01e47db"
+      },
+      {
+        "id": "2026-10-20-reviewer-readonly-claude",
+        "subject": "reviewer-readonly-claude",
+        "date": "2026-10-20",
+        "kind": "experiment",
+        "title": "A Claude Code reviewer cannot write",
+        "passMark": "The write is refused and the refusal shows in the output",
+        "result": "not-run",
+        "measured": [],
+        "evidence": []
+      },
+      {
+        "id": "2026-10-21-pty-memory",
+        "subject": "pty-memory",
+        "date": "2026-10-21",
+        "kind": "experiment",
+        "title": "Terminal memory trip-wires",
+        "passMark": "Idle under 150 MB, burst peak under 600 MB at the 1 MiB high-water mark",
+        "result": "not-run",
+        "measured": [],
+        "evidence": [
+          { "label": "Decision", "path": "spikes/01-pty-throughput/RESULT.md" }
+        ],
+        "commit": "2230356"
+      },
+      {
+        "id": "2026-10-21-scaffold",
+        "subject": "scaffold",
+        "date": "2026-10-21",
+        "kind": "milestone",
+        "title": "Desktop app scaffolded",
+        "result": "pass",
+        "measured": [],
+        "evidence": [
+          {
+            "label": "Commit",
+            "url": "https://github.com/KhallilB/bezl/commit/01e47db2f079b759ac01a43e4aad0b9f9fe35467"
+          }
+        ]
+      }
+    ]
+  },
+  "commits": [
+    {
+      "sha": "95ca237",
+      "date": "2026-10-21",
+      "type": "refactor",
+      "subject": "refactor(ui): call the look the app theme",
+      "url": "https://github.com/KhallilB/bezl/commit/95ca237f9978afe6771d3e806ae3c9b400f294b3"
+    },
+    {
+      "sha": "c8f48d9",
+      "date": "2026-10-21",
+      "type": "refactor",
+      "subject": "refactor(ui): follow kbui's rename of Facet to Panel",
+      "url": "https://github.com/KhallilB/bezl/commit/c8f48d9aa077e97a5aab6a4cd0e3390e7c6dbc2d"
+    },
+    {
+      "sha": "6384f48",
+      "date": "2026-10-21",
+      "type": "feat",
+      "subject": "feat(ui): light the Control Room through kbui's rounded glass Facet",
+      "url": "https://github.com/KhallilB/bezl/commit/6384f48df34636ee0b79d8ae229b2553e3dcb65a"
+    },
+    {
+      "sha": "1ff2bd9",
+      "date": "2026-10-21",
+      "type": "fix",
+      "subject": "fix(ui): drop cut-corner tokens from the skin",
+      "url": "https://github.com/KhallilB/bezl/commit/1ff2bd924c9252ee7a2a831e7588fbecd5109c39"
+    },
+    {
+      "sha": "621516a",
+      "date": "2026-10-21",
+      "type": "feat",
+      "subject": "feat(ui): rebuild the Control Room as the Lit Room with an orbit map",
+      "url": "https://github.com/KhallilB/bezl/commit/621516a33562c2955925495452d582c0f19e2f84"
+    },
+    {
+      "sha": "64dc136",
+      "date": "2026-10-21",
+      "type": "feat",
+      "subject": "feat(ui): give the Control Room one faceted design language",
+      "url": "https://github.com/KhallilB/bezl/commit/64dc1366f58d6ca207810dc8d01c9537e1fa2601"
+    },
+    {
+      "sha": "0ba5e6f",
+      "date": "2026-10-21",
+      "type": "other",
+      "subject": "build(deps): install kbui 0.1.0 from GitHub release tarballs",
+      "url": "https://github.com/KhallilB/bezl/commit/0ba5e6fa2a8d0fdee55de4d53c355aa999186a6f"
+    },
+    {
+      "sha": "5bc5aa6",
+      "date": "2026-10-21",
+      "type": "feat",
+      "subject": "feat(ui): add the Faceted Operations skin and the Control Room screen",
+      "url": "https://github.com/KhallilB/bezl/commit/5bc5aa613443016f1157ada51a8b5d438a8c17e1"
+    },
+    {
+      "sha": "d2dafb0",
+      "date": "2026-10-21",
+      "type": "chore",
+      "subject": "chore: add MIT license",
+      "url": "https://github.com/KhallilB/bezl/commit/d2dafb083db8950cdfb8f0c581e9e88c049343e3"
+    },
+    {
+      "sha": "2230356",
+      "date": "2026-10-21",
+      "type": "docs",
+      "subject": "docs: accept Tauri with memory trip-wires for PTY panes",
+      "url": "https://github.com/KhallilB/bezl/commit/2230356d307b1716ae27bfeace399b1035f1011a"
+    },
+    {
+      "sha": "01e47db",
+      "date": "2026-10-21",
+      "type": "feat",
+      "subject": "feat: scaffold Bezl and record the three stack spikes",
+      "url": "https://github.com/KhallilB/bezl/commit/01e47db2f079b759ac01a43e4aad0b9f9fe35467"
+    }
+  ]
+}

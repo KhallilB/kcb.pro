@@ -1,0 +1,137 @@
+{
+  "file": {
+    "schema": 1,
+    "project": "kbui",
+    "entries": [
+      {
+        "id": "2026-10-16-first-components",
+        "subject": "first-components",
+        "date": "2026-10-16",
+        "kind": "milestone",
+        "title": "Button, Input and Dialog",
+        "result": "pass",
+        "measured": [],
+        "evidence": [
+          { "label": "Components", "path": "packages/react/src/components" }
+        ],
+        "commit": "2a5fd82"
+      },
+      {
+        "id": "2026-10-16-component-checks",
+        "subject": "component-checks",
+        "date": "2026-10-16",
+        "kind": "tests",
+        "title": "Component tests and story accessibility scan",
+        "passMark": "Every component has a test and a story, and every story renders in a browser with no accessibility violations",
+        "result": "pass",
+        "measured": [
+          { "label": "Component tests", "value": "28 passed" },
+          { "label": "Stories scanned", "value": "16 passed" }
+        ],
+        "evidence": [{ "label": "Story tests", "path": "apps/storybook" }],
+        "commit": "25b26eb"
+      },
+      {
+        "id": "2026-10-21-release-0-1-0",
+        "subject": "release",
+        "date": "2026-10-21",
+        "kind": "release",
+        "title": "Release 0.1.0",
+        "result": "pass",
+        "measured": [],
+        "evidence": [
+          {
+            "label": "Release notes",
+            "url": "https://github.com/KhallilB/kbui/releases/tag/v0.1.0"
+          }
+        ]
+      }
+    ]
+  },
+  "commits": [
+    {
+      "sha": "2a5fd82",
+      "date": "2026-10-16",
+      "type": "fix",
+      "subject": "fix: make path installs work; drop cross-package deps, document bun add by path",
+      "url": "https://github.com/KhallilB/kbui/commit/2a5fd824d794081155a8ef9b2c4534883a303230"
+    },
+    {
+      "sha": "e366e77",
+      "date": "2026-10-16",
+      "type": "chore",
+      "subject": "chore: ignore .infigraph, drop backups ignore",
+      "url": "https://github.com/KhallilB/kbui/commit/e366e772e4bb9e20b5b2e3d2eb994542f67a1e13"
+    },
+    {
+      "sha": "dc4c17f",
+      "date": "2026-10-16",
+      "type": "docs",
+      "subject": "docs: describe local consumption instead of a registry",
+      "url": "https://github.com/KhallilB/kbui/commit/dc4c17fabce18ed94a6eff3122bbd2dbed9af6c9"
+    },
+    {
+      "sha": "529f69c",
+      "date": "2026-10-16",
+      "type": "fix",
+      "subject": "fix(generator): validate before writing, safe paths, exact-output tests",
+      "url": "https://github.com/KhallilB/kbui/commit/529f69c158a1a3f5b031831375d8d6574d562eb4"
+    },
+    {
+      "sha": "c7b2240",
+      "date": "2026-10-16",
+      "type": "chore",
+      "subject": "chore: add ci workflow, readme and license",
+      "url": "https://github.com/KhallilB/kbui/commit/c7b22408c38b2cb41d528881fef98cd171db2050"
+    },
+    {
+      "sha": "4f67e37",
+      "date": "2026-10-16",
+      "type": "feat",
+      "subject": "feat: component generator and templates",
+      "url": "https://github.com/KhallilB/kbui/commit/4f67e37179c38308984c267332dceba8ce7d888c"
+    },
+    {
+      "sha": "25b26eb",
+      "date": "2026-10-16",
+      "type": "feat",
+      "subject": "feat(storybook): add docs app with a11y and story tests",
+      "url": "https://github.com/KhallilB/kbui/commit/25b26eb09f0cf5233cddca5d406de01ea354c2c3"
+    },
+    {
+      "sha": "70b52f7",
+      "date": "2026-10-16",
+      "type": "test",
+      "subject": "test(react): enforce story and test per component",
+      "url": "https://github.com/KhallilB/kbui/commit/70b52f76db5154bfe84086da07328aadd13a1fb1"
+    },
+    {
+      "sha": "2384527",
+      "date": "2026-10-16",
+      "type": "feat",
+      "subject": "feat(react): add Dialog",
+      "url": "https://github.com/KhallilB/kbui/commit/23845270a497eff09c75254141e8741d4a34b81e"
+    },
+    {
+      "sha": "ee05cd5",
+      "date": "2026-10-16",
+      "type": "feat",
+      "subject": "feat(react): add Input",
+      "url": "https://github.com/KhallilB/kbui/commit/ee05cd5304035e961a57894fe7804cc49ad194e7"
+    },
+    {
+      "sha": "3dc1ac3",
+      "date": "2026-10-16",
+      "type": "feat",
+      "subject": "feat(react): add Button",
+      "url": "https://github.com/KhallilB/kbui/commit/3dc1ac35ce4aa3a478b3ea1915d653060433cc13"
+    },
+    {
+      "sha": "0ad9bac",
+      "date": "2026-10-16",
+      "type": "feat",
+      "subject": "feat(tokens): add DTCG token source and css/ts build",
+      "url": "https://github.com/KhallilB/kbui/commit/0ad9bac5c19a7c1a39ec38839d998b30b45396b0"
+    }
+  ]
+}
