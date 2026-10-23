@@ -66,10 +66,10 @@ export function About() {
           nothing is called finished before it is.
         </p>
         <p>
-          I use AI for the repetitive parts of the work, like setting up tests,
-          making the same change across many files, and first drafts. The
-          overall design, the tricky interface code and the visual design are
-          mine.
+          I lean on AI for the grunt work: scaffolding tests, making the same
+          edit in a dozen places, getting a rough first draft down. The parts I
+          actually care about, like how it all fits together, the fiddly
+          interface code and how it looks, I do myself.
         </p>
 
         <h2 className="h2">Get in touch</h2>
