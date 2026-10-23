@@ -39,6 +39,10 @@ export interface Project extends Dated {
   brief: BriefSection[]
   // false keeps the entry valid but off the site; omitted means listed.
   listed?: boolean
+  // Public GitHub repository as owner/name; registers the project's progress ledger.
+  repo?: string
+  // Place in Selected work; set by hand, never derived.
+  rank?: 1 | 2 | 3
 }
 
 export type StudyFormat = 'teardown' | 'legacy'

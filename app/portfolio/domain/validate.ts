@@ -4,6 +4,8 @@ import type { BriefSection, Catalog } from './types'
 const PLACEHOLDER =
   /\b(tbd|todo|lorem ipsum|your name|coming soon|placeholder)\b/i
 
+const REPO = /^[A-Za-z0-9-]+\/[A-Za-z0-9._-]+$/
+
 export const hasPlaceholder = (text: string) => PLACEHOLDER.test(text)
 
 function texts(fields: Array<string | undefined>, brief: BriefSection[]) {
@@ -43,6 +45,25 @@ export function validateCatalog(catalog: Catalog): string[] {
       if (!/^(https?:\/\/|\/)\S+/.test(link.href)) {
         errors.push(`"${p.slug}" has a link with no destination: ${link.label}`)
       }
+    }
+    if (p.repo !== undefined && !REPO.test(p.repo)) {
+      errors.push(`"${p.slug}" has a repo that is not owner/name: ${p.repo}`)
+    }
+    if (p.rank !== undefined && (p.kind !== 'endeavor' || p.listed === false)) {
+      errors.push(`"${p.slug}" has a rank but is not a listed endeavor`)
+    }
+  }
+
+  const byRank = new Map<number, string[]>()
+  for (const p of catalog.projects) {
+    if (p.rank !== undefined)
+      byRank.set(p.rank, [...(byRank.get(p.rank) ?? []), p.slug])
+  }
+  for (const [rank, rankSlugs] of byRank) {
+    if (rankSlugs.length > 1) {
+      errors.push(
+        `Rank ${rank} is used by ${rankSlugs.map((s) => `"${s}"`).join(' and ')}`
+      )
     }
   }
 

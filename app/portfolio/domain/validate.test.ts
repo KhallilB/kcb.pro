@@ -66,4 +66,43 @@ describe('validateCatalog', () => {
     )
     expect(errors).toContain('Study "study-one" feeds hidden project "alpha"')
   })
+
+  it('accepts a repo named owner/name', () => {
+    expect(
+      validateCatalog(catalog([project({ repo: 'KhallilB/bezl' })]))
+    ).toEqual([])
+  })
+
+  it('refuses a repo that is not owner/name', () => {
+    const errors = validateCatalog(
+      catalog([project({ repo: 'https://github.com/KhallilB/bezl' })])
+    )
+    expect(errors).toContain(
+      '"alpha" has a repo that is not owner/name: https://github.com/KhallilB/bezl'
+    )
+  })
+
+  it('accepts one project per rank', () => {
+    const errors = validateCatalog(
+      catalog([project({ rank: 1 }), project({ slug: 'beta', rank: 2 })])
+    )
+    expect(errors).toEqual([])
+  })
+
+  it('refuses two projects with one rank', () => {
+    const errors = validateCatalog(
+      catalog([project({ rank: 1 }), project({ slug: 'beta', rank: 1 })])
+    )
+    expect(errors).toContain('Rank 1 is used by "alpha" and "beta"')
+  })
+
+  it.each([
+    ['the site', { kind: 'site' as const }],
+    ['a hidden project', { listed: false }],
+  ])('refuses a rank on %s', (_, overrides) => {
+    const errors = validateCatalog(
+      catalog([project({ rank: 1, ...overrides })])
+    )
+    expect(errors).toContain('"alpha" has a rank but is not a listed endeavor')
+  })
 })
