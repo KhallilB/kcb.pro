@@ -9,8 +9,8 @@ export function About() {
       <header className="page-head">
         <h1 className="h1">About</h1>
         <p className="lede">
-          {profile.role} in Los Angeles. I make complicated products simpler to
-          use, and I write down how I did it.
+          {profile.role} in Los Angeles. I build the kind of software you never
+          have to Google how to use.
         </p>
       </header>
       <div className="prose prose--solo">
@@ -21,10 +21,14 @@ export function About() {
           engineers at a startup, where the frontend is whatever you make it.
         </p>
         <p>
-          The part of the job I like most is the moment a confusing flow turns
-          obvious: fewer steps, clearer choices, a screen that explains itself.
-          I also like interfaces that feel unlike anything else, which is why
-          this site’s home page is a book.
+          My favorite part of the job is when something confusing finally
+          clicks: fewer steps, clearer choices, a screen that explains itself.
+          But easy doesn’t have to mean boring, which is why this site’s home
+          page is a book.
+        </p>
+        <p>
+          Off the clock, I’m usually reading, playing basketball or video games,
+          or out in the garden.
         </p>
 
         <h2 className="h2">Experience</h2>
