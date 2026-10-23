@@ -67,10 +67,42 @@ describe('validateCatalog', () => {
     expect(errors).toContain('Study "study-one" feeds hidden project "alpha"')
   })
 
-  it('accepts a repo named owner/name', () => {
+  it('accepts a repo named owner/name with a goal', () => {
     expect(
-      validateCatalog(catalog([project({ repo: 'KhallilB/bezl' })]))
+      validateCatalog(
+        catalog([project({ repo: 'KhallilB/bezl', goal: 'One clear aim.' })])
+      )
     ).toEqual([])
+  })
+
+  it('refuses a repo with no goal sentence', () => {
+    const errors = validateCatalog(
+      catalog([project({ repo: 'KhallilB/bezl' })])
+    )
+    expect(errors).toContain('"alpha" has a repo, so it needs a goal sentence')
+  })
+
+  it.each(['  ', 'x'.repeat(141), 'One aim.\nAnother.'])(
+    'refuses the goal %j',
+    (goal) => {
+      const errors = validateCatalog(
+        catalog([project({ repo: 'KhallilB/bezl', goal })])
+      )
+      expect(errors).toEqual([
+        '"alpha" needs a goal of one line, 1 to 140 characters',
+      ])
+    }
+  )
+
+  it('finds placeholder text in the goal', () => {
+    const errors = validateCatalog(
+      catalog([project({ repo: 'KhallilB/bezl', goal: 'TBD' })])
+    )
+    expect(errors.join('\n')).toMatch(/placeholder/i)
+  })
+
+  it('lets a project with no repo go without a goal', () => {
+    expect(validateCatalog(catalog([project()]))).toEqual([])
   })
 
   it('refuses a repo that is not owner/name', () => {

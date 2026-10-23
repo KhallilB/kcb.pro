@@ -50,6 +50,7 @@ export const projects: Project[] = [
     order: 1,
     rank: 1,
     repo: 'KhallilB/bezl',
+    goal: 'One window that runs AI coding assistants side by side, with one writer per task.',
     role: 'Design and engineering',
     stack: ['Tauri 2', 'Rust', 'React 19', 'TypeScript', 'xterm.js'],
     domain:
@@ -105,6 +106,7 @@ export const projects: Project[] = [
     order: 2,
     rank: 2,
     repo: 'KhallilB/kbui',
+    goal: 'One design system every project shares, with the rules checked by the build.',
     role: 'Design and engineering',
     stack: ['TypeScript', 'CSS', 'React 19', 'Base UI', 'Storybook'],
     domain:

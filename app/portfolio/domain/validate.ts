@@ -1,4 +1,5 @@
 import type { BriefSection, Catalog } from './types'
+import { isShortLine } from './text'
 
 // Placeholder copy is a launch blocker: the site must never show it.
 const PLACEHOLDER =
@@ -29,7 +30,16 @@ export function validateCatalog(catalog: Catalog): string[] {
 
   for (const p of catalog.projects) {
     const words = texts(
-      [p.title, p.summary, p.about, p.role, p.domain, p.signature, ...p.stack],
+      [
+        p.title,
+        p.summary,
+        p.goal,
+        p.about,
+        p.role,
+        p.domain,
+        p.signature,
+        ...p.stack,
+      ],
       p.brief
     )
     for (const text of words) {
@@ -48,6 +58,11 @@ export function validateCatalog(catalog: Catalog): string[] {
     }
     if (p.repo !== undefined && !REPO.test(p.repo)) {
       errors.push(`"${p.slug}" has a repo that is not owner/name: ${p.repo}`)
+    }
+    if (p.repo !== undefined && p.goal === undefined) {
+      errors.push(`"${p.slug}" has a repo, so it needs a goal sentence`)
+    } else if (p.goal !== undefined && !isShortLine(p.goal)) {
+      errors.push(`"${p.slug}" needs a goal of one line, 1 to 140 characters`)
     }
     if (p.rank !== undefined && (p.kind !== 'endeavor' || p.listed === false)) {
       errors.push(`"${p.slug}" has a rank but is not a listed endeavor`)

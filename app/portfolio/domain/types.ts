@@ -41,6 +41,8 @@ export interface Project extends Dated {
   listed?: boolean
   // Public GitHub repository as owner/name; registers the project's progress ledger.
   repo?: string
+  // Where the project is heading, in one sentence; required with repo.
+  goal?: string
   // Place in Selected work; set by hand, never derived.
   rank?: 1 | 2 | 3
 }
