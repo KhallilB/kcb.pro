@@ -40,7 +40,8 @@ export function Journey({
       {goal && <p className="journey__goal">{goal}</p>}
       {steps.length > 0 ? (
         <>
-          <ol className="journey__steps">
+          {/* Explicit: list-style none drops the list role in Safari. */}
+          <ol className="journey__steps" role="list">
             {steps.map((step, i) => (
               <li key={step.id}>
                 <span

@@ -14,6 +14,7 @@ function show(entries: PublicEntry[], goal?: string) {
 
 const card = () => screen.getByRole('region', { name: 'Where it stands' })
 const marks = () => screen.getAllByRole('img')
+const counts = () => card().querySelector('.journey__counts')?.textContent
 
 const six = (): PublicEntry[] => [
   publicEntry({
@@ -98,7 +99,31 @@ describe('Journey', () => {
 
   it('counts the steps in plain words', () => {
     show(six())
-    expect(card()).toHaveTextContent('3 done · 1 in progress · 2 up next')
+    expect(counts()).toBe('3 done · 1 in progress · 2 up next')
+  })
+
+  it('names a rethought step as rethinking, in its mark and the counts', () => {
+    show([
+      publicEntry({ id: 'a', subject: 'a', title: 'Speed holds' }),
+      publicEntry({
+        id: 'b',
+        subject: 'b',
+        title: 'Sync works',
+        result: 'fail',
+      }),
+    ])
+    expect(marks().at(-1)).toHaveAccessibleName(
+      'Step 2 of 2: Sync works, rethinking'
+    )
+    expect(counts()).toBe('1 done · 1 rethinking')
+  })
+
+  it('keeps the steps a list for screen readers despite no bullets', () => {
+    show(six())
+    expect(card().querySelector('.journey__steps')).toHaveAttribute(
+      'role',
+      'list'
+    )
   })
 
   it('names rethinking only when a step is being rethought, and skips empty groups', () => {
