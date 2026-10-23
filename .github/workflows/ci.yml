@@ -5,6 +5,10 @@ on:
   pull_request:
   push:
     branches: [main]
+  # Daily rebuild picks up new progress; GitHub pauses schedules after 60 days without repo activity.
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -37,6 +41,9 @@ jobs:
 
       - name: Build
         run: bun run build
+        env:
+          # Anonymous calls share the runner IP's 60 requests an hour.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Keep the build for deploy
         uses: actions/upload-artifact@v4
@@ -67,10 +74,13 @@ jobs:
             test-results
           retention-days: 7
 
-  # main ships production; a same-repo PR gets a preview URL. Forks have no secret, so no deploy.
+  # main ships production (push, the daily build or a manual run); a same-repo PR gets a preview. Forks have no secret, so no deploy.
   deploy:
     needs: gate
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    if: >-
+      github.event_name == 'push' ||
+      ((github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main') ||
+      github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 10
     concurrency:

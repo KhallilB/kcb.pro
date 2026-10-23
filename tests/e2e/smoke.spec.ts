@@ -144,6 +144,38 @@ test('every project page is served as prerendered HTML', async ({ request }) => 
   }
 })
 
+// Built from the offline fixtures: Playwright's build sets PROGRESS_OFFLINE=1.
+test('the progress ledger is in the prerendered project page', async ({
+  request,
+}) => {
+  const html = await (await request.get('/work/bezl')).text()
+  expect(html).toContain('id="progress"')
+  expect(html).toContain('id="2026-10-20-pty-throughput"')
+})
+
+test.describe('with JavaScript off', () => {
+  test.use({ javaScriptEnabled: false })
+
+  test('the ledger lists every entry and offers no filters', async ({
+    page,
+  }) => {
+    await page.goto('/work/bezl')
+    const ledger = page.getByRole('region', { name: 'Progress' })
+    await expect(ledger.locator('.entry')).toHaveCount(6)
+    await expect(
+      ledger.getByRole('group', { name: 'Filter entries' })
+    ).toHaveCount(0)
+  })
+})
+
+test('the ledger filters by kind once the page is live', async ({ page }) => {
+  await page.goto('/work/kbui')
+  const ledger = page.getByRole('region', { name: 'Progress' })
+  await ledger.getByRole('button', { name: 'Releases' }).click()
+  await expect(ledger.locator('.entry')).toHaveCount(1)
+  await expect(ledger.locator('.entry')).toContainText('Release 0.1.0')
+})
+
 test('an unknown or hidden path gets the 404 page with a 404 status', async ({ page }) => {
   const hidden = await page.goto('/work/wander')
   expect(hidden?.status()).toBe(404)

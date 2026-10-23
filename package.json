@@ -3,8 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build && vite build --ssr app/entry-server.tsx --outDir build-ssr && bun scripts/prerender.ts",
+    "dev": "PROGRESS_OFFLINE=1 bun run progress && vite",
+    "progress": "bun scripts/progress-fetch.ts",
+    "build": "bun scripts/build.ts",
     "preview": "bun scripts/serve-build.ts",
     "lint": "eslint .",
     "typecheck": "tsc -b",
