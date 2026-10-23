@@ -43,6 +43,11 @@ describe('tome data', () => {
     for (const s of data.studies) expect(paths).toContain(s.path)
   })
 
+  it('offers email, LinkedIn, code and résumé on the contact page', () => {
+    expect(data.contact.map((c) => c.label)).toEqual(['Email', 'LinkedIn', 'Code', 'Résumé'])
+    expect(data.contact[0].href).toBe('mailto:hi@kcb.pro')
+  })
+
   it('carries no placeholder text anywhere', () => {
     expect(strings(data).filter(hasPlaceholder)).toEqual([])
   })
