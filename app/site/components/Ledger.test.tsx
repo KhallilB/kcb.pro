@@ -1,4 +1,5 @@
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
+import { renderToString } from 'react-dom/server'
 import { entry, progressFile } from '@app/portfolio/domain/fixtures'
 import type { Commit, ProgressEntry } from '@app/portfolio/domain/progress'
 import { SiteProvider } from '../site-context'
@@ -121,5 +122,45 @@ describe('Ledger', () => {
       '0 proven · 0 partial · 0 failed · 0 open'
     )
     expect(region()).toHaveTextContent('No entries yet.')
+  })
+
+  const mixed = () => [
+    entry({ id: 'trial', subject: 'trial' }),
+    entry({
+      id: 'shipped',
+      subject: 'shipped',
+      kind: 'release',
+      passMark: undefined,
+    }),
+  ]
+
+  it('filters by kind once the page is live', () => {
+    show(mixed())
+    const filters = screen.getByRole('group', { name: 'Filter entries' })
+    const button = (name: string) =>
+      within(filters).getByRole('button', { name })
+    expect(
+      within(filters)
+        .getAllByRole('button')
+        .map((b) => b.textContent)
+    ).toEqual(['All', 'Experiments', 'Tests', 'Releases', 'Milestones'])
+    expect(button('All')).toHaveAttribute('aria-pressed', 'true')
+
+    fireEvent.click(button('Releases'))
+    expect(entryIds()).toEqual(['shipped'])
+    expect(button('Releases')).toHaveAttribute('aria-pressed', 'true')
+
+    fireEvent.click(button('Tests'))
+    expect(region()).toHaveTextContent('No entries of this kind yet.')
+
+    fireEvent.click(button('All'))
+    expect(entryIds()).toEqual(['shipped', 'trial'])
+  })
+
+  it('lists every entry and offers no filters before JavaScript runs', () => {
+    const html = renderToString(ledger(mixed()))
+    expect(html).toContain('id="trial"')
+    expect(html).toContain('id="shipped"')
+    expect(html).not.toContain('Filter entries')
   })
 })
