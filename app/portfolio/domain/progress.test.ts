@@ -273,9 +273,9 @@ describe('validateProgress', () => {
   it.each(['  ', 'x'.repeat(141), 'a\nb', 'a\rb', 5])(
     'refuses the summary %j',
     (summary) => {
-      expect(
-        check([entry({ summary: summary as unknown as string })])
-      ).toEqual([`${at} needs a summary of one line, 1 to 140 characters`])
+      expect(check([entry({ summary: summary as unknown as string })])).toEqual(
+        [`${at} needs a summary of one line, 1 to 140 characters`]
+      )
     }
   )
 

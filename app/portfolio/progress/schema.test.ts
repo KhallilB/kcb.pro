@@ -160,7 +160,11 @@ const corpus: [string, unknown, boolean][] = [
     file(release({ result: 'partial', summary: ' ' })),
     false,
   ],
-  ['pass with a summary', file(release({ summary: 'Done and shipped.' })), true],
+  [
+    'pass with a summary',
+    file(release({ summary: 'Done and shipped.' })),
+    true,
+  ],
   ['summary padded with spaces', file(release({ summary: '  Done.  ' })), true],
   [
     'summary of 140 characters',
@@ -177,18 +181,10 @@ const corpus: [string, unknown, boolean][] = [
     file(release({ summary: 'x'.repeat(141) })),
     false,
   ],
-  [
-    'summary of 140 emoji',
-    file(release({ summary: '🙂'.repeat(140) })),
-    true,
-  ],
+  ['summary of 140 emoji', file(release({ summary: '🙂'.repeat(140) })), true],
   ['blank summary', file(release({ summary: '  ' })), false],
   ['summary with a line feed', file(release({ summary: 'a\nb' })), false],
-  [
-    'summary with a carriage return',
-    file(release({ summary: 'a\rb' })),
-    false,
-  ],
+  ['summary with a carriage return', file(release({ summary: 'a\rb' })), false],
   [
     'summary ending in a line feed',
     file(release({ summary: 'Done.\n' })),
