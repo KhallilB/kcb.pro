@@ -1,3 +1,4 @@
+import type { Commit, ProgressEntry, ProgressFile } from './progress'
 import type { Catalog, Project, Study } from './types'
 
 export function project(overrides: Partial<Project> = {}): Project {
@@ -39,4 +40,38 @@ export function study(overrides: Partial<Study> = {}): Study {
 
 export function catalog(projects: Project[], studies: Study[] = []): Catalog {
   return { projects, studies }
+}
+
+export function entry(overrides: Partial<ProgressEntry> = {}): ProgressEntry {
+  return {
+    id: '2026-10-20-alpha',
+    subject: 'alpha',
+    date: '2026-10-20',
+    kind: 'experiment',
+    title: 'Alpha holds up',
+    passMark: 'Under 100 ms',
+    result: 'pass',
+    measured: [{ label: 'Median', value: '40 ms' }],
+    evidence: [{ label: 'RESULT.md', path: 'spikes/alpha/RESULT.md' }],
+    commit: '01e47db',
+    ...overrides,
+  }
+}
+
+export function progressFile(
+  entries: ProgressEntry[],
+  overrides: Partial<ProgressFile> = {}
+): ProgressFile {
+  return { schema: 1, project: 'alpha', entries, ...overrides }
+}
+
+export function commit(overrides: Partial<Commit> = {}): Commit {
+  return {
+    sha: '01e47db',
+    date: '2026-10-20',
+    type: 'feat',
+    subject: 'feat: add alpha',
+    url: 'https://github.com/KhallilB/alpha/commit/01e47db',
+    ...overrides,
+  }
 }
