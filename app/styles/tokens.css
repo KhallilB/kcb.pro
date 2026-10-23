@@ -14,6 +14,13 @@
   --passing: #17785c;
   --in-progress: #b07a1e;
   --failing: #a3402c;
+  /* Commit squares, empty to busiest. */
+  --heat-0: #e3d4b2;
+  --heat-1: rgba(23, 120, 92, 0.28);
+  --heat-2: rgba(23, 120, 92, 0.5);
+  --heat-3: rgba(23, 120, 92, 0.74);
+  --heat-4: #17785c;
+  --cell: 11px;
   --mist: #e4eae8;
   --mist-edge: #f3f5f4;
   --glow: rgba(26, 138, 118, 0.42);

@@ -1,0 +1,112 @@
+import { activityWeeks, commitGroups } from '@app/portfolio/domain/activity'
+import { formatDay, formatWeekday } from '@app/portfolio/domain/dates'
+import type { Commit, CommitType } from '@app/portfolio/domain/progress'
+import { useSite } from '../site'
+
+const GROUP_LABELS: Record<CommitType, string> = {
+  feat: 'Features',
+  fix: 'Fixes',
+  docs: 'Docs',
+  test: 'Tests',
+  refactor: 'Refactors',
+  chore: 'Chores',
+  other: 'Other',
+}
+
+const PER_GROUP = 5
+
+// Square shade: none, 1, 2–3, 4–6, 7 or more commits.
+function level(count: number): number {
+  if (count === 0) return 0
+  if (count === 1) return 1
+  if (count <= 3) return 2
+  return count <= 6 ? 3 : 4
+}
+
+export function Activity({
+  repo,
+  commits,
+}: {
+  repo: string
+  commits: Commit[]
+}) {
+  const { asOf } = useSite()
+  const weeks = activityWeeks(commits, asOf)
+  const groups = commitGroups(commits)
+
+  return (
+    <section className="activity" aria-labelledby="activity">
+      <h3 id="activity" className="h3">
+        Activity
+      </h3>
+      <table className="activity__grid">
+        <caption className="sr-only">
+          Commits per day for the 12 weeks to {formatDay(asOf)}
+        </caption>
+        <thead>
+          <tr>
+            <td />
+            {weeks.map((week) => (
+              <th key={week[0].day} scope="col">
+                <span className="sr-only">
+                  Week of {formatDay(week[0].day)}
+                </span>
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {weeks[0].map((first, row) => (
+            <tr key={first.day}>
+              <th scope="row">
+                <span className="sr-only">{formatWeekday(first.day)}</span>
+              </th>
+              {weeks.map((week) => {
+                const { day, count } = week[row]
+                return (
+                  <td
+                    key={day}
+                    data-level={level(count)}
+                    title={`${count} on ${formatDay(day)}`}
+                  >
+                    <span className="sr-only">{count}</span>
+                  </td>
+                )
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {groups.length === 0 ? (
+        <p className="ledger__empty">No commits in the last 90 days.</p>
+      ) : (
+        <div className="activity__groups">
+          {groups.map(({ type, commits: list }) => (
+            <div key={type} className="activity__group">
+              <h4 className="mono secondary">
+                {GROUP_LABELS[type]} · {list.length}
+              </h4>
+              <ul>
+                {list.slice(0, PER_GROUP).map((c, i) => (
+                  <li key={`${c.sha}${i}`}>
+                    <a className="link" href={c.url}>
+                      {c.subject}
+                    </a>{' '}
+                    <time className="secondary" dateTime={c.date}>
+                      {formatDay(c.date)}
+                    </time>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      )}
+      <p>
+        <a className="link" href={`https://github.com/${repo}/commits`}>
+          All commits on GitHub <span aria-hidden="true">↗</span>
+        </a>
+      </p>
+    </section>
+  )
+}

@@ -151,6 +151,16 @@ describe('project page', () => {
     ])
   })
 
+  it('shows commit activity under the Bezl ledger', () => {
+    visit('/work/bezl')
+    const activity = within(
+      screen.getByRole('region', { name: 'Progress' })
+    ).getByRole('region', { name: 'Activity' })
+    expect(
+      within(activity).getByRole('heading', { name: 'Features · 5' })
+    ).toBeInTheDocument()
+  })
+
   it('keeps the empty build log for a project with no progress', () => {
     visit('/work/gallery')
     const log = screen.getByRole('region', { name: 'Build log' })

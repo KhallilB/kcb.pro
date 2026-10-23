@@ -7,6 +7,7 @@ import {
   type ProjectProgress,
 } from '@app/portfolio/domain/progress'
 import { useSite } from '../site'
+import { Activity } from './Activity'
 import { LedgerEntry } from './LedgerEntry'
 
 type Filter = ProgressKind | 'all'
@@ -94,6 +95,7 @@ export function Ledger({
       ) : (
         <p className="ledger__empty">No entries yet.</p>
       )}
+      <Activity repo={repo} commits={progress.commits} />
     </section>
   )
 }
