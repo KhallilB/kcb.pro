@@ -24,6 +24,12 @@ The Tome is the 3D book on the home page. It's built with Three.js r128 and live
    from image files). Then it waits up to 2.5 seconds for the Cinzel and EB Garamond
    fonts, so the text on the pages uses the right typeface, and starts drawing.
 
+While it loads, home shows the book's mist from the first frame: an inline script in
+`index.html` flags the page before React runs, and `Layout.tsx` keeps that flag until it
+knows whether WebGL works, so the list never flashes. If the engine takes longer than
+250 ms, the cover's gilt lozenge appears with "Loading the fancy version", then fades as
+the book fades in.
+
 `mountTome` returns `null` if WebGL fails. The site then hides the toggle and stays 2D.
 
 ## The engine's handle
