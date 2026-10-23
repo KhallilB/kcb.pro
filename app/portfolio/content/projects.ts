@@ -57,7 +57,7 @@ export const projects: Project[] = [
       'Running other programs from a desktop app: live terminals inside one window, permissions enforced by the tools themselves rather than requested in a prompt, and a record you can check afterwards.',
     signature:
       'One writer per task: reviewers that are stopped from editing by the assistant’s own sandbox, not by a polite request.',
-    links: [{ label: 'Source', href: 'https://github.com/KhallilB/bezl' }],
+    links: [],
     brief: [
       {
         heading: 'The problem',
