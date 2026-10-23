@@ -11,6 +11,7 @@
         "title": "Terminal output into the window",
         "passMark": "No lost bytes, echo under 100 ms, memory under 300 MB",
         "result": "partial",
+        "summary": "No bytes lost and typing keeps up; memory runs high, so two tighter limits come next.",
         "measured": [
           { "label": "Bytes lost", "value": "None across 3 × 20 MB" },
           {

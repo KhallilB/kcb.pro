@@ -22,4 +22,12 @@ describe('offline fixtures', () => {
       open: 2,
     })
   })
+
+  it('give every partial entry a summary', () => {
+    const partial = Object.values(fixtureProgress).flatMap((p) =>
+      p.file.entries.filter((e) => e.result === 'partial')
+    )
+    expect(partial.map((e) => e.id)).toEqual(['2026-10-20-pty-throughput'])
+    expect(partial.every((e) => 'summary' in e)).toBe(true)
+  })
 })
