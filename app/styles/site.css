@@ -584,6 +584,72 @@ a {
     );
 }
 
+/* The full record: closed until asked for or linked to. */
+.record {
+  margin-block: var(--space-8);
+  border-block-start: var(--rule) solid var(--hairline);
+}
+
+.record__summary {
+  cursor: pointer;
+  padding-block: var(--space-4);
+}
+
+.record__rows,
+.record__earlier {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.record__row {
+  display: grid;
+  grid-template-columns: 3fr 9fr;
+  gap: var(--gutter);
+  align-items: baseline;
+  padding-block: var(--space-4);
+  border-block-start: var(--rule) solid var(--hairline);
+  scroll-margin-block-start: var(--space-5);
+}
+
+.record__main {
+  display: grid;
+  gap: var(--space-1);
+  min-inline-size: 0;
+  max-inline-size: var(--measure);
+}
+
+.record__title {
+  font-weight: 600;
+}
+
+.record__earlier {
+  display: grid;
+  gap: var(--space-1);
+  padding-block-start: var(--space-2);
+  font-size: var(--text-small);
+  line-height: var(--lh-small);
+  color: var(--secondary);
+}
+
+.record__line {
+  padding-inline-start: var(--space-2);
+  scroll-margin-block-start: var(--space-5);
+}
+
+/* Landed-on entry: a rule, never a wash that costs text contrast. */
+.record__row:target,
+.record__line:target {
+  box-shadow: inset var(--anchor-rule) 0 0 var(--gold);
+}
+
+@media (max-width: 760px) {
+  .record__row {
+    grid-template-columns: 1fr;
+    gap: var(--space-1);
+  }
+}
+
 /* Progress ledger: evidence first, commit activity underneath. */
 .ledger {
   display: grid;
