@@ -131,15 +131,27 @@ export function TomeStage({
 // useId may contain characters that break url(#id) references.
 const svgId = (id: string) => `tome${id.replace(/[^\w-]/g, '')}`
 
-// Cloud from an SVG noise filter: drawn once, then drifted, so it reads as sky rather than blur.
+// Cloud from SVG noise, drawn once: one tile half the layer wide, stitched at its edges and
+// repeated by feTile, so drifting one tile width loops forever without a seam.
 function Cloud({ name, frequency, seed, cover }: { name: string; frequency: string; seed: number; cover: string }) {
   const id = svgId(useId())
   return (
     <svg className={name} aria-hidden="true">
-      <filter id={id} x="0" y="0" width="100%" height="100%">
-        <feTurbulence type="fractalNoise" baseFrequency={frequency} numOctaves={4} seed={seed} />
+      <filter id={id} x="0" y="0" width="100%" height="100%" primitiveUnits="userSpaceOnUse">
+        <feTurbulence
+          x="0"
+          y="0"
+          width="50%"
+          height="100%"
+          type="fractalNoise"
+          baseFrequency={frequency}
+          numOctaves={4}
+          seed={seed}
+          stitchTiles="stitch"
+        />
+        <feTile result="noise" />
         {/* Keep only the dense parts of the noise as cloud, in the layer's colour. */}
-        <feColorMatrix type="matrix" values={`0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  ${cover}`} result="cloud" />
+        <feColorMatrix in="noise" type="matrix" values={`0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  ${cover}`} result="cloud" />
         <feFlood floodColor="currentColor" />
         <feComposite in2="cloud" operator="in" />
       </filter>
@@ -148,7 +160,7 @@ function Cloud({ name, frequency, seed, cover }: { name: string; frequency: stri
   )
 }
 
-// Behind the book: shaded banks far back, pale ones nearer.
+// Behind the book: shaded banks far back, pale ones nearer, moving faster in the same wind.
 function Mist() {
   return (
     <>
@@ -158,12 +170,16 @@ function Mist() {
   )
 }
 
-// In front of the closed book; the stage's data-open pushes it aside.
+// In front of the closed book. Each bank drifts inside a wrapper that data-open slides aside.
 function Veil() {
   return (
     <>
-      <Cloud name="tome__veil tome__veil--left" frequency="0.0032 0.009" seed={23} cover="3 0 0 0 -1.45" />
-      <Cloud name="tome__veil tome__veil--right" frequency="0.0032 0.009" seed={31} cover="3 0 0 0 -1.45" />
+      <div className="tome__veil tome__veil--left" aria-hidden="true">
+        <Cloud name="tome__veil-cloud" frequency="0.0032 0.009" seed={23} cover="3 0 0 0 -1.45" />
+      </div>
+      <div className="tome__veil tome__veil--right" aria-hidden="true">
+        <Cloud name="tome__veil-cloud" frequency="0.0032 0.009" seed={31} cover="3 0 0 0 -1.45" />
+      </div>
     </>
   )
 }

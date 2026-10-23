@@ -110,7 +110,7 @@ html[data-tome='pending'] body {
   }
 }
 
-/* Cloud: noise-drawn banks, shaded behind and pale in front, drifting slowly in opposite directions. */
+/* Cloud: noise-drawn banks, shaded behind and pale in front, carried by one wind at different speeds. */
 .tome__mist {
   position: absolute;
   inset-block-start: -10%;
@@ -122,14 +122,14 @@ html[data-tome='pending'] body {
   opacity: 0.75;
   animation:
     mist-in 1.6s var(--ease) both,
-    mist-drift 140s ease-in-out infinite alternate;
+    mist-drift 75s linear infinite,
+    billow 19s ease-in-out infinite alternate;
 }
 
 .tome__mist--far {
   color: var(--cloud-dark);
   opacity: 0.6;
-  animation-duration: 1.6s, 200s;
-  animation-direction: normal, alternate-reverse;
+  animation-duration: 1.6s, 150s, 27s;
 }
 
 @keyframes mist-in {
@@ -138,9 +138,17 @@ html[data-tome='pending'] body {
   }
 }
 
+/* One tile width: the second tile lands exactly where the first began. */
 @keyframes mist-drift {
   to {
     translate: -50% 0;
+  }
+}
+
+/* Clouds rise and settle a little as they pass. */
+@keyframes billow {
+  to {
+    transform: translateY(-2%) scaleY(1.04);
   }
 }
 
@@ -149,6 +157,7 @@ html[data-tome='pending'] body {
   position: absolute;
   inset-block-start: -10%;
   z-index: 2;
+  overflow: hidden;
   inline-size: 75%;
   block-size: 120%;
   pointer-events: none;
@@ -157,7 +166,15 @@ html[data-tome='pending'] body {
   transition:
     translate 1.6s cubic-bezier(0.3, 0, 0.2, 1),
     opacity 1.6s var(--ease);
-  animation: veil-drift 30s ease-in-out infinite alternate;
+}
+
+.tome__veil-cloud {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  inline-size: 200%;
+  block-size: 100%;
+  animation: mist-drift 45s linear infinite;
 }
 
 .tome__veil--left {
@@ -168,7 +185,10 @@ html[data-tome='pending'] body {
 .tome__veil--right {
   inset-inline-end: -10%;
   mask-image: linear-gradient(to left, black 55%, transparent);
-  animation-direction: alternate-reverse;
+}
+
+.tome__veil--right .tome__veil-cloud {
+  animation-duration: 38s;
 }
 
 /* Hidden until the book is drawn, so it never covers the loader. */
@@ -188,11 +208,6 @@ html[data-tome='pending'] body {
   translate: 70% 0;
 }
 
-@keyframes veil-drift {
-  to {
-    transform: translateX(4%);
-  }
-}
 
 .tome__vignette {
   position: absolute;
@@ -773,7 +788,7 @@ html[data-tome='pending'] body {
 
 @media (prefers-reduced-motion: reduce) {
   .tome__mist,
-  .tome__veil,
+  .tome__veil-cloud,
   .tome__loading::before,
   .tome__loading > *,
   .tome__ring,

@@ -294,6 +294,22 @@ describe('the tome on the home page', () => {
     }
   })
 
+  it('tiles each cloud layer seamlessly, so its drift loops without a seam', async () => {
+    const { hooks } = fakeEngine()
+    await visit('/', hooks)
+    const layers = [...document.querySelectorAll('.tome svg')].filter((svg) => svg.querySelector('feTurbulence'))
+    expect(layers.length).toBeGreaterThanOrEqual(4)
+    for (const svg of layers) {
+      // One stitched tile half the layer wide, repeated by feTile in a single raster:
+      // drifting one tile width loops cleanly, with no edge where two drawings meet.
+      const noise = svg.querySelector('feTurbulence')
+      expect(noise).toHaveAttribute('stitchTiles', 'stitch')
+      expect(noise).toHaveAttribute('width', '50%')
+      expect(svg.querySelector('feTile')).not.toBeNull()
+      expect(svg.querySelectorAll('rect[filter]')).toHaveLength(1)
+    }
+  })
+
   it('says the book is opening until the engine is ready', async () => {
     const { hooks } = fakeEngine()
     let release = () => {}
