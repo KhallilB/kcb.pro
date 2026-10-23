@@ -42,6 +42,8 @@ jobs:
       - name: Build
         run: bun run build
         env:
+          # Reads private project repositories; empty on forks, which fall back to GITHUB_TOKEN.
+          PROGRESS_TOKEN: ${{ secrets.PROGRESS_TOKEN }}
           # Anonymous calls share the runner IP's 60 requests an hour.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
