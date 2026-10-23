@@ -12,13 +12,17 @@ import './styles/site.css'
 import './styles/tome.css'
 import { AppRoutes } from './site/AppRoutes'
 import { SiteProvider } from './site/site-context'
+import { builtProgress } from './site/progress-data'
 
 const root = document.getElementById('root')
 
 if (root) {
   const app = (
     <StrictMode>
-      <SiteProvider asOf={__BUILD_DAY__}>
+      <SiteProvider
+        asOf={__BUILD_DAY__}
+        progress={builtProgress(__BUILD_DAY__)}
+      >
         <BrowserRouter>
           <AppRoutes />
         </BrowserRouter>
