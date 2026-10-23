@@ -137,6 +137,20 @@ describe('project page', () => {
     )
   })
 
+  it('anchors every Bezl entry, newest first', () => {
+    visit('/work/bezl')
+    expect(
+      Array.from(document.querySelectorAll('.entry')).map((e) => e.id)
+    ).toEqual([
+      '2026-10-21-scaffold',
+      '2026-10-21-pty-memory',
+      '2026-10-20-reviewer-readonly-claude',
+      '2026-10-20-reviewer-readonly-codex',
+      '2026-10-20-libghostty-vt',
+      '2026-10-20-pty-throughput',
+    ])
+  })
+
   it('keeps the empty build log for a project with no progress', () => {
     visit('/work/gallery')
     const log = screen.getByRole('region', { name: 'Build log' })

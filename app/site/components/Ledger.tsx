@@ -5,9 +5,11 @@ import {
   type ProjectProgress,
 } from '@app/portfolio/domain/progress'
 import { useSite } from '../site'
+import { LedgerEntry } from './LedgerEntry'
 
 // Evidence first: what is proven, as of the build day.
 export function Ledger({
+  repo,
   progress,
 }: {
   repo: string
@@ -34,6 +36,15 @@ export function Ledger({
           </p>
         )}
       </header>
+      {entries.length === 0 ? (
+        <p className="ledger__empty">No entries yet.</p>
+      ) : (
+        <ol className="ledger__entries">
+          {[...entries].reverse().map((entry) => (
+            <LedgerEntry key={entry.id} entry={entry} repo={repo} />
+          ))}
+        </ol>
+      )}
     </section>
   )
 }

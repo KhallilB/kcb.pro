@@ -524,3 +524,111 @@ a {
   font-style: italic;
   color: var(--secondary);
 }
+
+.ledger__entries {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-block-start: var(--rule) solid var(--hairline);
+}
+
+.entry {
+  display: grid;
+  grid-template-columns: 3fr 9fr;
+  gap: var(--gutter);
+  align-items: baseline;
+  padding-block: var(--space-5);
+  border-block-end: var(--rule) solid var(--hairline);
+  scroll-margin-block-start: var(--space-5);
+}
+
+.entry:target {
+  background: var(--accent-soft);
+}
+
+.entry__main {
+  display: grid;
+  gap: var(--space-2);
+  min-inline-size: 0;
+  max-inline-size: var(--measure);
+}
+
+.entry__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.entry__facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  gap: var(--space-3) var(--gutter);
+  font-size: var(--text-small);
+  line-height: var(--lh-small);
+}
+
+.entry__facts dt {
+  font-family: var(--font-head);
+  font-size: var(--text-meta);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--secondary);
+}
+
+.entry__evidence summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-size: var(--text-small);
+}
+
+.entry__evidence ul {
+  display: grid;
+  gap: var(--space-1);
+  padding-block-start: var(--space-2);
+  font-size: var(--text-small);
+}
+
+/* Result: shape and word, never colour alone. */
+.result {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-head);
+  font-size: var(--text-meta);
+  line-height: var(--lh-meta);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.result__mark {
+  inline-size: var(--mark-size);
+  block-size: var(--mark-size);
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  color: var(--secondary);
+}
+
+.result[data-result='pass'] .result__mark {
+  color: var(--passing);
+  background: currentColor;
+}
+
+.result[data-result='partial'] .result__mark {
+  color: var(--in-progress);
+  background: linear-gradient(90deg, currentColor 50%, transparent 50%);
+}
+
+.result[data-result='fail'] .result__mark {
+  color: var(--failing);
+  background: currentColor;
+  border-radius: 1px;
+  transform: rotate(45deg);
+}
+
+@media (max-width: 760px) {
+  .entry {
+    grid-template-columns: 1fr;
+    gap: var(--space-1);
+  }
+}
