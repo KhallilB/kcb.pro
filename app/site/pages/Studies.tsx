@@ -3,7 +3,6 @@ import { findProject } from '@app/portfolio/domain/catalog'
 import { formatMonth } from '@app/portfolio/domain/dates'
 import { formatLabel } from '@app/portfolio/domain/status'
 import { Brief } from '../components/Brief'
-import { BuildLog } from '../components/BuildLog'
 import { StatusChip } from '../components/StatusChip'
 import { useSite } from '../site'
 import { NotFound } from './NotFound'
@@ -54,7 +53,7 @@ export function StudyPage() {
     <article>
       <header className="page-head">
         <p className="crumb mono secondary">
-          <Link to="/studies">Studies</Link> / {formatLabel(study.format)}
+          <Link to="/studies">Work studies</Link> / {formatLabel(study.format)}
         </p>
         <h1 className="h1">{study.title}</h1>
         <p className="lede">{study.question}</p>
@@ -95,7 +94,6 @@ export function StudyPage() {
           </dl>
         </div>
       </header>
-      <BuildLog />
       <Brief sections={study.brief} />
     </article>
   )

@@ -150,11 +150,7 @@ export function mountTome(host, opts) {
   const chapterPage = (ctx, title, folio, d) => {
     const m = parchment(ctx, 'R', title, folio);
     chapterHead(ctx, m, d);
-    let y = para(ctx, m, d.about, 450, 34, 50) + 40;
-    rule(ctx, m, y);
-    smallcaps(ctx, 'Build log', m.L, y + 64);
-    ctx.fillStyle = P.muted; ctx.font = font(30, 400, BODY, true);
-    wrap(ctx, 'Nothing here yet. Recent changes will appear once the project’s code is connected.', m.L, y + 116, m.w, 42);
+    para(ctx, m, d.about, 450, 34, 50);
     footnote(ctx, m, d.status, TH - 158);
   };
   const notesPage = (ctx, side, title, folio, d) => {
@@ -258,8 +254,9 @@ export function mountTome(host, opts) {
       heading(ctx, m, 'Find me', 280, 70);
       let y = para(ctx, m, data.contactLine, 400, 34, 48) + 30;
       rule(ctx, m, y);
-      for (const [k, v, act] of [['Code', data.github.label, () => window.open(data.github.href, '_blank', 'noopener')], ['All my work', 'kcb.pro/work', () => onNavigate('/work')]]) {
-        smallcaps(ctx, k, m.L, y + 56);
+      for (const { label, value: v, href } of data.contact) {
+        const act = href.startsWith('mailto:') ? () => { window.location.href = href; } : () => window.open(href, '_blank', 'noopener');
+        smallcaps(ctx, label, m.L, y + 56);
         ctx.fillStyle = P.accent; ctx.font = font(40, 600); ctx.fillText(v, m.L, y + 112);
         hs.push({ x: m.L, y: y + 20, w: m.w, h: 120, act });
         y += 150; rule(ctx, m, y);

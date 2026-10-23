@@ -15,8 +15,9 @@ export function Home() {
       <section className="masthead">
         <h1 className="display">{profile.headline}</h1>
         <p className="lede">
-          Three apps I’m building, each one to learn a hard area of engineering.
-          Every project shows where it stands and when that was last true.
+          More than five years of building product interfaces, much of it as
+          an early engineer at startups. Below is what I’m building on my own,
+          with a date on everything so you can see where it really stands.
         </p>
         {live && (
           <p className="live" data-testid="now-building">
@@ -60,9 +61,15 @@ export function Home() {
       <section className="section" aria-labelledby="work-studies" data-place="studies">
         <div className="section__head">
           <h2 id="work-studies" className="h3">
-            Work studies
+            Up next
           </h2>
+          <Link to="/studies" className="link">
+            About the studies <span aria-hidden="true">→</span>
+          </Link>
         </div>
+        <p className="section__note secondary">
+          One-week studies, each starting in the month shown.
+        </p>
         <ul className="rows">
           {catalog.studies.map((study) => (
             <li key={study.slug} className="row">

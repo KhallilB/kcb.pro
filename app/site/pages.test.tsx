@@ -19,7 +19,7 @@ describe('home', () => {
     expect(
       screen.getByRole('heading', {
         level: 1,
-        name: 'Frontend engineer building web apps that do real work.',
+        name: 'Frontend engineer who makes complicated products simple.',
       })
     ).toBeInTheDocument()
   })
@@ -56,10 +56,11 @@ describe('home', () => {
     expect(container.querySelector('.card svg, .card img, .wip')).toBeNull()
   })
 
-  it('lists the three work studies', () => {
+  it('lists the three work studies as up next', () => {
     visit('/')
-    const section = screen.getByRole('region', { name: 'Work studies' })
+    const section = screen.getByRole('region', { name: 'Up next' })
     expect(within(section).getAllByRole('link').map((a) => a.getAttribute('href'))).toEqual([
+      '/studies',
       '/studies/figma-canvas',
       '/studies/map-labels',
       '/studies/benefits-application',
@@ -86,6 +87,23 @@ describe('layout', () => {
     )
     expect(within(nav).getByRole('link', { name: 'Studies' })).not.toHaveAttribute(
       'aria-current'
+    )
+  })
+
+  it('puts every way to reach me in the footer', () => {
+    visit('/work/bezl')
+    const footer = within(screen.getByRole('contentinfo'))
+    expect(footer.getByRole('link', { name: 'hi@kcb.pro' })).toHaveAttribute(
+      'href',
+      'mailto:hi@kcb.pro'
+    )
+    expect(footer.getByRole('link', { name: /LinkedIn/ })).toHaveAttribute(
+      'href',
+      'https://www.linkedin.com/in/khallilbailey'
+    )
+    expect(footer.getByRole('link', { name: /Résumé/ })).toHaveAttribute(
+      'href',
+      '/khallil-bailey-resume.pdf'
     )
   })
 
@@ -126,11 +144,10 @@ describe('project page', () => {
     expect(spec).toHaveTextContent('In progress · as of 21 Oct 2026')
   })
 
-  it('holds an empty build log until GitHub and the changelog are linked', () => {
+  it('shows no empty placeholders', () => {
     visit('/work/kbui')
-    const log = screen.getByRole('region', { name: 'Build log' })
-    expect(log).toHaveTextContent('Nothing here yet')
-    expect(within(log).queryByRole('img')).toBeNull()
+    expect(screen.queryByRole('region', { name: 'Build log' })).toBeNull()
+    expect(screen.getByRole('main')).not.toHaveTextContent('Nothing here yet')
   })
 
   it('renders every brief section as a heading with a contents link', () => {
@@ -198,10 +215,10 @@ describe('studies', () => {
     expect(within(spec).queryByRole('link', { name: 'Wander' })).toBeNull()
   })
 
-  it('says what a study is and holds an empty build log', () => {
+  it('says what a study is, with no empty placeholders', () => {
     visit('/studies/figma-canvas')
     expect(screen.getByRole('main')).toHaveTextContent('rebuild of its panning, zooming')
-    expect(screen.getByRole('region', { name: 'Build log' })).toHaveTextContent('Nothing here yet')
+    expect(screen.getByRole('main')).not.toHaveTextContent('Nothing here yet')
   })
 
   it('lists all three studies on the index', () => {
@@ -214,9 +231,28 @@ describe('about', () => {
   it('links out to the code', () => {
     visit('/about')
     expect(screen.getByRole('heading', { level: 1, name: 'About' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /GitHub/ })).toHaveAttribute(
-      'href',
-      'https://github.com/KhallilB'
+    expect(
+      within(screen.getByRole('main')).getByRole('link', { name: /GitHub/ })
+    ).toHaveAttribute('href', 'https://github.com/KhallilB')
+  })
+
+  it('lists past roles, newest first', () => {
+    visit('/about')
+    expect(screen.getByRole('heading', { level: 2, name: 'Experience' })).toBeInTheDocument()
+    const main = screen.getByRole('main')
+    const text = main.textContent ?? ''
+    const order = ['Databricks', 'Panther', 'Datable', 'Presidio Identity'].map((c) =>
+      text.indexOf(c)
     )
+    expect(order.every((i) => i >= 0)).toBe(true)
+    expect([...order].sort((a, b) => a - b)).toEqual(order)
+  })
+
+  it('never names a hidden project', () => {
+    visit('/about')
+    const text = screen.getByRole('main').textContent ?? ''
+    for (const name of ['Deck Workshop', 'Mugen Arena', 'Wander', 'fighting game']) {
+      expect(text).not.toContain(name)
+    }
   })
 })

@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
 import { useSite } from '../site'
+import { ContactLinks } from '../components/ContactLinks'
 
 export function About() {
   const { profile } = useSite()
@@ -8,18 +9,52 @@ export function About() {
       <header className="page-head">
         <h1 className="h1">About</h1>
         <p className="lede">
-          {profile.role}. I build web apps that do real work, and I write down
-          how I made them.
+          {profile.role} in Los Angeles. I make complicated products simpler to
+          use, and I write down how I did it.
         </p>
       </header>
       <div className="prose prose--solo">
-        <h2 className="h2">How I work</h2>
         <p>
-          I pick each project to learn one hard area of engineering that the
-          others don’t cover: a desktop app that keeps your data on your own
-          machine and learns from a game’s logs, a fighting game that plays out
-          exactly the same on every computer, and a map built from cities’ open
-          data.
+          I grew up in Jamaica, studied computer science in Connecticut and
+          California, and now live in Los Angeles. I’ve spent more than five
+          years building product interfaces, much of it as one of the first
+          engineers at a startup, where the frontend is whatever you make it.
+        </p>
+        <p>
+          The part of the job I like most is the moment a confusing flow turns
+          obvious: fewer steps, clearer choices, a screen that explains itself.
+          I also like interfaces that feel unlike anything else, which is why
+          this site’s home page is a book.
+        </p>
+
+        <h2 className="h2">Experience</h2>
+      </div>
+      <ul className="rows experience">
+        {profile.experience.map((job) => (
+          <li key={job.company} className="row row--tall">
+            <span className="row__rail mono secondary">{job.years}</span>
+            <span className="row__main">
+              <span className="row__name">{job.company}</span>
+              <span className="row__summary">{job.summary}</span>
+            </span>
+            <span className="row__meta secondary">{job.title}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="experience__more">
+        <a href={profile.resume} className="link">
+          Full résumé (PDF) <span aria-hidden="true">↓</span>
+        </a>
+      </p>
+
+      <div className="prose prose--solo">
+        <h2 className="h2">What I’m building</h2>
+        <p>
+          Outside work I build things to learn the parts of engineering my job
+          doesn’t cover. Right now that’s{' '}
+          <Link to="/work/bezl">Bezl</Link>, a desktop app for running AI coding
+          assistants side by side, and <Link to="/work/kbui">kbui</Link>, the
+          design system my projects share. This site is the third.
         </p>
         <p>
           Everything on this site has a date next to it. A project’s status
@@ -27,25 +62,14 @@ export function About() {
           nothing is called finished before it is.
         </p>
         <p>
-          I use AI to speed up the repetitive parts of the work, like setting up
-          tests, making the same change across many files, and first drafts.
-          The overall design, the tricky interface code and the visual design
-          are mine. Each project keeps a record of what AI drafted, what I
-          rewrote and what I threw away.
+          I use AI for the repetitive parts of the work, like setting up tests,
+          making the same change across many files, and first drafts. The
+          overall design, the tricky interface code and the visual design are
+          mine.
         </p>
-        <h2 className="h2">Elsewhere</h2>
-        <ul className="plain">
-          <li>
-            <a href={profile.github} className="link">
-              GitHub <span aria-hidden="true">↗</span>
-            </a>
-          </li>
-          <li>
-            <Link to="/work" className="link">
-              See all my work <span aria-hidden="true">→</span>
-            </Link>
-          </li>
-        </ul>
+
+        <h2 className="h2">Get in touch</h2>
+        <ContactLinks />
       </div>
     </article>
   )

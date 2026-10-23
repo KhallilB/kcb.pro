@@ -158,6 +158,12 @@ a {
   font-size: var(--text-small);
 }
 
+.footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+}
+
 /* Type */
 .display {
   font-size: var(--text-display);
@@ -475,6 +481,23 @@ a {
 .plain {
   display: grid;
   gap: var(--space-2);
+}
+
+.section__note {
+  margin-block: calc(-1 * var(--space-2)) var(--space-4);
+  font-size: var(--text-small);
+}
+
+.row__name {
+  font-weight: 600;
+}
+
+.experience {
+  margin-block-start: var(--space-4);
+}
+
+.experience__more {
+  margin-block: var(--space-4) var(--space-2);
 }
 
 @media (max-width: 760px) {

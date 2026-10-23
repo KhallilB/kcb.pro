@@ -22,7 +22,7 @@ export interface TomeData {
   nowBuilding: string
   about: string[]
   contactLine: string
-  github: { label: string; href: string }
+  contact: { label: string; value: string; href: string }[]
   studies: {
     slug: string
     title: string
@@ -85,12 +85,17 @@ export function tomeData(asOf: IsoDay): TomeData {
     asOf: formatLongDay(asOf),
     nowBuilding: live?.title ?? 'Between projects',
     about: [
-      'I build web apps that do real work. This book holds the two things I am building now: Bezl, a desktop app for running AI coding assistants side by side, and kbui, the design system my projects share.',
+      'I’m a frontend engineer in Los Angeles with more than five years of building product interfaces. This book holds what I’m building on my own: Bezl, a desktop app for running AI coding assistants side by side, and kbui, the design system my projects share.',
       'Everything here shows the date it was last true. If something isn’t finished, it says so.',
     ],
     contactLine:
-      'I’m looking for frontend roles where the interface is the hard part.',
-    github: { label: 'github.com/KhallilB', href: profile.github },
+      'Email is the best way to reach me. My résumé has the full story.',
+    contact: [
+      { label: 'Email', value: profile.email, href: `mailto:${profile.email}` },
+      { label: 'LinkedIn', value: 'in/khallilbailey', href: profile.linkedin },
+      { label: 'Code', value: 'github.com/KhallilB', href: profile.github },
+      { label: 'Résumé', value: 'Download the PDF', href: profile.resume },
+    ],
     studies: content.studies.map((s) => ({
       slug: s.slug,
       title: s.title,
