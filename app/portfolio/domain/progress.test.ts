@@ -12,6 +12,8 @@ import {
   toPublic,
   validateCommits,
   validateProgress,
+  validatePublicProgress,
+  type DayCount,
   type Evidence,
   type Measure,
   type ProjectProgress,
@@ -615,5 +617,105 @@ describe('earlierEntries', () => {
     ]
     const step = { ...entries[1] }
     expect(earlierEntries(entries, step, day).map((e) => e.id)).toEqual(['a1'])
+  })
+})
+
+describe('validatePublicProgress', () => {
+  const shipped = () =>
+    toPublic(
+      {
+        file: progressFile([entry({ summary: 'Holds up well.' })]),
+        commits: [commit()],
+      },
+      day
+    )
+  const ctx = { slug: 'alpha', buildDay: day }
+  const at = '"alpha" built progress'
+  const daysRule = `${at} needs days as the 84 days to 2026-10-21, each with a whole count of 0 or more`
+
+  it('accepts what toPublic writes', () => {
+    expect(validatePublicProgress(shipped(), ctx)).toEqual([])
+  })
+
+  it('refuses anything that is not an object', () => {
+    expect(validatePublicProgress([], ctx)).toEqual([
+      `${at} is not a JSON object`,
+    ])
+  })
+
+  it('refuses the full shape', () => {
+    expect(
+      validatePublicProgress({ file: progressFile([]), commits: [] }, ctx)
+    ).toEqual([
+      `${at} has a field the site does not ship: "file"`,
+      `${at} has a field the site does not ship: "commits"`,
+      `${at} needs an entries list`,
+      daysRule,
+    ])
+  })
+
+  it.each(['kind', 'passMark', 'measured', 'evidence', 'commit'])(
+    'refuses an entry carrying %s',
+    (field) => {
+      const data = shipped()
+      data.entries[0] = { ...data.entries[0], [field]: 'x' }
+      expect(validatePublicProgress(data, ctx)).toEqual([
+        `${at} entry "2026-10-20-alpha" has a field the site does not ship: "${field}"`,
+      ])
+    }
+  )
+
+  it('checks every shipped entry field', () => {
+    const bad = {
+      id: 'a b',
+      subject: ' ',
+      date: 'soon',
+      title: '',
+      result: 'ok',
+      summary: 'a\nb',
+    }
+    expect(
+      validatePublicProgress({ ...shipped(), entries: [bad] }, ctx)
+    ).toEqual([
+      `${at} entry "a b" needs an id with no spaces`,
+      `${at} entry "a b" needs a subject`,
+      `${at} entry "a b" needs a date as YYYY-MM-DD`,
+      `${at} entry "a b" needs a title`,
+      `${at} entry "a b" has an unknown result "ok"`,
+      `${at} entry "a b" needs a summary of one line, 1 to 140 characters`,
+    ])
+  })
+
+  it.each([
+    ['too few days', (d: DayCount[]) => d.slice(1)],
+    ['two days swapped', (d: DayCount[]) => [d[1], d[0], ...d.slice(2)]],
+    [
+      'a negative count',
+      (d: DayCount[]) => [{ ...d[0], count: -1 }, ...d.slice(1)],
+    ],
+    [
+      'a fractional count',
+      (d: DayCount[]) => [{ ...d[0], count: 0.5 }, ...d.slice(1)],
+    ],
+    [
+      'a commit sha on a day',
+      (d: DayCount[]) => [{ ...d[0], sha: '01e47db' }, ...d.slice(1)],
+    ],
+  ])('refuses days with %s', (_name, change) => {
+    const data = shipped()
+    expect(
+      validatePublicProgress({ ...data, days: change(data.days) }, ctx)
+    ).toEqual([daysRule])
+  })
+
+  it('refuses days that end before the build day', () => {
+    expect(
+      validatePublicProgress(shipped(), {
+        slug: 'alpha',
+        buildDay: '2026-10-22',
+      })
+    ).toEqual([
+      `${at} needs days as the 84 days to 2026-10-22, each with a whole count of 0 or more`,
+    ])
   })
 })

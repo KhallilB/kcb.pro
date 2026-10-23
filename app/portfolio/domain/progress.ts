@@ -135,6 +135,70 @@ const isText = (v: unknown): v is string =>
 const isOneOf = <T extends string>(list: readonly T[], v: unknown): v is T =>
   list.includes(v as T)
 
+const PUBLIC_FIELDS = ['entries', 'days']
+const PUBLIC_ENTRY_FIELDS = [
+  'id',
+  'subject',
+  'date',
+  'title',
+  'result',
+  'summary',
+]
+const DAY_FIELDS = ['day', 'count']
+
+const extraFields = (v: Fields, allowed: readonly string[]) =>
+  Object.keys(v).filter((key) => !allowed.includes(key))
+
+// Built data is checked again on load, so a stale full-shape file fails closed.
+export function validatePublicProgress(
+  data: unknown,
+  ctx: { slug: string; buildDay: IsoDay }
+): string[] {
+  const at = `"${ctx.slug}" built progress`
+  if (!isRecord(data)) return [`${at} is not a JSON object`]
+  const errors = extraFields(data, PUBLIC_FIELDS).map(
+    (key) => `${at} has a field the site does not ship: "${key}"`
+  )
+  if (!Array.isArray(data.entries)) {
+    errors.push(`${at} needs an entries list`)
+  } else {
+    data.entries.forEach((entry: unknown, index) => {
+      if (!isRecord(entry)) {
+        errors.push(`${at} entry ${index + 1} is not an object`)
+        return
+      }
+      const where = `${at} entry ${isText(entry.id) ? `"${entry.id}"` : index + 1}`
+      errors.push(
+        ...extraFields(entry, PUBLIC_ENTRY_FIELDS).map(
+          (key) => `${where} has a field the site does not ship: "${key}"`
+        ),
+        ...publicFieldErrors(entry, where)
+      )
+    })
+  }
+  if (!isDense(data.days, ctx.buildDay)) {
+    errors.push(
+      `${at} needs days as the ${ACTIVITY_DAYS} days to ${ctx.buildDay}, each with a whole count of 0 or more`
+    )
+  }
+  return errors
+}
+
+function isDense(days: unknown, buildDay: IsoDay): boolean {
+  return (
+    Array.isArray(days) &&
+    days.length === ACTIVITY_DAYS &&
+    days.every(
+      (d: unknown, i) =>
+        isRecord(d) &&
+        extraFields(d, DAY_FIELDS).length === 0 &&
+        d.day === addDays(buildDay, i + 1 - ACTIVITY_DAYS) &&
+        Number.isInteger(d.count) &&
+        (d.count as number) >= 0
+    )
+  )
+}
+
 export function validateProgress(
   file: unknown,
   ctx: { slug: string; buildDay: IsoDay }
@@ -184,7 +248,8 @@ export function validateProgress(
   return errors
 }
 
-function entryErrors(e: Fields, where: string, buildDay: IsoDay): string[] {
+// Fields a page ships; the contract and the built-data check share these rules.
+function publicFieldErrors(e: Fields, where: string): string[] {
   const errors: string[] = []
   if (!isText(e.id) || /\s/.test(e.id)) {
     errors.push(`${where} needs an id with no spaces`)
@@ -192,28 +257,35 @@ function entryErrors(e: Fields, where: string, buildDay: IsoDay): string[] {
   if (!isText(e.subject)) errors.push(`${where} needs a subject`)
   if (typeof e.date !== 'string' || !isIsoDay(e.date)) {
     errors.push(`${where} needs a date as YYYY-MM-DD`)
-  } else if (e.date > buildDay) {
-    errors.push(`${where} is dated ${e.date}, after the build day ${buildDay}`)
-  }
-  if (!isOneOf(PROGRESS_KINDS, e.kind)) {
-    errors.push(`${where} has an unknown kind ${JSON.stringify(e.kind)}`)
   }
   if (!isText(e.title)) errors.push(`${where} needs a title`)
-  const needsMark = NEEDS_PASS_MARK.includes(e.kind as string)
-  if (needsMark && !isText(e.passMark)) {
-    errors.push(`${where} needs a passMark, set before the result`)
-  } else if (!needsMark && e.passMark !== undefined && !isText(e.passMark)) {
-    errors.push(`${where} passMark is blank; omit it or fill it in`)
-  }
   if (!isOneOf(PROGRESS_RESULTS, e.result)) {
     errors.push(`${where} has an unknown result ${JSON.stringify(e.result)}`)
   }
   if (e.summary !== undefined && !isShortLine(e.summary)) {
     errors.push(`${where} needs a summary of one line, 1 to 140 characters`)
-  } else if (e.summary === undefined && e.result === 'partial') {
+  }
+  return errors
+}
+
+function entryErrors(e: Fields, where: string, buildDay: IsoDay): string[] {
+  const errors = publicFieldErrors(e, where)
+  if (typeof e.date === 'string' && isIsoDay(e.date) && e.date > buildDay) {
+    errors.push(`${where} is dated ${e.date}, after the build day ${buildDay}`)
+  }
+  if (e.summary === undefined && e.result === 'partial') {
     errors.push(
       `${where} is partial, so it needs a summary of what works and what is left`
     )
+  }
+  if (!isOneOf(PROGRESS_KINDS, e.kind)) {
+    errors.push(`${where} has an unknown kind ${JSON.stringify(e.kind)}`)
+  }
+  const needsMark = NEEDS_PASS_MARK.includes(e.kind as string)
+  if (needsMark && !isText(e.passMark)) {
+    errors.push(`${where} needs a passMark, set before the result`)
+  } else if (!needsMark && e.passMark !== undefined && !isText(e.passMark)) {
+    errors.push(`${where} passMark is blank; omit it or fill it in`)
   }
   const measured =
     Array.isArray(e.measured) &&

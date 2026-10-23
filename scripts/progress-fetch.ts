@@ -1,8 +1,9 @@
-// Writes build-data/progress/<slug>.json for each registered project; any failure stops the build.
+// Writes each registered project's public progress to build-data/progress/<slug>.json; any failure stops the build.
 import { mkdir, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { content } from '../app/portfolio/content'
 import { registered } from '../app/portfolio/domain/catalog'
+import { toPublic } from '../app/portfolio/domain/progress'
 import { collectProgress } from '../app/portfolio/progress/fetch'
 import { buildDay } from './build-day'
 
@@ -29,7 +30,7 @@ try {
   for (const [slug, data] of Object.entries(progress)) {
     await writeFile(
       join(OUT, `${slug}.json`),
-      `${JSON.stringify(data, null, 2)}\n`
+      `${JSON.stringify(toPublic(data, day), null, 2)}\n`
     )
   }
   const slugs = Object.keys(progress).join(', ') || 'no projects'

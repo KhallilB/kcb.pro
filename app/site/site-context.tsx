@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { content, profile } from '@app/portfolio/content'
-import type { ProjectProgress } from '@app/portfolio/domain/progress'
+import type { PublicProgress } from '@app/portfolio/domain/progress'
 import type { IsoDay } from '@app/portfolio/domain/types'
 import { SiteContext, type TomeHooks } from './site'
 
@@ -18,7 +18,7 @@ const browserTome: TomeHooks = {
   load: () => import('@app/tome/engine.js'),
 }
 
-const NO_PROGRESS: Record<string, ProjectProgress> = {}
+const NO_PROGRESS: Record<string, PublicProgress> = {}
 
 export function SiteProvider({
   asOf,
@@ -27,7 +27,7 @@ export function SiteProvider({
   children,
 }: {
   asOf: IsoDay
-  progress?: Record<string, ProjectProgress>
+  progress?: Record<string, PublicProgress>
   tome?: TomeHooks
   children: ReactNode
 }) {

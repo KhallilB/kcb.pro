@@ -1,30 +1,22 @@
-import {
-  validateCommits,
-  validateProgress,
-  type ProjectProgress,
-} from '../domain/progress'
+import { validatePublicProgress, type PublicProgress } from '../domain/progress'
 import type { IsoDay } from '../domain/types'
+
+export const slugOf = (path: string) =>
+  path.slice(path.lastIndexOf('/') + 1).replace(/\.json$/, '')
 
 // Keys are file paths; the file name is the project slug.
 export function loadProgress(
   files: Record<string, unknown>,
   buildDay: IsoDay
-): Record<string, ProjectProgress> {
-  const loaded: Record<string, ProjectProgress> = {}
+): Record<string, PublicProgress> {
+  const loaded: Record<string, PublicProgress> = {}
   for (const [path, data] of Object.entries(files)) {
-    const slug = path.slice(path.lastIndexOf('/') + 1).replace(/\.json$/, '')
-    const { file, commits } = (data ?? {}) as {
-      file?: unknown
-      commits?: unknown
-    }
-    const errors = [
-      ...validateProgress(file, { slug, buildDay }),
-      ...validateCommits(commits, slug),
-    ]
+    const slug = slugOf(path)
+    const errors = validatePublicProgress(data, { slug, buildDay })
     if (errors.length > 0) {
       throw new Error(`${path} failed validation:\n${errors.join('\n')}`)
     }
-    loaded[slug] = { file, commits } as ProjectProgress
+    loaded[slug] = data as PublicProgress
   }
   return loaded
 }

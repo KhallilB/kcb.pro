@@ -1,6 +1,5 @@
 import { Link, useParams } from 'react-router'
 import { findProject } from '@app/portfolio/domain/catalog'
-import { toPublic } from '@app/portfolio/domain/progress'
 import { Brief } from '../components/Brief'
 import { BuildLog } from '../components/BuildLog'
 import { FullRecord } from '../components/FullRecord'
@@ -11,13 +10,11 @@ import { NotFound } from './NotFound'
 
 export function ProjectPage() {
   const { slug = '' } = useParams()
-  const { asOf, catalog, progress } = useSite()
+  const { catalog, progress } = useSite()
   const project = findProject(catalog.projects, slug)
   if (!project) return <NotFound />
   // Registered but not yet fetched (a fresh dev clone) keeps the empty log.
-  const fetched = project.repo ? progress[project.slug] : undefined
-  // Interim: trimmed here until the build writes the public shape.
-  const ledger = fetched && toPublic(fetched, asOf)
+  const ledger = project.repo ? progress[project.slug] : undefined
 
   return (
     <article>

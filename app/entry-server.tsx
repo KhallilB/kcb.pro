@@ -3,7 +3,7 @@ import { StaticRouter } from 'react-router'
 import { AppRoutes } from './site/AppRoutes'
 import { pageMeta, type PageMeta } from './site/meta'
 import { SiteProvider } from './site/site-context'
-import type { ProjectProgress } from './portfolio/domain/progress'
+import type { PublicProgress } from './portfolio/domain/progress'
 import type { IsoDay } from './portfolio/domain/types'
 
 export { sitePaths } from './portfolio/domain/catalog'
@@ -16,7 +16,7 @@ export const buildDay: IsoDay = __BUILD_DAY__
 export function renderPage(
   path: string,
   asOf: IsoDay,
-  progress: Record<string, ProjectProgress>
+  progress: Record<string, PublicProgress>
 ): PageMeta & { html: string } {
   const html = renderToString(
     <SiteProvider asOf={asOf} progress={progress}>

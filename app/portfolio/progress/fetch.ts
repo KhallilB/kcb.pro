@@ -72,7 +72,7 @@ async function fromFixture(
     file?: unknown
     commits?: unknown
   }
-  return checked(slug, file, commits, options.buildDay)
+  return checkProgress(slug, file, commits, options.buildDay)
 }
 
 async function fromGitHub(
@@ -123,7 +123,7 @@ async function fromGitHub(
     )
   }
   const commits = await recentCommits(repo, branch, options, get)
-  return checked(slug, file, commits, options.buildDay)
+  return checkProgress(slug, file, commits, options.buildDay)
 }
 
 async function recentCommits(
@@ -169,7 +169,7 @@ function toCommit(c: ApiCommit): Commit {
   }
 }
 
-function checked(
+export function checkProgress(
   slug: string,
   file: unknown,
   commits: unknown,
