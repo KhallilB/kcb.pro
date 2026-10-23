@@ -21,6 +21,7 @@
   --heat-3: rgba(23, 120, 92, 0.74);
   --heat-4: #17785c;
   --cell: 11px;
+  --cell-edge: 1px;
   --mist: #e4eae8;
   --mist-edge: #f3f5f4;
   --glow: rgba(26, 138, 118, 0.42);

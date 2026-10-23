@@ -23,6 +23,12 @@ function level(count: number): number {
   return count <= 6 ? 3 : 4
 }
 
+const LEVELS = [0, 1, 2, 3, 4]
+
+function plural(n: number, noun: string): string {
+  return `${n} ${noun}${n === 1 ? '' : 's'}`
+}
+
 export function Activity({
   repo,
   commits,
@@ -33,15 +39,22 @@ export function Activity({
   const { asOf } = useSite()
   const weeks = activityWeeks(commits, asOf)
   const groups = commitGroups(commits)
+  const days = weeks.flat()
+  const total = days.reduce((sum, d) => sum + d.count, 0)
+  const active = days.filter((d) => d.count > 0).length
 
   return (
     <section className="activity" aria-labelledby="activity">
       <h3 id="activity" className="h3">
         Activity
       </h3>
+      <p className="activity__total">
+        {plural(total, 'commit')} in the last 12 weeks
+      </p>
       <table className="activity__grid">
         <caption className="sr-only">
-          Commits per day for the 12 weeks to {formatDay(asOf)}
+          Commits per day for the 12 weeks to {formatDay(asOf)}:{' '}
+          {plural(total, 'commit')} on {plural(active, 'day')}
         </caption>
         <thead>
           <tr>
@@ -67,7 +80,7 @@ export function Activity({
                   <td
                     key={day}
                     data-level={level(count)}
-                    title={`${count} on ${formatDay(day)}`}
+                    title={`${plural(count, 'commit')} on ${formatDay(day)}`}
                   >
                     <span className="sr-only">{count}</span>
                   </td>
@@ -77,30 +90,42 @@ export function Activity({
           ))}
         </tbody>
       </table>
+      <p className="activity__legend secondary" aria-hidden="true">
+        Less
+        {LEVELS.map((n) => (
+          <span key={n} className="activity__swatch" data-level={n} />
+        ))}
+        More
+      </p>
       {groups.length === 0 ? (
         <p className="ledger__empty">No commits in the last 90 days.</p>
       ) : (
-        <div className="activity__groups">
-          {groups.map(({ type, commits: list }) => (
-            <div key={type} className="activity__group">
-              <h4 className="mono secondary">
-                {GROUP_LABELS[type]} · {list.length}
-              </h4>
-              <ul>
-                {list.slice(0, PER_GROUP).map((c, i) => (
-                  <li key={`${c.sha}${i}`}>
-                    <a className="link" href={c.url}>
-                      {c.subject}
-                    </a>{' '}
-                    <time className="secondary" dateTime={c.date}>
-                      {formatDay(c.date)}
-                    </time>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
+        <>
+          <p className="activity__scope mono secondary">
+            Recent commits, last 90 days
+          </p>
+          <div className="activity__groups">
+            {groups.map(({ type, commits: list }) => (
+              <div key={type} className="activity__group">
+                <h4 className="mono secondary">
+                  {GROUP_LABELS[type]} · {list.length}
+                </h4>
+                <ul>
+                  {list.slice(0, PER_GROUP).map((c, i) => (
+                    <li key={`${c.sha}${i}`}>
+                      <a className="link" href={c.url}>
+                        {c.subject}
+                      </a>{' '}
+                      <time className="secondary" dateTime={c.date}>
+                        {formatDay(c.date)}
+                      </time>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </>
       )}
       <p>
         <a className="link" href={`https://github.com/${repo}/commits`}>

@@ -691,26 +691,72 @@ a {
   padding: 0;
 }
 
-.activity__grid td {
+.activity__grid td,
+.activity__swatch {
   inline-size: var(--cell);
   block-size: var(--cell);
   border-radius: 2px;
   background: var(--heat-0);
 }
 
-.activity__grid td[data-level='1'] {
+/* Active days get an edge so the shade is not the only cue (1.4.11). */
+.activity__grid td:not([data-level='0']),
+.activity__swatch:not([data-level='0']) {
+  outline: var(--cell-edge) solid var(--secondary);
+  outline-offset: calc(-1 * var(--cell-edge));
+}
+
+.activity__total {
+  font-size: var(--text-small);
+}
+
+.activity__legend {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-small);
+}
+
+.activity__swatch {
+  display: inline-block;
+}
+
+.activity__scope {
+  margin: 0;
+}
+
+@media (forced-colors: active) {
+  .activity__grid td,
+  .activity__swatch {
+    forced-color-adjust: none;
+    border: var(--cell-edge) solid CanvasText;
+    background: Canvas;
+  }
+
+  .activity__grid td:not([data-level='0']),
+  .activity__swatch:not([data-level='0']) {
+    outline: none;
+    background: CanvasText;
+  }
+}
+
+.activity__grid td[data-level='1'],
+.activity__swatch[data-level='1'] {
   background: var(--heat-1);
 }
 
-.activity__grid td[data-level='2'] {
+.activity__grid td[data-level='2'],
+.activity__swatch[data-level='2'] {
   background: var(--heat-2);
 }
 
-.activity__grid td[data-level='3'] {
+.activity__grid td[data-level='3'],
+.activity__swatch[data-level='3'] {
   background: var(--heat-3);
 }
 
-.activity__grid td[data-level='4'] {
+.activity__grid td[data-level='4'],
+.activity__swatch[data-level='4'] {
   background: var(--heat-4);
 }
 
