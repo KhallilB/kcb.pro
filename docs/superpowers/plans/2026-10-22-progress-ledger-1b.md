@@ -2658,7 +2658,7 @@ const chapterPage = (ctx, hs, f, d) => {
   if (!d.ledger.length) {
     ctx.fillStyle = P.muted
     ctx.font = font(30, 400, BODY, true)
-    wrap(ctx, 'No steps recorded yet.', m.L, y + 116, m.w, 42)
+    wrap(ctx, 'Nothing logged yet.', m.L, y + 116, m.w, 42)
   }
   y += 100
   for (const s of d.ledger) {
@@ -2940,7 +2940,7 @@ Rebuild and serve as in Step 1. Check that:
 - six ribbons hang, spaced as before
 - contents has seven rows with matching numbers, and each row jumps to its page
 - About reads "…gives a chapter each to Bezl, kbui and Wander."
-- `/work/wander` opens the book at Wander, and the chapter shows "No steps recorded yet." (Wander has no `repo`)
+- `/work/wander` opens the book at Wander, and the chapter shows "Nothing logged yet." (Wander has no `repo`)
 
 - [ ] **Step 3: Three chapters plus More work (temporary)**
 
