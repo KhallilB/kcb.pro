@@ -56,6 +56,17 @@ describe('published content', () => {
     expect(bezl.signature).toContain('Proven for Codex so far.')
   })
 
+  it('says Bezl is built on kbui, and names no release that will go stale', () => {
+    const copy = (slug: string) =>
+      content.projects
+        .find((p) => p.slug === slug)!
+        .brief.flatMap((s) => s.body)
+        .join('\n')
+    expect(copy('bezl')).toContain('being built on kbui')
+    expect(copy('kbui')).toContain('Bezl’s first screen is being built on it')
+    expect(copy('kbui')).not.toMatch(/\b\d+\.\d+\.\d+\b/)
+  })
+
   it('registers Bezl and kbui by their public repositories', () => {
     expect(registered(content.projects)).toEqual([
       { slug: 'bezl', repo: 'KhallilB/bezl' },

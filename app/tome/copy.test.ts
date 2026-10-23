@@ -31,6 +31,10 @@ describe('tome data', () => {
     }
   })
 
+  it('lists Bezl as a current user of kbui', () => {
+    expect(strings(data.chapters)).toContain('loupe; Bezl, in progress')
+  })
+
   it('titles its two chapters after the featured endeavors, in order', () => {
     const { bezl, kbui } = data.chapters
     expect([bezl.title, kbui.title]).toEqual(

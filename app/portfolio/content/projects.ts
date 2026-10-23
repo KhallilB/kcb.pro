@@ -83,7 +83,7 @@ export const projects: Project[] = [
       {
         heading: 'What comes next',
         body: [
-          'The core in Rust: tasks, workers and the permissions each one holds, with the log stored as events that are only ever added to. The interface is planned on kbui.',
+          'The core in Rust: tasks, workers and the permissions each one holds, with the log stored as events that are only ever added to. The interface is being built on kbui.',
         ],
       },
       {
@@ -136,7 +136,7 @@ export const projects: Project[] = [
       {
         heading: 'Who uses it',
         body: [
-          'loupe uses it today, and Bezl’s interface is planned on it. The first release, 0.1.0, is out as downloadable packages, so a project that builds in the cloud can install a fixed version.',
+          'loupe uses it today, and Bezl’s first screen is being built on it. Each release is published as downloadable packages, so a project that builds in the cloud can install a fixed version.',
         ],
       },
       {

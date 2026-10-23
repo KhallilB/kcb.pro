@@ -142,7 +142,7 @@ export function tomeData(asOf: IsoDay): TomeData {
         ],
         [
           ['Built with', 'CSS · React · Base UI'],
-          ['Used by', 'loupe; Bezl planned'],
+          ['Used by', 'loupe; Bezl, in progress'],
           ['Started', 'Oct 2026'],
         ]
       ),
