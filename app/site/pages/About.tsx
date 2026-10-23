@@ -22,9 +22,9 @@ export function About() {
         </p>
         <p>
           My favorite part of the job is when something confusing finally
-          clicks: fewer steps, clearer choices, a screen that explains itself.
+          clicks: helping people take fewer steps and make clearer choices.
           But easy doesn’t have to mean boring, which is why this site’s home
-          page is a book.
+          page is one of my favorite things.
         </p>
         <p>
           Off the clock, I’m usually reading, playing basketball or video games,
