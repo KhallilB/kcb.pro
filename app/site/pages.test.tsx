@@ -130,7 +130,7 @@ describe('project page', () => {
     expect(spec).toHaveTextContent('In progress · as of 21 Oct 2026')
   })
 
-  it('tells where Bezl stands, under the header and above the brief', () => {
+  it("shows Bezl's progress under the header and above the brief", () => {
     visit('/work/bezl')
     const card = screen.getByRole('region', { name: 'Progress' })
     expect(card).toHaveTextContent(
@@ -148,7 +148,7 @@ describe('project page', () => {
     ).toBeTruthy()
   })
 
-  it('keeps the full record closed after the brief, every step anchored in journey order', () => {
+  it('keeps Full history closed after the brief, every step anchored in journey order', () => {
     visit('/work/bezl')
     const record = document.getElementById('record') as HTMLDetailsElement
     expect(record).not.toHaveAttribute('open')

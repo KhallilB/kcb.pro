@@ -121,8 +121,11 @@ async function fromGitHub(
     'application/vnd.github.raw+json'
   )
   if (raw.status === 404) {
+    const unreadable = options.token
+      ? ` (or ${options.token.name} cannot read its contents)`
+      : ''
     throw new Error(
-      `there is no progress.json on ${branch}. Add one that follows schema/progress.v1.json.`
+      `there is no progress.json on ${branch}${unreadable}. Add one that follows schema/progress.v1.json.`
     )
   }
   if (!raw.ok) throw new Error(unexpected(raw, 'progress.json', options.token))
@@ -215,11 +218,27 @@ function unexpected(
       ? `${head}: ${token.name} was rejected. Replace it; it may have expired.`
       : `${head}: the request was rejected.`
   }
-  if (response.status === 403 || response.status === 429) {
-    const hint = token ? '' : ' Set GITHUB_TOKEN to raise the limit.'
+  if (rateLimited(response)) {
+    const hint = token
+      ? ''
+      : ' Set PROGRESS_TOKEN or GITHUB_TOKEN to raise the limit.'
     return `${head}: rate limited. Retry later.${hint}`
   }
+  if (response.status === 403) {
+    return token
+      ? `${head}: ${token.name} cannot read ${what}; a fine-grained token needs Contents: read.`
+      : `${head}: no token is set.`
+  }
   return `${head}. Retry.`
+}
+
+// GitHub also answers 403 for a missing permission; only these headers mark a limit.
+function rateLimited({ status, headers }: Response): boolean {
+  if (status === 429) return true
+  return (
+    status === 403 &&
+    (headers.get('x-ratelimit-remaining') === '0' || headers.has('retry-after'))
+  )
 }
 
 function describe(error: unknown): string {

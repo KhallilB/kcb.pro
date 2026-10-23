@@ -19,6 +19,9 @@ interface Fixture {
   commits: { sha: string; subject: string; url: string }[]
 }
 
+// Fixture values the site prints anyway, as UI words; checked against the offline build.
+const SITE_WORDS = new Set(['Commit', 'Button', 'Input', 'Dialog'])
+
 // Every fixture-only value; the build must ship none of them.
 function privateValues(): string[] {
   const values = built('app/portfolio/progress/fixtures', '.json').flatMap(
@@ -41,8 +44,7 @@ function privateValues(): string[] {
       ]
     }
   )
-  // Shorter values are words the site uses anyway (Commit, Button, Input, Dialog); 7 keeps short shas.
-  return [...new Set(values)].filter((value) => value.length >= 7)
+  return [...new Set(values)].filter((v) => v && !SITE_WORDS.has(v))
 }
 
 // Most checks read the plain list; the tome has its own test below.
@@ -302,6 +304,7 @@ test('the phone layout has no horizontal scroll at 320 px', async ({ page }) => 
 
 test('the pages and the bundle ship outcomes only', () => {
   const files = [
+    ...built('build', '.html'),
     ...built('build/work', '.html'),
     ...built('build/assets', '.js'),
   ]
@@ -318,7 +321,11 @@ test('the pages and the bundle ship outcomes only', () => {
   ).toBe(true)
   const secrets = privateValues()
   expect(secrets).toEqual(
-    expect.arrayContaining(['01e47db', 'spikes/01-pty-throughput/RESULT.md'])
+    expect.arrayContaining([
+      '01e47db',
+      'spikes/01-pty-throughput/RESULT.md',
+      '789 MB',
+    ])
   )
   for (const { file, text } of texts) {
     for (const secret of secrets)

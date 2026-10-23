@@ -239,12 +239,17 @@ describe('collectProgress GitHub failures', () => {
     }
   )
 
-  it.each([403, 429])(
-    'says rate limited on %i and suggests GITHUB_TOKEN only without one',
-    async (status) => {
+  it.each([
+    [429, {}],
+    [403, { 'x-ratelimit-remaining': '0' }],
+    [403, { 'retry-after': '60' }],
+  ])(
+    'says rate limited on %i %o and suggests a token only without one',
+    async (status, limitHeaders) => {
       const routes = {
         ...repoRoutes(),
-        '/repos/KhallilB/bezl': () => new Response('', { status }),
+        '/repos/KhallilB/bezl': () =>
+          new Response('', { status, headers: limitHeaders }),
       }
       const run = (token?: string) =>
         collectProgress(
@@ -255,11 +260,43 @@ describe('collectProgress GitHub failures', () => {
           })
         ).catch((e: Error) => e.message)
       const anonymous = await run()
-      expect(anonymous).toMatch(/rate limited/)
-      expect(anonymous).toMatch(/GITHUB_TOKEN/)
+      expect(anonymous).toContain(
+        `GitHub answered ${status} for the repository: rate limited. Retry later. Set PROGRESS_TOKEN or GITHUB_TOKEN to raise the limit.`
+      )
       const authed = await run('t0k')
-      expect(authed).toMatch(/rate limited/)
-      expect(authed).not.toMatch(/GITHUB_TOKEN/)
+      expect(authed).toContain('rate limited. Retry later.')
+      expect(authed).not.toMatch(/raise the limit|t0k/)
+    }
+  )
+
+  it.each([
+    [
+      { name: 'PROGRESS_TOKEN', value: 'secret-403' } as GitHubToken,
+      {},
+      'PROGRESS_TOKEN cannot read progress.json; a fine-grained token needs Contents: read.',
+    ],
+    [
+      { name: 'GITHUB_TOKEN', value: 'secret-403' } as GitHubToken,
+      { 'x-ratelimit-remaining': '4999' },
+      'GITHUB_TOKEN cannot read progress.json; a fine-grained token needs Contents: read.',
+    ],
+    [undefined, {}, 'no token is set.'],
+  ])(
+    'on a 403 without rate-limit headers names the token, not a rate limit (case %#)',
+    async (token, limitHeaders, message) => {
+      const routes = {
+        ...repoRoutes(),
+        '/repos/KhallilB/bezl/contents/progress.json': () =>
+          new Response('', { status: 403, headers: limitHeaders }),
+      }
+      const error = await collectProgress(
+        [bezl],
+        options({ fetch: github(routes).fetch, token })
+      ).catch((e: Error) => e.message)
+      expect(error).toContain(
+        `"bezl" (KhallilB/bezl): GitHub answered 403 for progress.json: ${message}`
+      )
+      expect(error).not.toMatch(/rate limit|secret-403/)
     }
   )
 
@@ -447,6 +484,30 @@ describe('private repositories and tokens', () => {
     expect(error).toContain(`"bezl" (KhallilB/bezl): ${message}`)
     if (token) expect(error).not.toContain(token.value)
   })
+
+  it.each([
+    [
+      progressToken,
+      'there is no progress.json on trunk (or PROGRESS_TOKEN cannot read its contents). Add one that follows schema/progress.v1.json.',
+    ],
+    [
+      undefined,
+      'there is no progress.json on trunk. Add one that follows schema/progress.v1.json.',
+    ],
+  ])(
+    'on a contents 404 names the token in use (case %#)',
+    async (token, message) => {
+      const { fetch } = github({
+        ...repoRoutes(),
+        '/repos/KhallilB/bezl/contents/progress.json': missing,
+      })
+      const error = await collectProgress(
+        [bezl],
+        options({ fetch, token })
+      ).catch((e: Error) => e.message)
+      expect(error).toBe(`"bezl" (KhallilB/bezl): ${message}`)
+    }
+  )
 })
 
 describe('chooseToken', () => {
