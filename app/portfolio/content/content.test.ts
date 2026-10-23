@@ -14,6 +14,27 @@ describe('published content', () => {
     ])
   })
 
+  // Outcomes only: test numbers stay in each project's own record.
+  it.each(['bezl', 'kbui'])('keeps measurements out of the %s copy', (slug) => {
+    const p = content.projects.find((project) => project.slug === slug)!
+    const text = [
+      p.summary,
+      p.about,
+      p.goal,
+      ...p.brief.flatMap((s) => [s.heading, ...s.body]),
+    ].join('\n')
+    expect(text).not.toMatch(/\d\s?(ms|MB|GB|KiB|MiB)\b/)
+    for (const phrase of [
+      'Zig',
+      'pass mark',
+      '28 component tests',
+      '16 stories',
+      'no version numbers',
+    ]) {
+      expect(text).not.toContain(phrase)
+    }
+  })
+
   it('registers Bezl and kbui by their public repositories', () => {
     expect(registered(content.projects)).toEqual([
       { slug: 'bezl', repo: 'KhallilB/bezl' },

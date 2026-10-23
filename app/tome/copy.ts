@@ -114,7 +114,7 @@ export function tomeData(asOf: IsoDay): TomeData {
           ],
           [
             'Proven so far',
-            'Three terminals took a 20 MB stream each with no bytes lost and 2 ms typing latency. Memory is the open question.',
+            'Terminal output reaches the window with nothing lost, and typing echoes instantly. Memory is the open question.',
           ],
         ],
         [

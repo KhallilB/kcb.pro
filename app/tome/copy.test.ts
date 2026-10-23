@@ -13,6 +13,12 @@ function strings(value: unknown): string[] {
 }
 
 describe('tome data', () => {
+  it('keeps measurements out of the chapters', () => {
+    const text = strings(data.chapters).join('\n')
+    expect(text).not.toMatch(/\d\s?(ms|MB|GB|KiB|MiB)\b/)
+    expect(text).not.toContain('Zig')
+  })
+
   it('titles its two chapters after the featured endeavors, in order', () => {
     const { bezl, kbui } = data.chapters
     expect([bezl.title, kbui.title]).toEqual(
