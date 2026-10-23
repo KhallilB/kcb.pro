@@ -1,5 +1,10 @@
 import { addDays } from './dates'
-import { COMMIT_TYPES, type Commit, type CommitType } from './progress'
+import {
+  COMMIT_TYPES,
+  type Commit,
+  type CommitType,
+  type DayCount,
+} from './progress'
 import type { IsoDay } from './types'
 
 const PREFIX = /^(\w+)(?:\([^)]*\))?!?:/
@@ -10,11 +15,6 @@ export function classifyCommit(subject: string): CommitType {
   return COMMIT_TYPES.includes(type as CommitType)
     ? (type as CommitType)
     : 'other'
-}
-
-export interface DayCount {
-  day: IsoDay
-  count: number
 }
 
 // Columns of seven days, oldest first; the last day is the build day.

@@ -1,4 +1,4 @@
-import { daysBetween, isIsoDay } from './dates'
+import { addDays, daysBetween, isIsoDay } from './dates'
 import { isShortLine } from './text'
 import type { IsoDay } from './types'
 
@@ -71,6 +71,55 @@ export type Commit = {
 }
 
 export type ProjectProgress = { file: ProgressFile; commits: Commit[] }
+
+// Commit days a page shows: 12 weeks ending on the build day.
+export const ACTIVITY_DAYS = 84
+
+export interface PublicEntry {
+  id: string
+  subject: string
+  date: IsoDay
+  title: string
+  result: ProgressResult
+  summary?: string
+}
+
+export interface DayCount {
+  day: IsoDay
+  count: number
+}
+
+// All a page may ship: outcomes and daily commit counts.
+export interface PublicProgress {
+  entries: PublicEntry[]
+  days: DayCount[]
+}
+
+// Fields are picked by name, so a new contract field stays private until listed here.
+export function toPublic(
+  full: ProjectProgress,
+  buildDay: IsoDay
+): PublicProgress {
+  const counts = new Map<IsoDay, number>()
+  for (const c of full.commits)
+    counts.set(c.date, (counts.get(c.date) ?? 0) + 1)
+  return {
+    entries: full.file.entries.map(
+      ({ id, subject, date, title, result, summary }) => ({
+        id,
+        subject,
+        date,
+        title,
+        result,
+        ...(summary === undefined ? {} : { summary: summary.trim() }),
+      })
+    ),
+    days: Array.from({ length: ACTIVITY_DAYS }, (_, i) => {
+      const day = addDays(buildDay, i + 1 - ACTIVITY_DAYS)
+      return { day, count: counts.get(day) ?? 0 }
+    }),
+  }
+}
 
 const NEEDS_PASS_MARK: readonly string[] = ['experiment', 'tests']
 const HASH = /^[0-9a-f]{7,40}$/
@@ -240,10 +289,7 @@ export function validateCommits(commits: unknown, slug: string): string[] {
 }
 
 // Latest entry per subject on or before day, newest first; a later same-day entry wins.
-export function current(
-  entries: ProgressEntry[],
-  day: IsoDay
-): ProgressEntry[] {
+export function current<E extends PublicEntry>(entries: E[], day: IsoDay): E[] {
   const latest = new Map<string, number>()
   entries.forEach((entry, index) => {
     if (entry.date > day) return
@@ -272,7 +318,7 @@ const COUNTED_AS: Record<ProgressResult, keyof ProgressCounts> = {
 }
 
 export function progressCounts(
-  entries: ProgressEntry[],
+  entries: PublicEntry[],
   day: IsoDay
 ): ProgressCounts {
   const counts = { proven: 0, partial: 0, failed: 0, open: 0 }
@@ -282,7 +328,7 @@ export function progressCounts(
 
 // Any failure fails the project; anything short of all passing is partial.
 export function overallSeal(
-  entries: ProgressEntry[],
+  entries: PublicEntry[],
   day: IsoDay
 ): ProgressResult | null {
   const results = current(entries, day).map((e) => e.result)
@@ -293,10 +339,7 @@ export function overallSeal(
 
 const QUIET_AFTER_DAYS = 30
 
-export function quietSince(
-  entries: ProgressEntry[],
-  day: IsoDay
-): IsoDay | null {
+export function quietSince(entries: PublicEntry[], day: IsoDay): IsoDay | null {
   const newest = entries
     .map((e) => e.date)
     .filter((d) => d <= day)
@@ -305,6 +348,64 @@ export function quietSince(
   return newest !== undefined && daysBetween(newest, day) > QUIET_AFTER_DAYS
     ? newest
     : null
+}
+
+export const STATUS_WORD: Record<ProgressResult, string> = {
+  pass: 'Done',
+  partial: 'In progress',
+  'not-run': 'Up next',
+  fail: 'Rethinking',
+}
+
+// Group order on every progress view.
+export const STATUS_ORDER: readonly ProgressResult[] = [
+  'pass',
+  'partial',
+  'not-run',
+  'fail',
+]
+
+// Current step per subject: by status group, then oldest first, then file order.
+export function journeySteps<E extends PublicEntry>(
+  entries: E[],
+  day: IsoDay
+): E[] {
+  const group = (e: E) => STATUS_ORDER.indexOf(e.result)
+  return current(entries, day)
+    .map((entry) => ({ entry, index: entries.indexOf(entry) }))
+    .sort(
+      (a, b) =>
+        group(a.entry) - group(b.entry) ||
+        a.entry.date.localeCompare(b.entry.date) ||
+        a.index - b.index
+    )
+    .map(({ entry }) => entry)
+}
+
+// First Up next step, else the first In progress one.
+export function nextStep<E extends PublicEntry>(steps: E[]): E | undefined {
+  return (
+    steps.find((s) => s.result === 'not-run') ??
+    steps.find((s) => s.result === 'partial')
+  )
+}
+
+// A step's superseded entries, newest first; a later same-day entry comes first.
+export function earlierEntries<E extends PublicEntry>(
+  entries: E[],
+  step: E,
+  day: IsoDay
+): E[] {
+  return entries
+    .map((entry, index) => ({ entry, index }))
+    .filter(
+      ({ entry }) =>
+        entry.subject === step.subject && entry !== step && entry.date <= day
+    )
+    .sort(
+      (a, b) => b.entry.date.localeCompare(a.entry.date) || b.index - a.index
+    )
+    .map(({ entry }) => entry)
 }
 
 const RESULT_LABELS: Record<ProgressResult, string> = {

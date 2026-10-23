@@ -1,22 +1,30 @@
 import {
   current,
+  earlierEntries,
   evidenceHref,
+  journeySteps,
   kindLabel,
+  nextStep,
   overallSeal,
   PROGRESS_KINDS,
   PROGRESS_RESULTS,
   progressCounts,
   quietSince,
   resultLabel,
+  STATUS_ORDER,
+  STATUS_WORD,
+  toPublic,
   validateCommits,
   validateProgress,
   type Evidence,
   type Measure,
+  type ProjectProgress,
   type ProgressEntry,
   type ProgressKind,
   type ProgressResult,
 } from './progress'
 import { commit, entry, progressFile } from './fixtures'
+import { addDays } from './dates'
 
 const ctx = { slug: 'alpha', buildDay: '2026-10-21' }
 const check = (entries: ProgressEntry[]) =>
@@ -477,5 +485,169 @@ describe('words and links', () => {
     ).toBe(
       'https://github.com/KhallilB/bezl/blob/01e47db/spikes/my%20run/a%231.md'
     )
+  })
+})
+
+describe('toPublic', () => {
+  const full = (): ProjectProgress => ({
+    file: progressFile([
+      entry({ id: 'b', summary: '  Mostly there.  ' }),
+      entry({ id: 'a', subject: 'other' }),
+    ]),
+    commits: [
+      commit({ date: '2026-10-21' }),
+      commit({ sha: 'bbbbbbb', date: '2026-10-21' }),
+      commit({ sha: 'ccccccc', date: '2026-07-30' }),
+      commit({ sha: 'ddddddd', date: '2026-07-29' }),
+      commit({ sha: 'eeeeeee', date: '2026-10-22' }),
+    ],
+  })
+
+  it('keeps exactly the public fields, in file order, with the summary trimmed', () => {
+    expect(toPublic(full(), day).entries).toEqual([
+      {
+        id: 'b',
+        subject: 'alpha',
+        date: '2026-10-20',
+        title: 'Alpha holds up',
+        result: 'pass',
+        summary: 'Mostly there.',
+      },
+      {
+        id: 'a',
+        subject: 'other',
+        date: '2026-10-20',
+        title: 'Alpha holds up',
+        result: 'pass',
+      },
+    ])
+    expect(Object.keys(toPublic(full(), day).entries[1])).toEqual([
+      'id',
+      'subject',
+      'date',
+      'title',
+      'result',
+    ])
+  })
+
+  it('counts commits per day for the 84 consecutive days ending on the build day', () => {
+    const { days } = toPublic(full(), day)
+    expect(days).toHaveLength(84)
+    expect(days[0]).toEqual({ day: '2026-07-30', count: 1 })
+    expect(days.at(-1)).toEqual({ day: '2026-10-21', count: 2 })
+    expect(
+      days.every((d, i) => i === 0 || d.day === addDays(days[i - 1].day, 1))
+    ).toBe(true)
+    expect(days.reduce((sum, d) => sum + d.count, 0)).toBe(3)
+  })
+
+  it('ships no pass mark, measurement, evidence, kind or commit detail', () => {
+    expect(Object.keys(toPublic(full(), day))).toEqual(['entries', 'days'])
+    expect(JSON.stringify(toPublic(full(), day))).not.toMatch(
+      /Under 100 ms|Median|40 ms|RESULT\.md|experiment|01e47db|feat: add alpha|github\.com/
+    )
+  })
+})
+
+describe('status words', () => {
+  it('words every result plainly', () => {
+    expect(PROGRESS_RESULTS.map((r) => STATUS_WORD[r])).toEqual([
+      'Done',
+      'In progress',
+      'Rethinking',
+      'Up next',
+    ])
+  })
+
+  it('orders groups Done, In progress, Up next, Rethinking', () => {
+    expect(STATUS_ORDER).toEqual(['pass', 'partial', 'not-run', 'fail'])
+  })
+})
+
+describe('journeySteps', () => {
+  it('groups current steps by status, then oldest first, then file order', () => {
+    const entries = [
+      entry({ id: 'f', subject: 'f', date: '2026-10-01', result: 'fail' }),
+      entry({ id: 'n2', subject: 'n2', date: '2026-10-05', result: 'not-run' }),
+      entry({
+        id: 'p',
+        subject: 'p',
+        date: '2026-10-03',
+        result: 'partial',
+        summary: 'Half.',
+      }),
+      entry({ id: 'd2', subject: 'd2', date: '2026-10-04' }),
+      entry({ id: 'n1', subject: 'n1', date: '2026-10-02', result: 'not-run' }),
+      entry({ id: 'd1', subject: 'd1', date: '2026-10-04' }),
+      entry({ id: 'd0', subject: 'd0', date: '2026-10-02' }),
+    ]
+    expect(journeySteps(entries, day).map((e) => e.id)).toEqual([
+      'd0',
+      'd2',
+      'd1',
+      'p',
+      'n1',
+      'n2',
+      'f',
+    ])
+  })
+
+  it('shows each subject once, at its latest entry on or before the day', () => {
+    const entries = [
+      entry({ id: 'a1', subject: 'a', date: '2026-10-01', result: 'fail' }),
+      entry({ id: 'a2', subject: 'a', date: '2026-10-10' }),
+      entry({ id: 'b1', subject: 'b', date: '2026-10-22', result: 'not-run' }),
+    ]
+    expect(journeySteps(entries, day).map((e) => e.id)).toEqual(['a2'])
+  })
+})
+
+describe('nextStep', () => {
+  it('is the first Up next step', () => {
+    const steps = [
+      entry({ id: 'p', result: 'partial' }),
+      entry({ id: 'n1', result: 'not-run' }),
+      entry({ id: 'n2', result: 'not-run' }),
+    ]
+    expect(nextStep(steps)?.id).toBe('n1')
+  })
+
+  it('falls back to the first In progress step', () => {
+    const steps = [
+      entry({ id: 'd' }),
+      entry({ id: 'p1', result: 'partial' }),
+      entry({ id: 'p2', result: 'partial' }),
+    ]
+    expect(nextStep(steps)?.id).toBe('p1')
+  })
+
+  it('is nothing when every step is done or being rethought', () => {
+    expect(
+      nextStep([entry({ id: 'd' }), entry({ id: 'f', result: 'fail' })])
+    ).toBeUndefined()
+  })
+})
+
+describe('earlierEntries', () => {
+  it('lists the step’s superseded entries newest first, up to the day', () => {
+    const entries = [
+      entry({ id: 'a1', subject: 'a', date: '2026-10-01', result: 'fail' }),
+      entry({ id: 'b1', subject: 'b', date: '2026-10-02' }),
+      entry({
+        id: 'a2',
+        subject: 'a',
+        date: '2026-10-05',
+        result: 'partial',
+        summary: 'x',
+      }),
+      entry({ id: 'a3', subject: 'a', date: '2026-10-05' }),
+      entry({ id: 'a4', subject: 'a', date: '2026-10-30' }),
+    ]
+    const [step] = journeySteps(entries, day).filter((e) => e.subject === 'a')
+    expect(step.id).toBe('a3')
+    expect(earlierEntries(entries, step, day).map((e) => e.id)).toEqual([
+      'a2',
+      'a1',
+    ])
   })
 })
