@@ -118,8 +118,8 @@ html[data-tome='pending'] body {
   inline-size: 200%;
   block-size: 120%;
   pointer-events: none;
-  color: var(--cloud-light);
   opacity: 0.75;
+  will-change: translate, transform;
   animation:
     mist-in 1.6s var(--ease) both,
     mist-drift 75s linear infinite,
@@ -127,7 +127,6 @@ html[data-tome='pending'] body {
 }
 
 .tome__mist--far {
-  color: var(--cloud-dark);
   opacity: 0.6;
   animation-duration: 1.6s, 150s, 27s;
 }
@@ -145,10 +144,10 @@ html[data-tome='pending'] body {
   }
 }
 
-/* Clouds rise and settle a little as they pass. */
+/* Clouds rise and settle a little as they pass; translation only, so nothing redraws. */
 @keyframes billow {
   to {
-    transform: translateY(-2%) scaleY(1.04);
+    transform: translateY(-2%);
   }
 }
 
@@ -157,11 +156,9 @@ html[data-tome='pending'] body {
   position: absolute;
   inset-block-start: -10%;
   z-index: 2;
-  overflow: hidden;
   inline-size: 75%;
   block-size: 120%;
   pointer-events: none;
-  color: var(--cloud-light);
   opacity: 0.6;
   transition:
     translate 1.6s cubic-bezier(0.3, 0, 0.2, 1),
@@ -170,25 +167,34 @@ html[data-tome='pending'] body {
 
 .tome__veil-cloud {
   position: absolute;
-  inset-block: 0;
-  inset-inline-start: 0;
-  inline-size: 200%;
+  inset: 0;
+  inline-size: 100%;
   block-size: 100%;
-  animation: mist-drift 45s linear infinite;
+  will-change: transform;
+  animation: sway 14s ease-in-out infinite alternate;
+}
+
+/* The banks in front lean with the wind and back; their soft inner edge is baked into the image. */
+@keyframes sway {
+  from {
+    transform: translate(-3%, 1%);
+  }
+  to {
+    transform: translate(3%, -1.5%);
+  }
 }
 
 .tome__veil--left {
   inset-inline-start: -10%;
-  mask-image: linear-gradient(to right, black 55%, transparent);
 }
 
 .tome__veil--right {
   inset-inline-end: -10%;
-  mask-image: linear-gradient(to left, black 55%, transparent);
 }
 
 .tome__veil--right .tome__veil-cloud {
-  animation-duration: 38s;
+  animation-duration: 17s;
+  animation-direction: alternate-reverse;
 }
 
 /* Hidden until the book is drawn, so it never covers the loader. */

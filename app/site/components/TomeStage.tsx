@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState, type RefObject } from 'react'
 import { useNavigate } from 'react-router'
 import { tomeData } from '@app/tome/copy'
+import { CLOUDS, cloudImage, type CloudSpec } from '@app/tome/clouds'
 import type { TomeHandle } from '@app/tome/engine.js'
 import type { TomePlace } from '@app/tome/place'
 import { useSite } from '../site'
@@ -131,41 +132,29 @@ export function TomeStage({
 // useId may contain characters that break url(#id) references.
 const svgId = (id: string) => `tome${id.replace(/[^\w-]/g, '')}`
 
-// Cloud from SVG noise, drawn once: one tile half the layer wide, stitched at its edges and
-// repeated by feTile, so drifting one tile width loops forever without a seam.
-function Cloud({ name, frequency, seed, cover }: { name: string; frequency: string; seed: number; cover: string }) {
-  const id = svgId(useId())
-  return (
-    <svg className={name} aria-hidden="true">
-      <filter id={id} x="0" y="0" width="100%" height="100%" primitiveUnits="userSpaceOnUse">
-        <feTurbulence
-          x="0"
-          y="0"
-          width="50%"
-          height="100%"
-          type="fractalNoise"
-          baseFrequency={frequency}
-          numOctaves={4}
-          seed={seed}
-          stitchTiles="stitch"
-        />
-        <feTile result="noise" />
-        {/* Keep only the dense parts of the noise as cloud, in the layer's colour. */}
-        <feColorMatrix in="noise" type="matrix" values={`0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  ${cover}`} result="cloud" />
-        <feFlood floodColor="currentColor" />
-        <feComposite in2="cloud" operator="in" />
-      </filter>
-      <rect width="100%" height="100%" filter={`url(#${id})`} />
-    </svg>
-  )
+// A cloud layer: drawn once as a small image, scaled up by CSS and drifted by the compositor.
+function Cloud({ name, spec, tone }: { name: string; spec: CloudSpec; tone: 'light' | 'dark' }) {
+  const [src, setSrc] = useState<string | null>(null)
+  useEffect(() => {
+    let live = true
+    const color = getComputedStyle(document.documentElement).getPropertyValue(`--cloud-${tone}`).trim()
+    cloudImage(spec, color)
+      .then((url) => live && setSrc(url))
+      // Decorative: without canvas the sky's gradient stands on its own.
+      .catch(() => {})
+    return () => {
+      live = false
+    }
+  }, [spec, tone])
+  return src ? <img className={name} src={src} alt="" aria-hidden="true" /> : null
 }
 
 // Behind the book: shaded banks far back, pale ones nearer, moving faster in the same wind.
 function Mist() {
   return (
     <>
-      <Cloud name="tome__mist tome__mist--far" frequency="0.0026 0.0065" seed={11} cover="3.2 0 0 0 -1.3" />
-      <Cloud name="tome__mist tome__mist--near" frequency="0.0042 0.011" seed={4} cover="3 0 0 0 -1.35" />
+      <Cloud name="tome__mist tome__mist--far" spec={CLOUDS.far} tone="dark" />
+      <Cloud name="tome__mist tome__mist--near" spec={CLOUDS.near} tone="light" />
     </>
   )
 }
@@ -175,10 +164,10 @@ function Veil() {
   return (
     <>
       <div className="tome__veil tome__veil--left" aria-hidden="true">
-        <Cloud name="tome__veil-cloud" frequency="0.0032 0.009" seed={23} cover="3 0 0 0 -1.45" />
+        <Cloud name="tome__veil-cloud" spec={CLOUDS.veilLeft} tone="light" />
       </div>
       <div className="tome__veil tome__veil--right" aria-hidden="true">
-        <Cloud name="tome__veil-cloud" frequency="0.0032 0.009" seed={31} cover="3 0 0 0 -1.45" />
+        <Cloud name="tome__veil-cloud" spec={CLOUDS.veilRight} tone="light" />
       </div>
     </>
   )

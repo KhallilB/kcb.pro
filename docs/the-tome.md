@@ -36,10 +36,13 @@ Its first appearance starts with the camera on the cover's centrepiece and pulls
 over 1.6 seconds, while the 2D lozenge swells and fades into it.
 
 The book floats in a pale, overcast sky: two layers of cloud behind it, shaded banks far
-back and paler ones nearer, drawn once from SVG noise. Each layer is one stitched tile of
-noise repeated by `feTile`, so it drifts in one direction on a seamless loop; nearer layers
-move faster, which makes the clouds seem to shift and reform. Two more
-banks veil the closed book. When the cover starts to open, the engine calls `onOpen(true)`,
+back and paler ones nearer. `app/tome/clouds.ts` draws each layer once, small, into a canvas
+from SVG noise (one stitched tile repeated by `feTile`), and the page shows it as an `<img>`
+scaled up by CSS. Drifting those images is compositor-only work, so the sky costs almost
+nothing per frame. The mist drifts in one direction on a seamless loop; nearer layers move
+faster, which makes the clouds seem to shift and reform. Two more
+banks veil the closed book; their soft inner edges are baked into the images, because a
+CSS mask there stalled the GPU every frame. When the cover starts to open, the engine calls `onOpen(true)`,
 `TomeStage` sets `data-open`, and the veil slides out to either side; closing brings it back.
 
 `mountTome` returns `null` if WebGL fails. The site then hides the toggle and stays 2D.
