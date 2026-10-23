@@ -595,6 +595,11 @@ a {
   padding-block: var(--space-4);
 }
 
+/* Inline so the disclosure marker sits beside the heading. */
+.record__summary > .h2 {
+  display: inline;
+}
+
 .record__rows,
 .record__earlier {
   margin: 0;
@@ -638,8 +643,8 @@ a {
 }
 
 /* Landed-on entry: a rule, never a wash that costs text contrast. */
-.record__row:target,
-.record__line:target {
+.record [data-landed] {
+  padding-inline-start: var(--space-3);
   box-shadow: inset var(--anchor-rule) 0 0 var(--gold);
 }
 
@@ -750,11 +755,22 @@ a {
   }
 }
 
-/* Last, to beat each result's colour; keeps the gradient shapes. */
+/* Last, to beat each mark's colour; keeps shapes and fills. */
 @media (forced-colors: active) {
   .mark,
   .mark[data-result] {
     forced-color-adjust: none;
     color: CanvasText;
+  }
+
+  .status__mark,
+  .status[data-status] .status__mark {
+    forced-color-adjust: none;
+    border-color: CanvasText;
+  }
+
+  .status[data-status='in-progress'] .status__mark,
+  .status[data-status='shipped'] .status__mark {
+    background: CanvasText;
   }
 }

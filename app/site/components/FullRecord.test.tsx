@@ -50,7 +50,9 @@ function tree(path: string) {
   return (
     <SiteProvider asOf="2026-10-21">
       <MemoryRouter initialEntries={[path]}>
+        <h2 id="the-problem">The problem</h2>
         <FullRecord progress={publicProgress(entries(), { '2026-10-21': 3 })} />
+        <Link to="/work/alpha#a1">to a1</Link>
         <Link to="/work/alpha#a2">to a2</Link>
         <Link to="/work/beta#a2">to beta a2</Link>
       </MemoryRouter>
@@ -59,6 +61,8 @@ function tree(path: string) {
 }
 
 const record = () => document.getElementById('record') as HTMLDetailsElement
+const landed = () =>
+  Array.from(document.querySelectorAll('[data-landed]'), (el) => el.id)
 const rowIds = () =>
   Array.from(document.querySelectorAll('.record__row'), (row) => row.id)
 
@@ -71,6 +75,15 @@ describe('FullRecord', () => {
     expect(record().querySelector('summary')).toHaveTextContent(
       'The full record'
     )
+  })
+
+  it('names the record with a level-two heading inside its summary', () => {
+    render(tree('/work/alpha'))
+    const heading = screen.getByRole('heading', {
+      level: 2,
+      name: 'The full record',
+    })
+    expect(heading.closest('summary')).toBe(record().querySelector('summary'))
   })
 
   it('rows the current step per subject, grouped Done, In progress, Up next', () => {
@@ -122,6 +135,32 @@ describe('FullRecord', () => {
     expect(scroll.mock.contexts.at(-1)).toBe(document.getElementById('a2'))
   })
 
+  it('marks only the entry the latest client navigation landed on', () => {
+    render(tree('/work/alpha'))
+    fireEvent.click(screen.getByRole('link', { name: 'to a2' }))
+    expect(landed()).toEqual(['a2'])
+    fireEvent.click(screen.getByRole('link', { name: 'to a1' }))
+    expect(landed()).toEqual(['a1'])
+  })
+
+  it('moves focus to the entry it lands on, without a second scroll', () => {
+    render(tree('/work/alpha'))
+    const focus = vi.spyOn(HTMLElement.prototype, 'focus')
+    fireEvent.click(screen.getByRole('link', { name: 'to a2' }))
+    const target = document.getElementById('a2') as HTMLElement
+    expect(document.activeElement).toBe(target)
+    expect(target.tabIndex).toBe(-1)
+    expect(focus).toHaveBeenLastCalledWith({ preventScroll: true })
+  })
+
+  it('opens again when the same entry link is followed a second time', () => {
+    render(tree('/work/alpha'))
+    fireEvent.click(screen.getByRole('link', { name: 'to a2' }))
+    record().open = false
+    fireEvent.click(screen.getByRole('link', { name: 'to a2' }))
+    expect(record()).toHaveAttribute('open')
+  })
+
   it('opens for #record itself', () => {
     render(tree('/work/alpha#record'))
     expect(record()).toHaveAttribute('open')
@@ -134,11 +173,13 @@ describe('FullRecord', () => {
     expect(record()).toHaveAttribute('open')
   })
 
-  it('stays closed for a hash that names nothing in the record', () => {
+  it('stays closed for a hash that names something outside the record', () => {
     const scroll = vi.spyOn(Element.prototype, 'scrollIntoView')
     render(tree('/work/alpha#the-problem'))
+    expect(document.getElementById('the-problem')).not.toBeNull()
     expect(record()).not.toHaveAttribute('open')
     expect(scroll).not.toHaveBeenCalled()
+    expect(landed()).toEqual([])
   })
 
   it('renders closed on the server even when the hash matches', () => {

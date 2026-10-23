@@ -14,22 +14,32 @@ import { idFromHash } from './anchor'
 // Prerendered closed so hydration matches; a hash naming anything inside opens it after.
 export function FullRecord({ progress }: { progress: PublicProgress }) {
   const { asOf } = useSite()
-  const { pathname, hash } = useLocation()
+  const { pathname, hash, key } = useLocation()
   const ref = useRef<HTMLDetailsElement>(null)
 
-  // Re-runs on every navigation, before the book's seek looks for the entry.
+  // Path, hash or same-link navigation re-opens; runs before 1b's seek.
   useEffect(() => {
     const details = ref.current
+    if (!details) return
+    // :target goes stale under pushState, so the landed mark is ours.
+    for (const el of details.querySelectorAll<HTMLElement>('[data-landed]'))
+      delete el.dataset.landed
     const target = document.getElementById(idFromHash(hash))
-    if (!details || !target || !details.contains(target)) return
+    if (!target || !details.contains(target)) return
     details.open = true
+    target.dataset.landed = ''
     target.scrollIntoView({ block: 'start' })
-  }, [pathname, hash])
+    if (!target.hasAttribute('tabindex')) target.tabIndex = -1
+    target.focus({ preventScroll: true })
+  }, [pathname, hash, key])
 
   const steps = journeySteps(progress.entries, asOf)
   return (
-    <details id="record" className="record" ref={ref}>
-      <summary className="record__summary h2">The full record</summary>
+    // Browsers may open it on fragment navigation before hydration.
+    <details id="record" className="record" ref={ref} suppressHydrationWarning>
+      <summary className="record__summary">
+        <h2 className="h2">The full record</h2>
+      </summary>
       <ol className="record__rows">
         {steps.map((step) => {
           const earlier = earlierEntries(progress.entries, step, asOf)
