@@ -246,7 +246,7 @@ describe('the tome on the home page', () => {
       load: () => new Promise((done) => (release = () => done(hooks.load()))),
     }
     await visit('/', slow)
-    expect(screen.getByRole('status')).toHaveTextContent('Unbuckling the clasps')
+    expect(screen.getByRole('status')).toHaveTextContent('Loading the fancy version')
     await act(async () => release())
     expect(screen.queryByRole('status')).toBeNull()
   })

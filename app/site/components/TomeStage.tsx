@@ -97,7 +97,7 @@ export function TomeStage({
         aria-hidden={ready || undefined}
       >
         <Lozenge />
-        <p className="tome__loading-text">Unbuckling the clasps</p>
+        <p className="tome__loading-text">Loading the fancy version</p>
         <span className="tome__loading-rule" aria-hidden="true" />
       </div>
     </div>
