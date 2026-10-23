@@ -663,3 +663,13 @@ a {
   background: var(--accent-soft);
   color: var(--ink);
 }
+
+.ledger__count {
+  color: var(--secondary);
+  font-size: var(--text-small);
+}
+
+.ledger__controls {
+  display: grid;
+  gap: var(--space-2);
+}

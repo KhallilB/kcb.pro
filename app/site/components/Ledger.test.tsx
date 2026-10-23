@@ -143,18 +143,61 @@ describe('Ledger', () => {
       within(filters)
         .getAllByRole('button')
         .map((b) => b.textContent)
-    ).toEqual(['All', 'Experiments', 'Tests', 'Releases', 'Milestones'])
+    ).toEqual(['All', 'Experiments', 'Releases'])
     expect(button('All')).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Showing 2 of 2 entries'
+    )
 
     fireEvent.click(button('Releases'))
     expect(entryIds()).toEqual(['shipped'])
     expect(button('Releases')).toHaveAttribute('aria-pressed', 'true')
-
-    fireEvent.click(button('Tests'))
-    expect(region()).toHaveTextContent('No entries of this kind yet.')
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Showing 1 of 2 entries'
+    )
 
     fireEvent.click(button('All'))
     expect(entryIds()).toEqual(['shipped', 'trial'])
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Showing 2 of 2 entries'
+    )
+  })
+
+  it('offers only the kinds present, in the usual order', () => {
+    show([
+      entry({ id: 'm', subject: 'm', kind: 'milestone', passMark: undefined }),
+      entry({ id: 'e', subject: 'e' }),
+      entry({ id: 't', subject: 't', kind: 'tests' }),
+    ])
+    const filters = screen.getByRole('group', { name: 'Filter entries' })
+    expect(
+      within(filters)
+        .getAllByRole('button')
+        .map((b) => b.textContent)
+    ).toEqual(['All', 'Experiments', 'Tests', 'Milestones'])
+  })
+
+  it('offers no filters when entries are all one kind', () => {
+    show([entry({ id: 'a', subject: 'a' }), entry({ id: 'b', subject: 'b' })])
+    expect(
+      screen.queryByRole('group', { name: 'Filter entries' })
+    ).not.toBeInTheDocument()
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+  })
+
+  it('offers no filters when there are no entries', () => {
+    show([])
+    expect(
+      screen.queryByRole('group', { name: 'Filter entries' })
+    ).not.toBeInTheDocument()
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+  })
+
+  it('falls back to all entries when the chosen kind is gone', () => {
+    const view = render(ledger(mixed()))
+    fireEvent.click(screen.getByRole('button', { name: 'Releases' }))
+    view.rerender(ledger([entry({ id: 'solo', subject: 'solo' })]))
+    expect(entryIds()).toEqual(['solo'])
   })
 
   it('lists every entry and offers no filters before JavaScript runs', () => {

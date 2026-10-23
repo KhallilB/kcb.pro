@@ -37,9 +37,14 @@ export function Ledger({
   const counts = progressCounts(entries, asOf)
   const quiet = quietSince(entries, asOf)
   const tally = `${counts.proven} proven · ${counts.partial} partial · ${counts.failed} failed · ${counts.open} open`
+  const offered = FILTERS.filter(
+    (f) => f.filter === 'all' || entries.some((e) => e.kind === f.filter)
+  )
+  // A chosen kind that vanished (new data) falls back to everything.
+  const active = offered.some((f) => f.filter === filter) ? filter : 'all'
   const shown = [...entries]
     .reverse()
-    .filter((entry) => filter === 'all' || entry.kind === filter)
+    .filter((entry) => active === 'all' || entry.kind === active)
 
   return (
     <section className="ledger" aria-labelledby="progress">
@@ -56,23 +61,28 @@ export function Ledger({
           </p>
         )}
       </header>
-      {live && entries.length > 0 && (
-        <div
-          className="ledger__filters"
-          role="group"
-          aria-label="Filter entries"
-        >
-          {FILTERS.map((f) => (
-            <button
-              key={f.filter}
-              type="button"
-              className="ledger__filter"
-              aria-pressed={filter === f.filter}
-              onClick={() => setFilter(f.filter)}
-            >
-              {f.label}
-            </button>
-          ))}
+      {live && offered.length > 2 && (
+        <div className="ledger__controls">
+          <div
+            className="ledger__filters"
+            role="group"
+            aria-label="Filter entries"
+          >
+            {offered.map((f) => (
+              <button
+                key={f.filter}
+                type="button"
+                className="ledger__filter"
+                aria-pressed={active === f.filter}
+                onClick={() => setFilter(f.filter)}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+          <p role="status" className="ledger__count">
+            Showing {shown.length} of {entries.length} entries
+          </p>
         </div>
       )}
       {shown.length > 0 ? (
@@ -82,11 +92,7 @@ export function Ledger({
           ))}
         </ol>
       ) : (
-        <p className="ledger__empty">
-          {entries.length === 0
-            ? 'No entries yet.'
-            : 'No entries of this kind yet.'}
-        </p>
+        <p className="ledger__empty">No entries yet.</p>
       )}
     </section>
   )
