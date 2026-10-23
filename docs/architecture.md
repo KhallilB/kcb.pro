@@ -60,9 +60,13 @@ Small, pure functions with their own tests:
 - `status.ts`: the status line under each item, for example "In progress · as of
   22 Oct 2026" or "Planned · Jan 2027".
 - `dates.ts`: date formatting. Dates are calendar days (`YYYY-MM-DD`), never times.
-- `progress.ts`: the `progress.json` contract, its rules, and the views built on it:
-  the latest entry per subject, the counts, and a project's overall result.
+- `progress.ts`: the `progress.json` contract and its rules; `toPublic()`, the only
+  shape a page ships (outcomes and daily commit counts), and the check that built data
+  has exactly that shape; the status words (`STATUS_WORD`); and the views built on it:
+  the latest entry per subject, the journey order, the next step, counts and a
+  project's overall result.
 - `activity.ts`: commit types and the 12-week activity grid.
+- `text.ts`: the one-line rule shared by an entry's `summary` and a project's `goal`.
 - `validate.ts`: the checks that fail the build on bad content.
 
 Nothing in `domain/` knows about React, the browser or Three.js. If a rule is about
@@ -70,13 +74,17 @@ the portfolio rather than the page, it belongs here.
 
 ### `app/portfolio/progress`: progress from each project's repository
 
-- `fetch.ts`: fetches `progress.json` (from the default branch) and 90 days of commits
-  from GitHub, or reads the offline fixtures, and refuses anything that breaks the
-  contract. Each request has a 15 s timeout and there are no retries: any failure
-  fails the build. `scripts/progress-fetch.ts` runs it and writes `build-data/`
-  (gitignored).
-- `load.ts`: checks and keys the files in `build-data/` for the pages.
-- `fixtures/`: offline stand-ins for dev and the browser tests.
+- `fetch.ts`: fetches `progress.json` (from the default branch) and the last 84 days
+  of commits from GitHub, or reads the offline fixtures, and refuses anything that
+  breaks the contract. It authenticates with the first non-empty of `PROGRESS_TOKEN`
+  and `GITHUB_TOKEN`, so private repositories work. Each request has a 15 s timeout
+  and there are no retries: any failure fails the build. `scripts/progress-fetch.ts`
+  runs it and writes each project's `toPublic()` to `build-data/` (gitignored). It
+  reads each file back through `load.ts` as it writes it, so a bad file stops the
+  build before Vite runs.
+- `load.ts`: checks that each file in `build-data/` has exactly the public shape, and
+  keys it by slug.
+- `fixtures/`: offline stand-ins for dev and the browser tests, trimmed the same way.
 
 ### `app/site`: the 2D site
 
@@ -86,8 +94,10 @@ the portfolio rather than the page, it belongs here.
   404).
 - `components/Layout.tsx`: the header, footer, the 3D/2D toggle, and the logic for
   when the book is shown.
-- `components/Ledger.tsx`, `LedgerEntry.tsx`, `Activity.tsx`: the Progress section of
-  a project page. `progress-data.ts` loads `build-data/` for both entry points.
+- `components/Journey.tsx` (the Progress card), `FullRecord.tsx` (Full history, which
+  opens itself when the URL hash names one of its entries) and `Activity.tsx`:
+  progress on a project page. `progress-data.ts` loads `build-data/` for both entry
+  points.
 - `meta.ts`: page titles and descriptions.
 
 ### `app/tome`: the 3D book
@@ -139,11 +149,11 @@ instant.
 
 ## Tests
 
-| Suite                      | Where                    | What it proves                                                                                                                   |
-| -------------------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| `bun run test`             | `app/**/*.test.ts(x)`    | Domain rules, the progress contract and fetch (against a fake GitHub), content checks, pages, and the toggle with a fake engine. |
-| `bun run test:integration` | `*.integration.test.tsx` | Server rendering produces the right HTML and status codes.                                                                       |
-| `bun run test:e2e`         | `tests/e2e/`             | The prerendered build works in Chromium: navigation, toggle, layout, and the ledger built from offline fixtures.                 |
+| Suite                      | Where                    | What it proves                                                                                                                                                                                                                    |
+| -------------------------- | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `bun run test`             | `app/**/*.test.ts(x)`    | Domain rules, the progress contract and fetch (against a fake GitHub), content checks, pages, and the toggle with a fake engine.                                                                                                  |
+| `bun run test:integration` | `*.integration.test.tsx` | Server rendering produces the right HTML and status codes.                                                                                                                                                                        |
+| `bun run test:e2e`         | `tests/e2e/`             | The prerendered build works in Chromium: navigation, toggle, layout, the Progress card and Full history built from offline fixtures, and a scan that no private progress value from the fixtures reaches the pages or the bundle. |
 
 The end-to-end tests swap the real 3D engine for a stub, because software WebGL in
 headless browsers is too slow to render the book. Check changes to the book's look by
@@ -158,6 +168,7 @@ hand in a real browser. [the-tome.md](the-tome.md#debugging-the-3d-scene) explai
 | Register a project's progress          | `repo` in `projects.ts`, plus a fixture in `app/portfolio/progress/fixtures/` |
 | Change what a valid `progress.json` is | `app/portfolio/domain/progress.ts` and `schema/progress.v1.json`              |
 | Change a page's layout or add a page   | `app/site/pages/`, `app/site/AppRoutes.tsx`                                   |
+| Change how progress reads on a page    | `app/site/components/Journey.tsx`, `FullRecord.tsx`                           |
 | Change colours, spacing or type        | `app/styles/tokens.css`                                                       |
 | Change what the book says              | `app/tome/copy.ts`                                                            |
 | Change how the book looks or moves     | `app/tome/engine.js`                                                          |
