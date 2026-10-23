@@ -5,6 +5,8 @@ import {
   type DayCount,
   type ProgressEntry,
   type ProgressFile,
+  type PublicEntry,
+  type PublicProgress,
 } from './progress'
 import type { Catalog, IsoDay, Project, Study } from './types'
 
@@ -92,4 +94,23 @@ export function days(
     const day = addDays(end, i + 1 - ACTIVITY_DAYS)
     return { day, count: counts[day] ?? 0 }
   })
+}
+
+export function publicEntry(overrides: Partial<PublicEntry> = {}): PublicEntry {
+  return {
+    id: '2026-10-20-alpha',
+    subject: 'alpha',
+    date: '2026-10-20',
+    title: 'Alpha holds up',
+    result: 'pass',
+    ...overrides,
+  }
+}
+
+// Shipped progress as of 2026-10-21, the day Vitest pins.
+export function publicProgress(
+  entries: PublicEntry[] = [],
+  counts: Record<IsoDay, number> = {}
+): PublicProgress {
+  return { entries, days: days('2026-10-21', counts) }
 }

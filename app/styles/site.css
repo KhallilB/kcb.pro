@@ -507,6 +507,83 @@ a {
   }
 }
 
+/* Where it stands: the goal, one mark per step, what comes next. */
+.journey {
+  display: grid;
+  gap: var(--space-3);
+  margin-block-end: var(--space-8);
+  padding: var(--space-5);
+  border: var(--rule) solid var(--hairline);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+.journey__goal {
+  max-inline-size: var(--measure);
+  font-size: var(--text-h3);
+  line-height: var(--lh-h3);
+}
+
+.journey__steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.journey__steps .mark {
+  --mark-size: var(--step-size);
+}
+
+.journey__next {
+  font-weight: 600;
+}
+
+.journey__empty {
+  font-style: italic;
+  color: var(--secondary);
+}
+
+/* Shape carries the status; fills are gradients so forced colours keep them. */
+.mark {
+  display: inline-block;
+  flex: none;
+  inline-size: var(--mark-size);
+  block-size: var(--mark-size);
+  border: var(--ring) solid currentColor;
+  border-radius: 50%;
+  color: var(--secondary);
+}
+
+.mark[data-result='pass'] {
+  color: var(--passing);
+  background: linear-gradient(currentColor, currentColor);
+}
+
+.mark[data-result='partial'] {
+  color: var(--in-progress);
+  background: linear-gradient(90deg, currentColor 50%, transparent 50%);
+}
+
+.mark[data-result='fail'] {
+  color: var(--failing);
+  background:
+    linear-gradient(
+      45deg,
+      transparent 40%,
+      currentColor 40% 60%,
+      transparent 60%
+    ),
+    linear-gradient(
+      -45deg,
+      transparent 40%,
+      currentColor 40% 60%,
+      transparent 60%
+    );
+}
+
 /* Progress ledger: evidence first, commit activity underneath. */
 .ledger {
   display: grid;
