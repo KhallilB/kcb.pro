@@ -2,20 +2,21 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** The 3D book generates its chapters, contents, ribbons, places and More work sheet from content, and each chapter page shows wax seals for the project's latest checked results.
+**Goal:** The 3D book generates its chapters, contents, ribbons, places and More work sheet from content, and each chapter page shows wax seals for the project's latest steps.
 
 **Architecture:** A pure `app/tome/layout.ts` `layoutBook()` decides every page, number, colour, ribbon, place and spread label. A golden test pins it to today's hand-laid book before `engine.js` reads it. `copy.ts` turns content plus progress entries into `TomeData` (chapters by rank, More work rows, seals, `book: layoutBook(...)`). `engine.js` keeps painting, geometry and interaction. Places come from content (`place.ts`), and validation guards the new `book` copy and slugs the book keeps for itself.
 
 **Tech Stack:** TypeScript, React 19, React Router 7, Three.js r128 (`engine.js`, untyped, dense single-line style), Vitest + Testing Library (jsdom), Playwright (stub engine), Bun.
 
-**Spec:** `docs/superpowers/specs/2026-10-22-progress-ledger-design.md`, section "3D: the generated book (plan 1b)".
+**Spec:** `docs/superpowers/specs/2026-10-22-progress-ledger-design.md`, section "3D: the generated book (plan 1b)", as amended by `docs/superpowers/specs/2026-10-23-progress-journey-design.md`, section "Plan 1b".
 
 **Runs after plan 1a has merged.** 1a provides, and this plan uses without re-implementing:
 
-- `app/portfolio/domain/progress.ts`: `ProgressResult`, `ProgressEntry`, `current(entries, day)` (latest per subject on or before `day`, newest first), `overallSeal(entries, day)`, `ProjectProgress` (`{ file: { entries, ... }, commits, ... }`).
-- `useSite()` provides `progress: Record<string, ProjectProgress>` and `asOf`.
+- `app/portfolio/domain/progress.ts`: `ProgressResult`, `PublicEntry` (`id`, `subject`, `date`, `title`, `result`, optional `summary`), `PublicProgress` (`{ entries, days }`), `toPublic(full, buildDay)`, `current(entries, day)` (latest per subject on or before `day`, newest first), `overallSeal(entries, day)`, and `STATUS_WORD` (`pass` Done, `partial` In progress, `not-run` Planned, `fail` Rethinking), the words 2D uses.
+- `useSite()` provides `progress: Record<string, PublicProgress>` and `asOf`. Entries are `progress[slug].entries`; the site never holds commit messages, shas, pass marks, measurements or evidence, and nothing in this plan needs them.
+- Step titles are plain sentences with no `M0:`-style prefix (Bezl and kbui dropped them). This plan shows a title as it is and never parses it.
 - `Project.repo?: string`, `Project.rank?: 1 | 2 | 3`, and `featured(projects)`, which returns ranked listed endeavors ordered by rank (Bezl 1, kbui 2).
-- 2D ledger entries render with `id` equal to the entry id on `/work/<slug>`.
+- Every entry id is an element `id` on `/work/<slug>`, inside the closed `<details id="record">` ("Full history") below the "Progress" card (`id="progress"`). 1a's `FullRecord` owns landing on an entry: after hydration, and again whenever the path, the hash or `location.key` changes (so a second click on the same link lands again), an effect opens the record when the hash names one of its entries or `record`, marks that entry `data-landed`, scrolls it into view and moves focus to it. This plan links to `/work/<slug>#<entry-id>` and does not reimplement any of that.
 
 ---
 
@@ -69,7 +70,7 @@ git -C /Users/khallil/proj/kcb.pro fetch origin
 git -C /Users/khallil/proj/kcb.pro log origin/main --oneline -15
 ```
 
-Expected: the 1a merge (progress contract, ingestion, 2D ledger) is on `origin/main`. If it is not, stop: this plan depends on it.
+Expected: the 1a merge (progress contract, ingestion, public progress, the Progress card and Full history) is on `origin/main`. If it is not, stop: this plan depends on it.
 
 - [ ] **Step 2: Create the worktree and the PR branch**
 
@@ -101,18 +102,20 @@ grep -n "rank\|repo" app/portfolio/domain/types.ts
 grep -n -A8 "export function featured" app/portfolio/domain/catalog.ts
 grep -n "progress" app/site/site.ts app/site/site-context.tsx app/main.tsx app/entry-server.tsx
 grep -n "more-work\|fixed place\|reserved" app/portfolio/domain/validate.ts
-grep -rn "Pass\|Partial\|Not run\|label" app/portfolio/domain/progress.ts | head
+grep -n "STATUS_WORD\|PublicProgress\|PublicEntry" app/portfolio/domain/progress.ts
+grep -n "id=\"record\"\|data-landed\|location.key\|focus" app/site/components/FullRecord.tsx
 ls app/portfolio/progress/fixtures
 ```
 
 Check each of the following, and adapt the named step if 1a differs:
 
-1. `progress.ts` exports `ProgressResult`, `ProgressEntry`, `current`, `overallSeal` and `ProjectProgress`, and `ProjectProgress` reaches entries as `p.file.entries`. Task 7 uses these names. Read 1a's `progress.test.ts` to confirm two behaviours. First, `current()` returns entries **newest first**. If it returns oldest first, Task 7's `chapter()` must sort by `date` descending before `.slice(0, 3)`. Second, `overallSeal()` returns `null`, not `undefined`, when there are no entries. If it returns `undefined`, Task 7 must write `?? null` after it.
+1. `progress.ts` exports `ProgressResult`, `PublicEntry`, `PublicProgress`, `toPublic`, `current`, `overallSeal` and `STATUS_WORD`, and `useSite().progress` reaches entries as `p.entries`. Task 7 uses these names. Read 1a's `progress.test.ts` to confirm two behaviours. First, `current()` returns entries **newest first**. If it returns oldest first, Task 7's `chapter()` must sort by `date` descending before `.slice(0, 3)`. Second, `overallSeal()` returns `null`, not `undefined`, when there are no entries. If it returns `undefined`, Task 7 must write `?? null` after it.
 2. `Project.rank?: 1 | 2 | 3` exists, and `featured()` filters to listed endeavors with a rank, sorted by rank.
 3. `useSite()` returns `progress`, and the value is created once at module level (for example in `main.tsx`), not per render. `TomeStage` lists it in an effect's dependencies (Task 7); a new object on every render would rebuild the book.
 4. Find whether 1a already refuses a ranked slug equal to a fixed place. If so, Task 1 Step 3 **extends that check** to the full `RESERVED_SLUGS` list and moves the list into `domain/book.ts`, instead of adding a second check.
-5. If 1a exports a word for each result (for example `resultLabel` or `RESULT_LABEL`), Task 7 imports it instead of defining `RESULT_WORD`, so 2D badges and 3D seals use the same words.
-6. `app/portfolio/progress/fixtures/bezl.json` and `kbui.json` each have at least one entry. Task 7's e2e check relies on this.
+5. 1a exports `STATUS_WORD`. Task 7 imports it, so 2D and the seals use the same words; the book defines no word map of its own. If its words differ from Done, In progress, Planned and Rethinking, Task 7's expected words follow 1a.
+6. `app/portfolio/progress/fixtures/bezl.json` and `kbui.json` each have at least one entry. Task 7's e2e check relies on this. The build trims them with `toPublic`, and `fixtureProgress` already holds `PublicProgress`; any new test data is built with `publicEntry()` / `publicProgress()` from `app/portfolio/domain/fixtures.ts`, or `toPublic(...)`.
+7. `FullRecord.tsx` opens `<details id="record">` on the hash, re-runs on path, hash and `location.key`, marks the entry `data-landed`, scrolls to it and focuses it. Task 8 relies on this and adds none of it.
 
 - [ ] **Step 5: Run the gate on the untouched branch**
 
@@ -370,7 +373,7 @@ In `app/portfolio/content/projects.ts`, in the `bezl` entry, add this directly a
         ],
         [
           'Proven so far',
-          'Three terminals took a 20 MB stream each with no bytes lost and 2 ms typing latency. Memory is the open question.',
+          'Terminal output reaches the window with nothing lost, and typing echoes instantly. Memory is the open question.',
         ],
       ],
       facts: [
@@ -2152,7 +2155,7 @@ git commit -S -m "feat(tome): paint the More work sheet"
 
 - [ ] **Step 1: Write the failing seal tests**
 
-In `app/tome/copy.test.ts`, add `import type { ProgressEntry, ProgressResult } from '@app/portfolio/domain/progress'` and, above `describe`:
+In `app/tome/copy.test.ts`, add `import type { ProgressResult, PublicEntry } from '@app/portfolio/domain/progress'` and, above `describe`:
 
 ```ts
 const entry = (
@@ -2160,17 +2163,7 @@ const entry = (
   subject: string,
   date: string,
   result: ProgressResult
-): ProgressEntry => ({
-  id,
-  subject,
-  date,
-  kind: 'experiment',
-  title: `Title ${id}`,
-  passMark: 'Set before the run',
-  result,
-  measured: [],
-  evidence: [{ label: 'Run', url: 'https://example.com/run' }],
-})
+): PublicEntry => ({ id, subject, date, title: `Title ${id}`, result })
 ```
 
 Inside `describe('tome data', ...)` add:
@@ -2193,21 +2186,21 @@ it('seals a chapter with its three most recent subjects, newest first, as of the
       id: 'd1',
       title: 'Title d1',
       result: 'pass',
-      word: 'Pass',
+      word: 'Done',
       path: '/work/alpha#d1',
     },
     {
       id: 'c1',
       title: 'Title c1',
       result: 'not-run',
-      word: 'Not run',
+      word: 'Planned',
       path: '/work/alpha#c1',
     },
     {
       id: 'a2',
       title: 'Title a2',
       result: 'pass',
-      word: 'Pass',
+      word: 'Done',
       path: '/work/alpha#a2',
     },
   ])
@@ -2228,7 +2221,7 @@ it('seals each More work row with its project’s overall result', () => {
   }
   const book = tomeData(catalog(shelf(1, 2)), '2026-10-21', entries)
   expect(book.moreWork.map((r) => [r.slug, r.seal, r.word])).toEqual([
-    ['more-1', 'partial', 'Partial'],
+    ['more-1', 'partial', 'In progress'],
     ['more-2', null, null],
   ])
 })
@@ -2252,17 +2245,10 @@ In `app/tome/copy.ts`:
 import {
   current,
   overallSeal,
-  type ProgressEntry,
+  STATUS_WORD,
   type ProgressResult,
+  type PublicEntry,
 } from '@app/portfolio/domain/progress'
-
-// The result as a word beside its seal, so colour never carries it alone.
-const RESULT_WORD: Record<ProgressResult, string> = {
-  pass: 'Pass',
-  partial: 'Partial',
-  fail: 'Fail',
-  'not-run': 'Not run',
-}
 
 export interface Seal {
   id: string
@@ -2273,12 +2259,10 @@ export interface Seal {
 }
 ```
 
-If Task 0 Step 4 found a 1a result-word export, import it and use it in place of `RESULT_WORD`. Then update the tests' expected words to match it.
-
 Add `ledger: Seal[]` to `Chapter`, and `seal: ProgressResult | null` and `word: string | null` to `MoreWorkRow`. Change `chapter` and `tomeData`:
 
 ```ts
-function chapter(p: Project, asOf: IsoDay, entries: ProgressEntry[]): Chapter {
+function chapter(p: Project, asOf: IsoDay, entries: PublicEntry[]): Chapter {
   if (!p.book) throw new Error(`Chapter "${p.slug}" needs book copy`)
   return {
     slug: p.slug,
@@ -2294,7 +2278,7 @@ function chapter(p: Project, asOf: IsoDay, entries: ProgressEntry[]): Chapter {
         id: e.id,
         title: e.title,
         result: e.result,
-        word: RESULT_WORD[e.result],
+        word: STATUS_WORD[e.result],
         path: `/work/${p.slug}#${encodeURIComponent(e.id)}`,
       })),
   }
@@ -2305,7 +2289,7 @@ function chapter(p: Project, asOf: IsoDay, entries: ProgressEntry[]): Chapter {
 export function tomeData(
   catalog: Catalog,
   asOf: IsoDay,
-  entries: Record<string, ProgressEntry[]> = {}
+  entries: Record<string, PublicEntry[]> = {}
 ): TomeData {
   const live = nowBuilding(catalog.projects)
   const chapters = featured(catalog.projects).map((p) =>
@@ -2319,7 +2303,7 @@ export function tomeData(
       summary: p.summary,
       path: `/work/${p.slug}`,
       seal,
-      word: seal && RESULT_WORD[seal],
+      word: seal && STATUS_WORD[seal],
     }
   })
   return {
@@ -2364,12 +2348,11 @@ Run the same command. Expected: PASS.
 In `app/site/components/TomeStage.tsx`:
 
 ```ts
-import type { ProjectProgress } from '@app/portfolio/domain/progress'
+import type { PublicProgress } from '@app/portfolio/domain/progress'
 
-// The book shows evidence only; commit activity stays on the 2D page.
-const entriesBySlug = (progress: Record<string, ProjectProgress>) =>
+const entriesBySlug = (progress: Record<string, PublicProgress>) =>
   Object.fromEntries(
-    Object.entries(progress).map(([slug, p]) => [slug, p.file.entries])
+    Object.entries(progress).map(([slug, p]) => [slug, p.entries])
   )
 ```
 
@@ -2461,7 +2444,9 @@ it('starts a page with no hash at the top', async () => {
 })
 ```
 
-`how-it-works` is the id `Brief` gives Bezl's "How it works" heading. It stands in for a ledger entry id, so the test does not depend on 1a's fixtures.
+`how-it-works` is the id `Brief` gives Bezl's "How it works" heading. It stands in for an entry id, so the test does not depend on 1a's fixtures.
+
+For an entry id, 1a's `FullRecord` lands on it: its effect runs on the path, hash or `location.key` change before `seek`'s first animation frame, opens "Full history", marks the entry `data-landed`, scrolls it into view and focuses it. `seek` then finds a laid-out row, and its second scroll is harmless. Add no opening, marking or focusing here.
 
 - [ ] **Step 2: Run it and see it fail**
 
@@ -2673,7 +2658,7 @@ const chapterPage = (ctx, hs, f, d) => {
   if (!d.ledger.length) {
     ctx.fillStyle = P.muted
     ctx.font = font(30, 400, BODY, true)
-    wrap(ctx, 'No checked results yet.', m.L, y + 116, m.w, 42)
+    wrap(ctx, 'No steps recorded yet.', m.L, y + 116, m.w, 42)
   }
   y += 100
   for (const s of d.ledger) {
@@ -2769,10 +2754,11 @@ PORT=4199 bun scripts/serve-build.ts
 
 In the browser:
 
-- Turn to Bezl and to kbui. Each chapter page shows "Progress" with up to three rows: seal, title (clipped to one line), and result word on the right, newest first. They match the newest three subjects in the 2D Progress section of `/work/bezl` and `/work/kbui`.
+- Turn to Bezl and to kbui. Each chapter page shows "Progress" with up to three rows: seal, title (clipped to one line), and status word on the right, newest first. They match the newest three subjects in the 2D "Progress" card and "Full history" of `/work/bezl` and `/work/kbui`.
+- A seal for a superseded subject is never shown: seals use current entries only, as the 2D history does.
 - Seals press in shortly after the page lands: they grow from larger to their size and their shadow tightens. Turning away and back presses them again.
-- A not-run entry shows a hollow dashed ring. Each seal's tick, bar or cross is legible.
-- Clicking a seal row opens `/work/<slug>#<entry-id>` with that entry at the top of the viewport, and the URL keeps the hash.
+- A Planned (`not-run`) entry shows a hollow dashed ring. Each seal's tick, bar or cross is legible.
+- Clicking a seal row opens `/work/<slug>#<entry-id>` with "Full history" open and that entry marked, focused and at the top of the viewport, and the URL keeps the hash. Back in the book, the same seal lands there again.
 - Turn on reduced motion (macOS System Settings › Accessibility › Display › Reduce motion, or DevTools › Rendering › `prefers-reduced-motion: reduce`) and reload. Seals are already in place with no animation.
 - Turning pages stays smooth while a seal presses (no visible stall).
 - With the Task 6 temporary content (two unranked endeavors), More work rows carry their overall seal and word, or none when the project has no progress. Restore with `git checkout -- app/portfolio/content/projects.ts`.
@@ -2802,15 +2788,16 @@ Expected before `git add`: only `app/tome/engine.js` modified.
 Under "Reading it as a visitor", add these bullets after the contents-page bullet:
 
 ```markdown
-- Each chapter page shows the project's three most recent checked results, newest
-  first, each with a wax seal and its result word: green pass, amber partial, red
-  fail, a hollow ring for not run. Each seal also carries a tick, bar or cross, so
-  colour is never the only cue. Click one to open that entry on the project's page.
+- Each chapter page shows the project's three most recent steps, newest first, each
+  with a wax seal and its status word: green Done, amber In progress, red
+  Rethinking, a hollow ring for Planned. Each seal also carries a tick, bar or
+  cross, so colour is never the only cue. Click one to open that step in the
+  project's full history.
 - The More work pages list every listed project that has no chapter, each with its
   overall seal. A row opens the project's page.
 ```
 
-In "The engine's handle", after the `onNavigate(path)` bullet, add: `A path may end in #<entry-id>; TomeStage keeps the hash and scrolls to that entry instead of the top.`
+In "The engine's handle", after the `onNavigate(path)` bullet, add: `A path may end in #<entry-id>; TomeStage keeps the hash and scrolls to that entry instead of the top; the project page opens its full history there.`
 
 Replace the "Keeping your place" table with:
 
@@ -2863,7 +2850,8 @@ are fixed by role, so adding a chapter never recolours another:
 ## Wax seals
 
 A chapter's seals are the three most recent subjects from `current(entries, buildDay)`
-in the project's `progress.json`. A More work row's seal is the project's overall seal.
+in the project's public progress (`progress[slug].entries`). A More work row's seal is
+the project's overall seal. Each seal's word is `STATUS_WORD[result]`, as on the page.
 Seals are painted last, over a cached copy of the finished page, and press in as their
 page turns into view. With reduced motion they are already in place.
 ```
@@ -2952,7 +2940,7 @@ Rebuild and serve as in Step 1. Check that:
 - six ribbons hang, spaced as before
 - contents has seven rows with matching numbers, and each row jumps to its page
 - About reads "…gives a chapter each to Bezl, kbui and Wander."
-- `/work/wander` opens the book at Wander, and the chapter shows "No checked results yet." (Wander has no `repo`)
+- `/work/wander` opens the book at Wander, and the chapter shows "No steps recorded yet." (Wander has no `repo`)
 
 - [ ] **Step 3: Three chapters plus More work (temporary)**
 
@@ -2996,11 +2984,11 @@ The repository has no PR template. Follow its recent PR style: title `feat(tome)
 
 ```bash
 gh pr create --base main --title "feat(tome): generated book and wax seals" --body "$(cat <<'EOF'
-Plan 1b of docs/superpowers/specs/2026-10-22-progress-ledger-design.md.
+Plan 1b of docs/superpowers/specs/2026-10-22-progress-ledger-design.md, as amended by docs/superpowers/specs/2026-10-23-progress-journey-design.md.
 
 - The book's sheets, contents, ribbons, places and spread labels come from a pure `layoutBook()`; a golden test pins the hand-laid two-chapter book.
 - Chapters are ranked projects with `book` copy (validated); listed endeavors without a rank go to a new More work sheet.
-- Chapter pages show the three most recent results as wax seals that link to their ledger entry; More work rows carry each project's overall seal.
+- Chapter pages show the three most recent steps as wax seals that link to that step in the project's full history; More work rows carry each project's overall seal.
 
 Checks run: bun run lint, typecheck, build, test, test:integration, test:e2e; manual browser check with two chapters, three chapters, three chapters plus More work, and kbui unranked.
 EOF
