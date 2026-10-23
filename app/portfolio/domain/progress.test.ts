@@ -686,8 +686,28 @@ describe('validatePublicProgress', () => {
     ])
   })
 
+  it('refuses a repeated entry id, since each is a page anchor', () => {
+    const data = shipped()
+    data.entries.push({ ...data.entries[0], subject: 'other' })
+    expect(validatePublicProgress(data, ctx)).toEqual([
+      `${at} entry "2026-10-20-alpha" repeats an earlier id`,
+    ])
+  })
+
   it.each([
     ['too few days', (d: DayCount[]) => d.slice(1)],
+    [
+      'a day after the build day',
+      (d: DayCount[]) => [...d, { day: addDays(day, 1), count: 0 }],
+    ],
+    [
+      'a missing middle day',
+      (d: DayCount[]) => [
+        { day: addDays(d[0].day, -1), count: 0 },
+        ...d.slice(0, 40),
+        ...d.slice(41),
+      ],
+    ],
     ['two days swapped', (d: DayCount[]) => [d[1], d[0], ...d.slice(2)]],
     [
       'a negative count',

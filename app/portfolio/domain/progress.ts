@@ -162,6 +162,8 @@ export function validatePublicProgress(
   if (!Array.isArray(data.entries)) {
     errors.push(`${at} needs an entries list`)
   } else {
+    // Ids become element ids on the page, so a repeat breaks its anchor.
+    const ids = new Set<string>()
     data.entries.forEach((entry: unknown, index) => {
       if (!isRecord(entry)) {
         errors.push(`${at} entry ${index + 1} is not an object`)
@@ -174,6 +176,10 @@ export function validatePublicProgress(
         ),
         ...publicFieldErrors(entry, where)
       )
+      if (isText(entry.id)) {
+        if (ids.has(entry.id)) errors.push(`${where} repeats an earlier id`)
+        ids.add(entry.id)
+      }
     })
   }
   if (!isDense(data.days, ctx.buildDay)) {

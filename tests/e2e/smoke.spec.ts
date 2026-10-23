@@ -2,19 +2,48 @@ import { expect, test, type Page } from '@playwright/test'
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-// Fixture-only private fields; the build must ship none of them.
-const PRIVATE = [
-  'No lost bytes, echo under 100 ms, memory under 300 MB', // a pass mark
-  'Surplus bytes per pane', // a measurement label
-  'spikes/01-pty-throughput/RESULT.md', // an evidence path
-  '01e47db', // a commit sha
-  'feat: scaffold Bezl and record the three stack spikes', // a commit message
-]
-
 const built = (dir: string, ext: string) =>
   readdirSync(dir)
     .filter((name) => name.endsWith(ext))
     .map((name) => join(dir, name))
+
+interface Fixture {
+  file: {
+    entries: {
+      passMark?: string
+      commit?: string
+      measured: Record<string, string>[]
+      evidence: Record<string, string>[]
+    }[]
+  }
+  commits: { sha: string; subject: string; url: string }[]
+}
+
+// Every fixture-only value; the build must ship none of them.
+function privateValues(): string[] {
+  const values = built('app/portfolio/progress/fixtures', '.json').flatMap(
+    (path) => {
+      const { file, commits } = JSON.parse(
+        readFileSync(path, 'utf8')
+      ) as Fixture
+      return [
+        ...file.entries.flatMap((e) => [
+          e.passMark ?? '',
+          e.commit ?? '',
+          ...[...e.measured, ...e.evidence].flatMap(Object.values),
+        ]),
+        ...commits.flatMap((c) => [
+          c.sha,
+          c.url.slice(c.url.lastIndexOf('/') + 1),
+          c.subject,
+          c.url,
+        ]),
+      ]
+    }
+  )
+  // Shorter values are words the site uses anyway (Commit, Button, Input, Dialog); 7 keeps short shas.
+  return [...new Set(values)].filter((value) => value.length >= 7)
+}
 
 // Most checks read the plain list; the tome has its own test below.
 async function preferList(page: Page) {
@@ -287,8 +316,12 @@ test('the pages and the bundle ship outcomes only', () => {
     ),
     'the bundle carries the shipped progress'
   ).toBe(true)
+  const secrets = privateValues()
+  expect(secrets).toEqual(
+    expect.arrayContaining(['01e47db', 'spikes/01-pty-throughput/RESULT.md'])
+  )
   for (const { file, text } of texts) {
-    for (const secret of PRIVATE)
+    for (const secret of secrets)
       expect(text.includes(secret), `${secret} in ${file}`).toBe(false)
   }
   expect(readFileSync('build/work/bezl.html', 'utf8')).not.toContain(

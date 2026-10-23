@@ -11,6 +11,9 @@ import {
 } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { commit, entry, progressFile } from '../app/portfolio/domain/fixtures'
+import { toPublic } from '../app/portfolio/domain/progress'
+import { writePublic } from './progress-fetch'
 
 const SCRIPT = join(__dirname, 'progress-fetch.ts')
 
@@ -88,4 +91,32 @@ describe('progress-fetch', () => {
       'summary',
     ])
   })
+})
+
+describe('writePublic', () => {
+  const day = '2026-10-21'
+  const shipped = () =>
+    toPublic({ file: progressFile([entry()]), commits: [commit()] }, day)
+
+  function inTemp(test: (file: string) => Promise<void>) {
+    const dir = mkdtempSync(join(tmpdir(), 'progress-write-'))
+    return test(join(dir, 'alpha.json')).finally(() =>
+      rmSync(dir, { recursive: true, force: true })
+    )
+  }
+
+  it('writes what passes the loader', () =>
+    inTemp(async (file) => {
+      await writePublic(file, shipped(), day)
+      expect(JSON.parse(readFileSync(file, 'utf8'))).toEqual(shipped())
+    }))
+
+  it('fails on a written file the loader would refuse, naming it', () =>
+    inTemp(async (file) => {
+      const leaky = shipped()
+      leaky.entries[0] = { ...leaky.entries[0], passMark: 'x' } as never
+      await expect(writePublic(file, leaky, day)).rejects.toThrow(
+        `${file} failed validation:\n"alpha" built progress entry "2026-10-20-alpha" has a field the site does not ship: "passMark"`
+      )
+    }))
 })
