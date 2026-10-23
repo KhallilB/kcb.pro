@@ -17,6 +17,11 @@ function apiCommit(sha: string, date: string, message: string) {
   }
 }
 
+const fullPage = () =>
+  Array.from({ length: 100 }, (_, i) =>
+    apiCommit(String(i).padStart(7, '0'), '2026-10-20', 'chore: tidy')
+  )
+
 function publicRepo(file: unknown = goodFile(), commits: unknown[] = []) {
   const routes: Record<string, Route> = {
     '/repos/KhallilB/bezl': () =>
@@ -28,12 +33,17 @@ function publicRepo(file: unknown = goodFile(), commits: unknown[] = []) {
 }
 
 function github(routes: Record<string, Route>) {
-  const calls: { url: URL; headers: Record<string, string> }[] = []
+  const calls: {
+    url: URL
+    headers: Record<string, string>
+    signal?: AbortSignal | null
+  }[] = []
   const fetch = async (input: string | URL | Request, init?: RequestInit) => {
     const url = new URL(String(input))
     calls.push({
       url,
       headers: (init?.headers ?? {}) as Record<string, string>,
+      signal: init?.signal,
     })
     return (routes[url.pathname] ?? missing)(url)
   }
@@ -173,6 +183,169 @@ describe('collectProgress from GitHub', () => {
 
   it('fetches nothing when no project is registered', async () => {
     expect(await collectProgress([], options())).toEqual({})
+  })
+})
+
+describe('collectProgress GitHub failures', () => {
+  it('fails, with no partial result, when a later commits page errors', async () => {
+    const routes = publicRepo()
+    routes['/repos/KhallilB/bezl/commits'] = (url) =>
+      url.searchParams.get('page') === '1'
+        ? json(fullPage())
+        : new Response('Forbidden', { status: 403 })
+    await expect(
+      collectProgress([bezl], options({ fetch: github(routes).fetch }))
+    ).rejects.toThrow('"bezl" (KhallilB/bezl): GitHub answered 403')
+  })
+
+  it.each([
+    [429, '/repos/KhallilB/bezl'],
+    [500, '/repos/KhallilB/bezl'],
+    [429, '/repos/KhallilB/bezl/contents/progress.json'],
+    [500, '/repos/KhallilB/bezl/contents/progress.json'],
+  ])('names status %i when %s answers with it', async (status, path) => {
+    const routes = {
+      ...publicRepo(),
+      [path]: () => new Response('', { status }),
+    }
+    await expect(
+      collectProgress([bezl], options({ fetch: github(routes).fetch }))
+    ).rejects.toThrow(`"bezl" (KhallilB/bezl): GitHub answered ${status}`)
+  })
+
+  it('says the token was rejected on 401', async () => {
+    const routes = {
+      ...publicRepo(),
+      '/repos/KhallilB/bezl': () => new Response('', { status: 401 }),
+    }
+    await expect(
+      collectProgress(
+        [bezl],
+        options({ fetch: github(routes).fetch, token: 'bad' })
+      )
+    ).rejects.toThrow(/401[\s\S]*token was rejected/)
+  })
+
+  it.each([403, 429])(
+    'says rate limited on %i and suggests GITHUB_TOKEN only without one',
+    async (status) => {
+      const routes = {
+        ...publicRepo(),
+        '/repos/KhallilB/bezl': () => new Response('', { status }),
+      }
+      const run = (token?: string) =>
+        collectProgress(
+          [bezl],
+          options({ fetch: github(routes).fetch, token })
+        ).catch((e: Error) => e.message)
+      const anonymous = await run()
+      expect(anonymous).toMatch(/rate limited/)
+      expect(anonymous).toMatch(/GITHUB_TOKEN/)
+      const authed = await run('t0k')
+      expect(authed).toMatch(/rate limited/)
+      expect(authed).not.toMatch(/GITHUB_TOKEN/)
+    }
+  )
+
+  it('stops after 50 commit pages with a named error', async () => {
+    const routes = publicRepo()
+    routes['/repos/KhallilB/bezl/commits'] = () => json(fullPage())
+    const { fetch, calls } = github(routes)
+    await expect(collectProgress([bezl], options({ fetch }))).rejects.toThrow(
+      '"bezl" (KhallilB/bezl): the commit history runs past 50 pages'
+    )
+    expect(
+      calls.filter((c) => c.url.pathname.endsWith('/commits'))
+    ).toHaveLength(50)
+  })
+
+  it('fails clearly when the commits response is not a list', async () => {
+    const routes = publicRepo()
+    routes['/repos/KhallilB/bezl/commits'] = () => json({ message: 'odd' })
+    await expect(
+      collectProgress([bezl], options({ fetch: github(routes).fetch }))
+    ).rejects.toThrow(
+      '"bezl" (KhallilB/bezl): the commit history is not a list'
+    )
+  })
+
+  it('includes the cause of a network error', async () => {
+    const failing = () =>
+      Promise.reject(
+        new TypeError('fetch failed', { cause: new Error('ECONNRESET') })
+      )
+    await expect(
+      collectProgress([bezl], options({ fetch: failing }))
+    ).rejects.toThrow('"bezl" (KhallilB/bezl): fetch failed (ECONNRESET)')
+  })
+
+  it('prints a non-Error throw as text', async () => {
+    const failing = () => Promise.reject('boom')
+    await expect(
+      collectProgress([bezl], options({ fetch: failing }))
+    ).rejects.toThrow('"bezl" (KhallilB/bezl): boom')
+  })
+
+  it('gives every request a timeout signal', async () => {
+    const { fetch, calls } = github(publicRepo())
+    await collectProgress([bezl], options({ fetch }))
+    expect(calls.length).toBeGreaterThan(0)
+    expect(
+      calls.every((c) => c.signal instanceof AbortSignal && !c.signal.aborted)
+    ).toBe(true)
+  })
+
+  it('asks for the raw media type on progress.json', async () => {
+    const { fetch, calls } = github(publicRepo())
+    await collectProgress([bezl], options({ fetch }))
+    const file = calls.find((c) => c.url.pathname.endsWith('/progress.json'))
+    expect(file?.headers.accept).toBe('application/vnd.github.raw+json')
+  })
+})
+
+describe('collectProgress commit mapping', () => {
+  const withCommit = (c: unknown) =>
+    collectProgress(
+      [bezl],
+      options({ fetch: github(publicRepo(goodFile(), [c])).fetch })
+    )
+
+  it('dates a commit by its committer date, the one GitHub filters on', async () => {
+    const progress = await withCommit({
+      sha: '01e47db2f079',
+      html_url: 'https://github.com/KhallilB/bezl/commit/01e47db2f079',
+      commit: {
+        message: 'fix: rebased',
+        author: { date: '2026-10-01T09:00:00Z' },
+        committer: { date: '2026-10-20T09:00:00Z' },
+      },
+    })
+    expect(progress.bezl.commits[0].date).toBe('2026-10-20')
+  })
+
+  it('falls back to the author date when there is no committer date', async () => {
+    const progress = await withCommit(
+      apiCommit('01e47db', '2026-10-19', 'x: y')
+    )
+    expect(progress.bezl.commits[0].date).toBe('2026-10-19')
+  })
+
+  it('names the commit when it has no date at all', async () => {
+    await expect(
+      withCommit({
+        sha: '01e47db2f079',
+        html_url: 'https://github.com/KhallilB/bezl/commit/01e47db2f079',
+        commit: { message: 'feat: x', author: null, committer: null },
+      })
+    ).rejects.toThrow('"bezl" (KhallilB/bezl): commit 01e47db has no date')
+  })
+
+  it('gives an empty message the subject (no message)', async () => {
+    const progress = await withCommit(apiCommit('01e47db', '2026-10-19', ''))
+    expect(progress.bezl.commits[0]).toMatchObject({
+      subject: '(no message)',
+      type: 'other',
+    })
   })
 })
 

@@ -25,11 +25,17 @@ export interface CollectOptions {
 const API = 'https://api.github.com'
 const HISTORY_DAYS = 90
 const PAGE_SIZE = 100
+const MAX_PAGES = 50
+const TIMEOUT_MS = 15_000
 
 interface ApiCommit {
   sha: string
   html_url: string
-  commit: { message: string; author: { date: string } | null }
+  commit: {
+    message: string
+    author: { date: string } | null
+    committer?: { date: string } | null
+  }
 }
 
 // Any failure throws: the build stops rather than show a partial ledger.
@@ -45,9 +51,7 @@ export async function collectProgress(
         ? await fromFixture(project, options)
         : await fromGitHub(project, options)
     } catch (error) {
-      failures.push(
-        `"${project.slug}" (${project.repo}): ${(error as Error).message}`
-      )
+      failures.push(`"${project.slug}" (${project.repo}): ${describe(error)}`)
     }
   }
   if (failures.length > 0) throw new Error(failures.join('\n'))
@@ -76,7 +80,10 @@ async function fromGitHub(
   options: CollectOptions
 ): Promise<ProjectProgress> {
   const get = (path: string, accept = 'application/vnd.github+json') =>
-    options.fetch(`${API}${path}`, { headers: headers(accept, options.token) })
+    options.fetch(`${API}${path}`, {
+      headers: headers(accept, options.token),
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    })
 
   const about = await get(`/repos/${repo}`)
   if (about.status === 404) {
@@ -84,7 +91,8 @@ async function fromGitHub(
       'the repository is missing or private. Make it public, or remove "repo" from the project.'
     )
   }
-  if (!about.ok) throw new Error(unexpected(about, 'the repository'))
+  if (!about.ok)
+    throw new Error(unexpected(about, 'the repository', options.token))
   const meta = (await about.json()) as {
     private?: boolean
     default_branch?: string
@@ -105,7 +113,7 @@ async function fromGitHub(
       `there is no progress.json on ${branch}. Add one that follows schema/progress.v1.json.`
     )
   }
-  if (!raw.ok) throw new Error(unexpected(raw, 'progress.json'))
+  if (!raw.ok) throw new Error(unexpected(raw, 'progress.json', options.token))
   let file: unknown
   try {
     file = JSON.parse(await raw.text())
@@ -114,14 +122,14 @@ async function fromGitHub(
       `progress.json on ${branch} is not valid JSON. Fix it and push.`
     )
   }
-  const commits = await recentCommits(repo, branch, options.buildDay, get)
+  const commits = await recentCommits(repo, branch, options, get)
   return checked(slug, file, commits, options.buildDay)
 }
 
 async function recentCommits(
   repo: string,
   branch: string,
-  buildDay: IsoDay,
+  { buildDay, token }: CollectOptions,
   get: (path: string) => Promise<Response>
 ): Promise<Commit[]> {
   const query = new URLSearchParams({
@@ -131,21 +139,30 @@ async function recentCommits(
     per_page: String(PAGE_SIZE),
   })
   const commits: Commit[] = []
-  for (let page = 1; ; page++) {
+  for (let page = 1; page <= MAX_PAGES; page++) {
     const response = await get(`/repos/${repo}/commits?${query}&page=${page}`)
-    if (!response.ok)
-      throw new Error(unexpected(response, 'the commit history'))
-    const batch = (await response.json()) as ApiCommit[]
-    commits.push(...batch.map(toCommit))
+    if (!response.ok) {
+      throw new Error(unexpected(response, 'the commit history', token))
+    }
+    const batch: unknown = await response.json()
+    if (!Array.isArray(batch)) {
+      throw new Error('the commit history is not a list')
+    }
+    commits.push(...(batch as ApiCommit[]).map(toCommit))
     if (batch.length < PAGE_SIZE) return commits
   }
+  throw new Error(`the commit history runs past ${MAX_PAGES} pages`)
 }
 
 function toCommit(c: ApiCommit): Commit {
-  const subject = c.commit.message.split('\n')[0]
+  const sha = c.sha.slice(0, 7)
+  // GitHub's since/until window filters on the committer date.
+  const stamp = c.commit.committer?.date ?? c.commit.author?.date
+  if (!stamp) throw new Error(`commit ${sha} has no date`)
+  const subject = c.commit.message.split('\n')[0] || '(no message)'
   return {
-    sha: c.sha.slice(0, 7),
-    date: (c.commit.author?.date ?? '').slice(0, 10),
+    sha,
+    date: stamp.slice(0, 10),
     type: classifyCommit(subject),
     subject,
     url: c.html_url,
@@ -168,8 +185,22 @@ function checked(
   return { file, commits } as ProjectProgress
 }
 
-function unexpected(response: Response, what: string): string {
-  return `GitHub answered ${response.status} for ${what}. Retry; set GITHUB_TOKEN if this is a rate limit.`
+function unexpected(response: Response, what: string, token?: string): string {
+  const head = `GitHub answered ${response.status} for ${what}`
+  if (response.status === 401) {
+    return `${head}: the token was rejected. Check GITHUB_TOKEN.`
+  }
+  if (response.status === 403 || response.status === 429) {
+    const hint = token ? '' : ' Set GITHUB_TOKEN to raise the limit.'
+    return `${head}: rate limited. Retry later.${hint}`
+  }
+  return `${head}. Retry.`
+}
+
+function describe(error: unknown): string {
+  if (!(error instanceof Error)) return String(error)
+  const cause = error.cause instanceof Error ? error.cause.message : ''
+  return cause ? `${error.message} (${cause})` : error.message
 }
 
 function headers(accept: string, token?: string): Record<string, string> {
