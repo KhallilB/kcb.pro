@@ -16,6 +16,9 @@
   --mist: #e4eae8;
   --mist-edge: #f3f5f4;
   --glow: rgba(26, 138, 118, 0.42);
+  /* The book's stage: a faint teal halo, and the shaded side of the mist. */
+  --halo: rgba(26, 138, 118, 0.16);
+  --mist-deep: #d3dfdb;
   /* The cover's glass gem, for the loading mark. */
   --gem: #b9dfd5;
   --gem-deep: #6fae9f;

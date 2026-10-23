@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type RefObject } from 'react'
+import { useEffect, useId, useRef, useState, type RefObject } from 'react'
 import { useNavigate } from 'react-router'
 import { tomeData } from '@app/tome/copy'
 import type { TomeHandle } from '@app/tome/engine.js'
@@ -25,7 +25,9 @@ export function TomeStage({
   const { asOf, tome } = useSite()
   const navigate = useNavigate()
   const host = useRef<HTMLDivElement>(null)
-  const [ready, setReady] = useState(false)
+  // fetching the engine, drawing its first frame, then ready (the book is on screen).
+  const [stage, setStage] = useState<'fetching' | 'drawing' | 'ready'>('fetching')
+  const ready = stage === 'ready'
   // Mounted over the boot script's mist: appear at once, since a fade would show the page through.
   const [boot] = useState(() => document.documentElement.dataset.tome === 'pending')
   // navigate changes with every route; the engine must outlive routes.
@@ -49,10 +51,13 @@ export function TomeStage({
             window.scrollTo(0, 0)
           },
           insetTop: () => handlers.current.insetTop(),
+          onReady: () => {
+            if (!cancelled) setStage('ready')
+          },
         })
         if (!handle) return handlers.current.onFail()
         engine.current = handle
-        setReady(true)
+        setStage((now) => (now === 'ready' ? now : 'drawing'))
         if (!handlers.current.shown) handle.hide()
         else {
           const place = handlers.current.arrival()
@@ -81,13 +86,12 @@ export function TomeStage({
     <div
       className="tome"
       data-ready={ready || undefined}
+      data-stage={ready ? undefined : stage}
       data-boot={(boot && !ready) || undefined}
       data-shown={shown || undefined}
       inert={shown ? undefined : true}
     >
-      <div className="tome__fog tome__fog--a" aria-hidden="true" />
-      <div className="tome__fog tome__fog--b" aria-hidden="true" />
-      <div className="tome__fog tome__fog--c" aria-hidden="true" />
+      <Mist />
       <div className="tome__vignette" aria-hidden="true" />
       <div ref={host} className="tome__host" />
       {/* Stays mounted after ready so it can fade out as the book fades in. */}
@@ -96,24 +100,80 @@ export function TomeStage({
         role={ready ? undefined : 'status'}
         aria-hidden={ready || undefined}
       >
-        <Lozenge />
+        <div className="tome__motes" aria-hidden="true">
+          {Array.from({ length: 12 }, (_, i) => (
+            <span key={i} className="tome__mote" />
+          ))}
+        </div>
+        <div className="tome__seal">
+          <svg className="tome__ring" viewBox="-70 -70 140 140" aria-hidden="true">
+            <circle className="tome__ring-dots" r={64} pathLength={100} />
+            <circle className="tome__ring-line" r={58} />
+          </svg>
+          <Lozenge />
+        </div>
         <p className="tome__loading-text">Loading the fancy version</p>
-        <span className="tome__loading-rule" aria-hidden="true" />
+        <span className="tome__progress" aria-hidden="true">
+          <span className="tome__progress-fill" />
+        </span>
       </div>
     </div>
+  )
+}
+
+// useId may contain characters that break url(#id) references.
+const svgId = (id: string) => `tome${id.replace(/[^\w-]/g, '')}`
+
+// Wisps from an SVG noise filter: drawn once, then drifted, so they read as fog rather than blur.
+function Mist() {
+  const id = svgId(useId())
+  const layers = [
+    { depth: 'far', frequency: '0.004 0.011', seed: 11 },
+    { depth: 'near', frequency: '0.0022 0.006', seed: 4 },
+  ]
+  return (
+    <>
+      {layers.map(({ depth, frequency, seed }) => (
+        <svg key={depth} className={`tome__mist tome__mist--${depth}`} aria-hidden="true">
+          <filter id={`${id}-${depth}`} x="0" y="0" width="100%" height="100%">
+            <feTurbulence type="fractalNoise" baseFrequency={frequency} numOctaves={4} seed={seed} />
+            {/* Keep only the dense parts of the noise as wisps, in the layer's colour. */}
+            <feColorMatrix
+              type="matrix"
+              values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  2.4 0 0 0 -1.05"
+              result="wisps"
+            />
+            <feFlood floodColor="currentColor" />
+            <feComposite in2="wisps" operator="in" />
+          </filter>
+          <rect width="100%" height="100%" filter={`url(#${id}-${depth})`} />
+        </svg>
+      ))}
+    </>
   )
 }
 
 // The cover's centrepiece: gilt lozenge, teal gem, a fleuron at each point.
 function Lozenge() {
   const star = 'M0-6L1.5-1.5L6 0L1.5 1.5L0 6L-1.5 1.5L-6 0L-1.5-1.5Z'
+  const gem = 'M0-20L13 0L0 20L-13 0Z'
+  const clip = svgId(useId())
   return (
     <svg className="tome__lozenge" viewBox="-60 -62 120 124" aria-hidden="true">
+      <defs>
+        <clipPath id={clip}>
+          <path d={gem} />
+        </clipPath>
+      </defs>
       <path className="tome__fillet" pathLength={1} d="M0-44L30 0L0 44L-30 0Z" />
       <path className="tome__fillet tome__fillet--inner" pathLength={1} d="M0-38L25 0L0 38L-25 0Z" />
-      <path className="tome__gem" d="M0-20L13 0L0 20L-13 0Z" />
+      <path className="tome__gem" d={gem} />
       <path className="tome__facet" d="M0-20L-13 0L0 0Z" />
       <path className="tome__facet tome__facet--shade" d="M0 20L13 0L0 0Z" />
+      {/* Light sweeping across the glass. */}
+      <g clipPath={`url(#${clip})`}>
+        <rect className="tome__sheen" x={-4} y={-24} width={6} height={48} />
+      </g>
       {[
         [0, -54],
         [40, 0],

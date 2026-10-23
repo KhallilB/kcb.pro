@@ -27,15 +27,21 @@ The Tome is the 3D book on the home page. It's built with Three.js r128 and live
 While it loads, home shows the book's mist from the first frame: an inline script in
 `index.html` flags the page before React runs, and `Layout.tsx` keeps that flag until it
 knows whether WebGL works, so the list never flashes. If the engine takes longer than
-250 ms, the cover's gilt lozenge appears with "Loading the fancy version", then fades as
-the book fades in.
+250 ms, the cover's gilt lozenge appears in a ring of gilt dots, with rising motes and
+"Loading the fancy version". The gilt rule under it fills as the engine downloads, then
+builds. The stage's `data-stage` attribute says which (`fetching`, then `drawing`).
+
+The book counts as ready only when the engine calls `onReady` after its first drawn frame.
+Its first appearance starts with the camera on the cover's centrepiece and pulls back
+over 1.6 seconds, while the 2D lozenge swells and fades into it. The mist behind the book
+is two layers of SVG noise drawn once and drifted by transform.
 
 `mountTome` returns `null` if WebGL fails. The site then hides the toggle and stays 2D.
 
 ## The engine's handle
 
 ```ts
-const book = mountTome(host, { data, onList, onNavigate, insetTop })
+const book = mountTome(host, { data, onList, onNavigate, insetTop, onReady })
 
 book.show(place) // wake up; turn to a place such as 'kbui' if given
 book.hide() // zoom into the page and go to sleep

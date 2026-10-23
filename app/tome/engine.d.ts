@@ -19,5 +19,7 @@ export function mountTome(
     onNavigate: (path: string) => void
     /** Pixels at the top the book must stay clear of. */
     insetTop: () => number
+    /** Called once, after the first frame is drawn. */
+    onReady?: () => void
   }
 ): TomeHandle | null

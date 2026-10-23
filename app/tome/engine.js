@@ -3,6 +3,7 @@ import * as THREE from 'three';
 
 export function mountTome(host, opts) {
   const { data, onList, onNavigate, insetTop } = opts;
+  let onReady = opts.onReady;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const ac = new AbortController(), sig = { signal: ac.signal };
   let alive = true, raf = 0;
@@ -1483,16 +1484,19 @@ export function mountTome(host, opts) {
 
   // ---------- sleep ----------
   // Hidden, the camera dollies into the page last touched, then the loop stops; show() reverses it.
-  let awake = true, started = false, running = false, doze = 0, dozeTo = 0, aimX = 0, aimY = 0, lastTap = null;
-  const DOZE = 0.6;
+  // First arrival starts dozed (camera on the cover) and pulls back slowly, so the book is revealed, not popped in.
+  let awake = true, started = false, running = false, doze = 1, dozeTo = 0, aimX = 0, aimY = 0, lastTap = null;
+  const DOZE = 0.6, ARRIVE = 1.6;
+  let dozeDur = ARRIVE;
   function sleep() {
     if (!awake) return;
-    awake = false; dozeTo = 1; tip.hidden = true;
+    awake = false; dozeTo = 1; dozeDur = DOZE; tip.hidden = true;
     const tap = lastTap && performance.now() - lastTap.at < 1500 ? lastTap : { x: 0, y: 0 };
     const halfH = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camZ;
     aimX = tap.x * halfH * camera.aspect * 0.7; aimY = tap.y * halfH * 0.7;
   }
   function wake(place) {
+    if (!awake) dozeDur = DOZE;
     awake = true; dozeTo = 0;
     if (place) turnTo(place);
     if (started && !running && alive) { running = true; last = performance.now(); resize(); raf = requestAnimationFrame(loop); }
@@ -1560,12 +1564,13 @@ export function mountTome(host, opts) {
     if (!reduce) { for (let i = 0; i < MC; i++) { mp[i * 3 + 1] += dt * 0.05; if (mp[i * 3 + 1] > 1.6) mp[i * 3 + 1] = -1.6; } motes.geometry.attributes.position.needsUpdate = true; }
     const f = fitTarget(); camZ += (f.z - camZ) * Math.min(1, dt * 3); camX += (f.x - camX) * Math.min(1, dt * 3);
     camY += ((current === 0 ? -0.16 : -0.2) + f.y - camY) * Math.min(1, dt * 3);
-    doze = reduce ? dozeTo : dozeTo > doze ? Math.min(dozeTo, doze + dt / DOZE) : Math.max(dozeTo, doze - dt / DOZE);
+    doze = reduce ? dozeTo : dozeTo > doze ? Math.min(dozeTo, doze + dt / dozeDur) : Math.max(dozeTo, doze - dt / dozeDur);
     const dz = ease(doze), z = camZ * (1 - 0.62 * dz), lx = camX + aimX * dz, ly = camY + aimY * dz;
     // Camera looks down a little so the floor reads as a plane the shadow lies on.
     const pitch = THREE.MathUtils.degToRad((10 * (1 - openO) + 6 * openO) * (1 - dz));
     camera.position.set(lx, ly + z * Math.tan(pitch), z); camera.lookAt(lx, ly, 0);
     renderer.render(scene, camera);
+    if (onReady) { const ready = onReady; onReady = null; ready(); }
     if (alive && (awake || doze < 1)) raf = requestAnimationFrame(loop); else running = false;
   }
 
@@ -1573,7 +1578,7 @@ export function mountTome(host, opts) {
   Promise.race([fontsReady, new Promise((r) => setTimeout(r, 2500))]).then(() => {
     Object.keys(faceTex).forEach(redraw); Object.keys(faceTex).forEach(redraw);
     if (!alive) return;
-    started = running = true; resize(); raf = requestAnimationFrame(loop);
+    started = running = true; last = performance.now(); resize(); raf = requestAnimationFrame(loop);
   });
 
   return {

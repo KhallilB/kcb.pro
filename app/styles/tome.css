@@ -64,7 +64,7 @@ html[data-tome-left] .main {
 
 html[data-tome='pending'] body {
   background:
-    radial-gradient(ellipse 40% 45% at 50% 52%, var(--glow), transparent 70%),
+    radial-gradient(ellipse 40% 45% at 50% 52%, var(--halo), transparent 70%),
     radial-gradient(ellipse 75% 70% at 50% 50%, var(--mist), var(--mist-edge) 85%);
 }
 
@@ -75,7 +75,7 @@ html[data-tome='pending'] body {
   z-index: 20;
   overflow: hidden;
   background:
-    radial-gradient(ellipse 40% 45% at 50% 52%, var(--glow), transparent 70%),
+    radial-gradient(ellipse 40% 45% at 50% 52%, var(--halo), transparent 70%),
     radial-gradient(ellipse 75% 70% at 50% 50%, var(--mist), var(--mist-edge) 85%);
   background-color: var(--mist);
   color: var(--ink);
@@ -110,47 +110,36 @@ html[data-tome='pending'] body {
   }
 }
 
-.tome__fog {
+/* Mist: noise-drawn wisps, light in front and shaded behind, drifting slowly in opposite directions. */
+.tome__mist {
   position: absolute;
-  border-radius: 50%;
-  filter: blur(40px);
-  opacity: 0.55;
+  inset-block-start: -10%;
+  inset-inline-start: 0;
+  inline-size: 200%;
+  block-size: 120%;
   pointer-events: none;
-  background: var(--mist-edge);
-  animation: drift 38s ease-in-out infinite alternate;
+  color: var(--mist-edge);
+  animation:
+    mist-in 1.6s var(--ease) both,
+    mist-drift 140s ease-in-out infinite alternate;
 }
 
-.tome__fog--a {
-  inline-size: 46vmax;
-  block-size: 30vmax;
-  inset-inline-start: -8vmax;
-  inset-block-start: 8vh;
+.tome__mist--far {
+  color: var(--mist-deep);
+  opacity: 0.8;
+  animation-duration: 1.6s, 200s;
+  animation-direction: normal, alternate-reverse;
 }
 
-.tome__fog--b {
-  inline-size: 40vmax;
-  block-size: 28vmax;
-  inset-inline-end: -10vmax;
-  inset-block-end: 4vh;
-  animation-duration: 46s;
-  animation-direction: alternate-reverse;
-}
-
-.tome__fog--c {
-  inline-size: 30vmax;
-  block-size: 20vmax;
-  inset-inline-start: 30vw;
-  inset-block-end: -10vmax;
-  opacity: 0.4;
-  animation-duration: 52s;
-}
-
-@keyframes drift {
+@keyframes mist-in {
   from {
-    transform: translate(0, 0);
+    opacity: 0;
   }
+}
+
+@keyframes mist-drift {
   to {
-    transform: translate(6vmax, -3vmax);
+    translate: -50% 0;
   }
 }
 
@@ -169,7 +158,7 @@ html[data-tome='pending'] body {
 }
 
 .tome__host {
-  transition: opacity var(--slow) var(--ease);
+  transition: opacity 900ms var(--ease) 100ms;
 }
 
 .tome:not([data-ready]) .tome__host {
@@ -200,7 +189,8 @@ html[data-tome='pending'] body {
   cursor: pointer;
 }
 
-/* Loading: the cover's lozenge waits in the halo where the book will land. */
+/* Loading: the cover's lozenge waits in the halo where the book will land.
+   Ring, motes, sheen and progress move by transform or opacity, so they keep going while the engine builds. */
 .tome__loading {
   position: absolute;
   inset: 0;
@@ -208,19 +198,27 @@ html[data-tome='pending'] body {
   display: grid;
   place-content: center;
   justify-items: center;
-  gap: var(--space-3);
+  gap: var(--space-4);
   pointer-events: none;
   transition:
-    opacity var(--slow) var(--ease),
-    transform var(--slow) var(--ease),
-    visibility 0s linear var(--slow);
+    opacity 700ms var(--ease) 150ms,
+    visibility 0s linear 850ms;
 }
 
-/* The book fades in as the lozenge swells and lets go. */
+/* Hand-off: the lozenge swells toward the real one as the camera pulls back from it. */
 .tome[data-ready] .tome__loading {
   opacity: 0;
-  transform: scale(1.12);
   visibility: hidden;
+}
+
+/* A clearing in the mist so the mark and caption read cleanly. */
+.tome__loading::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(circle 240px at 50% 50%, var(--mist-edge), transparent 72%);
+  animation: mist-in 1s var(--ease) 250ms both;
 }
 
 /* Held back a beat so a cached engine goes straight from mist to book. */
@@ -231,7 +229,60 @@ html[data-tome='pending'] body {
 @keyframes loading-in {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    translate: 0 8px;
+  }
+}
+
+.tome__seal {
+  display: grid;
+  place-items: center;
+  inline-size: 176px;
+  aspect-ratio: 1;
+  transition: scale 1.1s cubic-bezier(0.5, 0, 0.2, 1);
+}
+
+.tome__seal > * {
+  grid-area: 1 / 1;
+}
+
+.tome[data-ready] .tome__seal {
+  scale: 2.8;
+}
+
+/* A bookbinder's dotted roll, turning slowly. */
+.tome__ring {
+  inline-size: 100%;
+  overflow: visible;
+  animation:
+    ring-in 1.2s var(--ease) 400ms both,
+    ring-turn 48s linear infinite;
+}
+
+.tome__ring-dots {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-dasharray: 0 2.5;
+}
+
+.tome__ring-line {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 0.75;
+  opacity: 0.6;
+}
+
+@keyframes ring-in {
+  from {
+    opacity: 0;
+    scale: 0.82;
+  }
+}
+
+@keyframes ring-turn {
+  to {
+    rotate: 1turn;
   }
 }
 
@@ -268,7 +319,6 @@ html[data-tome='pending'] body {
   fill: var(--gem);
   stroke: var(--gold);
   stroke-width: 1.5;
-  transform-origin: center;
   animation: gem-glow 2.8s ease-in-out 900ms infinite alternate both;
 }
 
@@ -289,46 +339,222 @@ html[data-tome='pending'] body {
   }
 }
 
-.tome__fleuron {
-  fill: var(--gold);
-  animation: twinkle 2.8s ease-in-out infinite alternate both;
+.tome__sheen {
+  fill: var(--shine);
+  transform-box: fill-box;
+  rotate: 25deg;
+  translate: -24px 0;
+  animation: sheen 3.2s var(--ease) 1.2s infinite;
 }
 
-.tome__fleuron:nth-of-type(2n) {
-  animation-delay: 1.4s;
+@keyframes sheen {
+  0% {
+    translate: -24px 0;
+  }
+  40%,
+  100% {
+    translate: 24px 0;
+  }
+}
+
+/* Fleurons bloom in turn once the fillets are drawn, then twinkle. */
+.tome__fleuron {
+  fill: var(--gold);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation:
+    bloom 500ms var(--ease) 1.1s both,
+    twinkle 2.8s ease-in-out 1.6s infinite alternate both;
+}
+
+.tome__fleuron:nth-of-type(2) {
+  animation-delay: 1.25s, 3s;
+}
+
+.tome__fleuron:nth-of-type(3) {
+  animation-delay: 1.4s, 1.6s;
+}
+
+.tome__fleuron:nth-of-type(4) {
+  animation-delay: 1.55s, 3s;
+}
+
+@keyframes bloom {
+  from {
+    scale: 0;
+    opacity: 0;
+  }
 }
 
 @keyframes twinkle {
-  from {
+  to {
     opacity: 0.35;
   }
 }
 
 .tome__loading-text {
-  font: 500 var(--text-meta) / 1 var(--font-head);
+  max-inline-size: calc(100vw - 2 * var(--space-4));
+  font: 600 var(--text-meta) / var(--lh-meta) var(--font-head);
   letter-spacing: 0.24em;
+  text-align: center;
+  text-wrap: balance;
   text-transform: uppercase;
-  color: var(--secondary);
+  color: var(--ink);
+  text-shadow: 0 0 12px var(--mist-edge);
 }
 
-/* A glint running along a gilt rule: progress with no number to show. */
-.tome__loading-rule {
-  inline-size: 72px;
+@media (max-width: 400px) {
+  .tome__loading-text {
+    letter-spacing: 0.12em;
+  }
+}
+
+/* Progress along a gilt rule: a slow creep while fetching, most of the way once built, full on the first frame. */
+.tome__progress {
+  position: relative;
+  overflow: hidden;
+  inline-size: 96px;
   block-size: 1px;
-  background:
-    linear-gradient(90deg, transparent, var(--brass-hi), transparent) 0 0 / 40% 100% no-repeat,
-    var(--hairline);
-  animation:
-    loading-in var(--slow) var(--ease) 250ms both,
-    glint 1.8s ease-in-out 850ms infinite;
+  background: var(--hairline);
+}
+
+.tome__progress-fill,
+.tome__progress::after {
+  position: absolute;
+  inset: 0;
+}
+
+.tome__progress-fill {
+  background: linear-gradient(90deg, var(--brass-lo), var(--brass-hi));
+  transform-origin: left;
+  scale: 0 1;
+  transition: scale 400ms var(--ease);
+}
+
+.tome[data-stage='fetching'] .tome__progress-fill {
+  scale: 0.6 1;
+  transition-duration: 8s;
+  transition-timing-function: cubic-bezier(0.1, 0.6, 0.2, 1);
+}
+
+.tome[data-stage='drawing'] .tome__progress-fill {
+  scale: 0.9 1;
+  transition-duration: 800ms;
+}
+
+.tome[data-ready] .tome__progress-fill {
+  scale: 1 1;
+}
+
+.tome__progress::after {
+  content: '';
+  background: linear-gradient(90deg, transparent, var(--shine), transparent);
+  translate: -100% 0;
+  animation: glint 1.8s ease-in-out 850ms infinite;
 }
 
 @keyframes glint {
-  from {
-    background-position: -60% 0, 0 0;
-  }
   to {
-    background-position: 160% 0, 0 0;
+    translate: 100% 0;
+  }
+}
+
+/* Dust rising through the halo, as it does around the book. */
+.tome__motes {
+  position: absolute;
+  inset: 0;
+}
+
+.tome__mote {
+  position: absolute;
+  inset-inline-start: 50%;
+  inset-block-start: 50%;
+  inline-size: 3px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--brass-hi);
+  box-shadow: 0 0 6px var(--gold);
+  opacity: 0;
+  animation: mote 7s linear infinite;
+}
+
+.tome__mote:nth-child(1) {
+  margin: 40px 0 0 -120px;
+  animation-delay: -0.5s;
+}
+
+.tome__mote:nth-child(2) {
+  margin: 90px 0 0 -70px;
+  animation-delay: -2.1s;
+  animation-duration: 8s;
+}
+
+.tome__mote:nth-child(3) {
+  margin: 20px 0 0 -30px;
+  animation-delay: -4.3s;
+}
+
+.tome__mote:nth-child(4) {
+  margin: 110px 0 0 20px;
+  animation-delay: -1.2s;
+  animation-duration: 9s;
+}
+
+.tome__mote:nth-child(5) {
+  margin: 60px 0 0 75px;
+  animation-delay: -5.6s;
+}
+
+.tome__mote:nth-child(6) {
+  margin: 130px 0 0 115px;
+  animation-delay: -3.4s;
+  animation-duration: 8s;
+}
+
+.tome__mote:nth-child(7) {
+  margin: 0 0 0 150px;
+  animation-delay: -6.2s;
+}
+
+.tome__mote:nth-child(8) {
+  margin: 150px 0 0 -150px;
+  animation-delay: -2.8s;
+  animation-duration: 9s;
+}
+
+.tome__mote:nth-child(9) {
+  margin: -20px 0 0 -165px;
+  animation-delay: -4.9s;
+}
+
+.tome__mote:nth-child(10) {
+  margin: 170px 0 0 55px;
+  animation-delay: -0.9s;
+  animation-duration: 10s;
+}
+
+.tome__mote:nth-child(11) {
+  margin: 70px 0 0 -10px;
+  animation-delay: -3.9s;
+  animation-duration: 8s;
+}
+
+.tome__mote:nth-child(12) {
+  margin: 120px 0 0 -100px;
+  animation-delay: -6.8s;
+}
+
+@keyframes mote {
+  0% {
+    opacity: 0;
+    translate: 0 0;
+  }
+  20% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    translate: 14px -220px;
   }
 }
 
@@ -495,13 +721,26 @@ html[data-tome='pending'] body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tome__fog,
+  .tome__mist,
+  .tome__loading::before,
   .tome__loading > *,
+  .tome__ring,
   .tome__fillet,
   .tome__gem,
+  .tome__sheen,
   .tome__fleuron,
-  .tome__loading-rule {
+  .tome__progress::after {
     animation: none;
+  }
+
+  .tome__motes {
+    display: none;
+  }
+
+  .tome__loading,
+  .tome__seal,
+  .tome__host {
+    transition: none;
   }
 
   .view-toggle__thumb {
