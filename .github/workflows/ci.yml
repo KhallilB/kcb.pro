@@ -45,6 +45,10 @@ jobs:
           # Anonymous calls share the runner IP's 60 requests an hour.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # A build without the ledger must never reach the deploy artifact.
+      - name: Check the live ledger
+        run: grep -q 'id="progress"' build/work/bezl.html && grep -q 'id="progress"' build/work/kbui.html
+
       - name: Keep the build for deploy
         uses: actions/upload-artifact@v4
         with:

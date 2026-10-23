@@ -9,7 +9,6 @@ import { buildDay } from './build-day'
 const OUT = join('build-data', 'progress')
 const FIXTURES = join('app', 'portfolio', 'progress', 'fixtures')
 const offline = process.env.PROGRESS_OFFLINE === '1'
-const day = buildDay()
 
 async function readFixture(slug: string): Promise<unknown> {
   const file = Bun.file(join(FIXTURES, `${slug}.json`))
@@ -18,6 +17,7 @@ async function readFixture(slug: string): Promise<unknown> {
 
 await rm(OUT, { recursive: true, force: true })
 try {
+  const day = buildDay()
   const progress = await collectProgress(registered(content.projects), {
     buildDay: day,
     offline,
@@ -37,6 +37,8 @@ try {
     `Progress from ${offline ? 'fixtures' : 'GitHub'} for ${slugs} as of ${day}`
   )
 } catch (error) {
+  // A partial write must not survive into the build.
+  await rm(OUT, { recursive: true, force: true })
   console.error(
     `Progress failed; nothing was written:\n${(error as Error).message}`
   )
