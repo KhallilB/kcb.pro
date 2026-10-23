@@ -243,6 +243,17 @@ describe('about', () => {
     expect([...order].sort((a, b) => a - b)).toEqual(order)
   })
 
+  it('says what each company does, then what I did there', () => {
+    visit('/about')
+    const rows = within(screen.getByRole('list', { name: 'Experience' })).getAllByRole('listitem')
+    expect(rows).toHaveLength(4)
+    const panther = rows[1].textContent ?? ''
+    const company = panther.indexOf('A security platform that helps teams spot and stop attacks')
+    const did = panther.indexOf('I built the interface for Panther’s AI features')
+    expect(company).toBeGreaterThan(-1)
+    expect(did).toBeGreaterThan(company)
+  })
+
   it('never names a hidden project', () => {
     visit('/about')
     const text = screen.getByRole('main').textContent ?? ''

@@ -31,14 +31,17 @@ export function About() {
           or out in the garden.
         </p>
 
-        <h2 className="h2">Experience</h2>
+        <h2 id="experience" className="h2">
+          Experience
+        </h2>
       </div>
-      <ul className="rows experience">
+      <ul className="rows experience" aria-labelledby="experience">
         {profile.experience.map((job) => (
           <li key={job.company} className="row row--tall">
             <span className="row__rail mono secondary">{job.years}</span>
             <span className="row__main">
               <span className="row__name">{job.company}</span>
+              <span className="row__summary secondary">{job.about}</span>
               <span className="row__summary">{job.summary}</span>
             </span>
             <span className="row__meta secondary">{job.title}</span>
