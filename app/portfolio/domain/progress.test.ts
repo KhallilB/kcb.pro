@@ -1,16 +1,12 @@
 import {
   current,
   earlierEntries,
-  evidenceHref,
   journeySteps,
-  kindLabel,
   nextStep,
   overallSeal,
-  PROGRESS_KINDS,
   PROGRESS_RESULTS,
   progressCounts,
   quietSince,
-  resultLabel,
   STATUS_ORDER,
   STATUS_WORD,
   toPublic,
@@ -434,57 +430,6 @@ describe('quietSince', () => {
   it('stays silent within 30 days, or with no entries', () => {
     expect(quietSince([entry({ date: '2026-09-21' })], day)).toBeNull()
     expect(quietSince([], day)).toBeNull()
-  })
-})
-
-describe('words and links', () => {
-  it('words every result and kind', () => {
-    expect(PROGRESS_RESULTS.map((r) => resultLabel(r))).toEqual([
-      'Pass',
-      'Partial',
-      'Fail',
-      'Not run',
-    ])
-    expect(PROGRESS_KINDS.map((k) => kindLabel(k))).toEqual([
-      'Experiment',
-      'Tests',
-      'Release',
-      'Milestone',
-    ])
-  })
-
-  it('links a repository path at its commit, and a url as given', () => {
-    expect(
-      evidenceHref(
-        { label: 'R', path: 'spikes/a/RESULT.md' },
-        'KhallilB/bezl',
-        '01e47db'
-      )
-    ).toBe('https://github.com/KhallilB/bezl/blob/01e47db/spikes/a/RESULT.md')
-    expect(
-      evidenceHref(
-        { label: 'Run', url: 'https://github.com/o/r/actions/runs/1' },
-        'KhallilB/bezl'
-      )
-    ).toBe('https://github.com/o/r/actions/runs/1')
-  })
-
-  it('refuses a repository path with no commit', () => {
-    expect(() =>
-      evidenceHref({ label: 'R', path: 'spikes/x.md' }, 'KhallilB/bezl')
-    ).toThrow('Evidence "spikes/x.md" needs a commit')
-  })
-
-  it('encodes each path segment, keeping the slashes', () => {
-    expect(
-      evidenceHref(
-        { label: 'R', path: 'spikes/my run/a#1.md' },
-        'KhallilB/bezl',
-        '01e47db'
-      )
-    ).toBe(
-      'https://github.com/KhallilB/bezl/blob/01e47db/spikes/my%20run/a%231.md'
-    )
   })
 })
 

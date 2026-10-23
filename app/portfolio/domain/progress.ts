@@ -409,33 +409,3 @@ export function earlierEntries<E extends PublicEntry>(
     )
     .map(({ entry }) => entry)
 }
-
-const RESULT_LABELS: Record<ProgressResult, string> = {
-  pass: 'Pass',
-  partial: 'Partial',
-  fail: 'Fail',
-  'not-run': 'Not run',
-}
-
-export const resultLabel = (result: ProgressResult) => RESULT_LABELS[result]
-
-const KIND_LABELS: Record<ProgressKind, string> = {
-  experiment: 'Experiment',
-  tests: 'Tests',
-  release: 'Release',
-  milestone: 'Milestone',
-}
-
-export const kindLabel = (kind: ProgressKind) => KIND_LABELS[kind]
-
-// A path is linked at the commit that recorded it, so the link never drifts.
-export function evidenceHref(
-  item: Evidence,
-  repo: string,
-  commit?: string
-): string {
-  if ('url' in item) return item.url
-  if (!commit) throw new Error(`Evidence "${item.path}" needs a commit`)
-  const path = item.path.split('/').map(encodeURIComponent).join('/')
-  return `https://github.com/${repo}/blob/${commit}/${path}`
-}

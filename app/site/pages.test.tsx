@@ -130,34 +130,64 @@ describe('project page', () => {
     expect(spec).toHaveTextContent('In progress · as of 21 Oct 2026')
   })
 
-  it('opens with progress counted as of the build day', () => {
+  it('tells where Bezl stands, under the header and above the brief', () => {
     visit('/work/bezl')
-    expect(screen.getByRole('region', { name: 'Progress' })).toHaveTextContent(
-      '3 proven · 1 partial · 0 failed · 2 open · as of 21 Oct 2026'
+    const card = screen.getByRole('region', { name: 'Where it stands' })
+    expect(card).toHaveTextContent(
+      'One window that runs AI coding assistants side by side, with one writer per task.'
     )
+    expect(card).toHaveTextContent('3 done · 1 in progress · 2 up next')
+    expect(card).toHaveTextContent('Next: A Claude Code reviewer cannot write')
+    expect(card).toHaveTextContent('As of 21 Oct 2026')
+    expect(within(card).getAllByRole('img')).toHaveLength(6)
+    const brief = screen.getByRole('heading', { level: 2, name: 'The problem' })
+    expect(
+      card.compareDocumentPosition(brief) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy()
   })
 
-  it('anchors every Bezl entry, newest first', () => {
+  it('keeps the full record closed after the brief, every step anchored in journey order', () => {
     visit('/work/bezl')
+    const record = document.getElementById('record') as HTMLDetailsElement
+    expect(record).not.toHaveAttribute('open')
+    const last = screen.getByRole('heading', { level: 2, name: 'Use of AI' })
     expect(
-      Array.from(document.querySelectorAll('.entry')).map((e) => e.id)
+      last.compareDocumentPosition(record) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy()
+    expect(
+      Array.from(record.querySelectorAll('.record__row'), (r) => r.id)
     ).toEqual([
-      '2026-10-21-scaffold',
-      '2026-10-21-pty-memory',
-      '2026-10-20-reviewer-readonly-claude',
-      '2026-10-20-reviewer-readonly-codex',
       '2026-10-20-libghostty-vt',
+      '2026-10-20-reviewer-readonly-codex',
+      '2026-10-21-scaffold',
       '2026-10-20-pty-throughput',
+      '2026-10-20-reviewer-readonly-claude',
+      '2026-10-21-pty-memory',
     ])
   })
 
-  it('shows commit activity under the Bezl ledger', () => {
+  it('shows commit activity inside the record', () => {
     visit('/work/bezl')
-    const activity = within(
-      screen.getByRole('region', { name: 'Progress' })
-    ).getByRole('region', { name: 'Activity' })
-    expect(activity).toHaveTextContent('11 commits in the last 12 weeks')
-    expect(within(activity).queryAllByRole('link')).toEqual([])
+    const record = document.getElementById('record') as HTMLDetailsElement
+    record.open = true
+    expect(
+      within(record).getByRole('region', { name: 'Activity' })
+    ).toHaveTextContent('11 commits in the last 12 weeks')
+  })
+
+  it('shows outcomes only: no pass mark, measurement, evidence or link into Bezl’s repository', () => {
+    const { container } = visit('/work/bezl')
+    expect(container).not.toHaveTextContent('No lost bytes, echo under 100 ms')
+    expect(container).not.toHaveTextContent('Surplus bytes per pane')
+    expect(container).not.toHaveTextContent('RESULT.md')
+    expect(screen.queryByRole('group', { name: 'Filter entries' })).toBeNull()
+    const hrefs = Array.from(
+      container.querySelectorAll('a'),
+      (a) => a.getAttribute('href') ?? ''
+    )
+    expect(
+      hrefs.filter((href) => href.includes('github.com/KhallilB/bezl'))
+    ).toEqual([])
   })
 
   it('keeps the empty build log for a project with no progress', () => {
@@ -165,7 +195,8 @@ describe('project page', () => {
     const log = screen.getByRole('region', { name: 'Build log' })
     expect(log).toHaveTextContent('Nothing here yet')
     expect(within(log).queryByRole('img')).toBeNull()
-    expect(screen.queryByRole('region', { name: 'Progress' })).toBeNull()
+    expect(screen.queryByRole('region', { name: 'Where it stands' })).toBeNull()
+    expect(document.getElementById('record')).toBeNull()
   })
 
   it('renders every brief section as a heading with a contents link', () => {
