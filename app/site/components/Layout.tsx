@@ -50,6 +50,8 @@ export function Layout() {
   // Mirrors the inline script's flag in index.html; clearing it reveals the list.
   const wasOn = useRef(stageOn)
   useEffect(() => {
+    // WebGL support not known yet: keep the flag, or the list flashes before the book.
+    if (tomeWorks === null) return
     const flags = document.documentElement.dataset
     if (stageOn) flags.tome = 'open'
     else delete flags.tome
@@ -60,7 +62,7 @@ export function Layout() {
     flags.tomeLeft = ''
     const done = setTimeout(() => delete flags.tomeLeft, 900)
     return () => clearTimeout(done)
-  }, [stageOn])
+  }, [stageOn, tomeWorks])
 
   // Leaving the book shows the chapter being read: its card on home, else its page.
   const showList = () => {

@@ -98,8 +98,13 @@ html[data-tome='pending'] body {
     visibility 0s linear var(--slow);
 }
 
+/* Booting over the inline script's mist, which matches: no fade, or the page shows through. */
+.tome[data-boot] {
+  transition: none;
+}
+
 @starting-style {
-  .tome[data-shown] {
+  .tome[data-shown]:not([data-boot]) {
     opacity: 0;
     transform: scale(1.06);
   }
@@ -195,7 +200,138 @@ html[data-tome='pending'] body {
   cursor: pointer;
 }
 
-.tome__loading,
+/* Loading: the cover's lozenge waits in the halo where the book will land. */
+.tome__loading {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--space-3);
+  pointer-events: none;
+  transition:
+    opacity var(--slow) var(--ease),
+    transform var(--slow) var(--ease),
+    visibility 0s linear var(--slow);
+}
+
+/* The book fades in as the lozenge swells and lets go. */
+.tome[data-ready] .tome__loading {
+  opacity: 0;
+  transform: scale(1.12);
+  visibility: hidden;
+}
+
+/* Held back a beat so a cached engine goes straight from mist to book. */
+.tome__loading > * {
+  animation: loading-in var(--slow) var(--ease) 250ms both;
+}
+
+@keyframes loading-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.tome__lozenge {
+  inline-size: 112px;
+  overflow: visible;
+}
+
+.tome__fillet {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  /* Tooled in like gilt pressed into the leather. */
+  animation: tool-in 1.4s var(--ease) 250ms both;
+}
+
+.tome__fillet--inner {
+  stroke-width: 1;
+  animation-delay: 450ms;
+}
+
+@keyframes tool-in {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.tome__gem {
+  fill: var(--gem);
+  stroke: var(--gold);
+  stroke-width: 1.5;
+  transform-origin: center;
+  animation: gem-glow 2.8s ease-in-out 900ms infinite alternate both;
+}
+
+.tome__facet {
+  fill: var(--shine);
+}
+
+.tome__facet--shade {
+  fill: var(--gem-deep);
+}
+
+@keyframes gem-glow {
+  from {
+    filter: drop-shadow(0 0 0 var(--glow));
+  }
+  to {
+    filter: drop-shadow(0 0 10px var(--glow));
+  }
+}
+
+.tome__fleuron {
+  fill: var(--gold);
+  animation: twinkle 2.8s ease-in-out infinite alternate both;
+}
+
+.tome__fleuron:nth-of-type(2n) {
+  animation-delay: 1.4s;
+}
+
+@keyframes twinkle {
+  from {
+    opacity: 0.35;
+  }
+}
+
+.tome__loading-text {
+  font: 500 var(--text-meta) / 1 var(--font-head);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--secondary);
+}
+
+/* A glint running along a gilt rule: progress with no number to show. */
+.tome__loading-rule {
+  inline-size: 72px;
+  block-size: 1px;
+  background:
+    linear-gradient(90deg, transparent, var(--brass-hi), transparent) 0 0 / 40% 100% no-repeat,
+    var(--hairline);
+  animation:
+    loading-in var(--slow) var(--ease) 250ms both,
+    glint 1.8s ease-in-out 850ms infinite;
+}
+
+@keyframes glint {
+  from {
+    background-position: -60% 0, 0 0;
+  }
+  to {
+    background-position: 160% 0, 0 0;
+  }
+}
+
 .tome__hint {
   position: absolute;
   z-index: 5;
@@ -205,13 +341,6 @@ html[data-tome='pending'] body {
   color: var(--secondary);
   text-align: center;
   pointer-events: none;
-}
-
-.tome__loading {
-  inset-block-start: 50%;
-}
-
-.tome__hint {
   inset-block-end: calc(10px + env(safe-area-inset-bottom, 0px));
   inline-size: max-content;
   max-inline-size: calc(100vw - 32px);
@@ -366,7 +495,12 @@ html[data-tome='pending'] body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tome__fog {
+  .tome__fog,
+  .tome__loading > *,
+  .tome__fillet,
+  .tome__gem,
+  .tome__fleuron,
+  .tome__loading-rule {
     animation: none;
   }
 
