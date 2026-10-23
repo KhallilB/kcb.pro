@@ -1,5 +1,6 @@
 import { createContext, useContext } from 'react'
 import type { profile } from '@app/portfolio/content'
+import type { ProjectProgress } from '@app/portfolio/domain/progress'
 import type { Catalog, IsoDay } from '@app/portfolio/domain/types'
 import type { mountTome } from '@app/tome/engine.js'
 
@@ -13,6 +14,8 @@ export interface Site {
   // Build day every as-of stamp reads; never the visitor's clock.
   asOf: IsoDay
   catalog: Catalog
+  // Baked in at build time; a slug with no entry has no ledger.
+  progress: Record<string, ProjectProgress>
   profile: typeof profile
   tome: TomeHooks
 }

@@ -2,15 +2,18 @@ import { Link, useParams } from 'react-router'
 import { findProject } from '@app/portfolio/domain/catalog'
 import { Brief } from '../components/Brief'
 import { BuildLog } from '../components/BuildLog'
+import { Ledger } from '../components/Ledger'
 import { StatusChip } from '../components/StatusChip'
 import { useSite } from '../site'
 import { NotFound } from './NotFound'
 
 export function ProjectPage() {
   const { slug = '' } = useParams()
-  const { catalog } = useSite()
+  const { catalog, progress } = useSite()
   const project = findProject(catalog.projects, slug)
   if (!project) return <NotFound />
+  // Registered but not yet fetched (a fresh dev clone) keeps the empty log.
+  const ledger = project.repo ? progress[project.slug] : undefined
 
   return (
     <article>
@@ -55,7 +58,11 @@ export function ProjectPage() {
           )}
         </div>
       </header>
-      <BuildLog />
+      {project.repo && ledger ? (
+        <Ledger repo={project.repo} progress={ledger} />
+      ) : (
+        <BuildLog />
+      )}
       <Brief sections={project.brief} />
     </article>
   )

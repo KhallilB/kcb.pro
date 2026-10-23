@@ -506,3 +506,21 @@ a {
     border-block-end: var(--rule) solid var(--hairline);
   }
 }
+
+/* Progress ledger: evidence first, commit activity underneath. */
+.ledger {
+  display: grid;
+  gap: var(--space-5);
+  margin-block-end: var(--space-8);
+}
+
+.ledger__head {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.ledger__quiet,
+.ledger__empty {
+  font-style: italic;
+  color: var(--secondary);
+}

@@ -1,11 +1,12 @@
 import { render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
+import { fixtureProgress } from '@app/portfolio/progress/fixture-progress'
 import { AppRoutes } from './AppRoutes'
 import { SiteProvider } from './site-context'
 
 function visit(path: string) {
   return render(
-    <SiteProvider asOf="2026-10-21">
+    <SiteProvider asOf="2026-10-21" progress={fixtureProgress}>
       <MemoryRouter initialEntries={[path]}>
         <AppRoutes />
       </MemoryRouter>
@@ -129,11 +130,19 @@ describe('project page', () => {
     expect(spec).toHaveTextContent('In progress · as of 21 Oct 2026')
   })
 
-  it('holds an empty build log until GitHub and the changelog are linked', () => {
-    visit('/work/kbui')
+  it('opens with progress counted as of the build day', () => {
+    visit('/work/bezl')
+    expect(screen.getByRole('region', { name: 'Progress' })).toHaveTextContent(
+      '3 proven · 1 partial · 0 failed · 2 open · as of 21 Oct 2026'
+    )
+  })
+
+  it('keeps the empty build log for a project with no progress', () => {
+    visit('/work/gallery')
     const log = screen.getByRole('region', { name: 'Build log' })
     expect(log).toHaveTextContent('Nothing here yet')
     expect(within(log).queryByRole('img')).toBeNull()
+    expect(screen.queryByRole('region', { name: 'Progress' })).toBeNull()
   })
 
   it('renders every brief section as a heading with a contents link', () => {
