@@ -56,15 +56,10 @@ describe('home', () => {
     expect(container.querySelector('.card svg, .card img, .wip')).toBeNull()
   })
 
-  it('lists the three work studies as up next', () => {
+  it('keeps planned studies off home until one is finished', () => {
     visit('/')
-    const section = screen.getByRole('region', { name: 'Up next' })
-    expect(within(section).getAllByRole('link').map((a) => a.getAttribute('href'))).toEqual([
-      '/studies',
-      '/studies/figma-canvas',
-      '/studies/map-labels',
-      '/studies/benefits-application',
-    ])
+    expect(screen.queryByRole('region', { name: 'Up next' })).toBeNull()
+    expect(screen.queryByRole('region', { name: 'Work studies' })).toBeNull()
   })
 })
 

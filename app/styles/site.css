@@ -483,11 +483,6 @@ a {
   gap: var(--space-2);
 }
 
-.section__note {
-  margin-block: calc(-1 * var(--space-2)) var(--space-4);
-  font-size: var(--text-small);
-}
-
 .row__name {
   font-weight: 600;
 }
