@@ -16,8 +16,8 @@ export function Home() {
         <h1 className="display">{profile.headline}</h1>
         <p className="lede">
           More than five years of building product interfaces, much of it as
-          an early engineer at startups. Below is what I’m building on my own,
-          with a date on everything so you can see where it really stands.
+          an early engineer at startups. Here’s what I’m building in my spare
+          time, half-finished parts and all.
         </p>
         {live && (
           <p className="live" data-testid="now-building">
