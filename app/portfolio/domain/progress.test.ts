@@ -1,4 +1,13 @@
 import {
+  current,
+  evidenceHref,
+  kindLabel,
+  overallSeal,
+  PROGRESS_KINDS,
+  PROGRESS_RESULTS,
+  progressCounts,
+  quietSince,
+  resultLabel,
   validateCommits,
   validateProgress,
   type Evidence,
@@ -275,5 +284,139 @@ describe('validateCommits', () => {
     expect(validateCommits([commit(overrides)], 'alpha')).toEqual([
       '"alpha" commit 1 is not a { sha, date, type, subject, url } record',
     ])
+  })
+})
+
+const day = '2026-10-21'
+
+describe('current', () => {
+  const first = entry({
+    id: 'a1',
+    subject: 'a',
+    date: '2026-10-01',
+    result: 'fail',
+  })
+  const other = entry({ id: 'b1', subject: 'b', date: '2026-10-05' })
+  const rerun = entry({ id: 'a2', subject: 'a', date: '2026-10-10' })
+
+  it('keeps the latest entry per subject, newest first', () => {
+    expect(current([first, other, rerun], day).map((e) => e.id)).toEqual([
+      'a2',
+      'b1',
+    ])
+  })
+
+  it('reads the record as it stood on an earlier day', () => {
+    expect(
+      current([first, other, rerun], '2026-10-06').map((e) => e.id)
+    ).toEqual(['b1', 'a1'])
+  })
+
+  it('lets a later entry on the same day replace an earlier one', () => {
+    const morning = entry({ id: 'm', subject: 's', result: 'fail' })
+    const evening = entry({ id: 'e', subject: 's', result: 'pass' })
+    expect(current([morning, evening], day).map((e) => e.id)).toEqual(['e'])
+  })
+
+  it('orders same-day subjects with the last written first', () => {
+    const x = entry({ id: 'x', subject: 'x' })
+    const y = entry({ id: 'y', subject: 'y' })
+    expect(current([x, y], day).map((e) => e.id)).toEqual(['y', 'x'])
+  })
+})
+
+describe('progressCounts', () => {
+  it('counts current subjects as proven, partial, failed and open', () => {
+    const entries = [
+      entry({ id: '1', subject: 'a', date: '2026-10-01', result: 'fail' }),
+      entry({ id: '2', subject: 'a', date: '2026-10-02', result: 'pass' }),
+      entry({ id: '3', subject: 'b', result: 'partial' }),
+      entry({ id: '4', subject: 'c', result: 'fail' }),
+      entry({ id: '5', subject: 'd', result: 'not-run' }),
+    ]
+    expect(progressCounts(entries, day)).toEqual({
+      proven: 1,
+      partial: 1,
+      failed: 1,
+      open: 1,
+    })
+  })
+})
+
+describe('overallSeal', () => {
+  it.each([
+    [[], null],
+    [['pass', 'pass'], 'pass'],
+    [['pass', 'partial'], 'partial'],
+    [['pass', 'not-run'], 'partial'],
+    [['partial', 'fail'], 'fail'],
+  ] as [ProgressResult[], ProgressResult | null][])(
+    'seals %j as %s',
+    (results, seal) => {
+      const entries = results.map((result, i) =>
+        entry({ id: `e${i}`, subject: `s${i}`, result })
+      )
+      expect(overallSeal(entries, day)).toBe(seal)
+    }
+  )
+})
+
+describe('quietSince', () => {
+  it('names the newest entry once it is more than 30 days old', () => {
+    const entries = [
+      entry({ id: 'a', date: '2026-09-01' }),
+      entry({ id: 'b', date: '2026-09-20' }),
+    ]
+    expect(quietSince(entries, day)).toBe('2026-09-20')
+  })
+
+  it('stays silent within 30 days, or with no entries', () => {
+    expect(quietSince([entry({ date: '2026-09-21' })], day)).toBeNull()
+    expect(quietSince([], day)).toBeNull()
+  })
+})
+
+describe('words and links', () => {
+  it('words every result and kind', () => {
+    expect(PROGRESS_RESULTS.map((r) => resultLabel(r))).toEqual([
+      'Pass',
+      'Partial',
+      'Fail',
+      'Not run',
+    ])
+    expect(PROGRESS_KINDS.map((k) => kindLabel(k))).toEqual([
+      'Experiment',
+      'Tests',
+      'Release',
+      'Milestone',
+    ])
+  })
+
+  it('links a repository path at its commit, and a url as given', () => {
+    expect(
+      evidenceHref(
+        { label: 'R', path: 'spikes/a/RESULT.md' },
+        'KhallilB/bezl',
+        '01e47db'
+      )
+    ).toBe('https://github.com/KhallilB/bezl/blob/01e47db/spikes/a/RESULT.md')
+    expect(
+      evidenceHref(
+        { label: 'Run', url: 'https://github.com/o/r/actions/runs/1' },
+        'KhallilB/bezl'
+      )
+    ).toBe('https://github.com/o/r/actions/runs/1')
+  })
+
+  it('encodes each path segment, keeping the slashes', () => {
+    expect(
+      evidenceHref(
+        { label: 'R', path: 'spikes/my run/a#1.md' },
+        'KhallilB/bezl',
+        '01e47db'
+      )
+    ).toBe(
+      'https://github.com/KhallilB/bezl/blob/01e47db/spikes/my%20run/a%231.md'
+    )
   })
 })

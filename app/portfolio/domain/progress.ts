@@ -1,4 +1,4 @@
-import { isIsoDay } from './dates'
+import { daysBetween, isIsoDay } from './dates'
 import type { IsoDay } from './types'
 
 // Contract version written against; the version before it is still read.
@@ -227,4 +227,101 @@ export function validateCommits(commits: unknown, slug: string): string[] {
           `"${slug}" commit ${i + 1} is not a { sha, date, type, subject, url } record`,
         ]
   )
+}
+
+// Latest entry per subject on or before day, newest first; a later same-day entry wins.
+export function current(
+  entries: ProgressEntry[],
+  day: IsoDay
+): ProgressEntry[] {
+  const latest = new Map<string, number>()
+  entries.forEach((entry, index) => {
+    if (entry.date > day) return
+    const seen = latest.get(entry.subject)
+    if (seen === undefined || entry.date >= entries[seen].date) {
+      latest.set(entry.subject, index)
+    }
+  })
+  return [...latest.values()]
+    .sort((a, b) => entries[b].date.localeCompare(entries[a].date) || b - a)
+    .map((index) => entries[index])
+}
+
+export interface ProgressCounts {
+  proven: number
+  partial: number
+  failed: number
+  open: number
+}
+
+const COUNTED_AS: Record<ProgressResult, keyof ProgressCounts> = {
+  pass: 'proven',
+  partial: 'partial',
+  fail: 'failed',
+  'not-run': 'open',
+}
+
+export function progressCounts(
+  entries: ProgressEntry[],
+  day: IsoDay
+): ProgressCounts {
+  const counts = { proven: 0, partial: 0, failed: 0, open: 0 }
+  for (const entry of current(entries, day)) counts[COUNTED_AS[entry.result]]++
+  return counts
+}
+
+// Any failure fails the project; anything short of all passing is partial.
+export function overallSeal(
+  entries: ProgressEntry[],
+  day: IsoDay
+): ProgressResult | null {
+  const results = current(entries, day).map((e) => e.result)
+  if (results.length === 0) return null
+  if (results.includes('fail')) return 'fail'
+  return results.every((r) => r === 'pass') ? 'pass' : 'partial'
+}
+
+const QUIET_AFTER_DAYS = 30
+
+export function quietSince(
+  entries: ProgressEntry[],
+  day: IsoDay
+): IsoDay | null {
+  const newest = entries
+    .map((e) => e.date)
+    .filter((d) => d <= day)
+    .sort()
+    .at(-1)
+  return newest !== undefined && daysBetween(newest, day) > QUIET_AFTER_DAYS
+    ? newest
+    : null
+}
+
+const RESULT_LABELS: Record<ProgressResult, string> = {
+  pass: 'Pass',
+  partial: 'Partial',
+  fail: 'Fail',
+  'not-run': 'Not run',
+}
+
+export const resultLabel = (result: ProgressResult) => RESULT_LABELS[result]
+
+const KIND_LABELS: Record<ProgressKind, string> = {
+  experiment: 'Experiment',
+  tests: 'Tests',
+  release: 'Release',
+  milestone: 'Milestone',
+}
+
+export const kindLabel = (kind: ProgressKind) => KIND_LABELS[kind]
+
+// A path is linked at the commit that recorded it, so the link never drifts.
+export function evidenceHref(
+  item: Evidence,
+  repo: string,
+  commit?: string
+): string {
+  if ('url' in item) return item.url
+  const path = item.path.split('/').map(encodeURIComponent).join('/')
+  return `https://github.com/${repo}/blob/${commit}/${path}`
 }
