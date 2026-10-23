@@ -400,7 +400,9 @@ export function earlierEntries<E extends PublicEntry>(
     .map((entry, index) => ({ entry, index }))
     .filter(
       ({ entry }) =>
-        entry.subject === step.subject && entry !== step && entry.date <= day
+        entry.subject === step.subject &&
+        entry.id !== step.id &&
+        entry.date <= day
     )
     .sort(
       (a, b) => b.entry.date.localeCompare(a.entry.date) || b.index - a.index

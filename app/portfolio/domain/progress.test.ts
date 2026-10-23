@@ -650,4 +650,25 @@ describe('earlierEntries', () => {
       'a1',
     ])
   })
+
+  it('puts a later same-day entry first', () => {
+    const entries = [
+      entry({ id: 'a1', subject: 'a', date: '2026-10-03', result: 'fail' }),
+      entry({ id: 'a2', subject: 'a', date: '2026-10-03', result: 'not-run' }),
+      entry({ id: 'a3', subject: 'a', date: '2026-10-05' }),
+    ]
+    expect(earlierEntries(entries, entries[2], day).map((e) => e.id)).toEqual([
+      'a2',
+      'a1',
+    ])
+  })
+
+  it('leaves out the step even when given a copy of it', () => {
+    const entries = [
+      entry({ id: 'a1', subject: 'a', date: '2026-10-01', result: 'fail' }),
+      entry({ id: 'a2', subject: 'a', date: '2026-10-05' }),
+    ]
+    const step = { ...entries[1] }
+    expect(earlierEntries(entries, step, day).map((e) => e.id)).toEqual(['a1'])
+  })
 })
