@@ -5,7 +5,8 @@ import type { IsoDay } from './types'
 const PREFIX = /^(\w+)(?:\([^)]*\))?!?:/
 
 export function classifyCommit(subject: string): CommitType {
-  const type = PREFIX.exec(subject)?.[1]
+  // Conventional Commits: types are case-insensitive.
+  const type = PREFIX.exec(subject)?.[1]?.toLowerCase()
   return COMMIT_TYPES.includes(type as CommitType)
     ? (type as CommitType)
     : 'other'

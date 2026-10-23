@@ -12,6 +12,10 @@ describe('classifyCommit', () => {
     ['build(deps): install kbui', 'other'],
     ['Merge pull request #3 from KhallilB/x', 'other'],
     ['content: link Bezl', 'other'],
+    ['Feat: add the thing', 'feat'],
+    ['FIX(ui)!: stop the flicker', 'fix'],
+    ['Docs: tidy', 'docs'],
+    ['feat(api)!: drop v1', 'feat'],
   ])('reads "%s" as %s', (subject, type) => {
     expect(classifyCommit(subject)).toBe(type)
   })
@@ -38,9 +42,23 @@ describe('activityWeeks', () => {
     expect(weeks[11][6].count).toBe(2)
     expect(weeks.flat().reduce((sum, d) => sum + d.count, 0)).toBe(2)
   })
+
+  it('does not count a commit dated after the build day', () => {
+    const weeks = activityWeeks([commit({ date: '2026-10-22' })], '2026-10-21')
+    expect(weeks.flat().reduce((sum, d) => sum + d.count, 0)).toBe(0)
+  })
+
+  it('counts a commit on the first window day in the first cell', () => {
+    const weeks = activityWeeks([commit({ date: '2026-07-30' })], '2026-10-21')
+    expect(weeks[0][0].count).toBe(1)
+  })
 })
 
 describe('commitGroups', () => {
+  it('returns no groups for no commits', () => {
+    expect(commitGroups([])).toEqual([])
+  })
+
   it('groups by type in a fixed order, newest first, skipping empty types', () => {
     const older = commit({ sha: 'aaaaaaa', date: '2026-10-01' })
     const newer = commit({ sha: 'bbbbbbb', date: '2026-10-09' })
