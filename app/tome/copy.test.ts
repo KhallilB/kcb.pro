@@ -42,9 +42,9 @@ describe('tome data', () => {
     expect(strings(data).join(' ')).not.toMatch(/loupe/i)
   })
 
-  it('introduces the book in plain words', () => {
+  it('introduces the book in plain words, without narrating its dates', () => {
+    expect(data.about).toHaveLength(1)
     expect(data.about[0]).toContain('This book is my side work')
-    expect(data.about[1]).toBe('Every page has a date on it, and anything unfinished says so.')
   })
 
   it('links every study to a page the site prerenders', () => {

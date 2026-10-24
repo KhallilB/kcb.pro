@@ -89,7 +89,6 @@ export function tomeData(asOf: IsoDay): TomeData {
     nowBuilding: live?.title ?? 'Between projects',
     about: [
       'I’m a frontend engineer in Los Angeles, and I’ve spent more than five years building product interfaces. This book is my side work: Bezl, a desktop app that runs AI coding assistants side by side, and kbui, the design system my projects share.',
-      'Every page has a date on it, and anything unfinished says so.',
     ],
     contactLine:
       'Email is the best way to reach me. My résumé has the full story.',

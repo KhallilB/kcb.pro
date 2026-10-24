@@ -70,7 +70,7 @@ export function StudyPage() {
               <dd>{study.builtSlice}</dd>
             </div>
             <div>
-              <dt>What it gives the projects</dt>
+              <dt>What I’ll reuse</dt>
               <dd>{study.kitPiece}</dd>
             </div>
             {fed.length > 0 && (

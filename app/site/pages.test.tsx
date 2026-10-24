@@ -210,6 +210,12 @@ describe('studies', () => {
     expect(within(spec).queryByRole('link', { name: 'Wander' })).toBeNull()
   })
 
+  it('says plainly what each study leaves behind', () => {
+    visit('/studies/figma-canvas')
+    expect(screen.getByText('What I’ll reuse')).toBeInTheDocument()
+    expect(screen.queryByText('What it gives the projects')).toBeNull()
+  })
+
   it('says what a study is, with no empty placeholders', () => {
     visit('/studies/figma-canvas')
     expect(screen.getByRole('main')).toHaveTextContent('rebuild of its panning, zooming')
@@ -229,6 +235,14 @@ describe('about', () => {
     expect(
       within(screen.getByRole('main')).getByRole('link', { name: /GitHub/ })
     ).toHaveAttribute('href', 'https://github.com/KhallilB')
+  })
+
+  it('talks about the work, not about how the site is dated', () => {
+    visit('/about')
+    const text = screen.getByRole('main').textContent ?? ''
+    expect(text).not.toContain('You’ll see dates on everything here')
+    expect(text).not.toContain('This site is the third')
+    expect(text).toContain('the design system my projects share, plus this site.')
   })
 
   it('lists past roles, newest first', () => {

@@ -61,12 +61,7 @@ export function About() {
           doesn’t cover. Right now that’s{' '}
           <Link to="/work/bezl">Bezl</Link>, a desktop app for running AI coding
           assistants side by side, and <Link to="/work/kbui">kbui</Link>, the
-          design system my projects share. This site is the third.
-        </p>
-        <p>
-          You’ll see dates on everything here. If a project is half-built, it
-          says so. I’d rather be honest about where things stand than make them
-          sound more finished than they are.
+          design system my projects share, plus this site.
         </p>
         <p>
           I lean on AI for the grunt work: scaffolding tests, making the same

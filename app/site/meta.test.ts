@@ -5,6 +5,12 @@ describe('pageMeta', () => {
     expect(pageMeta('/')).toMatchObject({ title: 'Khallil Bailey', status: 200 })
   })
 
+  it('describes the site by who I am, not by how it is dated', () => {
+    expect(pageMeta('/').description).toBe(
+      'Frontend engineer in Los Angeles with more than five years of building product interfaces.'
+    )
+  })
+
   it('titles a project page with its name and summary', () => {
     expect(pageMeta('/work/kbui')).toEqual({
       title: 'kbui · Khallil Bailey',
