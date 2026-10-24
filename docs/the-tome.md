@@ -22,9 +22,9 @@ The Tome is the 3D book on the home page. It's built with Three.js r128 and live
    calls `mountTome(host, options)`. While the 2D site is open, the engine file is
    downloaded in the background during idle time, so the first switch to 3D only
    has to build the scene.
-3. The engine paints every page, cover and texture onto canvases (nothing is loaded
-   from image files). Then it waits up to 2.5 seconds for the Cinzel and EB Garamond
-   fonts, so the text on the pages uses the right typeface, and starts drawing.
+3. The engine paints every cover and texture onto canvases (nothing is loaded from
+   image files). Then it waits up to 2.5 seconds for the Cinzel and EB Garamond fonts,
+   paints the pages so their text uses the right typeface, and starts drawing.
 
 While it loads, home shows the book's mist from the first frame: an inline script in
 `index.html` flags the page before React runs, and `Layout.tsx` keeps that flag until it
