@@ -11,8 +11,8 @@ export function mountTome(host, opts) {
   const el = (cls, tag = 'div') => { const n = document.createElement(tag); n.className = cls; return n; };
   const stage = el('tome__stage'), hint = el('tome__hint'), tip = el('tome__tip'), live = el('sr-only');
   stage.setAttribute('role', 'img');
-  stage.setAttribute('aria-label', `A leather tome of ${data.name}'s work. Click it to open; turn pages with the arrow keys, by dragging, or by pulling a ribbon. Press L for the plain list.`);
-  hint.textContent = 'Click the tome to open it'; tip.hidden = true; live.setAttribute('aria-live', 'polite');
+  stage.setAttribute('aria-label', `A 3D book of ${data.name}'s work. Click it to open, then turn pages with the arrow keys, by dragging a corner, or by pulling a ribbon. Press L to read it as a plain website.`);
+  hint.textContent = 'Click the book to open it'; tip.hidden = true; live.setAttribute('aria-live', 'polite');
   host.append(stage, hint, tip, live);
   const openList = () => onList();
   let renderer;
@@ -28,7 +28,7 @@ export function mountTome(host, opts) {
   // ---------- palette and type ----------
   const P = { parch: '#f1e5c8', parchEdge: '#d9c497', ink: '#33261a', muted: '#7b6649', rule: '#c5ad82', accent: '#17785c', accentSoft: 'rgba(23,120,92,0.16)', gold: '#caa24c', goldDark: '#7d5f22', leather: '#3c4c66', leatherDark: '#26324a' };
   const SECT = ['#7b2a33', '#8a5a1e', '#9b2f2a', '#1e6b58', '#2f4d80', '#5e3a66'];
-  const FACE_COLOR = { contents: SECT[0], about: SECT[0], bezl: SECT[1], bezlNotes: SECT[1], kbui: SECT[2], kbuiNotes: SECT[2], studies: SECT[4], studyNotes: SECT[4], contact: SECT[5], colophon: SECT[5] };
+  const FACE_COLOR = { contents: SECT[0], about: SECT[0], bezl: SECT[1], bezlNotes: SECT[1], kbui: SECT[2], kbuiNotes: SECT[2], studies: SECT[4], studyNotes: SECT[4], contact: SECT[5], more: SECT[5] };
   let curColor = null;
   const HEAD = '"Cinzel", "Trajan Pro", Georgia, serif';
   const BODY = '"EB Garamond", Garamond, Georgia, serif';
@@ -191,19 +191,19 @@ export function mountTome(host, opts) {
       ctx.save(); ctx.beginPath(); ctx.rect(px, py, pw, ph); ctx.clip(); paperGrain(ctx, TW, TH, 0.5); ctx.restore();
       ctx.strokeStyle = P.goldDark; ctx.lineWidth = 3; ctx.strokeRect(px + 18, py + 18, pw - 36, ph - 36);
       ctx.textAlign = 'center';
-      ctx.fillStyle = P.muted; ctx.font = font(30, 400, BODY, true); ctx.fillText('Ex libris', TW / 2, py + 120);
+      ctx.fillStyle = P.muted; ctx.font = font(30, 400, BODY, true); ctx.fillText('A portfolio by', TW / 2, py + 120);
       ctx.font = font(64, 700, HEAD); fitFont(ctx, data.name, pw - 80, 64, HEAD); bite(ctx, data.name, TW / 2, py + 240, P.ink);
       ctx.font = font(32, 400); ctx.fillText(data.role, TW / 2, py + 300);
       ctx.fillStyle = P.accent; ctx.beginPath(); ctx.moveTo(TW / 2, py + 340); ctx.lineTo(TW / 2 + 12, py + 354); ctx.lineTo(TW / 2, py + 368); ctx.lineTo(TW / 2 - 12, py + 354); ctx.fill();
       ctx.fillStyle = P.muted; ctx.font = font(28, 400, BODY, true);
-      ctx.fillText('Turn the page, drag a corner,', TW / 2, py + 450);
-      ctx.fillText('or pull a colored ribbon to find a chapter.', TW / 2, py + 490);
+      ctx.fillText('Drag a page corner to turn it,', TW / 2, py + 450);
+      ctx.fillText('or pull a ribbon to jump to a chapter.', TW / 2, py + 490);
       ctx.textAlign = 'left';
     },
     contents(ctx, hs) {
       const m = parchment(ctx, 'R', 'Contents', 'i');
       heading(ctx, m, 'Contents', 260);
-      const rows = [['About', 'Who wrote this book', 'ii', 2, 0], [D.bezl.title, 'Chapter I', '1', 2, 1], [D.kbui.title, 'Chapter II', '3', 3, 2], ['Work studies', 'Three short deep dives', '5', 4, 4], ['Contact', 'Where to find me', '7', 5, 5], ['Colophon', 'How this book was made', '8', 6, 5]];
+      const rows = [['About', 'Who I am', 'ii', 2, 0], [D.bezl.title, 'A desktop app for AI coding assistants', '1', 2, 1], [D.kbui.title, 'My design system', '3', 3, 2], ['Work studies', 'Short investigations I have planned', '5', 4, 4], ['Contact', 'Email, LinkedIn, résumé', '7', 5, 5]];
       let y = 360;
       for (const [t, s, n, go, ci] of rows) {
         ctx.fillStyle = SECT[ci]; ctx.globalAlpha = 0.9; ctx.beginPath(); ctx.roundRect(m.L, y + 10, 14, 68, 4); ctx.fill(); ctx.globalAlpha = 1;
@@ -250,11 +250,11 @@ export function mountTome(host, opts) {
         y = yy + 52;
       }
       rule(ctx, m, y);
-      para(ctx, m, 'One-week deep dives, each ending in a small working piece a project will reuse.', y + 56, 28, 38);
+      para(ctx, m, 'Each is a one-week investigation that ends in a small piece of working code I can reuse.', y + 56, 28, 38);
     },
     studyNotes(ctx) {
       const m = parchment(ctx, 'L', 'Notes', '6');
-      heading(ctx, m, 'Why these three', 262, 56);
+      heading(ctx, m, 'Why I picked them', 262, 56);
       let y = 350;
       for (const s of data.studies) { smallcaps(ctx, s.short, m.L, y); y = para(ctx, m, s.why, y + 50, 30, 42) + 34; }
     },
@@ -271,19 +271,23 @@ export function mountTome(host, opts) {
         y += 150; rule(ctx, m, y);
       }
     },
-    colophon(ctx) {
-      const m = parchment(ctx, 'L', 'Colophon', '8');
-      heading(ctx, m, 'Colophon', 270);
-      let y = 400;
-      for (const [k, v] of [['Type', 'Cinzel for titles, EB Garamond for reading.'], ['Pages', 'Painted in the browser, then wrapped onto pages in Three.js that bend as they turn.'], ['Covers', 'Leather, brass and an emerald, all made in code with no image files.'], ['Chapters', 'A ribbon marks where each chapter starts.'], ['Access', 'Everything here is also a plain website: press L, or use the 3D/2D switch at the top.'], ['Bound', data.asOf]]) {
-        smallcaps(ctx, k, m.L, y);
-        y = para(ctx, m, v, y + 50, 30, 42) + 30;
+    // The last left-hand page: how to read it all as a plain website, and where to go next.
+    more(ctx, hs) {
+      const m = parchment(ctx, 'L', 'Keep reading', '8');
+      heading(ctx, m, 'Keep reading', 270);
+      let y = para(ctx, m, 'Everything in this book is also a plain website. Press L, or use the 3D/2D switch at the top, to read it that way.', 400, 32, 46) + 30;
+      for (const [label, path] of [['See all my work →', '/work'], ['Read more about me →', '/about']]) {
+        rule(ctx, m, y);
+        ctx.fillStyle = P.accent; ctx.font = font(38, 600); ctx.fillText(label, m.L, y + 76);
+        hs.push({ x: m.L, y: y + 10, w: m.w, h: 100, act: () => onNavigate(path) });
+        y += 120;
       }
+      rule(ctx, m, y);
     },
     finis(ctx, hs) {
       const m = parchment(ctx, 'R', '', '');
       ctx.textAlign = 'center';
-      ctx.font = font(72, 700, HEAD); bite(ctx, 'Finis', m.cx, TH / 2 - 40, P.ink);
+      ctx.font = font(72, 700, HEAD); bite(ctx, 'The end', m.cx, TH / 2 - 40, P.ink);
       ctx.fillStyle = P.accent; ctx.font = font(34, 500); ctx.fillText('Close the book', m.cx, TH / 2 + 50);
       ctx.textAlign = 'left';
       hs.push({ x: m.cx - 160, y: TH / 2, w: 320, h: 80, act: () => goTo(0) });
@@ -1119,7 +1123,7 @@ export function mountTome(host, opts) {
   }
 
   // ---------- sheets ----------
-  const SHEETS = [['contents', 'about'], ['bezl', 'bezlNotes'], ['kbui', 'kbuiNotes'], ['studies', 'studyNotes'], ['contact', 'colophon']];
+  const SHEETS = [['contents', 'about'], ['bezl', 'bezlNotes'], ['kbui', 'kbuiNotes'], ['studies', 'studyNotes'], ['contact', 'more']];
   const N = SHEETS.length;
   SHEETS.forEach(([f, b]) => { PARTNER[f] = b; PARTNER[b] = f; });
   // A chapter starts at a sheet and owns every sheet up to the next chapter; its ribbon is tucked at its first sheet.
@@ -1361,7 +1365,7 @@ export function mountTome(host, opts) {
 
   // ---------- navigation ----------
   // state 0 = closed; 1 = cover open; 1 + k = k sheets turned.
-  const SPREADS = ['The closed tome', 'Ex libris and contents', `About and chapter one, ${D.bezl.title}`, `${D.bezl.title} notes and chapter two, ${D.kbui.title}`, `${D.kbui.title} notes and the work studies`, 'Why these studies, and contact', 'Colophon and the last page'];
+  const SPREADS = ['The closed book', 'Title page and contents', `About and chapter one, ${D.bezl.title}`, `${D.bezl.title} notes and chapter two, ${D.kbui.title}`, `${D.kbui.title} notes and the work studies`, 'Why I picked these studies, and contact', 'Keep reading, and the last page'];
   let current = 0, focus = 'right', ribbonHinted = false;
   const portrait = () => camera.aspect < 0.85;
   function goTo(target, fromFocus) {
@@ -1387,7 +1391,7 @@ export function mountTome(host, opts) {
   }
   // Site places (see place.ts) to spreads, and the face being read back to its place.
   const PLACE_AT = { contents: [1, 'right'], about: [2, 'left'], bezl: [2, 'right'], kbui: [3, 'right'], studies: [4, 'right'], contact: [5, 'right'] };
-  const FACE_PLACE = { contents: 'contents', about: 'about', bezl: 'bezl', bezlNotes: 'bezl', kbui: 'kbui', kbuiNotes: 'kbui', studies: 'studies', studyNotes: 'studies', contact: 'contact', colophon: 'contact' };
+  const FACE_PLACE = { contents: 'contents', about: 'about', bezl: 'bezl', bezlNotes: 'bezl', kbui: 'kbui', kbuiNotes: 'kbui', studies: 'studies', studyNotes: 'studies', contact: 'contact', more: 'contact' };
   function placeNow() {
     if (current === 0) return null;
     if (current === 1) return 'contents';
