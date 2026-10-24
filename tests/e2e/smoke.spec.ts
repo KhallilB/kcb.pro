@@ -53,7 +53,7 @@ async function preferList(page: Page) {
 }
 
 // Headless software WebGL cannot run the real book in time, so the lazy engine chunk is
-// swapped for a stub; loading, mounting and the list switch are still the real code.
+// swapped for a stub that reports its first frame; loading, mounting and the list switch are still the real code.
 async function stubEngine(page: Page) {
   await page.addInitScript(() => {
     const real = HTMLCanvasElement.prototype.getContext
@@ -71,6 +71,7 @@ async function stubEngine(page: Page) {
         c.style.cssText = 'display:block;width:100%;height:100%';
         c.dataset.insetTop = String(opts.insetTop());
         host.append(c);
+        requestAnimationFrame(() => opts.onReady?.());
         return { destroy: () => host.replaceChildren(), show() {}, hide() {}, place: () => null };
       }`,
     })

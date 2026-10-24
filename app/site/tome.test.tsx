@@ -12,9 +12,16 @@ interface Mounted {
   onList: () => void
   onNavigate: (path: string) => void
   insetTop: () => number
+  onReady: () => void
+  onOpen: (open: boolean) => void
 }
 
-function fakeEngine(result: 'mount' | 'fail' = 'mount', reading: TomePlace | null = null) {
+// firstFrame 'later' leaves the engine drawing until the test calls onReady.
+function fakeEngine(
+  result: 'mount' | 'fail' = 'mount',
+  reading: TomePlace | null = null,
+  firstFrame: 'now' | 'later' = 'now'
+) {
   const calls: Mounted[] = []
   const shows: (TomePlace | null)[] = []
   const log = { hides: 0, destroyed: 0 }
@@ -24,6 +31,7 @@ function fakeEngine(result: 'mount' | 'fail' = 'mount', reading: TomePlace | nul
       mountTome: (host, opts) => {
         calls.push({ host, ...opts })
         if (result === 'fail') return null
+        if (firstFrame === 'now') queueMicrotask(() => opts.onReady?.())
         return {
           destroy: () => log.destroyed++,
           show: (place) => shows.push(place),
@@ -56,7 +64,10 @@ const NAMES = { Tome: '3D book', List: '2D list' }
 const option = (name: 'Tome' | 'List') =>
   within(screen.getByRole('group', { name: 'View' })).getByRole('button', { name: NAMES[name] })
 
-beforeEach(() => sessionStorage.clear())
+beforeEach(() => {
+  sessionStorage.clear()
+  delete document.documentElement.dataset.tome
+})
 
 describe('the tome on the home page', () => {
   it('opens over the page and keeps the page behind it inert', async () => {
@@ -189,6 +200,98 @@ describe('the tome on the home page', () => {
     expect(calls).toHaveLength(0)
     expect(toggle()).toBeNull()
     expect(stage()).toBeNull()
+  })
+
+  it('keeps the list hidden from first paint until the book takes over', async () => {
+    const root = document.documentElement
+    root.dataset.tome = 'pending'
+    // Each record's oldValue is the flag before that change; null means it was gone.
+    const before: (string | null)[] = []
+    const watch = new MutationObserver((records) => before.push(...records.map((r) => r.oldValue)))
+    watch.observe(root, { attributeFilter: ['data-tome'], attributeOldValue: true })
+    const { hooks } = fakeEngine()
+    await visit('/', hooks)
+    before.push(...watch.takeRecords().map((r) => r.oldValue))
+    watch.disconnect()
+    expect(before).not.toContain(null)
+    expect(root.dataset.tome).toBe('open')
+  })
+
+  it('shows the list at once when WebGL is missing', async () => {
+    document.documentElement.dataset.tome = 'pending'
+    const { hooks } = fakeEngine()
+    await visit('/', { ...hooks, supportsWebGL: () => false })
+    expect(document.documentElement.dataset.tome).toBeUndefined()
+  })
+
+  it('takes over the boot mist at once, and fades in only when switched to', async () => {
+    document.documentElement.dataset.tome = 'pending'
+    const { hooks } = fakeEngine()
+    let release = () => {}
+    const slow: TomeHooks = {
+      ...hooks,
+      load: () => new Promise((done) => (release = () => done(hooks.load()))),
+    }
+    await visit('/', slow)
+    expect(stage()).toHaveAttribute('data-boot')
+    await act(async () => release())
+    expect(stage()).not.toHaveAttribute('data-boot')
+  })
+
+  it('fades the book in when the visitor switches to it', async () => {
+    const { hooks } = fakeEngine()
+    await visit('/work', hooks)
+    fireEvent.click(option('Tome'))
+    await act(async () => {})
+    expect(stage()).not.toHaveAttribute('data-boot')
+  })
+
+  it('keeps the loading mark until the engine has drawn its first frame', async () => {
+    const { hooks, calls } = fakeEngine('mount', null, 'later')
+    await visit('/', hooks)
+    expect(screen.getByRole('status')).toBeInTheDocument()
+    expect(stage()).not.toHaveAttribute('data-ready')
+    await act(async () => calls[0].onReady())
+    expect(screen.queryByRole('status')).toBeNull()
+    expect(stage()).toHaveAttribute('data-ready')
+  })
+
+  it('reports fetching, then drawing, so progress can show it', async () => {
+    const { hooks, calls } = fakeEngine('mount', null, 'later')
+    let release = () => {}
+    const slow: TomeHooks = {
+      ...hooks,
+      load: () => new Promise((done) => (release = () => done(hooks.load()))),
+    }
+    await visit('/', slow)
+    expect(stage()).toHaveAttribute('data-stage', 'fetching')
+    await act(async () => release())
+    expect(stage()).toHaveAttribute('data-stage', 'drawing')
+    await act(async () => calls[0].onReady())
+    expect(stage()).not.toHaveAttribute('data-stage')
+  })
+
+  it('marks the stage open while the cover is open, so the clouds part', async () => {
+    const { hooks, calls } = fakeEngine()
+    await visit('/', hooks)
+    expect(stage()).not.toHaveAttribute('data-open')
+    act(() => calls[0].onOpen(true))
+    expect(stage()).toHaveAttribute('data-open')
+    act(() => calls[0].onOpen(false))
+    expect(stage()).not.toHaveAttribute('data-open')
+  })
+
+  it('says the book is opening until the engine is ready', async () => {
+    const { hooks } = fakeEngine()
+    let release = () => {}
+    const slow: TomeHooks = {
+      ...hooks,
+      load: () => new Promise((done) => (release = () => done(hooks.load()))),
+    }
+    await visit('/', slow)
+    expect(screen.getByRole('status')).toHaveTextContent('Loading the fancy version')
+    await act(async () => release())
+    expect(screen.queryByRole('status')).toBeNull()
   })
 
   it('withdraws the toggle when the engine cannot start', async () => {

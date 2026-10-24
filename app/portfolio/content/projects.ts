@@ -5,9 +5,9 @@ export const projects: Project[] = [
     slug: 'gallery',
     kind: 'site',
     title: 'The Gallery',
-    summary: 'This site. Every project on it is dated, so you can see what is real.',
+    summary: 'This site: my work as a plain list and as a 3D book.',
     about:
-      'The site you are reading: a plain list of my work and a leather book that holds the same pages, both built from one set of content and published as static pages.',
+      'My work as a plain list and as a 3D book, both built from the same content.',
     status: 'in-progress',
     startsOn: '2026-10-19',
     order: 0,
@@ -20,7 +20,7 @@ export const projects: Project[] = [
       {
         heading: 'Why it exists',
         body: [
-          'Most portfolios look polished now, so polish alone says very little. This one shows work you can open and check: each project says when it started, where it stands today, and why I made the choices I did.',
+          'I wanted a portfolio that shows real work in progress, not just finished screenshots.',
         ],
       },
       {
@@ -136,7 +136,7 @@ export const projects: Project[] = [
       {
         heading: 'Who uses it',
         body: [
-          'loupe uses it today, and Bezl’s first screen is being built on it. Each release is published as downloadable packages, so a project that builds in the cloud can install a fixed version.',
+          'One other app uses it today, and Bezl’s first screen is being built on it. Each release is published as downloadable packages, so a project that builds in the cloud can install a fixed version.',
         ],
       },
       {

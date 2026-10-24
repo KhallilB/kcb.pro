@@ -3,14 +3,16 @@ import * as THREE from 'three';
 
 export function mountTome(host, opts) {
   const { data, onList, onNavigate, insetTop } = opts;
+  let onReady = opts.onReady;
+  const onOpen = opts.onOpen || (() => {});
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const ac = new AbortController(), sig = { signal: ac.signal };
   let alive = true, raf = 0;
   const el = (cls, tag = 'div') => { const n = document.createElement(tag); n.className = cls; return n; };
   const stage = el('tome__stage'), hint = el('tome__hint'), tip = el('tome__tip'), live = el('sr-only');
   stage.setAttribute('role', 'img');
-  stage.setAttribute('aria-label', `A leather tome of ${data.name}'s work. Click it to open; turn pages with the arrow keys, by dragging, or by pulling a ribbon. Press L for the plain list.`);
-  hint.textContent = 'Click the tome to open it'; tip.hidden = true; live.setAttribute('aria-live', 'polite');
+  stage.setAttribute('aria-label', `A 3D book of ${data.name}'s work. Click it to open, then turn pages with the arrow keys, by dragging a corner, or by pulling a ribbon. Press L to read it as a plain website.`);
+  hint.textContent = 'Click the book to open it'; tip.hidden = true; live.setAttribute('aria-live', 'polite');
   host.append(stage, hint, tip, live);
   const openList = () => onList();
   let renderer;
@@ -26,7 +28,7 @@ export function mountTome(host, opts) {
   // ---------- palette and type ----------
   const P = { parch: '#f1e5c8', parchEdge: '#d9c497', ink: '#33261a', muted: '#7b6649', rule: '#c5ad82', accent: '#17785c', accentSoft: 'rgba(23,120,92,0.16)', gold: '#caa24c', goldDark: '#7d5f22', leather: '#3c4c66', leatherDark: '#26324a' };
   const SECT = ['#7b2a33', '#8a5a1e', '#9b2f2a', '#1e6b58', '#2f4d80', '#5e3a66'];
-  const FACE_COLOR = { contents: SECT[0], about: SECT[0], bezl: SECT[1], bezlNotes: SECT[1], kbui: SECT[2], kbuiNotes: SECT[2], studies: SECT[4], studyNotes: SECT[4], contact: SECT[5], colophon: SECT[5] };
+  const FACE_COLOR = { contents: SECT[0], about: SECT[0], bezl: SECT[1], bezlNotes: SECT[1], kbui: SECT[2], kbuiNotes: SECT[2], studies: SECT[4], studyNotes: SECT[4], contact: SECT[5], more: SECT[5] };
   let curColor = null;
   const HEAD = '"Cinzel", "Trajan Pro", Georgia, serif';
   const BODY = '"EB Garamond", Garamond, Georgia, serif';
@@ -147,10 +149,17 @@ export function mountTome(host, opts) {
     ctx.fillStyle = P.muted; ctx.font = font(30, 400, BODY, true); centered(ctx, d.summary, m.cx, 345);
   };
   const footnote = (ctx, m, text, y = TH - 160) => { ctx.fillStyle = P.muted; ctx.font = font(26, 400, BODY, true); centered(ctx, text, m.cx, y); };
-  const chapterPage = (ctx, title, folio, d) => {
+  const chapterPage = (ctx, title, folio, d, hs) => {
     const m = parchment(ctx, 'R', title, folio);
     chapterHead(ctx, m, d);
     para(ctx, m, d.about, 450, 34, 50);
+    // The way out to the project's 2D page: an outlined button in the accent colour.
+    const bw = 440, bh = 76, bx = m.cx - bw / 2, by = TH - 300;
+    ctx.fillStyle = P.accentSoft; ctx.strokeStyle = P.accent; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, bh / 2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = P.accent; ctx.font = font(32, 600); ctx.textBaseline = 'middle';
+    centered(ctx, 'Open the project page  →', m.cx, by + bh / 2 + 2); ctx.textBaseline = 'alphabetic';
+    hs.push({ x: bx, y: by, w: bw, h: bh, act: () => onNavigate(d.path) });
     footnote(ctx, m, d.status, TH - 158);
   };
   const notesPage = (ctx, side, title, folio, d) => {
@@ -182,19 +191,19 @@ export function mountTome(host, opts) {
       ctx.save(); ctx.beginPath(); ctx.rect(px, py, pw, ph); ctx.clip(); paperGrain(ctx, TW, TH, 0.5); ctx.restore();
       ctx.strokeStyle = P.goldDark; ctx.lineWidth = 3; ctx.strokeRect(px + 18, py + 18, pw - 36, ph - 36);
       ctx.textAlign = 'center';
-      ctx.fillStyle = P.muted; ctx.font = font(30, 400, BODY, true); ctx.fillText('Ex libris', TW / 2, py + 120);
+      ctx.fillStyle = P.muted; ctx.font = font(30, 400, BODY, true); ctx.fillText('A portfolio by', TW / 2, py + 120);
       ctx.font = font(64, 700, HEAD); fitFont(ctx, data.name, pw - 80, 64, HEAD); bite(ctx, data.name, TW / 2, py + 240, P.ink);
       ctx.font = font(32, 400); ctx.fillText(data.role, TW / 2, py + 300);
       ctx.fillStyle = P.accent; ctx.beginPath(); ctx.moveTo(TW / 2, py + 340); ctx.lineTo(TW / 2 + 12, py + 354); ctx.lineTo(TW / 2, py + 368); ctx.lineTo(TW / 2 - 12, py + 354); ctx.fill();
       ctx.fillStyle = P.muted; ctx.font = font(28, 400, BODY, true);
-      ctx.fillText('Turn the page, drag a corner,', TW / 2, py + 450);
-      ctx.fillText('or pull a colored ribbon to find a chapter.', TW / 2, py + 490);
+      ctx.fillText('Drag a page corner to turn it,', TW / 2, py + 450);
+      ctx.fillText('or pull a ribbon to jump to a chapter.', TW / 2, py + 490);
       ctx.textAlign = 'left';
     },
     contents(ctx, hs) {
       const m = parchment(ctx, 'R', 'Contents', 'i');
       heading(ctx, m, 'Contents', 260);
-      const rows = [['About', 'Who wrote this book', 'ii', 2, 0], [D.bezl.title, 'Chapter I', '1', 2, 1], [D.kbui.title, 'Chapter II', '3', 3, 2], ['Work studies', 'Three short deep dives', '5', 4, 4], ['Contact', 'Where to find me', '7', 5, 5], ['Colophon', 'How this book was made', '8', 6, 5]];
+      const rows = [['About', 'Who I am', 'ii', 2, 0], [D.bezl.title, 'A desktop app for AI coding assistants', '1', 2, 1], [D.kbui.title, 'My design system', '3', 3, 2], ['Work studies', 'Short investigations I have planned', '5', 4, 4], ['Contact', 'Email, LinkedIn, résumé', '7', 5, 5]];
       let y = 360;
       for (const [t, s, n, go, ci] of rows) {
         ctx.fillStyle = SECT[ci]; ctx.globalAlpha = 0.9; ctx.beginPath(); ctx.roundRect(m.L, y + 10, 14, 68, 4); ctx.fill(); ctx.globalAlpha = 1;
@@ -221,10 +230,10 @@ export function mountTome(host, opts) {
     },
 
     // Chapters say what each project is; images wait for real screenshots.
-    bezl(ctx) { chapterPage(ctx, 'Chapter I', '1', D.bezl); },
+    bezl(ctx, hs) { chapterPage(ctx, 'Chapter I', '1', D.bezl, hs); },
     bezlNotes(ctx) { notesPage(ctx, 'L', D.bezl.title, '2', D.bezl); },
 
-    kbui(ctx) { chapterPage(ctx, 'Chapter II', '3', D.kbui); },
+    kbui(ctx, hs) { chapterPage(ctx, 'Chapter II', '3', D.kbui, hs); },
     kbuiNotes(ctx) { notesPage(ctx, 'L', D.kbui.title, '4', D.kbui); },
 
     studies(ctx, hs) {
@@ -241,11 +250,11 @@ export function mountTome(host, opts) {
         y = yy + 52;
       }
       rule(ctx, m, y);
-      para(ctx, m, 'One-week deep dives, each ending in a small working piece a project will reuse.', y + 56, 28, 38);
+      para(ctx, m, 'Each is a one-week investigation that ends in a small piece of working code I can reuse.', y + 56, 28, 38);
     },
     studyNotes(ctx) {
       const m = parchment(ctx, 'L', 'Notes', '6');
-      heading(ctx, m, 'Why these three', 262, 56);
+      heading(ctx, m, 'Why I picked them', 262, 56);
       let y = 350;
       for (const s of data.studies) { smallcaps(ctx, s.short, m.L, y); y = para(ctx, m, s.why, y + 50, 30, 42) + 34; }
     },
@@ -262,19 +271,23 @@ export function mountTome(host, opts) {
         y += 150; rule(ctx, m, y);
       }
     },
-    colophon(ctx) {
-      const m = parchment(ctx, 'L', 'Colophon', '8');
-      heading(ctx, m, 'Colophon', 270);
-      let y = 400;
-      for (const [k, v] of [['Type', 'Cinzel for titles, EB Garamond for reading.'], ['Pages', 'Painted in the browser, then wrapped onto pages in Three.js that bend as they turn.'], ['Covers', 'Leather, brass and an emerald, all made in code with no image files.'], ['Chapters', 'A ribbon marks where each chapter starts.'], ['Access', 'Everything here is also a plain website: press L, or use the 3D/2D switch at the top.'], ['Bound', data.asOf]]) {
-        smallcaps(ctx, k, m.L, y);
-        y = para(ctx, m, v, y + 50, 30, 42) + 30;
+    // The last left-hand page: how to read it all as a plain website, and where to go next.
+    more(ctx, hs) {
+      const m = parchment(ctx, 'L', 'Keep reading', '8');
+      heading(ctx, m, 'Keep reading', 270);
+      let y = para(ctx, m, 'Everything in this book is also a plain website. Press L, or use the 3D/2D switch at the top, to read it that way.', 400, 32, 46) + 30;
+      for (const [label, path] of [['See all my work →', '/work'], ['Read more about me →', '/about']]) {
+        rule(ctx, m, y);
+        ctx.fillStyle = P.accent; ctx.font = font(38, 600); ctx.fillText(label, m.L, y + 76);
+        hs.push({ x: m.L, y: y + 10, w: m.w, h: 100, act: () => onNavigate(path) });
+        y += 120;
       }
+      rule(ctx, m, y);
     },
     finis(ctx, hs) {
       const m = parchment(ctx, 'R', '', '');
       ctx.textAlign = 'center';
-      ctx.font = font(72, 700, HEAD); bite(ctx, 'Finis', m.cx, TH / 2 - 40, P.ink);
+      ctx.font = font(72, 700, HEAD); bite(ctx, 'The end', m.cx, TH / 2 - 40, P.ink);
       ctx.fillStyle = P.accent; ctx.font = font(34, 500); ctx.fillText('Close the book', m.cx, TH / 2 + 50);
       ctx.textAlign = 'left';
       hs.push({ x: m.cx - 160, y: TH / 2, w: 320, h: 80, act: () => goTo(0) });
@@ -1027,9 +1040,10 @@ export function mountTome(host, opts) {
     return g;
   }
   // Covering profile in the x–z plane: front flange, half-ellipse back, rear flange; flanges keep a fixed map share (UF).
-  function profile(zT, zB, frontF) {
-    const zc = (zT + zB) / 2, b = (zT - zB) / 2, pts = [[XE + SF * frontF, zT], [XE, zT]];
-    for (let k = 1; k < 64; k++) { const t = k / 64 * Math.PI; pts.push([XE - SA * Math.sin(t), zc + b * Math.cos(t)]); }
+  // The front end is the cover's hinge corner (ax, az), its flange along the board (dx, dz), so the swing never cuts the back.
+  function profile(ax, az, dx, dz, zB, frontF) {
+    const zc = (az + zB) / 2, b = (az - zB) / 2, pts = [[ax + dx * SF * frontF, az + dz * SF * frontF], [ax, az]];
+    for (let k = 1; k < 64; k++) { const t = k / 64 * Math.PI; pts.push([ax + (XE - ax) * (k / 64) - SA * Math.sin(t), zc + b * Math.cos(t)]); }
     pts.push([XE, zB], [XE + SF, zB]);
     const cum = [0]; for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
     const L = cum[cum.length - 1], lf = cum[1], la = cum[cum.length - 2];
@@ -1040,7 +1054,7 @@ export function mountTome(host, opts) {
       return { x: x0 + (x1 - x0) * t, z: z0 + (z1 - z0) * t, nx: tz, nz: -tx };
     };
     const atS = (sv) => { if (sv >= 0 && sv <= L) return at(lf > 0 && sv < lf ? sv / lf * UF : sv > la ? 1 - UF + (sv - la) / (L - la) * UF : UF + (sv - lf) / (la - lf) * (1 - 2 * UF)); const q = at(sv < 0 ? 0 : 1), d = sv < 0 ? sv : sv - L; return { x: q.x - q.nz * d, z: q.z + q.nx * d, nx: q.nx, nz: q.nz }; };
-    return { at, atS, zc, b, L };
+    return { at, atS, zc, b, L, xc: (ax + XE) / 2 };
   }
   const BANDV = [0.18, 0.4, 0.6, 0.82].map((f) => 1 - f), BH = 0.012, HC = 0.008, EPS_S = 0.0006;
   // Ridges: raised bands and head/tail caps, dying out over the shoulder before the flange.
@@ -1086,17 +1100,19 @@ export function mountTome(host, opts) {
   const spineLabel = new THREE.Mesh(labelGeo, new THREE.MeshStandardMaterial({ map: spineTitle, transparent: true, roughness: 0.6, metalness: 0.5, envMapIntensity: 0.9, side: THREE.DoubleSide, depthWrite: false }));
   spine.add(spineLabel);
   let spineKey = '';
-  // Rebuild the covering for the live block depth; the front flange shortens as the cover swings away.
-  function updateSpine(zT, zB, co) {
-    const key = zT.toFixed(4) + '/' + zB.toFixed(4) + '/' + co.toFixed(3); if (key === spineKey) return; spineKey = key;
-    const pr = profile(zT, zB, 1 - co), P = pr.at;
+  // Rebuild the covering as the cover swings: it starts at the board's outer hinge corner, which arcs round
+  // the pivot (hinge at XE, sunk PT * co, turned -PI * co), and the front flange shortens as the board leaves.
+  function updateSpine(zB, co) {
+    const key = zB.toFixed(4) + '/' + co.toFixed(3); if (key === spineKey) return; spineKey = key;
+    const sn = Math.sin(Math.PI * co), cs = Math.cos(Math.PI * co);
+    const pr = profile(XE - CT * sn, -PT * co + CT * cs, cs, sn, zB, 1 - co), P = pr.at;
     const on = (u, v, lift) => { const p = P(u), r = EPS_S + ridge(u, v) + lift; return [p.x + p.nx * r, -CH / 2 + v * CH, p.z + p.nz * r]; };
     shellGeo.fill((u, v) => on(u, v, 0));
     labelGeo.fill((u, v) => on(LU0 + u * (LU1 - LU0), LV0 + v * (LV1 - LV0), 0.0012));
     for (const { g, sy } of capGeos) g.fill((u, v) => {
-      if (v < 0.5) return [XE, sy * CH / 2, pr.zc, 0.2 + SA * 0.944, 0.3 + pr.b * 0.944];
+      if (v < 0.5) return [pr.xc, sy * CH / 2, pr.zc, 0.2 + SA * 0.944, 0.3 + pr.b * 0.944];
       const pu = sy > 0 ? 1 - UF - u * (1 - 2 * UF) : UF + u * (1 - 2 * UF), q = on(pu, sy > 0 ? 1 : 0, 0);
-      return [q[0], sy * CH / 2, q[2], 0.2 + (q[0] - XE + SA) * 0.944, 0.3 + (q[2] - pr.zc + pr.b) * 0.944];
+      return [q[0], sy * CH / 2, q[2], 0.2 + (q[0] - pr.xc + SA) * 0.944, 0.3 + (q[2] - pr.zc + pr.b) * 0.944];
     });
     const s0 = 0, s1 = pr.L + COLEXT;
     for (const { g, rg, sy } of collars) {
@@ -1107,7 +1123,7 @@ export function mountTome(host, opts) {
   }
 
   // ---------- sheets ----------
-  const SHEETS = [['contents', 'about'], ['bezl', 'bezlNotes'], ['kbui', 'kbuiNotes'], ['studies', 'studyNotes'], ['contact', 'colophon']];
+  const SHEETS = [['contents', 'about'], ['bezl', 'bezlNotes'], ['kbui', 'kbuiNotes'], ['studies', 'studyNotes'], ['contact', 'more']];
   const N = SHEETS.length;
   SHEETS.forEach(([f, b]) => { PARTNER[f] = b; PARTNER[b] = f; });
   // A chapter starts at a sheet and owns every sheet up to the next chapter; its ribbon is tucked at its first sheet.
@@ -1349,7 +1365,7 @@ export function mountTome(host, opts) {
 
   // ---------- navigation ----------
   // state 0 = closed; 1 = cover open; 1 + k = k sheets turned.
-  const SPREADS = ['The closed tome', 'Ex libris and contents', `About and chapter one, ${D.bezl.title}`, `${D.bezl.title} notes and chapter two, ${D.kbui.title}`, `${D.kbui.title} notes and the work studies`, 'Why these studies, and contact', 'Colophon and the last page'];
+  const SPREADS = ['The closed book', 'Title page and contents', `About and chapter one, ${D.bezl.title}`, `${D.bezl.title} notes and chapter two, ${D.kbui.title}`, `${D.kbui.title} notes and the work studies`, 'Why I picked these studies, and contact', 'Keep reading, and the last page'];
   let current = 0, focus = 'right', ribbonHinted = false;
   const portrait = () => camera.aspect < 0.85;
   function goTo(target, fromFocus) {
@@ -1375,7 +1391,7 @@ export function mountTome(host, opts) {
   }
   // Site places (see place.ts) to spreads, and the face being read back to its place.
   const PLACE_AT = { contents: [1, 'right'], about: [2, 'left'], bezl: [2, 'right'], kbui: [3, 'right'], studies: [4, 'right'], contact: [5, 'right'] };
-  const FACE_PLACE = { contents: 'contents', about: 'about', bezl: 'bezl', bezlNotes: 'bezl', kbui: 'kbui', kbuiNotes: 'kbui', studies: 'studies', studyNotes: 'studies', contact: 'contact', colophon: 'contact' };
+  const FACE_PLACE = { contents: 'contents', about: 'about', bezl: 'bezl', bezlNotes: 'bezl', kbui: 'kbui', kbuiNotes: 'kbui', studies: 'studies', studyNotes: 'studies', contact: 'contact', more: 'contact' };
   function placeNow() {
     if (current === 0) return null;
     if (current === 1) return 'contents';
@@ -1499,7 +1515,10 @@ export function mountTome(host, opts) {
   }
 
   // ---------- loop ----------
-  let last = performance.now(), openO = 0, clock = 0;
+  let last = performance.now(), openO = 0, clock = 0, coverOpen = false, posed = false;
+  // First arrival: the camera drifts in from further back as the book fades in through the clouds.
+  const EMERGE = 2.4;
+  let emerge = reduce ? 1 : 0;
   function step(s, now, dt) {
     if (s.pending !== null && now >= s.startAt) { if (s.dir !== undefined) s.dir = s.pending > s.t ? 1 : -1; s.target = s.pending; s.pending = null; }
     if (s.t !== s.target) { if (reduce) s.t = s.target; else { const d = dt / (s.dur || DUR); s.t = s.target > s.t ? Math.min(s.target, s.t + d) : Math.max(s.target, s.t - d); } }
@@ -1507,6 +1526,7 @@ export function mountTome(host, opts) {
   function loop(now) {
     const dt = Math.min(0.25, (now - last) / 1000); last = now; clock += dt;
     step(coverState, now, dt); step(claspState, now, dt); sheets.forEach((s) => step(s, now, dt));
+    if (coverState.target > 0 !== coverOpen) { coverOpen = coverState.target > 0; onOpen(coverOpen); }
     const co = ease(coverState.t), cq = ease(claspState.t);
     const flippedFrac = sheets.reduce((a, s) => a + ease(s.t), 0) / N;
     const leftT = PT * flippedFrac * co, rightT = PT * (1 - flippedFrac * co) + 0.0001;
@@ -1517,9 +1537,9 @@ export function mountTome(host, opts) {
     blockL.visible = LB > 0.002; blockL.scale.z = Math.max(LB, 0.0001); blockL.position.set(-W / 2, 0, -PT + LB / 2);
     backCover.position.set(0, 0, -PT - CT);
     hinge.rotation.y = -Math.PI * co; hinge.position.set(XE, 0, -PT * co);
-    const spanTop = CT * (1 - co) - PT * co, spanBot = -PT - CT;
+    const spanBot = -PT - CT;
     spine.visible = co < 0.98; spineLabel.visible = co < 0.5;
-    if (spine.visible) updateSpine(spanTop, spanBot, co);
+    if (spine.visible) updateSpine(spanBot, co);
     sheets.forEach((s) => shape(s, LB, HB));
     openO += (co - openO) * Math.min(1, dt * 6);
     // Closed: float and tilt like a held relic. Open: settle flat toward the reader.
@@ -1545,6 +1565,8 @@ export function mountTome(host, opts) {
     const tx = (-0.16 + (reduce ? 0 : my * 0.05)) * (1 - openO) + (-0.22 + (reduce ? 0 : my * 0.05)) * openO;
     const ty = (0.38 + (reduce ? 0 : mx * 0.15)) * (1 - openO) + (reduce ? 0 : mx * 0.06) * openO;
     const tz = -0.26 * (1 - openO);
+    // Start at the resting tilt; easing up from flat reads as a jerk on arrival.
+    if (!posed) { rig.rotation.set(tx, ty, tz); posed = true; }
     rig.rotation.x += (tx - rig.rotation.x) * Math.min(1, dt * 4);
     rig.rotation.y += (ty - rig.rotation.y) * Math.min(1, dt * 4);
     rig.rotation.z += (tz - rig.rotation.z) * Math.min(1, dt * 4);
@@ -1561,11 +1583,14 @@ export function mountTome(host, opts) {
     const f = fitTarget(); camZ += (f.z - camZ) * Math.min(1, dt * 3); camX += (f.x - camX) * Math.min(1, dt * 3);
     camY += ((current === 0 ? -0.16 : -0.2) + f.y - camY) * Math.min(1, dt * 3);
     doze = reduce ? dozeTo : dozeTo > doze ? Math.min(dozeTo, doze + dt / DOZE) : Math.max(dozeTo, doze - dt / DOZE);
-    const dz = ease(doze), z = camZ * (1 - 0.62 * dz), lx = camX + aimX * dz, ly = camY + aimY * dz;
+    emerge = Math.min(1, emerge + dt / EMERGE);
+    const far = 0.25 * Math.pow(1 - emerge, 3);
+    const dz = ease(doze), z = camZ * (1 - 0.62 * dz) * (1 + far), lx = camX + aimX * dz, ly = camY + aimY * dz;
     // Camera looks down a little so the floor reads as a plane the shadow lies on.
     const pitch = THREE.MathUtils.degToRad((10 * (1 - openO) + 6 * openO) * (1 - dz));
     camera.position.set(lx, ly + z * Math.tan(pitch), z); camera.lookAt(lx, ly, 0);
     renderer.render(scene, camera);
+    if (onReady) { const ready = onReady; onReady = null; ready(); }
     if (alive && (awake || doze < 1)) raf = requestAnimationFrame(loop); else running = false;
   }
 
@@ -1573,7 +1598,7 @@ export function mountTome(host, opts) {
   Promise.race([fontsReady, new Promise((r) => setTimeout(r, 2500))]).then(() => {
     Object.keys(faceTex).forEach(redraw); Object.keys(faceTex).forEach(redraw);
     if (!alive) return;
-    started = running = true; resize(); raf = requestAnimationFrame(loop);
+    started = running = true; last = performance.now(); resize(); raf = requestAnimationFrame(loop);
   });
 
   return {

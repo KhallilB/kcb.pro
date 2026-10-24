@@ -288,6 +288,12 @@ describe('studies', () => {
     expect(within(spec).queryByRole('link', { name: 'Wander' })).toBeNull()
   })
 
+  it('says plainly what each study leaves behind', () => {
+    visit('/studies/figma-canvas')
+    expect(screen.getByText('What I’ll reuse')).toBeInTheDocument()
+    expect(screen.queryByText('What it gives the projects')).toBeNull()
+  })
+
   it('says what a study is, with no empty placeholders', () => {
     visit('/studies/figma-canvas')
     expect(screen.getByRole('main')).toHaveTextContent('rebuild of its panning, zooming')
@@ -309,6 +315,14 @@ describe('about', () => {
     ).toHaveAttribute('href', 'https://github.com/KhallilB')
   })
 
+  it('talks about the work, not about how the site is dated', () => {
+    visit('/about')
+    const text = screen.getByRole('main').textContent ?? ''
+    expect(text).not.toContain('You’ll see dates on everything here')
+    expect(text).not.toContain('This site is the third')
+    expect(text).toContain('the design system my projects share, plus this site.')
+  })
+
   it('lists past roles, newest first', () => {
     visit('/about')
     expect(screen.getByRole('heading', { level: 2, name: 'Experience' })).toBeInTheDocument()
@@ -319,6 +333,17 @@ describe('about', () => {
     )
     expect(order.every((i) => i >= 0)).toBe(true)
     expect([...order].sort((a, b) => a - b)).toEqual(order)
+  })
+
+  it('says what each company does, then what I did there', () => {
+    visit('/about')
+    const rows = within(screen.getByRole('list', { name: 'Experience' })).getAllByRole('listitem')
+    expect(rows).toHaveLength(4)
+    const panther = rows[1].textContent ?? ''
+    const company = panther.indexOf('A security platform that helps teams spot and stop attacks')
+    const did = panther.indexOf('I built the interface for Panther’s AI features')
+    expect(company).toBeGreaterThan(-1)
+    expect(did).toBeGreaterThan(company)
   })
 
   it('never names a hidden project', () => {
