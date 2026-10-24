@@ -9,6 +9,8 @@ The Tome is the 3D book on the home page. It's built with Three.js r128 and live
   dragging, or with the arrow keys, Page Up/Down or Space.
 - Pull a coloured ribbon to jump to a chapter. Home closes the book; End jumps to
   the last page.
+- Each project's chapter page has an "Open the project page" button that leaves the book
+  for that project's 2D page.
 - Rows on the contents page jump to their chapter. The study links and "All my work"
   open the matching site page; "Code" opens GitHub in a new tab.
 - L or Escape switches to the 2D site.

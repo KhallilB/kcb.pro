@@ -13,6 +13,8 @@ interface Chapter {
   status: string
   notes: Pair[]
   facts: Pair[]
+  // The project's page in 2D.
+  path: string
 }
 
 export interface TomeData {
@@ -58,6 +60,7 @@ function chapter(
     status: statusLine(p, asOf),
     notes,
     facts,
+    path: `/work/${p.slug}`,
   }
 }
 
