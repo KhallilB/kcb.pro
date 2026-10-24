@@ -1029,9 +1029,10 @@ export function mountTome(host, opts) {
     return g;
   }
   // Covering profile in the x–z plane: front flange, half-ellipse back, rear flange; flanges keep a fixed map share (UF).
-  function profile(zT, zB, frontF) {
-    const zc = (zT + zB) / 2, b = (zT - zB) / 2, pts = [[XE + SF * frontF, zT], [XE, zT]];
-    for (let k = 1; k < 64; k++) { const t = k / 64 * Math.PI; pts.push([XE - SA * Math.sin(t), zc + b * Math.cos(t)]); }
+  // The front end is the cover's hinge corner (ax, az), its flange along the board (dx, dz), so the swing never cuts the back.
+  function profile(ax, az, dx, dz, zB, frontF) {
+    const zc = (az + zB) / 2, b = (az - zB) / 2, pts = [[ax + dx * SF * frontF, az + dz * SF * frontF], [ax, az]];
+    for (let k = 1; k < 64; k++) { const t = k / 64 * Math.PI; pts.push([ax + (XE - ax) * (k / 64) - SA * Math.sin(t), zc + b * Math.cos(t)]); }
     pts.push([XE, zB], [XE + SF, zB]);
     const cum = [0]; for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
     const L = cum[cum.length - 1], lf = cum[1], la = cum[cum.length - 2];
@@ -1042,7 +1043,7 @@ export function mountTome(host, opts) {
       return { x: x0 + (x1 - x0) * t, z: z0 + (z1 - z0) * t, nx: tz, nz: -tx };
     };
     const atS = (sv) => { if (sv >= 0 && sv <= L) return at(lf > 0 && sv < lf ? sv / lf * UF : sv > la ? 1 - UF + (sv - la) / (L - la) * UF : UF + (sv - lf) / (la - lf) * (1 - 2 * UF)); const q = at(sv < 0 ? 0 : 1), d = sv < 0 ? sv : sv - L; return { x: q.x - q.nz * d, z: q.z + q.nx * d, nx: q.nx, nz: q.nz }; };
-    return { at, atS, zc, b, L };
+    return { at, atS, zc, b, L, xc: (ax + XE) / 2 };
   }
   const BANDV = [0.18, 0.4, 0.6, 0.82].map((f) => 1 - f), BH = 0.012, HC = 0.008, EPS_S = 0.0006;
   // Ridges: raised bands and head/tail caps, dying out over the shoulder before the flange.
@@ -1088,17 +1089,19 @@ export function mountTome(host, opts) {
   const spineLabel = new THREE.Mesh(labelGeo, new THREE.MeshStandardMaterial({ map: spineTitle, transparent: true, roughness: 0.6, metalness: 0.5, envMapIntensity: 0.9, side: THREE.DoubleSide, depthWrite: false }));
   spine.add(spineLabel);
   let spineKey = '';
-  // Rebuild the covering for the live block depth; the front flange shortens as the cover swings away.
-  function updateSpine(zT, zB, co) {
-    const key = zT.toFixed(4) + '/' + zB.toFixed(4) + '/' + co.toFixed(3); if (key === spineKey) return; spineKey = key;
-    const pr = profile(zT, zB, 1 - co), P = pr.at;
+  // Rebuild the covering as the cover swings: it starts at the board's outer hinge corner, which arcs round
+  // the pivot (hinge at XE, sunk PT * co, turned -PI * co), and the front flange shortens as the board leaves.
+  function updateSpine(zB, co) {
+    const key = zB.toFixed(4) + '/' + co.toFixed(3); if (key === spineKey) return; spineKey = key;
+    const sn = Math.sin(Math.PI * co), cs = Math.cos(Math.PI * co);
+    const pr = profile(XE - CT * sn, -PT * co + CT * cs, cs, sn, zB, 1 - co), P = pr.at;
     const on = (u, v, lift) => { const p = P(u), r = EPS_S + ridge(u, v) + lift; return [p.x + p.nx * r, -CH / 2 + v * CH, p.z + p.nz * r]; };
     shellGeo.fill((u, v) => on(u, v, 0));
     labelGeo.fill((u, v) => on(LU0 + u * (LU1 - LU0), LV0 + v * (LV1 - LV0), 0.0012));
     for (const { g, sy } of capGeos) g.fill((u, v) => {
-      if (v < 0.5) return [XE, sy * CH / 2, pr.zc, 0.2 + SA * 0.944, 0.3 + pr.b * 0.944];
+      if (v < 0.5) return [pr.xc, sy * CH / 2, pr.zc, 0.2 + SA * 0.944, 0.3 + pr.b * 0.944];
       const pu = sy > 0 ? 1 - UF - u * (1 - 2 * UF) : UF + u * (1 - 2 * UF), q = on(pu, sy > 0 ? 1 : 0, 0);
-      return [q[0], sy * CH / 2, q[2], 0.2 + (q[0] - XE + SA) * 0.944, 0.3 + (q[2] - pr.zc + pr.b) * 0.944];
+      return [q[0], sy * CH / 2, q[2], 0.2 + (q[0] - pr.xc + SA) * 0.944, 0.3 + (q[2] - pr.zc + pr.b) * 0.944];
     });
     const s0 = 0, s1 = pr.L + COLEXT;
     for (const { g, rg, sy } of collars) {
@@ -1523,9 +1526,9 @@ export function mountTome(host, opts) {
     blockL.visible = LB > 0.002; blockL.scale.z = Math.max(LB, 0.0001); blockL.position.set(-W / 2, 0, -PT + LB / 2);
     backCover.position.set(0, 0, -PT - CT);
     hinge.rotation.y = -Math.PI * co; hinge.position.set(XE, 0, -PT * co);
-    const spanTop = CT * (1 - co) - PT * co, spanBot = -PT - CT;
+    const spanBot = -PT - CT;
     spine.visible = co < 0.98; spineLabel.visible = co < 0.5;
-    if (spine.visible) updateSpine(spanTop, spanBot, co);
+    if (spine.visible) updateSpine(spanBot, co);
     sheets.forEach((s) => shape(s, LB, HB));
     openO += (co - openO) * Math.min(1, dt * 6);
     // Closed: float and tilt like a held relic. Open: settle flat toward the reader.
