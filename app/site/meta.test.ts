@@ -1,4 +1,4 @@
-import { pageMeta } from './meta'
+import { escapeAttr, pageMeta, socialTags } from './meta'
 
 describe('pageMeta', () => {
   it('titles the home page with the name alone', () => {
@@ -35,5 +35,39 @@ describe('pageMeta', () => {
 
   it('ignores a trailing slash', () => {
     expect(pageMeta('/work/').title).toBe('Work · Khallil Bailey')
+  })
+})
+
+describe('socialTags', () => {
+  const tag = (html: string, key: string) =>
+    html.match(new RegExp(`<meta (?:property|name)="${key}" content="([^"]*)" />`))?.[1]
+
+  it('shares a project page as a large card of the book, under its own title', () => {
+    const html = socialTags('/work/kbui')
+    expect(tag(html, 'og:title')).toBe('kbui · Khallil Bailey')
+    expect(tag(html, 'og:description')).toBe(
+      'One design system for all my projects: tokens, CSS and React.'
+    )
+    expect(tag(html, 'og:url')).toBe('https://kcb.pro/work/kbui')
+    expect(tag(html, 'og:image')).toBe('https://kcb.pro/og.png')
+    expect(tag(html, 'og:image:width')).toBe('1200')
+    expect(tag(html, 'og:image:height')).toBe('630')
+    expect(tag(html, 'og:image:alt')).toBeTruthy()
+    expect(tag(html, 'twitter:card')).toBe('summary_large_image')
+  })
+
+  it('points home at the bare domain and drops a trailing slash', () => {
+    expect(tag(socialTags('/'), 'og:url')).toBe('https://kcb.pro/')
+    expect(tag(socialTags('/work/'), 'og:url')).toBe('https://kcb.pro/work')
+  })
+
+  it('gives a missing page nothing to share', () => {
+    expect(socialTags('/work/ghost')).toBe('')
+  })
+})
+
+describe('escapeAttr', () => {
+  it('keeps text from ending an attribute or opening a tag', () => {
+    expect(escapeAttr('Tom & "Jerry" <b>')).toBe('Tom &amp; &quot;Jerry&quot; &lt;b>')
   })
 })
