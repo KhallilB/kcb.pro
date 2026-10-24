@@ -14,6 +14,13 @@ describe('published content', () => {
     ])
   })
 
+  it('names no project a reader cannot find, and does not keep saying it is dated', () => {
+    const text = JSON.stringify(content)
+    // loupe uses kbui but has no page on the site.
+    expect(text).not.toMatch(/loupe/i)
+    expect(text).not.toMatch(/is dated|polish alone|the site you are reading/i)
+  })
+
   it('is building Bezl now', () => {
     expect(nowBuilding(content.projects)?.title).toBe('Bezl')
   })

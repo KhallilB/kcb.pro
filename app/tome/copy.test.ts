@@ -37,6 +37,16 @@ describe('tome data', () => {
     }
   })
 
+  it('names no project a reader cannot find on the site', () => {
+    // loupe uses kbui but has no page, so in the book it reads as an unexplained word.
+    expect(strings(data).join(' ')).not.toMatch(/loupe/i)
+  })
+
+  it('introduces the book in plain words, without narrating its dates', () => {
+    expect(data.about).toHaveLength(1)
+    expect(data.about[0]).toContain('This book is my side work')
+  })
+
   it('links every study to a page the site prerenders', () => {
     const paths = sitePaths(content)
     expect(data.studies).toHaveLength(3)
@@ -50,8 +60,8 @@ describe('tome data', () => {
     for (const c of Object.values(data.chapters)) expect(paths).toContain(c.path)
   })
 
-  it('offers email, LinkedIn, code and résumé on the contact page', () => {
-    expect(data.contact.map((c) => c.label)).toEqual(['Email', 'LinkedIn', 'Code', 'Résumé'])
+  it('offers email, LinkedIn, GitHub and résumé on the contact page', () => {
+    expect(data.contact.map((c) => c.label)).toEqual(['Email', 'LinkedIn', 'GitHub', 'Résumé'])
     expect(data.contact[0].href).toBe('mailto:hi@kcb.pro')
   })
 

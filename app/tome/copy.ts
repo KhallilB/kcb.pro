@@ -88,15 +88,14 @@ export function tomeData(asOf: IsoDay): TomeData {
     asOf: formatLongDay(asOf),
     nowBuilding: live?.title ?? 'Between projects',
     about: [
-      'I’m a frontend engineer in Los Angeles with more than five years of building product interfaces. This book holds what I’m building on my own: Bezl, a desktop app for running AI coding assistants side by side, and kbui, the design system my projects share.',
-      'Everything here shows the date it was last true. If something isn’t finished, it says so.',
+      'I’m a frontend engineer in Los Angeles, and I’ve spent more than five years building product interfaces. This book is my side work: Bezl, a desktop app that runs AI coding assistants side by side, and kbui, the design system my projects share.',
     ],
     contactLine:
       'Email is the best way to reach me. My résumé has the full story.',
     contact: [
       { label: 'Email', value: profile.email, href: `mailto:${profile.email}` },
       { label: 'LinkedIn', value: 'in/khallilbailey', href: profile.linkedin },
-      { label: 'Code', value: 'github.com/KhallilB', href: profile.github },
+      { label: 'GitHub', value: 'github.com/KhallilB', href: profile.github },
       { label: 'Résumé', value: 'Download the PDF', href: profile.resume },
     ],
     studies: content.studies.map((s) => ({
@@ -118,11 +117,11 @@ export function tomeData(asOf: IsoDay): TomeData {
           ],
           [
             'One writer',
-            'Each task has one assistant that may write and any number that may only read, held in place by each tool’s own sandbox.',
+            'On each task, one assistant can change the code and the rest can only read it. Each tool’s own sandbox enforces that.',
           ],
           [
             'Proven so far',
-            'Three terminals took a 20 MB stream each with no bytes lost and 2 ms typing latency. Memory is the open question.',
+            'Three terminals each took a 20 MB stream without losing a byte, and typing stayed at 2 ms. Memory use is still an open question.',
           ],
         ],
         [
@@ -137,20 +136,20 @@ export function tomeData(asOf: IsoDay): TomeData {
         [
           [
             'The idea',
-            'One set of tokens, plain CSS that any framework can render, and a thin React layer for behaviour.',
+            'Every design value lives in one file, the styles are plain CSS any framework can use, and React only adds behaviour.',
           ],
           [
-            'The contract',
-            'Each stylesheet opens with an anatomy line naming its classes and attributes. The build fails when it is missing.',
+            'Kept honest',
+            'Every stylesheet starts with a line listing the classes it uses, and the build fails if that line is missing.',
           ],
           [
             'Checked',
-            'Every story is rendered in a real browser and scanned for accessibility problems on each run.',
+            'Every component is opened in a real browser and checked for accessibility problems on each run.',
           ],
         ],
         [
           ['Built with', 'CSS · React · Base UI'],
-          ['Used by', 'loupe; Bezl planned'],
+          ['Used by', 'One other app; Bezl next'],
           ['Started', 'Oct 2026'],
         ]
       ),
