@@ -1485,26 +1485,26 @@ export function mountTome(host, opts) {
 
   // ---------- sleep ----------
   // Hidden, the camera dollies into the page last touched, then the loop stops; show() reverses it.
-  // First arrival starts dozed (camera on the cover) and pulls back slowly, so the book is revealed, not popped in.
-  let awake = true, started = false, running = false, doze = 1, dozeTo = 0, aimX = 0, aimY = 0, lastTap = null;
-  const DOZE = 0.6, ARRIVE = 1.6;
-  let dozeDur = ARRIVE;
+  let awake = true, started = false, running = false, doze = 0, dozeTo = 0, aimX = 0, aimY = 0, lastTap = null;
+  const DOZE = 0.6;
   function sleep() {
     if (!awake) return;
-    awake = false; dozeTo = 1; dozeDur = DOZE; tip.hidden = true;
+    awake = false; dozeTo = 1; tip.hidden = true;
     const tap = lastTap && performance.now() - lastTap.at < 1500 ? lastTap : { x: 0, y: 0 };
     const halfH = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camZ;
     aimX = tap.x * halfH * camera.aspect * 0.7; aimY = tap.y * halfH * 0.7;
   }
   function wake(place) {
-    if (!awake) dozeDur = DOZE;
     awake = true; dozeTo = 0;
     if (place) turnTo(place);
     if (started && !running && alive) { running = true; last = performance.now(); resize(); raf = requestAnimationFrame(loop); }
   }
 
   // ---------- loop ----------
-  let last = performance.now(), openO = 0, clock = 0, coverOpen = false;
+  let last = performance.now(), openO = 0, clock = 0, coverOpen = false, posed = false;
+  // First arrival: the camera drifts in from further back as the book fades in through the clouds.
+  const EMERGE = 2.4;
+  let emerge = reduce ? 1 : 0;
   function step(s, now, dt) {
     if (s.pending !== null && now >= s.startAt) { if (s.dir !== undefined) s.dir = s.pending > s.t ? 1 : -1; s.target = s.pending; s.pending = null; }
     if (s.t !== s.target) { if (reduce) s.t = s.target; else { const d = dt / (s.dur || DUR); s.t = s.target > s.t ? Math.min(s.target, s.t + d) : Math.max(s.target, s.t - d); } }
@@ -1551,6 +1551,8 @@ export function mountTome(host, opts) {
     const tx = (-0.16 + (reduce ? 0 : my * 0.05)) * (1 - openO) + (-0.22 + (reduce ? 0 : my * 0.05)) * openO;
     const ty = (0.38 + (reduce ? 0 : mx * 0.15)) * (1 - openO) + (reduce ? 0 : mx * 0.06) * openO;
     const tz = -0.26 * (1 - openO);
+    // Start at the resting tilt; easing up from flat reads as a jerk on arrival.
+    if (!posed) { rig.rotation.set(tx, ty, tz); posed = true; }
     rig.rotation.x += (tx - rig.rotation.x) * Math.min(1, dt * 4);
     rig.rotation.y += (ty - rig.rotation.y) * Math.min(1, dt * 4);
     rig.rotation.z += (tz - rig.rotation.z) * Math.min(1, dt * 4);
@@ -1566,8 +1568,10 @@ export function mountTome(host, opts) {
     if (!reduce) { for (let i = 0; i < MC; i++) { mp[i * 3 + 1] += dt * 0.05; if (mp[i * 3 + 1] > 1.6) mp[i * 3 + 1] = -1.6; } motes.geometry.attributes.position.needsUpdate = true; }
     const f = fitTarget(); camZ += (f.z - camZ) * Math.min(1, dt * 3); camX += (f.x - camX) * Math.min(1, dt * 3);
     camY += ((current === 0 ? -0.16 : -0.2) + f.y - camY) * Math.min(1, dt * 3);
-    doze = reduce ? dozeTo : dozeTo > doze ? Math.min(dozeTo, doze + dt / dozeDur) : Math.max(dozeTo, doze - dt / dozeDur);
-    const dz = ease(doze), z = camZ * (1 - 0.62 * dz), lx = camX + aimX * dz, ly = camY + aimY * dz;
+    doze = reduce ? dozeTo : dozeTo > doze ? Math.min(dozeTo, doze + dt / DOZE) : Math.max(dozeTo, doze - dt / DOZE);
+    emerge = Math.min(1, emerge + dt / EMERGE);
+    const far = 0.25 * Math.pow(1 - emerge, 3);
+    const dz = ease(doze), z = camZ * (1 - 0.62 * dz) * (1 + far), lx = camX + aimX * dz, ly = camY + aimY * dz;
     // Camera looks down a little so the floor reads as a plane the shadow lies on.
     const pitch = THREE.MathUtils.degToRad((10 * (1 - openO) + 6 * openO) * (1 - dz));
     camera.position.set(lx, ly + z * Math.tan(pitch), z); camera.lookAt(lx, ly, 0);

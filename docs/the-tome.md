@@ -32,8 +32,9 @@ knows whether WebGL works, so the list never flashes. If the engine takes longer
 builds. The stage's `data-stage` attribute says which (`fetching`, then `drawing`).
 
 The book counts as ready only when the engine calls `onReady` after its first drawn frame.
-Its first appearance starts with the camera on the cover's centrepiece and pulls back
-over 1.6 seconds, while the 2D lozenge swells and fades into it.
+It then emerges from the clouds: it fades in behind the front cloud banks while the camera
+drifts in from a quarter further back over 2.4 seconds, already at its resting tilt. The
+caption fades first, then the lozenge lifts and dissolves over the real one.
 
 The book floats in a pale, overcast sky: two layers of cloud behind it, shaded banks far
 back and paler ones nearer. `app/tome/clouds.ts` draws each layer once, small, into a canvas
