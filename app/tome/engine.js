@@ -43,7 +43,8 @@ export function mountTome(host, opts) {
   const smooth = (t) => { t = Math.min(1, Math.max(0, t)); return t * t * (3 - 2 * t); };
 
   let seed = 7;
-  const rand = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+  // Park-Miller. Floor division gives the same sequence as `%` (exact below 2^53) without V8's slow float modulo.
+  const rand = () => { const p = seed * 16807; seed = p - Math.floor(p / 2147483647) * 2147483647; return seed / 2147483647; };
   const font = (sz, wt = 400, fam = BODY, it = false) => `${it ? 'italic ' : ''}${wt} ${sz}px ${fam}`;
   // Shrinks a font until text fits; letter spacing already set on ctx counts.
   function fitFont(ctx, text, maxW, size, fam) { while (size > 12 && ctx.measureText(text).width > maxW) { size -= 2; ctx.font = font(size, 700, fam); } }
@@ -66,11 +67,21 @@ export function mountTome(host, opts) {
     return y;
   }
   // Fibre-clump noise: a small random canvas scaled up with bilinear filtering, so the tooth is soft blobs, never pixels.
+  // Noise is a function of seed and size, so a repaint reuses it and skips ahead to the same seed.
+  const pulpNoise = new Map();
   function pulp(ctx, w, h, cell, alpha) {
-    const nw = Math.ceil(w / cell), nh = Math.ceil(h / cell), c = document.createElement('canvas'); c.width = nw; c.height = nh;
-    const nc = c.getContext('2d'), img = nc.createImageData(nw, nh), d = img.data;
-    for (let i = 0; i < d.length; i += 4) { const light = rand() > 0.5; d[i] = light ? 255 : 124; d[i + 1] = light ? 246 : 90; d[i + 2] = light ? 222 : 44; d[i + 3] = rand() * rand() * 255; }
-    nc.putImageData(img, 0, 0);
+    const nw = Math.ceil(w / cell), nh = Math.ceil(h / cell), key = `${seed} ${nw} ${nh}`;
+    let noise = pulpNoise.get(key);
+    if (noise) seed = noise.end;
+    else {
+      const c = heightCanvas(nw, nh, (nc) => {
+        const img = nc.createImageData(nw, nh), d = img.data;
+        for (let i = 0; i < d.length; i += 4) { const light = rand() > 0.5; d[i] = light ? 255 : 124; d[i + 1] = light ? 246 : 90; d[i + 2] = light ? 222 : 44; d[i + 3] = rand() * rand() * 255; }
+        nc.putImageData(img, 0, 0);
+      });
+      pulpNoise.set(key, noise = { c, end: seed });
+    }
+    const c = noise.c;
     ctx.save(); ctx.globalAlpha = alpha; ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(c, -cell, -cell, w + 2 * cell, h + 2 * cell); ctx.restore();
   }
   // Handmade paper at reading distance: cloudy pulp density in three scales, a few pale fibres, no lines and no dots.
@@ -297,8 +308,8 @@ export function mountTome(host, opts) {
     const c = document.createElement('canvas'); c.width = TW; c.height = TH;
     const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.anisotropy = maxAniso;
     if (flip) { t.wrapS = THREE.RepeatWrapping; t.repeat.x = -1; t.offset.x = 1; }
+    // Painted once the fonts are in; nothing shows a page before the first frame.
     faceTex[name] = { canvas: c, tex: t };
-    redraw(name);
     return t;
   }
   function redraw(name) {
@@ -335,10 +346,12 @@ export function mountTome(host, opts) {
   function heightToNormal(hc, strength) {
     const w = hc.width, h = hc.height, src = hc.getContext('2d').getImageData(0, 0, w, h).data;
     const out = document.createElement('canvas'); out.width = w; out.height = h; const octx = out.getContext('2d'); const img = octx.createImageData(w, h), d = img.data;
-    const at = (x, y) => src[(((y + h) % h) * w + ((x + w) % w)) * 4] / 255;
+    const hv = new Float64Array(w * h); for (let i = 0; i < hv.length; i++) hv[i] = src[i * 4] / 255;
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-      const dx = (at(x + 1, y) - at(x - 1, y)) * strength, dy = (at(x, y + 1) - at(x, y - 1)) * strength;
-      const len = Math.hypot(dx, dy, 1), i = (y * w + x) * 4;
+      // Edges wrap, so the map tiles.
+      const r = y * w, xl = x ? x - 1 : w - 1, xr = x < w - 1 ? x + 1 : 0, ru = (y ? y - 1 : h - 1) * w, rd = (y < h - 1 ? y + 1 : 0) * w;
+      const dx = (hv[r + xr] - hv[r + xl]) * strength, dy = (hv[rd + x] - hv[ru + x]) * strength;
+      const len = Math.sqrt(dx * dx + dy * dy + 1), i = (r + x) * 4;
       d[i] = (-dx / len * 0.5 + 0.5) * 255; d[i + 1] = (dy / len * 0.5 + 0.5) * 255; d[i + 2] = (1 / len * 0.5 + 0.5) * 255; d[i + 3] = 255;
     }
     octx.putImageData(img, 0, 0); const t = new THREE.CanvasTexture(out); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = maxAniso; return t;
@@ -493,7 +506,14 @@ export function mountTome(host, opts) {
   // Satin ground: a fine plain-weave thread grid with a faint diagonal twill, no rib stripes; inv swaps light and dark.
   const weave = (ctx, w, h, amp, warpAmp, sd, inv = false) => {
     seed = sd; const hi = inv ? '0,0,0' : '255,255,255', lo = inv ? '255,255,255' : '0,0,0';
-    for (let y = 0; y < h; y += 3) for (let x = 0; x < w; x += 3) { const up = ((x / 3 + y / 3) & 1) === 0; ctx.fillStyle = `rgba(${up ? hi : lo},${amp * (0.35 + rand() * 0.45)})`; ctx.fillRect(x, y, 3, 3); }
+    // Thread grid: one pixel per 3 px cell, scaled up unsmoothed; one draw instead of a fillRect per cell.
+    const nw = Math.ceil(w / 3), nh = Math.ceil(h / 3), up = inv ? 0 : 255;
+    const cells = heightCanvas(nw, nh, (cc) => {
+      const img = cc.createImageData(nw, nh), px = img.data;
+      for (let j = 0; j < nh; j++) for (let i = 0; i < nw; i++) { const k = (j * nw + i) * 4, v = (i + j) & 1 ? 255 - up : up; px[k] = px[k + 1] = px[k + 2] = v; px[k + 3] = Math.round(amp * (0.35 + rand() * 0.45) * 255); }
+      cc.putImageData(img, 0, 0);
+    });
+    ctx.imageSmoothingEnabled = false; ctx.drawImage(cells, 0, 0, nw * 3, nh * 3); ctx.imageSmoothingEnabled = true;
     ctx.lineWidth = 1; ctx.strokeStyle = `rgba(${hi},${amp * 0.5})`;
     for (let d = -h; d < w; d += 9) { ctx.beginPath(); ctx.moveTo(d, 0); ctx.lineTo(d + h, h); ctx.stroke(); }
     ctx.strokeStyle = `rgba(${lo},${amp * 0.35})`;
@@ -589,7 +609,7 @@ export function mountTome(host, opts) {
     ctx.shadowBlur = 0;
     drawRoots(ctx, (c, lw, t) => { c.strokeStyle = `rgba(200,255,235,${(1 - t) ** 2})`; c.lineWidth = lw * 0.45; });
   });
-  const leatherTex = (label) => paint(1024, 1400, (ctx, w, h) => {
+  const coverBase = paint(1024, 1400, (ctx, w, h) => {
     leatherSurface(ctx, w, h, 3, 'trb');
     // Blind diaper over the field, kept out of the center panel and the title area.
     stamp(ctx, (c) => { diaper(c, 150, 150, w - 300, h - 300, 64); }, false, 0.3);
@@ -608,27 +628,28 @@ export function mountTome(host, opts) {
     stamp(ctx, (c) => { for (let t = 0.25; t < 1; t += 0.25) { fleuron(c, cx + lx * t, cy - ly * (1 - t), 15, -Math.PI * 0.25 + Math.PI); fleuron(c, cx + lx * t, cy + ly * (1 - t), 15, Math.PI * 0.25); fleuron(c, cx - lx * t, cy - ly * (1 - t), 15, Math.PI * 0.25 + Math.PI); fleuron(c, cx - lx * t, cy + ly * (1 - t), 15, -Math.PI * 0.25); } }, true);
     // Gilt field: knock the diaper out of the lozenge interior so the gem sits on clean leather.
     ctx.save(); ctx.beginPath(); ctx.moveTo(cx, cy - ly + 8); ctx.lineTo(cx + lx - 6, cy); ctx.lineTo(cx, cy + ly - 8); ctx.lineTo(cx - lx + 6, cy); ctx.closePath(); ctx.clip(); leatherSurface(ctx, w, h, 3, 'trb'); ctx.restore();
-    if (label) {
-      drawRoots(ctx, (c, lw) => { c.strokeStyle = 'rgba(2,5,10,0.42)'; c.lineWidth = lw * 1.7; });
-      drawRoots(ctx, (c, lw) => { c.strokeStyle = 'rgba(1,3,7,0.82)'; c.lineWidth = lw; });
-      drawRoots(ctx, (c, lw) => { c.strokeStyle = 'rgba(0,0,0,0.75)'; c.lineWidth = lw * 0.38; });
-      drawRoots(ctx, (c, lw) => { c.strokeStyle = 'rgba(180,200,225,0.2)'; c.lineWidth = lw * 0.5; }, 1.4, 1.8);
-      ctx.textAlign = 'center'; spaced(ctx, 10);
-      // Gilt lettering: a pressed shadow, then foil with slight wear.
-      ctx.font = font(58, 700, HEAD); fitFont(ctx, data.name.toUpperCase(), 760, 58, HEAD);
-      ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillText(data.name.toUpperCase(), w / 2 + 3, h - 186);
-      ctx.fillStyle = '#d9b662'; ctx.fillText(data.name.toUpperCase(), w / 2, h - 190);
-      ctx.fillStyle = 'rgba(255,240,200,0.55)'; ctx.fillText(data.name.toUpperCase(), w / 2 - 1, h - 191);
-      ctx.font = font(28, 500, HEAD); spaced(ctx, 8);
-      ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillText('SELECTED WORK · MMXXVI', w / 2 + 2, h - 130);
-      ctx.fillStyle = 'rgba(217,182,98,0.9)'; ctx.fillText('SELECTED WORK · MMXXVI', w / 2, h - 132);
-      spaced(ctx, 0);
-      // Foil wear: knock small chips out of the gilt.
-      seed = 77; ctx.globalCompositeOperation = 'destination-over'; ctx.globalCompositeOperation = 'source-over';
-      for (let i = 0; i < 90; i++) { const x = w / 2 - 240 + rand() * 480, y = h - 230 + rand() * 120; ctx.fillStyle = 'rgba(40,50,70,0.5)'; ctx.fillRect(x, y, 1 + rand() * 2.5, 1 + rand() * 2); }
-    }
   });
-  const coverBase = leatherTex(false);
+  // Front board: the back's tooled leather plus the roots and the lettering.
+  const coverFront = () => paint(1024, 1400, (ctx, w, h) => {
+    ctx.drawImage(coverBase.image, 0, 0);
+    drawRoots(ctx, (c, lw) => { c.strokeStyle = 'rgba(2,5,10,0.42)'; c.lineWidth = lw * 1.7; });
+    drawRoots(ctx, (c, lw) => { c.strokeStyle = 'rgba(1,3,7,0.82)'; c.lineWidth = lw; });
+    drawRoots(ctx, (c, lw) => { c.strokeStyle = 'rgba(0,0,0,0.75)'; c.lineWidth = lw * 0.38; });
+    drawRoots(ctx, (c, lw) => { c.strokeStyle = 'rgba(180,200,225,0.2)'; c.lineWidth = lw * 0.5; }, 1.4, 1.8);
+    ctx.textAlign = 'center'; spaced(ctx, 10);
+    // Gilt lettering: a pressed shadow, then foil with slight wear.
+    ctx.font = font(58, 700, HEAD); fitFont(ctx, data.name.toUpperCase(), 760, 58, HEAD);
+    ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillText(data.name.toUpperCase(), w / 2 + 3, h - 186);
+    ctx.fillStyle = '#d9b662'; ctx.fillText(data.name.toUpperCase(), w / 2, h - 190);
+    ctx.fillStyle = 'rgba(255,240,200,0.55)'; ctx.fillText(data.name.toUpperCase(), w / 2 - 1, h - 191);
+    ctx.font = font(28, 500, HEAD); spaced(ctx, 8);
+    ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillText('SELECTED WORK · MMXXVI', w / 2 + 2, h - 130);
+    ctx.fillStyle = 'rgba(217,182,98,0.9)'; ctx.fillText('SELECTED WORK · MMXXVI', w / 2, h - 132);
+    spaced(ctx, 0);
+    // Foil wear: knock small chips out of the gilt.
+    seed = 77; ctx.globalCompositeOperation = 'destination-over'; ctx.globalCompositeOperation = 'source-over';
+    for (let i = 0; i < 90; i++) { const x = w / 2 - 240 + rand() * 480, y = h - 230 + rand() * 120; ctx.fillStyle = 'rgba(40,50,70,0.5)'; ctx.fillRect(x, y, 1 + rand() * 2.5, 1 + rand() * 2); }
+  });
   // Spine covering: the covers' hide at the same scale, flanges copied from the cover, tooled panels between the shoulders.
   const spineTex = paint(SW, SH, (ctx, w, h) => {
     stampMX = -1;
@@ -849,7 +870,7 @@ export function mountTome(host, opts) {
   const coverGeo = slab(CW, CH, CT, 0.075, 0.021, 'left'); coverGeo.translate(CW / 2, 0, 0);
   const exTex = makeFace('exlibris', false);
   { const c = coverHeight.getContext('2d'); c.save(); drawRoots(c, (cc, lw) => { cc.strokeStyle = 'rgb(70,70,70)'; cc.lineWidth = lw * 1.8; }); drawRoots(c, (cc, lw) => { cc.strokeStyle = 'rgb(18,18,18)'; cc.lineWidth = lw * 1.05; }); c.restore(); coverNormalF = heightToNormal(coverHeight, 3.4); coverNormalF.wrapS = coverNormalF.wrapT = THREE.ClampToEdgeWrapping; }
-  const cover = new THREE.Mesh(coverGeo, [mat(Object.assign({ map: leatherTex(true), emissive: 0x3fe0b0, emissiveMap: rootGlowTex, emissiveIntensity: 0 }, CN(), { normalMap: coverNormalF })), leatherSide]);
+  const cover = new THREE.Mesh(coverGeo, [mat(Object.assign({ map: coverFront(), emissive: 0x3fe0b0, emissiveMap: rootGlowTex, emissiveIntensity: 0 }, CN(), { normalMap: coverNormalF })), leatherSide]);
   const coverSkin = cover.material[0];
   cover.castShadow = true; cover.receiveShadow = true; hinge.add(cover); BOARDS.push(cover);
   const inside = new THREE.Mesh(new THREE.PlaneGeometry(CW - 0.05, CH - 0.05), new THREE.MeshStandardMaterial({ map: exTex, roughness: 0.94, normalMap: paperNormal, normalScale: new THREE.Vector2(0.7, 0.7), envMapIntensity: 0.3 }));
@@ -1592,7 +1613,8 @@ export function mountTome(host, opts) {
 
   const fontsReady = Promise.all([document.fonts.load('700 60px "Cinzel"'), document.fonts.load('500 20px "Cinzel"'), document.fonts.load('400 30px "EB Garamond"'), document.fonts.load('italic 400 30px "EB Garamond"'), document.fonts.load('600 30px "EB Garamond"')]).catch(() => {});
   Promise.race([fontsReady, new Promise((r) => setTimeout(r, 2500))]).then(() => {
-    Object.keys(faceTex).forEach(redraw); Object.keys(faceTex).forEach(redraw);
+    // Second pass gives each page its verso's finished ink; pages without one are already final.
+    const names = Object.keys(faceTex); names.forEach(redraw); names.filter((n) => PARTNER[n]).forEach(redraw);
     if (!alive) return;
     started = running = true; last = performance.now(); resize(); raf = requestAnimationFrame(loop);
   });
