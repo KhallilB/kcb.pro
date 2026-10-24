@@ -252,6 +252,10 @@ a {
   margin-block-end: var(--space-4);
 }
 
+.section__more {
+  margin-block-start: var(--space-4);
+}
+
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
@@ -518,5 +522,273 @@ a {
     position: static;
     padding-block-end: var(--space-5);
     border-block-end: var(--rule) solid var(--hairline);
+  }
+}
+
+/* Progress: the goal, one mark per step, what comes next. */
+.journey {
+  display: grid;
+  gap: var(--space-3);
+  margin-block-end: var(--space-8);
+  padding: var(--space-5);
+  border: var(--rule) solid var(--hairline);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+.journey__goal {
+  max-inline-size: var(--measure);
+  font-size: var(--text-h3);
+  line-height: var(--lh-h3);
+}
+
+.journey__steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.journey__steps .mark {
+  --mark-size: var(--step-size);
+}
+
+.journey__next {
+  font-weight: 600;
+}
+
+.journey__empty {
+  font-style: italic;
+  color: var(--secondary);
+}
+
+/* Shape carries the status; fills are gradients so forced colours keep them. */
+.mark {
+  display: inline-block;
+  flex: none;
+  inline-size: var(--mark-size);
+  block-size: var(--mark-size);
+  border: var(--ring) solid currentColor;
+  border-radius: 50%;
+  color: var(--secondary);
+}
+
+.mark[data-result='pass'] {
+  color: var(--passing);
+  background: linear-gradient(currentColor, currentColor);
+}
+
+.mark[data-result='partial'] {
+  color: var(--in-progress);
+  background: linear-gradient(90deg, currentColor 50%, transparent 50%);
+}
+
+.mark[data-result='fail'] {
+  color: var(--failing);
+  background:
+    linear-gradient(
+      45deg,
+      transparent 40%,
+      currentColor 40% 60%,
+      transparent 60%
+    ),
+    linear-gradient(
+      -45deg,
+      transparent 40%,
+      currentColor 40% 60%,
+      transparent 60%
+    );
+}
+
+/* Full history: closed until asked for or linked to. */
+.record {
+  margin-block: var(--space-8);
+  border-block-start: var(--rule) solid var(--hairline);
+}
+
+.record__summary {
+  cursor: pointer;
+  padding-block: var(--space-4);
+}
+
+/* Inline so the disclosure marker sits beside the heading. */
+.record__summary > .h2 {
+  display: inline;
+}
+
+.record__rows,
+.record__earlier {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.record__row {
+  display: grid;
+  grid-template-columns: 3fr 9fr;
+  gap: var(--gutter);
+  align-items: baseline;
+  padding-block: var(--space-4);
+  border-block-start: var(--rule) solid var(--hairline);
+  scroll-margin-block-start: var(--space-5);
+}
+
+.record__main {
+  display: grid;
+  gap: var(--space-1);
+  min-inline-size: 0;
+  max-inline-size: var(--measure);
+}
+
+.record__title {
+  font-weight: 600;
+}
+
+.record__earlier {
+  display: grid;
+  gap: var(--space-1);
+  padding-block-start: var(--space-2);
+  font-size: var(--text-small);
+  line-height: var(--lh-small);
+  color: var(--secondary);
+}
+
+.record__line {
+  padding-inline-start: var(--space-2);
+  scroll-margin-block-start: var(--space-5);
+}
+
+/* Landed-on entry: a rule, never a wash that costs text contrast. */
+.record [data-landed] {
+  padding-inline-start: var(--space-3);
+  box-shadow: inset var(--anchor-rule) 0 0 var(--gold);
+}
+
+@media (max-width: 760px) {
+  .record__row {
+    grid-template-columns: 1fr;
+    gap: var(--space-1);
+  }
+}
+
+/* Result: shape and word, never colour alone. */
+.result {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-head);
+  font-size: var(--text-meta);
+  line-height: var(--lh-meta);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.activity {
+  display: grid;
+  gap: var(--space-4);
+  padding-block-start: var(--space-5);
+}
+
+.activity__grid {
+  justify-self: start;
+  border-collapse: separate;
+  border-spacing: 3px;
+}
+
+.activity__grid th,
+.activity__grid td {
+  position: relative;
+  padding: 0;
+}
+
+.activity__grid td[data-level],
+.activity__swatch {
+  inline-size: var(--cell);
+  block-size: var(--cell);
+  border-radius: 2px;
+  background: var(--heat-0);
+}
+
+/* Active days get an edge so the shade is not the only cue (1.4.11). */
+.activity__grid td[data-level]:not([data-level='0']),
+.activity__swatch:not([data-level='0']) {
+  outline: var(--cell-edge) solid var(--ink);
+  outline-offset: calc(-1 * var(--cell-edge));
+}
+
+.activity__total {
+  font-size: var(--text-small);
+}
+
+.activity__empty {
+  font-style: italic;
+  color: var(--secondary);
+}
+
+.activity__legend {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-small);
+}
+
+.activity__swatch {
+  display: inline-block;
+}
+
+.activity__grid td[data-level='1'],
+.activity__swatch[data-level='1'] {
+  background: var(--heat-1);
+}
+
+.activity__grid td[data-level='2'],
+.activity__swatch[data-level='2'] {
+  background: var(--heat-2);
+}
+
+.activity__grid td[data-level='3'],
+.activity__swatch[data-level='3'] {
+  background: var(--heat-3);
+}
+
+.activity__grid td[data-level='4'],
+.activity__swatch[data-level='4'] {
+  background: var(--heat-4);
+}
+
+@media (forced-colors: active) {
+  .activity__grid td[data-level],
+  .activity__swatch {
+    forced-color-adjust: none;
+    border: var(--cell-edge) solid CanvasText;
+    background: Canvas;
+  }
+
+  .activity__grid td[data-level]:not([data-level='0']),
+  .activity__swatch:not([data-level='0']) {
+    outline: none;
+    background: CanvasText;
+  }
+}
+
+/* Last, to beat each mark's colour; keeps shapes and fills. */
+@media (forced-colors: active) {
+  .mark,
+  .mark[data-result] {
+    forced-color-adjust: none;
+    color: CanvasText;
+  }
+
+  .status__mark,
+  .status[data-status] .status__mark {
+    forced-color-adjust: none;
+    border-color: CanvasText;
+  }
+
+  .status[data-status='in-progress'] .status__mark,
+  .status[data-status='shipped'] .status__mark {
+    background: CanvasText;
   }
 }

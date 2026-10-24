@@ -6,8 +6,15 @@ const BUILD = 'build'
 const SSR = 'build-ssr'
 
 const server = await import(join(process.cwd(), SSR, 'entry-server.js'))
-const { renderPage, sitePaths, catalog, content, validateCatalog, buildDay } =
-  server
+const {
+  renderPage,
+  sitePaths,
+  catalog,
+  content,
+  validateCatalog,
+  buildDay,
+  builtProgress,
+} = server
 
 // Hidden entries stay valid so they can come back by deleting one line.
 const errors: string[] = validateCatalog(catalog)
@@ -15,6 +22,9 @@ if (errors.length > 0) {
   console.error(`Catalog failed validation:\n${errors.join('\n')}`)
   process.exit(1)
 }
+
+// Throws on a build-data file that breaks the contract.
+const progress = builtProgress(buildDay)
 
 const template = await readFile(join(BUILD, 'index.html'), 'utf8')
 if (!template.includes('<!--app-->')) {
@@ -25,7 +35,7 @@ const escape = (text: string) =>
   text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;')
 
 function page(path: string): string {
-  const { html, title, description } = renderPage(path, buildDay)
+  const { html, title, description } = renderPage(path, buildDay, progress)
   return template
     .replace(/<title>.*?<\/title>/s, `<title>${escape(title)}</title>`)
     .replace(

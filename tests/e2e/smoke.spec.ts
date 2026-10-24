@@ -1,4 +1,51 @@
 import { expect, test, type Page } from '@playwright/test'
+import { readdirSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
+
+const built = (dir: string, ext: string) =>
+  readdirSync(dir)
+    .filter((name) => name.endsWith(ext))
+    .map((name) => join(dir, name))
+
+interface Fixture {
+  file: {
+    entries: {
+      passMark?: string
+      commit?: string
+      measured: Record<string, string>[]
+      evidence: Record<string, string>[]
+    }[]
+  }
+  commits: { sha: string; subject: string; url: string }[]
+}
+
+// Fixture values the site prints anyway, as UI words; checked against the offline build.
+const SITE_WORDS = new Set(['Commit', 'Button', 'Input', 'Dialog'])
+
+// Every fixture-only value; the build must ship none of them.
+function privateValues(): string[] {
+  const values = built('app/portfolio/progress/fixtures', '.json').flatMap(
+    (path) => {
+      const { file, commits } = JSON.parse(
+        readFileSync(path, 'utf8')
+      ) as Fixture
+      return [
+        ...file.entries.flatMap((e) => [
+          e.passMark ?? '',
+          e.commit ?? '',
+          ...[...e.measured, ...e.evidence].flatMap(Object.values),
+        ]),
+        ...commits.flatMap((c) => [
+          c.sha,
+          c.url.slice(c.url.lastIndexOf('/') + 1),
+          c.subject,
+          c.url,
+        ]),
+      ]
+    }
+  )
+  return [...new Set(values)].filter((v) => v && !SITE_WORDS.has(v))
+}
 
 // Most checks read the plain list; the tome has its own test below.
 async function preferList(page: Page) {
@@ -145,6 +192,94 @@ test('every project page is served as prerendered HTML', async ({ request }) => 
   }
 })
 
+// Built from the offline fixtures: Playwright's build sets PROGRESS_OFFLINE=1.
+test('the journey card and the record are in the prerendered project page', async ({
+  request,
+}) => {
+  const html = await (await request.get('/work/bezl')).text()
+  expect(html).toContain('id="progress"')
+  expect(html).toContain('<details id="record" class="record">')
+  expect(html).toContain('id="2026-10-20-pty-throughput"')
+})
+
+test('a project page leads with progress, then the brief, then the closed record', async ({
+  page,
+}) => {
+  await page.goto('/work/bezl')
+  const card = page.getByRole('region', { name: 'Progress', exact: true })
+  await expect(card).toContainText(
+    'One window that runs AI coding assistants side by side'
+  )
+  await expect(card.getByRole('img', { name: /^Step \d of 6: / })).toHaveCount(
+    6
+  )
+  await expect(card).toContainText(
+    'Next up: A Claude Code reviewer cannot write'
+  )
+  const inOrder = await page.evaluate(() => {
+    const follows = (a: string, b: string) =>
+      Boolean(
+        document
+          .getElementById(a)!
+          .compareDocumentPosition(document.getElementById(b)!) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+      )
+    return (
+      follows('progress', 'the-problem') && follows('the-problem', 'record')
+    )
+  })
+  expect(inOrder).toBe(true)
+  await expect(page.locator('details#record')).not.toHaveAttribute('open')
+})
+
+test('a link to an entry opens the record at that entry', async ({ page }) => {
+  const errors: string[] = []
+  page.on('console', (m) => m.type() === 'error' && errors.push(m.text()))
+  await page.goto('/work/bezl#2026-10-20-pty-throughput')
+  await expect(page.locator('details#record')).toHaveAttribute('open', '')
+  await expect(
+    page.locator('[id="2026-10-20-pty-throughput"]')
+  ).toBeInViewport()
+  expect(errors, 'hydration must not log errors').toEqual([])
+})
+
+test.describe('with JavaScript off', () => {
+  test.use({ javaScriptEnabled: false })
+
+  test('the record is in the page, closed, with every step', async ({
+    page,
+  }) => {
+    await page.goto('/work/bezl')
+    const record = page.locator('details#record')
+    await expect(record).not.toHaveAttribute('open')
+    await expect(record.locator('.record__row')).toHaveCount(6)
+  })
+})
+
+for (const size of [{ width: 1280, height: 800 }, { width: 375, height: 700 }]) {
+  test(`the activity squares are square at ${size.width}px`, async ({ page }) => {
+    await page.setViewportSize(size)
+    await page.goto('/work/bezl')
+    await page.locator('#record > summary').click()
+    const cells = page.locator('.activity__grid td[data-level]')
+    await expect(cells).toHaveCount(84)
+    const boxes = await cells.evaluateAll((els) =>
+      els.map((el) => {
+        const { width, height } = el.getBoundingClientRect()
+        return { width, height }
+      })
+    )
+    for (const { width, height } of boxes) expect(Math.abs(width - height)).toBeLessThanOrEqual(1)
+  })
+}
+
+test('the activity table corner is blank, not an outlined square', async ({ page }) => {
+  await page.goto('/work/bezl')
+  await page.locator('#record > summary').click()
+  const corner = page.locator('.activity__grid thead tr > :first-child')
+  expect(await corner.evaluate((el) => getComputedStyle(el).outlineStyle)).toBe('none')
+})
+
 test('an unknown or hidden path gets the 404 page with a 404 status', async ({ page }) => {
   const hidden = await page.goto('/work/wander')
   expect(hidden?.status()).toBe(404)
@@ -160,9 +295,44 @@ test('the phone layout has no horizontal scroll at 320 px', async ({ page }) => 
   await page.setViewportSize({ width: 320, height: 700 })
   for (const path of ['/', '/work', '/work/bezl', '/studies/map-labels']) {
     await page.goto(path)
+    if (path === '/work/bezl') await page.locator('#record > summary').click()
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth
     )
     expect(overflow, path).toBeLessThanOrEqual(0)
   }
+})
+
+test('the pages and the bundle ship outcomes only', () => {
+  const files = [
+    ...built('build', '.html'),
+    ...built('build/work', '.html'),
+    ...built('build/assets', '.js'),
+  ]
+  const texts = files.map((file) => ({
+    file,
+    text: readFileSync(file, 'utf8'),
+  }))
+  expect(
+    texts.some(
+      ({ file, text }) =>
+        file.endsWith('.js') && text.includes('Terminal output into the window')
+    ),
+    'the bundle carries the shipped progress'
+  ).toBe(true)
+  const secrets = privateValues()
+  expect(secrets).toEqual(
+    expect.arrayContaining([
+      '01e47db',
+      'spikes/01-pty-throughput/RESULT.md',
+      '789 MB',
+    ])
+  )
+  for (const { file, text } of texts) {
+    for (const secret of secrets)
+      expect(text.includes(secret), `${secret} in ${file}`).toBe(false)
+  }
+  expect(readFileSync('build/work/bezl.html', 'utf8')).not.toContain(
+    'github.com/KhallilB/bezl'
+  )
 })

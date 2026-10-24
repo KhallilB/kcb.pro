@@ -48,13 +48,16 @@ export const projects: Project[] = [
     status: 'in-progress',
     startsOn: '2026-10-22',
     order: 1,
+    rank: 1,
+    repo: 'KhallilB/bezl',
+    goal: 'One window that runs AI coding assistants side by side, with one writer per task.',
     role: 'Design and engineering',
     stack: ['Tauri 2', 'Rust', 'React 19', 'TypeScript', 'xterm.js'],
     domain:
       'Running other programs from a desktop app: live terminals inside one window, permissions enforced by the tools themselves rather than requested in a prompt, and a record you can check afterwards.',
     signature:
-      'One writer per task: reviewers that are stopped from editing by the assistant’s own sandbox, not by a polite request.',
-    links: [{ label: 'Source', href: 'https://github.com/KhallilB/bezl' }],
+      'One writer per task: reviewers held read-only by each assistant’s own sandbox, not by a polite request. Proven for Codex so far.',
+    links: [],
     brief: [
       {
         heading: 'The problem',
@@ -71,16 +74,16 @@ export const projects: Project[] = [
       {
         heading: 'What is proven so far',
         body: [
-          'Three short experiments ran on 22 Oct 2026, each with a pass mark set before it started.',
-          'Three terminals each received a 20 MB stream with no bytes lost and 2 ms typing latency. Peak memory went past the original 300 MB limit, so it was replaced by two limits the real terminal has to meet: under 150 MB at rest and under 600 MB during a burst.',
-          'Ghostty’s terminal engine produced a correct text snapshot of a vim screen, but only when built with the Homebrew release of Zig 0.15.',
-          'Codex in read-only mode was blocked from writing a file by the operating system. The same check for Claude Code and Gemini CLI has not run yet.',
+          'Three short experiments ran on 22 Oct 2026, each measured against a stated bar for success.',
+          'No terminal output was dropped on the way to the window, and typing echoes with no noticeable delay. Memory during heavy bursts missed the original limit, so it has been replaced by two: one at rest and one during heavy output.',
+          'Ghostty’s terminal engine builds within its time budget and captures a text snapshot of a live vim screen that matches what was typed. For now it needs one specific build of its compiler.',
+          'A Codex probe running read-only was stopped by the operating system when it tried to change a file, and said so. The same check for Claude Code and Gemini CLI has not run yet.',
         ],
       },
       {
         heading: 'What comes next',
         body: [
-          'The core in Rust: tasks, workers and the permissions each one holds, with the log stored as events that are only ever added to. The interface is planned on kbui.',
+          'The core in Rust: tasks, workers and the permissions each one holds, with the log stored as events that are only ever added to. The interface is being built on kbui.',
         ],
       },
       {
@@ -101,6 +104,9 @@ export const projects: Project[] = [
     status: 'in-progress',
     startsOn: '2026-10-16',
     order: 2,
+    rank: 2,
+    repo: 'KhallilB/kbui',
+    goal: 'One design system every project shares, with the rules checked by the build.',
     role: 'Design and engineering',
     stack: ['TypeScript', 'CSS', 'React 19', 'Base UI', 'Storybook'],
     domain:
@@ -124,13 +130,13 @@ export const projects: Project[] = [
       {
         heading: 'How it stays honest',
         body: [
-          'The build fails if a token points at one that does not exist, if a stylesheet uses a raw colour, or if a component is missing its test or its story. Every story is also rendered in a real browser and scanned for accessibility problems. The last recorded run passed all 28 component tests and all 16 stories.',
+          'The build fails if a token points at one that does not exist, if a stylesheet uses a raw colour, or if a component is missing its test or its story. Every story is also rendered in a real browser and scanned for accessibility problems. The last recorded run passed every component test and every story.',
         ],
       },
       {
         heading: 'Who uses it',
         body: [
-          'One other app uses it today, and Bezl’s interface is planned on it. Projects install it straight from its folder, so it has no version numbers yet. A project that builds in the cloud will need released versions first.',
+          'One other app uses it today, and Bezl’s first screen is being built on it. Each release is published as downloadable packages, so a project that builds in the cloud can install a fixed version.',
         ],
       },
       {

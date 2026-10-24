@@ -12,6 +12,7 @@ dist
 build
 dist-ssr
 build-ssr
+build-data
 *.local
 playwright-report
 test-results

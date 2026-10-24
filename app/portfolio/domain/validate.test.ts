@@ -66,4 +66,75 @@ describe('validateCatalog', () => {
     )
     expect(errors).toContain('Study "study-one" feeds hidden project "alpha"')
   })
+
+  it('accepts a repo named owner/name with a goal', () => {
+    expect(
+      validateCatalog(
+        catalog([project({ repo: 'KhallilB/bezl', goal: 'One clear aim.' })])
+      )
+    ).toEqual([])
+  })
+
+  it('refuses a repo with no goal sentence', () => {
+    const errors = validateCatalog(
+      catalog([project({ repo: 'KhallilB/bezl' })])
+    )
+    expect(errors).toContain('"alpha" has a repo, so it needs a goal sentence')
+  })
+
+  it.each(['  ', 'x'.repeat(141), 'One aim.\nAnother.'])(
+    'refuses the goal %j',
+    (goal) => {
+      const errors = validateCatalog(
+        catalog([project({ repo: 'KhallilB/bezl', goal })])
+      )
+      expect(errors).toEqual([
+        '"alpha" needs a goal of one line, 1 to 140 characters',
+      ])
+    }
+  )
+
+  it('finds placeholder text in the goal', () => {
+    const errors = validateCatalog(
+      catalog([project({ repo: 'KhallilB/bezl', goal: 'TBD' })])
+    )
+    expect(errors.join('\n')).toMatch(/placeholder/i)
+  })
+
+  it('lets a project with no repo go without a goal', () => {
+    expect(validateCatalog(catalog([project()]))).toEqual([])
+  })
+
+  it('refuses a repo that is not owner/name', () => {
+    const errors = validateCatalog(
+      catalog([project({ repo: 'https://github.com/KhallilB/bezl' })])
+    )
+    expect(errors).toContain(
+      '"alpha" has a repo that is not owner/name: https://github.com/KhallilB/bezl'
+    )
+  })
+
+  it('accepts one project per rank', () => {
+    const errors = validateCatalog(
+      catalog([project({ rank: 1 }), project({ slug: 'beta', rank: 2 })])
+    )
+    expect(errors).toEqual([])
+  })
+
+  it('refuses two projects with one rank', () => {
+    const errors = validateCatalog(
+      catalog([project({ rank: 1 }), project({ slug: 'beta', rank: 1 })])
+    )
+    expect(errors).toContain('Rank 1 is used by "alpha" and "beta"')
+  })
+
+  it.each([
+    ['the site', { kind: 'site' as const }],
+    ['a hidden project', { listed: false }],
+  ])('refuses a rank on %s', (_, overrides) => {
+    const errors = validateCatalog(
+      catalog([project({ rank: 1, ...overrides })])
+    )
+    expect(errors).toContain('"alpha" has a rank but is not a listed endeavor')
+  })
 })
