@@ -27,15 +27,31 @@ The Tome is the 3D book on the home page. It's built with Three.js r128 and live
 While it loads, home shows the book's mist from the first frame: an inline script in
 `index.html` flags the page before React runs, and `Layout.tsx` keeps that flag until it
 knows whether WebGL works, so the list never flashes. If the engine takes longer than
-250 ms, the cover's gilt lozenge appears with "Loading the fancy version", then fades as
-the book fades in.
+250 ms, the cover's gilt lozenge appears in a ring of gilt dots, with rising motes and
+"Loading the fancy version". The gilt rule under it fills as the engine downloads, then
+builds. The stage's `data-stage` attribute says which (`fetching`, then `drawing`).
+
+The book counts as ready only when the engine calls `onReady` after its first drawn frame.
+It then emerges from the clouds: it fades in behind the front cloud banks while the camera
+drifts in from a quarter further back over 2.4 seconds, already at its resting tilt. The
+caption fades first, then the lozenge lifts and dissolves over the real one.
+
+The book floats in a pale, overcast sky: two layers of cloud behind it, shaded banks far
+back and paler ones nearer. `app/tome/clouds.ts` draws each layer once, small, into a canvas
+from SVG noise (one stitched tile repeated by `feTile`), and the page shows it as an `<img>`
+scaled up by CSS. Drifting those images is compositor-only work, so the sky costs almost
+nothing per frame. The mist drifts in one direction on a seamless loop; nearer layers move
+faster, which makes the clouds seem to shift and reform. Two more
+banks veil the closed book; their soft inner edges are baked into the images, because a
+CSS mask there stalled the GPU every frame. When the cover starts to open, the engine calls `onOpen(true)`,
+`TomeStage` sets `data-open`, and the veil slides out to either side; closing brings it back.
 
 `mountTome` returns `null` if WebGL fails. The site then hides the toggle and stays 2D.
 
 ## The engine's handle
 
 ```ts
-const book = mountTome(host, { data, onList, onNavigate, insetTop })
+const book = mountTome(host, { data, onList, onNavigate, insetTop, onReady, onOpen })
 
 book.show(place) // wake up; turn to a place such as 'kbui' if given
 book.hide() // zoom into the page and go to sleep

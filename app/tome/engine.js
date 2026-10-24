@@ -3,6 +3,8 @@ import * as THREE from 'three';
 
 export function mountTome(host, opts) {
   const { data, onList, onNavigate, insetTop } = opts;
+  let onReady = opts.onReady;
+  const onOpen = opts.onOpen || (() => {});
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const ac = new AbortController(), sig = { signal: ac.signal };
   let alive = true, raf = 0;
@@ -1499,7 +1501,10 @@ export function mountTome(host, opts) {
   }
 
   // ---------- loop ----------
-  let last = performance.now(), openO = 0, clock = 0;
+  let last = performance.now(), openO = 0, clock = 0, coverOpen = false, posed = false;
+  // First arrival: the camera drifts in from further back as the book fades in through the clouds.
+  const EMERGE = 2.4;
+  let emerge = reduce ? 1 : 0;
   function step(s, now, dt) {
     if (s.pending !== null && now >= s.startAt) { if (s.dir !== undefined) s.dir = s.pending > s.t ? 1 : -1; s.target = s.pending; s.pending = null; }
     if (s.t !== s.target) { if (reduce) s.t = s.target; else { const d = dt / (s.dur || DUR); s.t = s.target > s.t ? Math.min(s.target, s.t + d) : Math.max(s.target, s.t - d); } }
@@ -1507,6 +1512,7 @@ export function mountTome(host, opts) {
   function loop(now) {
     const dt = Math.min(0.25, (now - last) / 1000); last = now; clock += dt;
     step(coverState, now, dt); step(claspState, now, dt); sheets.forEach((s) => step(s, now, dt));
+    if (coverState.target > 0 !== coverOpen) { coverOpen = coverState.target > 0; onOpen(coverOpen); }
     const co = ease(coverState.t), cq = ease(claspState.t);
     const flippedFrac = sheets.reduce((a, s) => a + ease(s.t), 0) / N;
     const leftT = PT * flippedFrac * co, rightT = PT * (1 - flippedFrac * co) + 0.0001;
@@ -1545,6 +1551,8 @@ export function mountTome(host, opts) {
     const tx = (-0.16 + (reduce ? 0 : my * 0.05)) * (1 - openO) + (-0.22 + (reduce ? 0 : my * 0.05)) * openO;
     const ty = (0.38 + (reduce ? 0 : mx * 0.15)) * (1 - openO) + (reduce ? 0 : mx * 0.06) * openO;
     const tz = -0.26 * (1 - openO);
+    // Start at the resting tilt; easing up from flat reads as a jerk on arrival.
+    if (!posed) { rig.rotation.set(tx, ty, tz); posed = true; }
     rig.rotation.x += (tx - rig.rotation.x) * Math.min(1, dt * 4);
     rig.rotation.y += (ty - rig.rotation.y) * Math.min(1, dt * 4);
     rig.rotation.z += (tz - rig.rotation.z) * Math.min(1, dt * 4);
@@ -1561,11 +1569,14 @@ export function mountTome(host, opts) {
     const f = fitTarget(); camZ += (f.z - camZ) * Math.min(1, dt * 3); camX += (f.x - camX) * Math.min(1, dt * 3);
     camY += ((current === 0 ? -0.16 : -0.2) + f.y - camY) * Math.min(1, dt * 3);
     doze = reduce ? dozeTo : dozeTo > doze ? Math.min(dozeTo, doze + dt / DOZE) : Math.max(dozeTo, doze - dt / DOZE);
-    const dz = ease(doze), z = camZ * (1 - 0.62 * dz), lx = camX + aimX * dz, ly = camY + aimY * dz;
+    emerge = Math.min(1, emerge + dt / EMERGE);
+    const far = 0.25 * Math.pow(1 - emerge, 3);
+    const dz = ease(doze), z = camZ * (1 - 0.62 * dz) * (1 + far), lx = camX + aimX * dz, ly = camY + aimY * dz;
     // Camera looks down a little so the floor reads as a plane the shadow lies on.
     const pitch = THREE.MathUtils.degToRad((10 * (1 - openO) + 6 * openO) * (1 - dz));
     camera.position.set(lx, ly + z * Math.tan(pitch), z); camera.lookAt(lx, ly, 0);
     renderer.render(scene, camera);
+    if (onReady) { const ready = onReady; onReady = null; ready(); }
     if (alive && (awake || doze < 1)) raf = requestAnimationFrame(loop); else running = false;
   }
 
@@ -1573,7 +1584,7 @@ export function mountTome(host, opts) {
   Promise.race([fontsReady, new Promise((r) => setTimeout(r, 2500))]).then(() => {
     Object.keys(faceTex).forEach(redraw); Object.keys(faceTex).forEach(redraw);
     if (!alive) return;
-    started = running = true; resize(); raf = requestAnimationFrame(loop);
+    started = running = true; last = performance.now(); resize(); raf = requestAnimationFrame(loop);
   });
 
   return {

@@ -12,9 +12,16 @@ interface Mounted {
   onList: () => void
   onNavigate: (path: string) => void
   insetTop: () => number
+  onReady: () => void
+  onOpen: (open: boolean) => void
 }
 
-function fakeEngine(result: 'mount' | 'fail' = 'mount', reading: TomePlace | null = null) {
+// firstFrame 'later' leaves the engine drawing until the test calls onReady.
+function fakeEngine(
+  result: 'mount' | 'fail' = 'mount',
+  reading: TomePlace | null = null,
+  firstFrame: 'now' | 'later' = 'now'
+) {
   const calls: Mounted[] = []
   const shows: (TomePlace | null)[] = []
   const log = { hides: 0, destroyed: 0 }
@@ -24,6 +31,7 @@ function fakeEngine(result: 'mount' | 'fail' = 'mount', reading: TomePlace | nul
       mountTome: (host, opts) => {
         calls.push({ host, ...opts })
         if (result === 'fail') return null
+        if (firstFrame === 'now') queueMicrotask(() => opts.onReady?.())
         return {
           destroy: () => log.destroyed++,
           show: (place) => shows.push(place),
@@ -236,6 +244,41 @@ describe('the tome on the home page', () => {
     fireEvent.click(option('Tome'))
     await act(async () => {})
     expect(stage()).not.toHaveAttribute('data-boot')
+  })
+
+  it('keeps the loading mark until the engine has drawn its first frame', async () => {
+    const { hooks, calls } = fakeEngine('mount', null, 'later')
+    await visit('/', hooks)
+    expect(screen.getByRole('status')).toBeInTheDocument()
+    expect(stage()).not.toHaveAttribute('data-ready')
+    await act(async () => calls[0].onReady())
+    expect(screen.queryByRole('status')).toBeNull()
+    expect(stage()).toHaveAttribute('data-ready')
+  })
+
+  it('reports fetching, then drawing, so progress can show it', async () => {
+    const { hooks, calls } = fakeEngine('mount', null, 'later')
+    let release = () => {}
+    const slow: TomeHooks = {
+      ...hooks,
+      load: () => new Promise((done) => (release = () => done(hooks.load()))),
+    }
+    await visit('/', slow)
+    expect(stage()).toHaveAttribute('data-stage', 'fetching')
+    await act(async () => release())
+    expect(stage()).toHaveAttribute('data-stage', 'drawing')
+    await act(async () => calls[0].onReady())
+    expect(stage()).not.toHaveAttribute('data-stage')
+  })
+
+  it('marks the stage open while the cover is open, so the clouds part', async () => {
+    const { hooks, calls } = fakeEngine()
+    await visit('/', hooks)
+    expect(stage()).not.toHaveAttribute('data-open')
+    act(() => calls[0].onOpen(true))
+    expect(stage()).toHaveAttribute('data-open')
+    act(() => calls[0].onOpen(false))
+    expect(stage()).not.toHaveAttribute('data-open')
   })
 
   it('says the book is opening until the engine is ready', async () => {

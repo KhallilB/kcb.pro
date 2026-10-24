@@ -16,6 +16,13 @@
   --mist: #e4eae8;
   --mist-edge: #f3f5f4;
   --glow: rgba(26, 138, 118, 0.42);
+  /* The sky the book floats in: light behind it, shaded cloud banks toward the edges. */
+  --sky-light: #f6f8f7;
+  --sky: #dfe7e4;
+  --sky-edge: #b9c6c2;
+  --sky-shade: rgba(30, 44, 40, 0.28);
+  --cloud-dark: #a9b6b2;
+  --cloud-light: #fbfcfb;
   /* The cover's glass gem, for the loading mark. */
   --gem: #b9dfd5;
   --gem-deep: #6fae9f;

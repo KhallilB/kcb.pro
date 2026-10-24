@@ -19,5 +19,9 @@ export function mountTome(
     onNavigate: (path: string) => void
     /** Pixels at the top the book must stay clear of. */
     insetTop: () => number
+    /** Called once, after the first frame is drawn. */
+    onReady?: () => void
+    /** Called as the cover starts to open (true) or close (false). */
+    onOpen?: (open: boolean) => void
   }
 ): TomeHandle | null
