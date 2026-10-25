@@ -23,24 +23,23 @@ const SHARE_IMAGE = { path: '/og.png', width: 1200, height: 630 }
 const SHARE_ALT =
   'An open book floating in pale clouds: a title page for Khallil Bailey, frontend engineer, and a contents page with coloured ribbons.'
 
-// Open Graph and Twitter tags; Twitter reads og:* for anything it lacks.
+// Open Graph only: link previews in chat apps and email read it; no site is posted to.
 export function socialTags(path: string): string {
   const meta = pageMeta(path)
   if (meta.status !== 200) return ''
-  const tags: [string, string, string | number][] = [
-    ['property', 'og:type', 'website'],
-    ['property', 'og:site_name', profile.name],
-    ['property', 'og:title', meta.title],
-    ['property', 'og:description', meta.description],
-    ['property', 'og:url', ORIGIN + withoutTrailingSlash(path)],
-    ['property', 'og:image', ORIGIN + SHARE_IMAGE.path],
-    ['property', 'og:image:width', SHARE_IMAGE.width],
-    ['property', 'og:image:height', SHARE_IMAGE.height],
-    ['property', 'og:image:alt', SHARE_ALT],
-    ['name', 'twitter:card', 'summary_large_image'],
+  const tags: [string, string | number][] = [
+    ['og:type', 'website'],
+    ['og:site_name', profile.name],
+    ['og:title', meta.title],
+    ['og:description', meta.description],
+    ['og:url', ORIGIN + withoutTrailingSlash(path)],
+    ['og:image', ORIGIN + SHARE_IMAGE.path],
+    ['og:image:width', SHARE_IMAGE.width],
+    ['og:image:height', SHARE_IMAGE.height],
+    ['og:image:alt', SHARE_ALT],
   ]
   return tags
-    .map(([attr, key, value]) => `<meta ${attr}="${key}" content="${escapeAttr(String(value))}" />`)
+    .map(([key, value]) => `<meta property="${key}" content="${escapeAttr(String(value))}" />`)
     .join('\n    ')
 }
 

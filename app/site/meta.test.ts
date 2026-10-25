@@ -40,9 +40,9 @@ describe('pageMeta', () => {
 
 describe('socialTags', () => {
   const tag = (html: string, key: string) =>
-    html.match(new RegExp(`<meta (?:property|name)="${key}" content="([^"]*)" />`))?.[1]
+    html.match(new RegExp(`<meta property="${key}" content="([^"]*)" />`))?.[1]
 
-  it('shares a project page as a large card of the book, under its own title', () => {
+  it('previews a project page as the book, under its own title', () => {
     const html = socialTags('/work/kbui')
     expect(tag(html, 'og:title')).toBe('kbui · Khallil Bailey')
     expect(tag(html, 'og:description')).toBe(
@@ -53,7 +53,10 @@ describe('socialTags', () => {
     expect(tag(html, 'og:image:width')).toBe('1200')
     expect(tag(html, 'og:image:height')).toBe('630')
     expect(tag(html, 'og:image:alt')).toBeTruthy()
-    expect(tag(html, 'twitter:card')).toBe('summary_large_image')
+  })
+
+  it('carries Open Graph only, since no site is posted to', () => {
+    expect(socialTags('/work/kbui')).not.toContain('twitter:')
   })
 
   it('points home at the bare domain and drops a trailing slash', () => {
