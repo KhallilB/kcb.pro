@@ -425,6 +425,20 @@ a {
   margin-block-start: var(--space-5);
 }
 
+.project-media {
+  margin: 0 0 var(--space-7);
+}
+
+/* Intrinsic width and height keep the aspect ratio while it scales down. */
+.project-media img,
+.project-media video {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  border: var(--rule) solid var(--hairline);
+  border-radius: var(--radius-card);
+}
+
 /* Reading layout: contents in the rail, prose in the column. */
 .reading {
   display: grid;

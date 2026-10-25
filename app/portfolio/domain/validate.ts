@@ -1,10 +1,25 @@
-import type { BriefSection, Catalog } from './types'
+import type { BriefSection, Catalog, Media } from './types'
 
 // Placeholder copy is a launch blocker: the site must never show it.
 const PLACEHOLDER =
   /\b(tbd|todo|lorem ipsum|your name|coming soon|placeholder)\b/i
 
 export const hasPlaceholder = (text: string) => PLACEHOLDER.test(text)
+
+const DESTINATION = /^(https?:\/\/|\/)\S+/
+
+const isSize = (n: number) => Number.isInteger(n) && n > 0
+
+function mediaErrors(slug: string, media: Media): string[] {
+  const errors: string[] = []
+  // Content is typed, but alt may still arrive empty or missing from hand edits.
+  if (!media.alt?.trim()) errors.push(`"${slug}" media needs alt text`)
+  if (!isSize(media.width) || !isSize(media.height)) {
+    errors.push(`"${slug}" media needs a width and height`)
+  }
+  if (!DESTINATION.test(media.src)) errors.push(`"${slug}" media has no source`)
+  return errors
+}
 
 function texts(fields: Array<string | undefined>, brief: BriefSection[]) {
   return [
@@ -27,7 +42,16 @@ export function validateCatalog(catalog: Catalog): string[] {
 
   for (const p of catalog.projects) {
     const words = texts(
-      [p.title, p.summary, p.about, p.role, p.domain, p.signature, ...p.stack],
+      [
+        p.title,
+        p.summary,
+        p.about,
+        p.role,
+        p.domain,
+        p.signature,
+        p.media?.alt,
+        ...p.stack,
+      ],
       p.brief
     )
     for (const text of words) {
@@ -40,10 +64,11 @@ export function validateCatalog(catalog: Catalog): string[] {
       errors.push(`"${p.slug}" is shipped but has no shippedOn date`)
     }
     for (const link of p.links) {
-      if (!/^(https?:\/\/|\/)\S+/.test(link.href)) {
+      if (!DESTINATION.test(link.href)) {
         errors.push(`"${p.slug}" has a link with no destination: ${link.label}`)
       }
     }
+    if (p.media) errors.push(...mediaErrors(p.slug, p.media))
   }
 
   const projectSlugs = new Set(catalog.projects.map((p) => p.slug))

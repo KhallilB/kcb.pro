@@ -20,7 +20,8 @@ Each project is one object in the `projects` array. The fields are typed in
 | `slug`                    | The URL: `bezl` becomes `/work/bezl`. Must be unique across projects **and** studies.                  |
 | `kind`                    | `'endeavor'` for real projects. `'site'` is only for this site's own entry.                            |
 | `title`, `summary`        | The name, and a one-line pitch shown on cards and in the index.                                        |
-| `about`                   | A short paragraph saying what it is. It stands in for screenshots, so it can't be empty.               |
+| `about`                   | A short paragraph saying what it is. The only picture when there's no `media`, so it can't be empty.   |
+| `media`                   | Optional. One image or video under the header. See [Media](#media).                                    |
 | `status`                  | `'planned'`, `'in-progress'` or `'shipped'`.                                                           |
 | `startsOn`, `shippedOn`   | Calendar days, `YYYY-MM-DD`. `shippedOn` is required once `status` is `'shipped'`.                     |
 | `order`                   | Season order. Lower numbers come first on the home page.                                               |
@@ -29,6 +30,18 @@ Each project is one object in the `projects` array. The fields are typed in
 | `links`                   | `{ label, href }`. Links must go somewhere: `https://…` or a site path like `/studies`.                |
 | `brief`                   | The write-up: a list of `{ heading, body: [paragraphs] }` sections.                                    |
 | `listed`                  | Optional. `false` keeps the entry valid but off the site and out of the book. Leave it out to list it. |
+
+### Media
+
+`media` is one `{ kind, src, alt, width, height }`:
+
+- `kind` is `'image'` or `'video'`.
+- `src` is a site path. Put the file in `public/media/` and write `/media/bezl.png`.
+- `alt` says what the picture shows. For a video it becomes the player's label.
+- `width` and `height` are the file's pixel size. They reserve the space, so the page
+  doesn't jump when it loads.
+
+Images load lazily and videos download nothing until played.
 
 ### How status shows up
 
@@ -65,6 +78,7 @@ with a list of problems if any fail:
 - **Every project and study has an `about` paragraph.**
 - **A shipped project has a `shippedOn` date.**
 - **Every link has a real destination.**
+- **Project media has alt text, a source, and a whole-number width and height.**
 - **Every study's `feeds` point at projects that exist and are listed.**
 
 The checks run on every entry, hidden ones included, so a hidden project can come back

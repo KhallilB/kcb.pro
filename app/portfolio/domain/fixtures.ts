@@ -1,4 +1,15 @@
-import type { Catalog, Project, Study } from './types'
+import type { Catalog, Media, Project, Study } from './types'
+
+export function image(overrides: Partial<Media> = {}): Media {
+  return {
+    kind: 'image',
+    src: '/media/alpha.png',
+    alt: 'The Alpha window with one task open.',
+    width: 1600,
+    height: 900,
+    ...overrides,
+  }
+}
 
 export function project(overrides: Partial<Project> = {}): Project {
   return {
