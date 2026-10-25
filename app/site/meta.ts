@@ -11,9 +11,41 @@ const DEFAULT_DESCRIPTION =
   'Frontend engineer in Los Angeles with more than five years of building product interfaces.'
 
 const titled = (name: string) => `${name} · ${profile.name}`
+const withoutTrailingSlash = (path: string) =>
+  path.length > 1 ? path.replace(/\/+$/, '') : path
+
+export const escapeAttr = (text: string) =>
+  text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;')
+
+const ORIGIN = 'https://kcb.pro'
+// public/og.png, captured by scripts/capture-og.ts.
+const SHARE_IMAGE = { path: '/og.png', width: 1200, height: 630 }
+const SHARE_ALT =
+  'An open book floating in pale clouds: a title page for Khallil Bailey, frontend engineer, and a contents page with coloured ribbons.'
+
+// Open Graph and Twitter tags; Twitter reads og:* for anything it lacks.
+export function socialTags(path: string): string {
+  const meta = pageMeta(path)
+  if (meta.status !== 200) return ''
+  const tags: [string, string, string | number][] = [
+    ['property', 'og:type', 'website'],
+    ['property', 'og:site_name', profile.name],
+    ['property', 'og:title', meta.title],
+    ['property', 'og:description', meta.description],
+    ['property', 'og:url', ORIGIN + withoutTrailingSlash(path)],
+    ['property', 'og:image', ORIGIN + SHARE_IMAGE.path],
+    ['property', 'og:image:width', SHARE_IMAGE.width],
+    ['property', 'og:image:height', SHARE_IMAGE.height],
+    ['property', 'og:image:alt', SHARE_ALT],
+    ['name', 'twitter:card', 'summary_large_image'],
+  ]
+  return tags
+    .map(([attr, key, value]) => `<meta ${attr}="${key}" content="${escapeAttr(String(value))}" />`)
+    .join('\n    ')
+}
 
 export function pageMeta(path: string): PageMeta {
-  const clean = path.length > 1 ? path.replace(/\/+$/, '') : path
+  const clean = withoutTrailingSlash(path)
   const [, section, slug, ...rest] = clean.split('/')
   const ok = (title: string, description = DEFAULT_DESCRIPTION): PageMeta => ({
     title,
