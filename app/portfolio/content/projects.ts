@@ -5,9 +5,9 @@ export const projects: Project[] = [
     slug: 'gallery',
     kind: 'site',
     title: 'The Gallery',
-    summary: 'This site: my work as a plain list and as a 3D book.',
+    summary: 'This site: my work as a plain list and as a 3D book drawn entirely in code.',
     about:
-      'My work as a plain list and as a 3D book, both built from the same content.',
+      'My work as a plain list and as a 3D book, both built from the same content. The book has no 3D models and no image files: every cover, page and texture is painted in code when it loads.',
     status: 'in-progress',
     startsOn: '2026-10-19',
     order: 0,
@@ -20,14 +20,22 @@ export const projects: Project[] = [
       {
         heading: 'Why it exists',
         body: [
-          'I wanted a portfolio that shows real work in progress, not just finished screenshots.',
+          'I wanted a portfolio that shows real work in progress, not just finished screenshots, and one you could read like a book without being locked out if your browser can’t draw it.',
         ],
       },
       {
-        heading: 'How it is built',
+        heading: 'The book',
         body: [
-          'Every page is turned into plain HTML when the site is built, so it loads fast and works without JavaScript. React then takes over in the browser. All the content lives in a few typed files, and the build checks them first: a missing field or leftover filler text stops the build instead of reaching the site.',
-          'The look comes from the book on the home page: Cinzel for headings, EB Garamond for reading, warm parchment, and one deep green for links and highlights. All of it is hand-written CSS driven by a single file of design tokens.',
+          'About 1,600 lines of JavaScript on top of Three.js. There are no 3D models and no image files: the cover, the paper grain and every page of text are painted onto canvases as the book loads, from the same content files as the rest of the site.',
+          'Its own code is 30 KB gzipped, 159 KB with Three.js. It only downloads when the book is about to show, or in the background while you read the list, so the first switch to 3D only has to build the scene.',
+        ],
+      },
+      {
+        heading: 'The plain site',
+        body: [
+          'Every page is turned into plain HTML when the site is built, so it reads fine with JavaScript off and shows up fast: the home page is under 2 KB of HTML gzipped, and the whole page, book included, is about 400 KB over the wire. React then takes over in the browser. A browser without WebGL never sees a broken book; it gets the list.',
+          'All the content lives in a few typed files, and the build checks them first: a missing field, leftover filler text, or a study pointing at a hidden project stops the build instead of reaching the site.',
+          'The look comes from the book: Cinzel for headings, EB Garamond for reading, warm parchment, and one deep green for links and highlights. All of it is hand-written CSS driven by a single file of design tokens.',
         ],
       },
       {

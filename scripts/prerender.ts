@@ -14,6 +14,8 @@ const {
   validateCatalog,
   buildDay,
   builtProgress,
+  escapeAttr,
+  socialTags,
 } = server
 
 // Hidden entries stay valid so they can come back by deleting one line.
@@ -31,17 +33,16 @@ if (!template.includes('<!--app-->')) {
   throw new Error('build/index.html lost its <!--app--> marker')
 }
 
-const escape = (text: string) =>
-  text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;')
-
 function page(path: string): string {
   const { html, title, description } = renderPage(path, buildDay, progress)
+  const social = socialTags(path)
   return template
-    .replace(/<title>.*?<\/title>/s, `<title>${escape(title)}</title>`)
+    .replace(/<title>.*?<\/title>/s, `<title>${escapeAttr(title)}</title>`)
     .replace(
       /<meta\s+name="description"\s+content=".*?"\s*\/>/s,
-      `<meta name="description" content="${escape(description)}" />`
+      `<meta name="description" content="${escapeAttr(description)}" />`
     )
+    .replace('</head>', social ? `  ${social}\n  </head>` : '</head>')
     .replace('<!--app-->', html)
 }
 

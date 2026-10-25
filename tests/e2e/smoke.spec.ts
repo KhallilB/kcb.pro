@@ -280,6 +280,15 @@ test('the activity table corner is blank, not an outlined square', async ({ page
   expect(await corner.evaluate((el) => getComputedStyle(el).outlineStyle)).toBe('none')
 })
 
+test('a shared link previews as a still of the book', async ({ request }) => {
+  const html = await (await request.get('/work/gallery')).text()
+  expect(html).toContain('<meta property="og:url" content="https://kcb.pro/work/gallery" />')
+  expect(html).toContain('<meta name="twitter:card" content="summary_large_image" />')
+  const image = await request.get('/og.png')
+  expect(image.status()).toBe(200)
+  expect(image.headers()['content-type']).toContain('image/png')
+})
+
 test('an unknown or hidden path gets the 404 page with a 404 status', async ({ page }) => {
   const hidden = await page.goto('/work/wander')
   expect(hidden?.status()).toBe(404)

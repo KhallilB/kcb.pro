@@ -10,6 +10,7 @@ export { sitePaths } from './portfolio/domain/catalog'
 export { validateCatalog } from './portfolio/domain/validate'
 export { catalog, content } from './portfolio/content'
 export { builtProgress } from './site/progress-data'
+export { escapeAttr, socialTags } from './site/meta'
 
 export const buildDay: IsoDay = __BUILD_DAY__
 
