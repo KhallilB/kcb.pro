@@ -4,6 +4,7 @@ import { Brief } from '../components/Brief'
 import { BuildLog } from '../components/BuildLog'
 import { FullRecord } from '../components/FullRecord'
 import { Journey } from '../components/Journey'
+import { ProjectMedia } from '../components/ProjectMedia'
 import { StatusChip } from '../components/StatusChip'
 import { useSite } from '../site'
 import { NotFound } from './NotFound'
@@ -59,6 +60,7 @@ export function ProjectPage() {
           )}
         </div>
       </header>
+      {project.media && <ProjectMedia media={project.media} />}
       {ledger ? (
         <Journey goal={project.goal} progress={ledger} />
       ) : (

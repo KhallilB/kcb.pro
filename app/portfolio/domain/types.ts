@@ -11,6 +11,15 @@ export interface Link {
   href: string
 }
 
+// Width and height reserve the space before it loads, so the page never jumps.
+export interface Media {
+  kind: 'image' | 'video'
+  src: string
+  alt: string
+  width: number
+  height: number
+}
+
 export interface BriefSection {
   heading: string
   body: string[]
@@ -27,8 +36,9 @@ export interface Project extends Dated {
   kind: ProjectKind
   title: string
   summary: string
-  // What it is, in a short paragraph; stands in for screenshots that do not exist yet.
+  // What it is, in a short paragraph; the only picture when media is absent.
   about: string
+  media?: Media
   // Season sequence; lower ships first.
   order: number
   role: string

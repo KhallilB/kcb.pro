@@ -283,7 +283,7 @@ test('the activity table corner is blank, not an outlined square', async ({ page
 test('a shared link previews as a still of the book', async ({ request }) => {
   const html = await (await request.get('/work/gallery')).text()
   expect(html).toContain('<meta property="og:url" content="https://kcb.pro/work/gallery" />')
-  expect(html).toContain('<meta name="twitter:card" content="summary_large_image" />')
+  expect(html).not.toContain('twitter:')
   const image = await request.get('/og.png')
   expect(image.status()).toBe(200)
   expect(image.headers()['content-type']).toContain('image/png')

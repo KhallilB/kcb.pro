@@ -28,6 +28,7 @@ export const projects: Project[] = [
         body: [
           'About 1,600 lines of JavaScript on top of Three.js. There are no 3D models and no image files: the cover, the paper grain and every page of text are painted onto canvases as the book loads, from the same content files as the rest of the site.',
           'Its own code is 30 KB gzipped, 159 KB with Three.js. It only downloads when the book is about to show, or in the background while you read the list, so the first switch to 3D only has to build the scene.',
+          'On kcb.pro the book is on screen about 2 seconds after the page opens, measured on my laptop. It used to take nearly 4. Most of the wait was painting the cloth weave as about 40,000 tiny squares; it is now one small image scaled up, and the book paints its pages 22 times on load instead of 36.',
         ],
       },
       {

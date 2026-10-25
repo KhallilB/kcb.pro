@@ -1,5 +1,6 @@
 import { validateCatalog } from './validate'
-import { catalog, project, study } from './fixtures'
+import { catalog, image, project, study } from './fixtures'
+import type { Media } from './types'
 
 describe('validateCatalog', () => {
   it('accepts a complete catalog', () => {
@@ -51,6 +52,47 @@ describe('validateCatalog', () => {
       catalog([project({ links: [{ label: 'Source', href: '#' }] })])
     )
     expect(errors).toContain('"alpha" has a link with no destination: Source')
+  })
+
+  it('accepts a project with complete media', () => {
+    const errors = validateCatalog(catalog([project({ media: image() })]))
+    expect(errors).toEqual([])
+  })
+
+  it.each(['', '   '])('refuses media with no alt text: "%s"', (alt) => {
+    const errors = validateCatalog(
+      catalog([project({ media: image({ alt }) })])
+    )
+    expect(errors).toContain('"alpha" media needs alt text')
+  })
+
+  it('refuses media with no alt field at all', () => {
+    const noAlt = { ...image(), alt: undefined } as unknown as Media
+    const errors = validateCatalog(catalog([project({ media: noAlt })]))
+    expect(errors).toContain('"alpha" media needs alt text')
+  })
+
+  it('finds placeholder text in media alt text', () => {
+    const errors = validateCatalog(
+      catalog([project({ media: image({ alt: 'TODO describe' }) })])
+    )
+    expect(errors.join('\n')).toMatch(/placeholder/i)
+  })
+
+  it.each([
+    { width: 0, height: 900 },
+    { width: 1600, height: -1 },
+    { width: 1600.5, height: 900 },
+  ])('refuses media without a whole width and height: %o', (size) => {
+    const errors = validateCatalog(catalog([project({ media: image(size) })]))
+    expect(errors).toContain('"alpha" media needs a width and height')
+  })
+
+  it('refuses media with no source', () => {
+    const errors = validateCatalog(
+      catalog([project({ media: image({ src: '' }) })])
+    )
+    expect(errors).toContain('"alpha" media has no source')
   })
 
   it('refuses a study that feeds a project that does not exist', () => {
