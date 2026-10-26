@@ -74,7 +74,11 @@ describe('progress-fetch', () => {
   it('writes only the public shape for each registered project', () => {
     const { status, written } = run({ BUILD_DAY: '2026-10-21' }, true)
     expect(status).toBe(0)
-    expect(Object.keys(written).sort()).toEqual(['bezl.json', 'kbui.json'])
+    expect(Object.keys(written).sort()).toEqual([
+      'bezl.json',
+      'kbui.json',
+      'mugen-arena.json',
+    ])
     const bezl = written['bezl.json'] as {
       entries: Record<string, unknown>[]
       days: unknown[]

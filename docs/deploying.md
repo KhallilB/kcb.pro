@@ -10,7 +10,7 @@ The workflow in `.github/workflows/ci.yml` has two jobs:
 1. **gate** builds the site once, fetching each registered project's `progress.json`
    from GitHub with `PROGRESS_TOKEN` (or, when that secret is empty, the workflow's own
    `GITHUB_TOKEN`), then runs lint, the typecheck, and the unit, integration and
-   browser tests. It also checks that the Bezl and kbui pages built with their
+   browser tests. It also checks that the Bezl, kbui and Mugen Arena pages built with their
    Progress card (`id="progress"`), so a build without progress never reaches the
    deploy artifact.
 2. **deploy** uploads that same `build/` folder to Pages, but only if the gate passed.

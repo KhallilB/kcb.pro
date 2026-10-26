@@ -199,7 +199,7 @@ by deleting its `listed: false` line.
 
 `app/portfolio/content/content.test.ts` runs the same checks in `bun run test`, so you
 find out before you build. That file also pins the current lineup on purpose: three
-ranked endeavors (Bezl rank 1, kbui rank 2, Mugen Arena rank 3), Bezl and kbui
+ranked endeavors (Bezl rank 1, kbui rank 2, Mugen Arena rank 3), all three
 registered by `repo`, Bezl as "now building", the two earlier endeavors kept but hidden,
 and four studies. Every study must feed a listed project, and every endeavor must be fed
 by at least one study.
