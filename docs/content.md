@@ -116,6 +116,42 @@ the page uses the latest entry per subject. Adding `summary` to entries already 
 default branch was a one-time exception to this rule, recorded in the description of
 the PR that did it.
 
+### Checking a project's file
+
+kcb.pro's build checks the contract only. Each project repository also runs
+`scripts/progress-check.ts` when its `progress.json` changes. It fails when:
+
+- the file breaks the contract above;
+- an entry already on the base branch was edited or removed;
+- an evidence `path` in an entry new since the base does not exist at the entry's
+  `commit`. Evidence kept in a private repository is a `url` instead. Published entries
+  were checked when they were added, so their commits may later live elsewhere, such as
+  an archived repository.
+
+With no base (the first push of a new branch), every entry's evidence is checked.
+
+A project adds one workflow that calls kcb.pro's
+[`progress-check.yml`](../.github/workflows/progress-check.yml). The `paths` filter
+keeps it to changes of `progress.json`:
+
+```yaml
+name: Progress
+on:
+  pull_request:
+    paths: [progress.json]
+  push:
+    branches: [main]
+    paths: [progress.json]
+jobs:
+  progress:
+    uses: KhallilB/kcb.pro/.github/workflows/progress-check.yml@main
+    with:
+      slug: bezl
+```
+
+The same check runs locally from a project's root:
+`bun ../kcb.pro/scripts/progress-check.ts --slug bezl --base origin/main`.
+
 ### What the page shows
 
 Outcomes only, in the project's own words: each step's `title` and `summary` come

@@ -1,0 +1,38 @@
+# Called by each project repository when its progress.json changes (see docs/content.md, Checking a project's file).
+name: Progress check
+
+on:
+  workflow_call:
+    inputs:
+      slug:
+        description: The project's kcb.pro slug
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # Full history: evidence paths are looked up at their own commits.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          repository: KhallilB/kcb.pro
+          path: .kcb
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.11
+      - name: Check progress.json against kcb.pro's contract
+        env:
+          SLUG: ${{ inputs.slug }}
+          BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || github.event.before }}
+        run: |
+          # A new branch has no "before"; only the contract and evidence are checked then.
+          if [ -z "${BASE//0/}" ]; then BASE=""; fi
+          bun .kcb/scripts/progress-check.ts --slug "$SLUG" ${BASE:+--base "$BASE"}
