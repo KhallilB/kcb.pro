@@ -93,4 +93,24 @@ describe('progress-check', () => {
     const { status } = check('--base', 'HEAD~2')
     expect(status).toBe(0)
   })
+
+  it('passes a published entry whose commit is not in this repository', () => {
+    commitFile([entry({ commit: 'deadbee' })])
+    const sha = commitFile([entry({ commit: 'deadbee' })], {
+      'spikes/beta/RESULT.md': 'ok\n',
+    })
+    commitFile([
+      entry({ commit: 'deadbee' }),
+      entry({
+        id: '2026-10-21-beta',
+        subject: 'beta',
+        date: '2026-10-21',
+        commit: sha,
+        evidence: [{ label: 'Result', path: 'spikes/beta/RESULT.md' }],
+      }),
+    ])
+    const { status, out } = check('--base', 'HEAD~1')
+    expect(out).toContain('"alpha" progress.json is valid')
+    expect(status).toBe(0)
+  })
 })

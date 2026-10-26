@@ -65,7 +65,7 @@ describe('missingEvidence', () => {
     const exists = (commit: string, path: string) =>
       commit === '01e47db' && path === 'spikes/alpha/RESULT.md'
     expect(
-      missingEvidence(progressFile([first, second]), exists, 'alpha')
+      missingEvidence(undefined, progressFile([first, second]), exists, 'alpha')
     ).toEqual([
       '"alpha" progress.json entry "2026-10-21-beta" links docs/beta.md, which is not in abc1234',
     ])
@@ -81,6 +81,22 @@ describe('missingEvidence', () => {
     const exists = () => {
       throw new Error('no lookup expected')
     }
-    expect(missingEvidence(progressFile([linked]), exists, 'alpha')).toEqual([])
+    expect(
+      missingEvidence(undefined, progressFile([linked]), exists, 'alpha')
+    ).toEqual([])
+  })
+
+  it('skips entries already published, whose commits may be elsewhere', () => {
+    const exists = () => false
+    expect(
+      missingEvidence(
+        progressFile([first]),
+        progressFile([first, second]),
+        exists,
+        'alpha'
+      )
+    ).toEqual([
+      '"alpha" progress.json entry "2026-10-21-beta" links docs/beta.md, which is not in abc1234',
+    ])
   })
 })

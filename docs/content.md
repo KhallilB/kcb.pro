@@ -123,8 +123,12 @@ kcb.pro's build checks the contract only. Each project repository also runs
 
 - the file breaks the contract above;
 - an entry already on the base branch was edited or removed;
-- an evidence `path` does not exist at the entry's `commit`. Evidence kept in a private
-  repository is a `url` instead.
+- an evidence `path` in an entry new since the base does not exist at the entry's
+  `commit`. Evidence kept in a private repository is a `url` instead. Published entries
+  were checked when they were added, so their commits may later live elsewhere, such as
+  an archived repository.
+
+With no base (the first push of a new branch), every entry's evidence is checked.
 
 A project adds one workflow that calls kcb.pro's
 [`progress-check.yml`](../.github/workflows/progress-check.yml). The `paths` filter

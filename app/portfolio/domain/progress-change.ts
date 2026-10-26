@@ -43,12 +43,16 @@ export function appendOnlyErrors(
   })
 }
 
+// Published entries were checked when added; their commits may now live in another repository.
 export function missingEvidence(
-  file: unknown,
+  before: unknown,
+  after: unknown,
   exists: (commit: string, path: string) => boolean,
   slug: string
 ): string[] {
-  return entriesOf(file).flatMap((e) => {
+  const published = new Set(entriesOf(before).map((e) => e.id))
+  return entriesOf(after).flatMap((e) => {
+    if (published.has(e.id)) return []
     if (typeof e.commit !== 'string' || !Array.isArray(e.evidence)) return []
     const commit = e.commit
     return e.evidence

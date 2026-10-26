@@ -34,10 +34,12 @@ function main() {
     console.error(`progress.json cannot be read: ${(error as Error).message}`)
     process.exit(1)
   }
+  const before = published(values.base)
   const errors = [
     ...validateProgress(file, { slug, buildDay: buildDay() }),
-    ...appendOnlyErrors(published(values.base), file, slug),
+    ...appendOnlyErrors(before, file, slug),
     ...missingEvidence(
+      before,
       file,
       (commit, path) => git('cat-file', '-e', `${commit}:${path}`).status === 0,
       slug
