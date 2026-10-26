@@ -5,13 +5,14 @@ describe('the book page a site page belongs to', () => {
     ['/about', 'about'],
     ['/work/bezl', 'bezl'],
     ['/work/kbui', 'kbui'],
+    ['/work/mugen-arena', 'mugen-arena'],
     ['/studies', 'studies'],
     ['/studies/terminal-speed', 'studies'],
   ])('%s opens the book at %s', (path, place) => {
     expect(placeOfPath(path)).toBe(place)
   })
 
-  it.each(['/', '/work', '/work/gallery', '/work/mugen-arena', '/work/wander', '/nowhere'])('%s has no page of its own', (path) => {
+  it.each(['/', '/work', '/work/gallery', '/work/wander', '/nowhere'])('%s has no page of its own', (path) => {
     expect(placeOfPath(path)).toBeNull()
   })
 })

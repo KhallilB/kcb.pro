@@ -38,7 +38,7 @@ test('the tome opens over the home page and steps aside for the list', async ({ 
   await expect(view.getByRole('button', { name: '3D book' })).toHaveAttribute('aria-pressed', 'true')
   await expect(page.locator('.tome[data-ready] canvas')).toHaveAttribute(
     'data-chapters',
-    'bezl,kbui'
+    'bezl,kbui,mugenArena'
   )
 
   await view.getByRole('button', { name: '2D list' }).click()

@@ -37,6 +37,7 @@ export interface TomeData {
   chapters: {
     bezl: Chapter
     kbui: Chapter
+    mugenArena: Chapter
   }
 }
 
@@ -92,7 +93,7 @@ export function tomeData(asOf: IsoDay): TomeData {
     asOf: formatLongDay(asOf),
     nowBuilding: live?.title ?? 'Between projects',
     about: [
-      'I’m a frontend engineer in Los Angeles, and I’ve spent more than five years building product interfaces. This book is my side work: Bezl, a desktop app that runs AI coding assistants side by side, and kbui, the design system my projects share.',
+      'I’m a frontend engineer in Los Angeles, and I’ve spent more than five years building product interfaces. This book is my side work: Bezl, a desktop app that runs AI coding assistants side by side; kbui, the design system my projects share; and Mugen Arena, a 3D fighting game in the browser.',
     ],
     contactLine:
       'Email is the best way to reach me. My résumé has the full story.',
@@ -154,6 +155,29 @@ export function tomeData(asOf: IsoDay): TomeData {
         [
           ['Built with', 'CSS · React · Base UI'],
           ['Used by', 'One other app; Bezl next'],
+          ['Started', 'Oct 2026'],
+        ]
+      ),
+      mugenArena: chapter(
+        'mugen-arena',
+        asOf,
+        [
+          [
+            'The problem',
+            'M.U.G.E.N showed that people love building fighters as much as playing them, but its fighters are 2D sprites in hard-to-read files. Mugen Arena keeps the drop-in folder and moves it to 3D.',
+          ],
+          [
+            'The key piece',
+            'The Fighter Factory: pause any match, step through a move one frame at a time with its hit areas drawn on the model, and save changes straight back to the fighter’s files.',
+          ],
+          [
+            'Next',
+            'A one-day test with three fighters of very different heights comes first: does a hit land in both directions, and does the game hold 60 frames a second?',
+          ],
+        ],
+        [
+          ['Built with', 'TypeScript · Three.js'],
+          ['Runs in', 'The browser'],
           ['Started', 'Oct 2026'],
         ]
       ),

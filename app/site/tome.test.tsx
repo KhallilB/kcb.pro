@@ -85,6 +85,7 @@ describe('the tome on the home page', () => {
     const { hooks, calls } = fakeEngine()
     await visit('/', hooks)
     expect(calls[0].data.chapters.kbui.title).toBe('kbui')
+    expect(calls[0].data.chapters.mugenArena.title).toBe('Mugen Arena')
     expect(calls[0].data.asOf).toBe('21 October 2026')
   })
 
@@ -126,6 +127,16 @@ describe('the tome on the home page', () => {
     await act(async () => {})
     expect(calls).toHaveLength(1)
     expect(shows).toEqual(['kbui'])
+  })
+
+  it('opens at Mugen Arena after its page was read', async () => {
+    const { hooks, calls, shows } = fakeEngine()
+    await visit('/work/mugen-arena', hooks)
+
+    fireEvent.click(wordmark())
+    await act(async () => {})
+    expect(calls).toHaveLength(1)
+    expect(shows).toEqual(['mugen-arena'])
   })
 
   it('lands the list on the chapter the book was open at', async () => {

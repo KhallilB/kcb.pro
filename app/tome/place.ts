@@ -4,6 +4,7 @@ export const TOME_PLACES = [
   'about',
   'bezl',
   'kbui',
+  'mugen-arena',
   'studies',
   'contact',
 ] as const

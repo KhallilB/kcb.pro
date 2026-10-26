@@ -13,19 +13,17 @@ function strings(value: unknown): string[] {
 }
 
 describe('tome data', () => {
-  // Mugen Arena is listed but has no chapter yet; its sheets are laid out by hand.
-  it('titles its two chapters after the first two featured endeavors', () => {
-    const { bezl, kbui } = data.chapters
-    expect([bezl.title, kbui.title]).toEqual(
-      featured(content.projects)
-        .slice(0, 2)
-        .map((p) => p.title)
+  it('titles its chapters after the featured endeavors, in order', () => {
+    const { bezl, kbui, mugenArena } = data.chapters
+    expect([bezl.title, kbui.title, mugenArena.title]).toEqual(
+      featured(content.projects).map((p) => p.title)
     )
   })
 
   it('dates each chapter with the same status line the site shows', () => {
     expect(data.chapters.bezl.status).toBe('In progress · as of 21 Oct 2026')
     expect(data.chapters.kbui.status).toBe('In progress · as of 21 Oct 2026')
+    expect(data.chapters.mugenArena.status).toBe('In progress · as of 21 Oct 2026')
     expect(data.asOf).toBe('21 October 2026')
   })
 
@@ -48,6 +46,7 @@ describe('tome data', () => {
   it('introduces the book in plain words, without narrating its dates', () => {
     expect(data.about).toHaveLength(1)
     expect(data.about[0]).toContain('This book is my side work')
+    for (const c of Object.values(data.chapters)) expect(data.about[0]).toContain(c.title)
   })
 
   it('links every study to a page the site prerenders', () => {
@@ -67,6 +66,7 @@ describe('tome data', () => {
     const paths = sitePaths(content)
     expect(data.chapters.bezl.path).toBe('/work/bezl')
     expect(data.chapters.kbui.path).toBe('/work/kbui')
+    expect(data.chapters.mugenArena.path).toBe('/work/mugen-arena')
     for (const c of Object.values(data.chapters)) expect(paths).toContain(c.path)
   })
 
