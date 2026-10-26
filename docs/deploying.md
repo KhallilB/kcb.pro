@@ -56,8 +56,8 @@ To create `PROGRESS_TOKEN` and make a project repository private, in this order:
    tokens** → Generate new token.
 2. Resource owner `KhallilB`. Pick an expiry and put the date in your calendar: the
    build fails the day it lapses.
-3. Repository access: only `KhallilB/bezl`. Add `KhallilB/kbui` if you like; it is
-   public, so it does not need it.
+3. Repository access: only `KhallilB/bezl-internal`, where Bezl's `progress.json`
+   lives. Add `KhallilB/kbui` if you like; it is public, so it does not need it.
 4. Permissions: Repository → **Contents: Read-only** and **Metadata: Read-only**.
    Nothing else.
 5. Save it as the repo secret `PROGRESS_TOKEN` (the command prompts for the value):

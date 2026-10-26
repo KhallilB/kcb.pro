@@ -68,9 +68,9 @@ describe('published content', () => {
     expect(copy('kbui')).not.toMatch(/\b\d+\.\d+\.\d+\b/)
   })
 
-  it('registers Bezl, kbui and Mugen Arena by their public repositories', () => {
+  it('registers Bezl by its private progress repo, kbui and Mugen Arena by their public ones', () => {
     expect(registered(content.projects)).toEqual([
-      { slug: 'bezl', repo: 'KhallilB/bezl' },
+      { slug: 'bezl', repo: 'KhallilB/bezl-internal' },
       { slug: 'kbui', repo: 'KhallilB/kbui' },
       { slug: 'mugen-arena', repo: 'KhallilB/arena-mugen-3d' },
     ])
