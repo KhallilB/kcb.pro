@@ -85,7 +85,7 @@ test('the tome opens over the home page and steps aside for the list', async ({ 
   await expect(view.getByRole('button', { name: '3D book' })).toHaveAttribute('aria-pressed', 'true')
   await expect(page.locator('.tome[data-ready] canvas')).toHaveAttribute(
     'data-chapters',
-    'bezl,kbui'
+    'bezl,kbui,mugenArena'
   )
 
   await view.getByRole('button', { name: '2D list' }).click()
@@ -159,7 +159,7 @@ test('home names the work and what is being built now', async ({ page }) => {
   await expect(page.getByTestId('now-building')).toContainText('Now building Bezl')
   await expect(
     page.getByRole('region', { name: 'Selected work' }).getByRole('article')
-  ).toHaveCount(2)
+  ).toHaveCount(3)
   expect(errors, 'hydration must not log errors').toEqual([])
 })
 
@@ -302,7 +302,7 @@ test('an unknown or hidden path gets the 404 page with a 404 status', async ({ p
 test('the phone layout has no horizontal scroll at 320 px', async ({ page }) => {
   await preferList(page)
   await page.setViewportSize({ width: 320, height: 700 })
-  for (const path of ['/', '/work', '/work/bezl', '/studies/map-labels']) {
+  for (const path of ['/', '/work', '/work/bezl', '/studies/terminal-speed']) {
     await page.goto(path)
     if (path === '/work/bezl') await page.locator('#record > summary').click()
     const overflow = await page.evaluate(

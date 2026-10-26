@@ -42,9 +42,11 @@ describe('home', () => {
     expect(cards.map((c) => within(c).getByRole('heading').textContent)).toEqual([
       'Bezl',
       'kbui',
+      'Mugen Arena',
     ])
-    expect(cards[0]).toHaveTextContent('In progress · as of 21 Oct 2026')
-    expect(cards[1]).toHaveTextContent('In progress · as of 21 Oct 2026')
+    for (const card of cards) {
+      expect(card).toHaveTextContent('In progress · as of 21 Oct 2026')
+    }
     const last = within(work).getAllByRole('link').at(-1)
     expect(last).toHaveAccessibleName('All work')
     expect(last).toHaveAttribute('href', '/work')
@@ -57,6 +59,7 @@ describe('home', () => {
     )
     expect(cards[0]).toHaveTextContent('runs Codex, Claude Code and Gemini CLI')
     expect(cards[1]).toHaveTextContent('keeps every value in one token file')
+    expect(cards[2]).toHaveTextContent('every fighter is a folder')
     expect(container.querySelector('.card svg, .card img, .wip')).toBeNull()
   })
 
@@ -120,6 +123,7 @@ describe('work index', () => {
     const rows = within(screen.getByRole('main')).getAllByRole('listitem')
     expect(rows[1]).toHaveTextContent('runs Codex, Claude Code and Gemini CLI')
     expect(rows[2]).toHaveTextContent('keeps every value in one token file')
+    expect(rows[3]).toHaveTextContent('every fighter is a folder')
   })
 
   it('lists live work first, then what is next', () => {
@@ -129,6 +133,7 @@ describe('work index', () => {
       'The Gallery',
       'Bezl',
       'kbui',
+      'Mugen Arena',
     ])
   })
 })
@@ -254,6 +259,17 @@ describe('project page', () => {
     )
   })
 
+  it('gives Mugen Arena its own page, linked to its source', () => {
+    visit('/work/mugen-arena')
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Mugen Arena' })
+    ).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Source/ })).toHaveAttribute(
+      'href',
+      'https://github.com/KhallilB/arena-mugen-3d'
+    )
+  })
+
   it('sends a hidden project to the not-found page', () => {
     visit('/work/wander')
     expect(
@@ -274,18 +290,30 @@ describe('project page', () => {
 })
 
 describe('studies', () => {
-  it('shows a study that feeds no listed project without a Used by row', () => {
-    visit('/studies/map-labels')
+  it('links a study to the project it feeds', () => {
+    visit('/studies/terminal-speed')
     expect(
       screen.getByRole('heading', {
         level: 1,
-        name: 'How Apple Maps and Google Maps decide which labels you see',
+        name: 'How VS Code’s terminal keeps up with a flood of output',
       })
     ).toBeInTheDocument()
     expect(screen.getByText('Teardown')).toBeInTheDocument()
     const spec = screen.getByRole('group', { name: 'Spec' })
-    expect(spec).not.toHaveTextContent('Used by')
-    expect(within(spec).queryByRole('link', { name: 'Wander' })).toBeNull()
+    expect(spec).toHaveTextContent('Used by')
+    expect(within(spec).getByRole('link', { name: 'Bezl' })).toHaveAttribute(
+      'href',
+      '/work/bezl'
+    )
+  })
+
+  it('sends Mugen Arena its reimagined fighter editor', () => {
+    visit('/studies/fighter-editor')
+    const spec = screen.getByRole('group', { name: 'Spec' })
+    expect(spec).toHaveTextContent('Redesign')
+    expect(
+      within(spec).getByRole('link', { name: 'Mugen Arena' })
+    ).toHaveAttribute('href', '/work/mugen-arena')
   })
 
   it('says plainly what each study leaves behind', () => {
@@ -300,13 +328,32 @@ describe('studies', () => {
     expect(screen.getByRole('main')).not.toHaveTextContent('Nothing here yet')
   })
 
-  it('lists all three studies on the index', () => {
+  it('says on the index that each study serves a project', () => {
     visit('/studies')
-    expect(within(screen.getByRole('main')).getAllByRole('listitem')).toHaveLength(3)
+    const lede = screen.getByRole('main').querySelector('.lede')
+    expect(lede).toHaveTextContent('redesigns an older tool people still rely on')
+    expect(lede).toHaveTextContent('a planned feature in one of my projects')
+  })
+
+  it('lists all four studies on the index', () => {
+    visit('/studies')
+    expect(within(screen.getByRole('main')).getAllByRole('listitem')).toHaveLength(4)
   })
 })
 
 describe('about', () => {
+  it('names all three projects under what I am building', () => {
+    visit('/about')
+    const main = screen.getByRole('main')
+    for (const [name, href] of [
+      ['Bezl', '/work/bezl'],
+      ['kbui', '/work/kbui'],
+      ['Mugen Arena', '/work/mugen-arena'],
+    ]) {
+      expect(within(main).getByRole('link', { name })).toHaveAttribute('href', href)
+    }
+  })
+
   it('links out to the code', () => {
     visit('/about')
     expect(screen.getByRole('heading', { level: 1, name: 'About' })).toBeInTheDocument()
@@ -320,7 +367,7 @@ describe('about', () => {
     const text = screen.getByRole('main').textContent ?? ''
     expect(text).not.toContain('You’ll see dates on everything here')
     expect(text).not.toContain('This site is the third')
-    expect(text).toContain('the design system my projects share, plus this site.')
+    expect(text).toContain('the design system my projects share; and Mugen Arena')
   })
 
   it('lists past roles, newest first', () => {
@@ -349,7 +396,7 @@ describe('about', () => {
   it('never names a hidden project', () => {
     visit('/about')
     const text = screen.getByRole('main').textContent ?? ''
-    for (const name of ['Deck Workshop', 'Mugen Arena', 'Wander', 'fighting game']) {
+    for (const name of ['Deck Workshop', 'Wander']) {
       expect(text).not.toContain(name)
     }
   })

@@ -5,8 +5,9 @@ describe('the book page a site page belongs to', () => {
     ['/about', 'about'],
     ['/work/bezl', 'bezl'],
     ['/work/kbui', 'kbui'],
+    ['/work/mugen-arena', 'mugen-arena'],
     ['/studies', 'studies'],
-    ['/studies/map-labels', 'studies'],
+    ['/studies/terminal-speed', 'studies'],
   ])('%s opens the book at %s', (path, place) => {
     expect(placeOfPath(path)).toBe(place)
   })

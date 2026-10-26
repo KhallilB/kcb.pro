@@ -85,6 +85,7 @@ describe('the tome on the home page', () => {
     const { hooks, calls } = fakeEngine()
     await visit('/', hooks)
     expect(calls[0].data.chapters.kbui.title).toBe('kbui')
+    expect(calls[0].data.chapters.mugenArena.title).toBe('Mugen Arena')
     expect(calls[0].data.asOf).toBe('21 October 2026')
   })
 
@@ -108,7 +109,7 @@ describe('the tome on the home page', () => {
   it('keeps the book open at its page while the visitor reads a linked page', async () => {
     const { hooks, calls, shows, log } = fakeEngine()
     await visit('/', hooks)
-    act(() => calls[0].onNavigate('/studies/map-labels'))
+    act(() => calls[0].onNavigate('/studies/terminal-speed'))
     expect(log.hides).toBe(1)
 
     fireEvent.click(wordmark())
@@ -126,6 +127,16 @@ describe('the tome on the home page', () => {
     await act(async () => {})
     expect(calls).toHaveLength(1)
     expect(shows).toEqual(['kbui'])
+  })
+
+  it('opens at Mugen Arena after its page was read', async () => {
+    const { hooks, calls, shows } = fakeEngine()
+    await visit('/work/mugen-arena', hooks)
+
+    fireEvent.click(wordmark())
+    await act(async () => {})
+    expect(calls).toHaveLength(1)
+    expect(shows).toEqual(['mugen-arena'])
   })
 
   it('lands the list on the chapter the book was open at', async () => {
@@ -184,11 +195,11 @@ describe('the tome on the home page', () => {
   it('follows a link the engine opens', async () => {
     const { hooks, calls } = fakeEngine()
     await visit('/', hooks)
-    act(() => calls[0].onNavigate('/studies/map-labels'))
+    act(() => calls[0].onNavigate('/studies/terminal-speed'))
     expect(
       screen.getByRole('heading', {
         level: 1,
-        name: 'How Apple Maps and Google Maps decide which labels you see',
+        name: 'How VS Code’s terminal keeps up with a flood of output',
       })
     ).toBeInTheDocument()
     expect(page()).not.toHaveAttribute('inert')

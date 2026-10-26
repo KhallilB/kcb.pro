@@ -35,9 +35,9 @@ describe('tome data', () => {
     expect(strings(data.chapters)).toContain('One other app; Bezl, in progress')
   })
 
-  it('titles its two chapters after the featured endeavors, in order', () => {
-    const { bezl, kbui } = data.chapters
-    expect([bezl.title, kbui.title]).toEqual(
+  it('titles its chapters after the featured endeavors, in order', () => {
+    const { bezl, kbui, mugenArena } = data.chapters
+    expect([bezl.title, kbui.title, mugenArena.title]).toEqual(
       featured(content.projects).map((p) => p.title)
     )
   })
@@ -45,6 +45,7 @@ describe('tome data', () => {
   it('dates each chapter with the same status line the site shows', () => {
     expect(data.chapters.bezl.status).toBe('In progress · as of 21 Oct 2026')
     expect(data.chapters.kbui.status).toBe('In progress · as of 21 Oct 2026')
+    expect(data.chapters.mugenArena.status).toBe('In progress · as of 21 Oct 2026')
     expect(data.asOf).toBe('21 October 2026')
   })
 
@@ -54,7 +55,7 @@ describe('tome data', () => {
 
   it('never names a hidden project', () => {
     const text = strings(data).join(' ')
-    for (const name of ['Deck Workshop', 'Mugen Arena', 'Wander']) {
+    for (const name of ['Deck Workshop', 'Wander']) {
       expect(text).not.toContain(name)
     }
   })
@@ -67,18 +68,27 @@ describe('tome data', () => {
   it('introduces the book in plain words, without narrating its dates', () => {
     expect(data.about).toHaveLength(1)
     expect(data.about[0]).toContain('This book is my side work')
+    for (const c of Object.values(data.chapters)) expect(data.about[0]).toContain(c.title)
   })
 
   it('links every study to a page the site prerenders', () => {
     const paths = sitePaths(content)
-    expect(data.studies).toHaveLength(3)
+    expect(data.studies).toHaveLength(4)
     for (const s of data.studies) expect(paths).toContain(s.path)
+  })
+
+  it('gives every study a short name and a reason on the notes page', () => {
+    for (const s of data.studies) {
+      expect(s.short, s.slug).toBeTruthy()
+      expect(s.why, s.slug).toBeTruthy()
+    }
   })
 
   it('links each chapter to its project page in 2D', () => {
     const paths = sitePaths(content)
     expect(data.chapters.bezl.path).toBe('/work/bezl')
     expect(data.chapters.kbui.path).toBe('/work/kbui')
+    expect(data.chapters.mugenArena.path).toBe('/work/mugen-arena')
     for (const c of Object.values(data.chapters)) expect(paths).toContain(c.path)
   })
 
@@ -102,10 +112,10 @@ describe('tome data', () => {
   })
 
   it('says what each chapter is in the catalog’s own words, with no sample data', () => {
-    for (const p of featured(content.projects)) {
-      const chapter = Object.values(data.chapters).find((c) => c.title === p.title)
-      expect(chapter?.about).toBe(p.about)
-      expect(Object.keys(chapter ?? {})).toEqual(['title', 'summary', 'about', 'status', 'notes', 'facts', 'path'])
+    for (const chapter of Object.values(data.chapters)) {
+      const p = featured(content.projects).find((f) => f.title === chapter.title)
+      expect(chapter.about).toBe(p?.about)
+      expect(Object.keys(chapter)).toEqual(['title', 'summary', 'about', 'status', 'notes', 'facts', 'path'])
     }
   })
 })

@@ -16,9 +16,9 @@ export function StudiesIndex() {
         <h1 className="h1">Work studies</h1>
         <p className="lede">
           Short, one-week deep dives. Each one either takes apart how a
-          well-known app works, or redesigns software people have no choice but
-          to use. Each ends with a small working piece that one of my projects
-          will reuse.
+          well-known app works, or redesigns an older tool people still rely on.
+          Each ends with a small working piece for a planned feature in one of
+          my projects.
         </p>
       </header>
       <ul className="rows">

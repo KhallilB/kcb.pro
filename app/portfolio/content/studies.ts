@@ -12,8 +12,8 @@ export const studies: Study[] = [
     builtSlice:
       'Panning, pinch-to-zoom, consistent scrolling across mice and trackpads, and other people’s cursors gliding smoothly over a small server.',
     kitPiece:
-      'Gesture code for panning and zooming a large canvas smoothly on any mouse or trackpad.',
-    feeds: [],
+      'Gesture code for panning and zooming a large canvas smoothly on any mouse or trackpad, for Bezl’s preview canvas.',
+    feeds: ['bezl'],
     status: 'planned',
     startsOn: '2026-11-02',
     brief: [
@@ -38,71 +38,109 @@ export const studies: Study[] = [
     ],
   },
   {
-    slug: 'map-labels',
-    title: 'How Apple Maps and Google Maps decide which labels you see',
+    slug: 'terminal-speed',
+    title: 'How VS Code’s terminal keeps up with a flood of output',
     format: 'teardown',
     question:
-      'How do map labels make room for each other without flickering as you zoom and move around?',
+      'How does a terminal in a web page stay smooth when a program prints thousands of lines a second?',
     about:
-      'A close look at how map apps choose which labels to show as you zoom and move around, followed by a one-week rebuild of a label system that never flickers.',
+      'A close look at how VS Code’s terminal, built on xterm.js, keeps up with heavy output, followed by a one-week rebuild of a terminal pane that stays smooth and keeps memory in check.',
     builtSlice:
-      'A label system that places the most important labels first, keeps winners steady, fades changes in and out, and can be explored with a keyboard.',
-    kitPiece: 'A label system that makes room for the most important labels without flickering.',
-    feeds: [],
+      'A terminal pane that draws on the GPU, gathers incoming output into one update per frame, caps how much history it keeps, and stays readable to screen readers.',
+    kitPiece:
+      'A fast terminal pane for Bezl, where each AI assistant runs in its own terminal.',
+    feeds: ['bezl'],
     status: 'planned',
-    startsOn: '2027-04-05',
+    startsOn: '2026-11-16',
     brief: [
       {
         heading: 'What I’ll look at',
         body: [
-          'Which label wins when two overlap, how that changes as you zoom, why labels fade rather than pop, and how they stay still while you drag the map. MapLibre’s open-source label code is the public reference; none of its map tiles, fonts or other files are copied.',
+          'How xterm.js turns a stream of output into a grid of characters, when it draws with WebGL instead of page elements, how it gathers output so the screen updates once a frame, how much history it keeps and what that costs in memory, and how it stays usable with a screen reader. Ghostty’s terminal engine, which Bezl already uses for snapshots, is the comparison.',
         ],
       },
       {
         heading: 'My guess',
         body: [
-          'Every frame, labels are placed in order of importance, skipping any that would overlap one already placed. A label that won a spot keeps it for a while so it doesn’t flicker, and fades cover up the moments when the winners change.',
+          'It stays smooth because it never draws more than once a frame, however fast output arrives, and only draws the rows on screen. Memory stays flat because old lines are packed tightly and dropped past a limit.',
         ],
       },
       {
         heading: 'How I’ll prove it',
         body: [
-          'Placing 5,000 possible labels in under 4 milliseconds a frame, in a background thread, with the same result every time for the same view. Automated tests drag the map around and check for flicker, and a screen-reader-friendly list shows which labels are visible.',
+          'Streaming 100 MB of output through the pane while it holds 60 frames a second, a chart of memory over ten minutes of output, and tests that replay recorded terminal sessions and check the screen matches. It feeds Bezl’s live terminals milestone and its open checks on terminal speed and memory.',
         ],
       },
     ],
   },
   {
-    slug: 'benefits-application',
-    title: 'A state benefits application, reimagined',
-    format: 'legacy',
-    question: 'How do you make a 40-question legal form bearable to fill in on a phone?',
+    slug: 'design-rules',
+    title: 'How GitHub Primer and Shopify Polaris turn design rules into checks',
+    format: 'teardown',
+    question:
+      'How does a design system turn “use the right spacing” into something a tool can check?',
     about:
-      'A redesign of a state benefits application for people applying on their phones, with a working version that survives a dropped connection and keeps the legal wording intact.',
+      'A close look at how two large design systems write down their rules and enforce them with lint and tests, followed by a one-week rebuild of a small rule checker for kbui.',
     builtSlice:
-      'A form you can pause and pick up later, driven by a description of its questions, that keeps the legal wording and explains mistakes in plain language.',
+      'A checker that reads a screen built from kbui components and flags broken rules, such as a value not from the token file, a missing label or a heading out of order, with the rule and a fix for each.',
     kitPiece:
-      'The pause-and-resume form system, and a text component that shows plain language with the official wording one tap away.',
-    feeds: [],
+      'The first rules for kbui’s rule engine, written once so people and AI agents read the same ones.',
+    feeds: ['kbui'],
     status: 'planned',
-    startsOn: '2027-06-28',
+    startsOn: '2026-11-30',
     brief: [
       {
-        heading: 'Who it’s for',
+        heading: 'What I’ll look at',
         body: [
-          'People applying on a phone with prepaid data, a shared device, or a session that keeps getting interrupted. The questions come from the real public application form. The applicants are made up, and no real government accounts are used.',
+          'How Primer and Polaris write their guidelines, which ones they turn into lint rules or tests, how those checks tell their own components apart from raw markup, and what they leave to human review. Both publish their design tokens and lint rules as open source, which is the public reference.',
         ],
       },
       {
-        heading: 'What I’d change',
+        heading: 'My guess',
         body: [
-          'Save your progress and come back later with a code. Show a plain-language version of the legal text, with the original one tap away. Put a checklist of what you’ll need at the very start. Offer a quick, non-binding check of whether you’re likely to qualify, and show the rule it used.',
+          'Most of the rules that get checked are about tokens and accessibility, because those can be read straight from the code. Rules about layout and hierarchy stay in the written guidelines, because they depend on the whole screen.',
         ],
       },
       {
         heading: 'How I’ll prove it',
         body: [
-          'It works with JavaScript turned on or off, meets the WCAG 2.2 AA accessibility standard, and is usable on a 320-pixel-wide screen. Tests cover reloading the page, timing out and pressing the back button. Five volunteers will try the old and new versions so I can compare how long each takes, and the results go into a one-page memo written for the agency.',
+          'Running the checker on ten real screens, five that follow the rules and five that break them on purpose, and counting what it catches and what it flags wrongly. It feeds two kbui milestones: one source for agents and components, and rules that check screens.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'fighter-editor',
+    title: 'The M.U.G.E.N fighter editor, reimagined in 3D',
+    format: 'legacy',
+    question:
+      'How do you make tuning a fighter’s moves feel like editing, not trial and error?',
+    about:
+      'A redesign of the tools people use to build M.U.G.E.N fighters, such as Fighter Factory, for a 3D game in the browser, with a working editor that shows every frame of a move on the model as you change it.',
+    builtSlice:
+      'A frame-by-frame editor: scrub through a move, see where it can hit and be hit on the 3D model, change its timing or damage, and save it back to the fighter’s file.',
+    kitPiece:
+      'The frame strip and hit-area overlay that become Mugen Arena’s Fighter Factory.',
+    feeds: ['mugen-arena'],
+    status: 'planned',
+    startsOn: '2026-12-14',
+    brief: [
+      {
+        heading: 'Who it’s for',
+        body: [
+          'People who build M.U.G.E.N fighters today, used to editing text files and testing by playing, and newcomers who want to change one move without learning the whole format. Every fighter used is free to use or made for the project.',
+        ],
+      },
+      {
+        heading: 'What I’d change',
+        body: [
+          'Show a move as a strip of frames marked wind-up, hitting and recovery, instead of numbers in a file. Draw the hit areas on the model at the frame you’re on. Check the file as you edit and point at the exact problem. Save straight back to the fighter’s files, so the next match uses the change.',
+        ],
+      },
+      {
+        heading: 'How I’ll prove it',
+        body: [
+          'Five people who have built fighters before make the same change, a faster jab, in Fighter Factory and in the new editor, and I compare the time taken and the mistakes made. The editor works with a keyboard alone, and tests check that a saved change plays back frame for frame. It feeds Mugen Arena’s Fighter Factory milestone.',
         ],
       },
     ],
