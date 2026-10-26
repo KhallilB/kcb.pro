@@ -108,7 +108,7 @@ describe('the tome on the home page', () => {
   it('keeps the book open at its page while the visitor reads a linked page', async () => {
     const { hooks, calls, shows, log } = fakeEngine()
     await visit('/', hooks)
-    act(() => calls[0].onNavigate('/studies/map-labels'))
+    act(() => calls[0].onNavigate('/studies/terminal-speed'))
     expect(log.hides).toBe(1)
 
     fireEvent.click(wordmark())
@@ -184,11 +184,11 @@ describe('the tome on the home page', () => {
   it('follows a link the engine opens', async () => {
     const { hooks, calls } = fakeEngine()
     await visit('/', hooks)
-    act(() => calls[0].onNavigate('/studies/map-labels'))
+    act(() => calls[0].onNavigate('/studies/terminal-speed'))
     expect(
       screen.getByRole('heading', {
         level: 1,
-        name: 'How Apple Maps and Google Maps decide which labels you see',
+        name: 'How VS Code’s terminal keeps up with a flood of output',
       })
     ).toBeInTheDocument()
     expect(page()).not.toHaveAttribute('inert')

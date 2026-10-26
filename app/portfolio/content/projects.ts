@@ -228,80 +228,51 @@ export const projects: Project[] = [
   {
     slug: 'mugen-arena',
     kind: 'endeavor',
-    listed: false,
     title: 'Mugen Arena',
-    summary: 'A 3D fighting game where every fighter is a file you can edit.',
+    summary: 'A 3D arena fighting game where every fighter drops in as a folder.',
     about:
-      'A fighting game in the browser where every fighter is a plain text file. Change how a move works and fight with the new version seconds later.',
-    status: 'planned',
-    startsOn: '2027-01-04',
-    order: 2,
+      'A 3D fighting game in the browser where every fighter is a folder: its model, its moves and how the computer plays it. Drop one in and it can fight any other, whatever its height.',
+    status: 'in-progress',
+    startsOn: '2026-10-23',
+    order: 3,
     role: 'Design and engineering',
-    stack: ['TypeScript', 'React 19', 'WebGPU', 'Web Workers', 'WebRTC'],
+    stack: ['TypeScript', 'Three.js', 'Vite', 'Python', 'Blender'],
     domain:
-      'Real-time game simulation that plays out exactly the same on every computer: a fixed game clock, a reader for fighter files, 3D hit detection, input timing and online play that hides lag.',
+      'A fighting game that plays out the same way every time: a fixed clock of 60 ticks a second, hit detection on the model’s own bones, and one set of shared animations that fits fighters from 1.15 m to 2.45 m tall.',
     signature:
-      'The frame strip: a move laid out frame by frame, which you can scrub through while the 3D fighter shows exactly where it can hit and be hit.',
-    links: [],
+      'The Fighter Factory: pause any match, step through a move frame by frame with its hit areas drawn on the model, change the numbers and save them straight back to the fighter’s files.',
+    links: [
+      { label: 'Source', href: 'https://github.com/KhallilB/arena-mugen-3d' },
+    ],
     brief: [
       {
         heading: 'The problem',
         body: [
-          'M.U.G.E.N showed that people love building fighters as much as playing them. But its characters are hard-to-read files tuned by trial and error, and many of them use art nobody had the right to use. Mugen Arena keeps the core idea, that every fighter is a text file, and makes that file come alive: change a move, fight with it seconds later, and see every frame of it.',
+          'M.U.G.E.N showed that people love building fighters as much as playing them. But its fighters are 2D sprites in hard-to-read files tuned by trial and error, and many use art nobody had the right to use. Mugen Arena keeps the core idea, a fighter you can drop in as a folder, and moves it to 3D.',
         ],
       },
       {
         heading: 'How it works',
         body: [
-          'Pick two fighters and an arena, then fight a friend on the same keyboard or the computer. Open any fighter’s file and change a move: how quickly it comes out, how much damage it does, or where it can hit. Watch the change in the frame strip, save, and fight again. Share a fighter as a single file or a link.',
+          'Each fighter folder holds one 3D model and three plain files: its stats, its moves with their frame timing and hit areas, and how the computer plays it. A shared library of 27 animations gives every fighter movement, blocks and knockdowns from the start, and adjusts them so a small fighter and a giant can still hit and grab each other.',
         ],
       },
       {
         heading: 'The key piece',
         body: [
-          'The frame strip. Every frame of a move is a cell, marked as wind-up, hitting or recovery. Drag across it and the 3D fighter strikes that exact pose, with the areas where it can hit and be hit drawn on the model. Editing a cell edits the file.',
+          'The Fighter Factory. Press Tab during any match to pause it and step through the current move one frame at a time. Its wind-up, hitting and recovery frames are colour-coded, and where it can hit and be hit is drawn on the model. Change its timing, damage or reach, or how the computer plays, and save it straight back to the fighter’s files.',
         ],
       },
       {
-        heading: 'The fighter file',
+        heading: 'What comes next',
         body: [
-          'Plain text in four parts: states (what the fighter is doing and what can interrupt it), commands (the button sequences for each move and how much timing slack they allow), animations (free-to-use 3D animations with their timing) and hits (where a hit lands, its damage, and how far it knocks the other fighter back). The editor checks the file as you type and points to the exact line with a problem.',
-        ],
-      },
-      {
-        heading: 'What I’ll learn',
-        body: [
-          'A game clock that ticks 60 times a second no matter how fast the screen draws. A reader for the fighter file format. Detecting hits in 3D. Recognising special-move inputs like quarter-circle-forward. Doing the maths in a way that gives identical results in every browser. And online play that predicts your opponent’s moves and quietly corrects itself when the real input arrives.',
-        ],
-      },
-      {
-        heading: 'Hard parts',
-        body: [
-          'Drawing with WebGPU, falling back to WebGL where it isn’t available. Running the game logic in a background thread with maths that rounds the same way everywhere, so the same inputs always give the same fight. Proving that with a test that replays a match in several browsers and compares the game state frame by frame. Online play over a direct browser-to-browser connection comes later.',
+          'First, a one-day test with three fighters of very different heights: does a hit land in both directions, and does the game hold 60 frames a second? Then the arena and camera, the full set of moves, the Fighter Factory, and six launch fighters, each with its own computer opponent.',
         ],
       },
       {
         heading: 'Use of AI',
         body: [
-          'None. The computer opponent is a scripted fighter written in the same file format, so you can read it and change it like any other fighter.',
-        ],
-      },
-      {
-        heading: 'How I’ll test it',
-        body: [
-          'The file reader is checked against known-good files, and broken files must produce clear error messages. Hit detection and special-move inputs get their own tests using recorded inputs. A replay test checks that every frame comes out identical. And there are time budgets for drawing and game logic, plus a measured delay between pressing a button and seeing the result.',
-        ],
-      },
-      {
-        heading: 'Art and rights',
-        body: [
-          'Characters and the arena come from Kenney’s Animated Characters Bundle and Mini Arena, both free to use for anything. Nothing comes from the M.U.G.E.N community’s sprites, sounds or characters. The name will be checked for conflicts before launch.',
-        ],
-      },
-      {
-        heading: 'First milestone',
-        body: [
-          'One fighter in one arena who can walk, jump and throw one attack, all defined in the file, with its frame strip and two players on one keyboard.',
+          'New fighters can be drafted by AI: a language model writes the files and a 3D generator makes the model. None joins the roster until a validator checks it and I approve it.',
         ],
       },
     ],

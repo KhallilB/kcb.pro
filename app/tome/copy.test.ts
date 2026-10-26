@@ -13,10 +13,13 @@ function strings(value: unknown): string[] {
 }
 
 describe('tome data', () => {
-  it('titles its two chapters after the featured endeavors, in order', () => {
+  // Mugen Arena is listed but has no chapter yet; its sheets are laid out by hand.
+  it('titles its two chapters after the first two featured endeavors', () => {
     const { bezl, kbui } = data.chapters
     expect([bezl.title, kbui.title]).toEqual(
-      featured(content.projects).map((p) => p.title)
+      featured(content.projects)
+        .slice(0, 2)
+        .map((p) => p.title)
     )
   })
 
@@ -32,7 +35,7 @@ describe('tome data', () => {
 
   it('never names a hidden project', () => {
     const text = strings(data).join(' ')
-    for (const name of ['Deck Workshop', 'Mugen Arena', 'Wander']) {
+    for (const name of ['Deck Workshop', 'Wander']) {
       expect(text).not.toContain(name)
     }
   })
@@ -49,8 +52,15 @@ describe('tome data', () => {
 
   it('links every study to a page the site prerenders', () => {
     const paths = sitePaths(content)
-    expect(data.studies).toHaveLength(3)
+    expect(data.studies).toHaveLength(4)
     for (const s of data.studies) expect(paths).toContain(s.path)
+  })
+
+  it('gives every study a short name and a reason on the notes page', () => {
+    for (const s of data.studies) {
+      expect(s.short, s.slug).toBeTruthy()
+      expect(s.why, s.slug).toBeTruthy()
+    }
   })
 
   it('links each chapter to its project page in 2D', () => {
@@ -80,10 +90,10 @@ describe('tome data', () => {
   })
 
   it('says what each chapter is in the catalog’s own words, with no sample data', () => {
-    for (const p of featured(content.projects)) {
-      const chapter = Object.values(data.chapters).find((c) => c.title === p.title)
-      expect(chapter?.about).toBe(p.about)
-      expect(Object.keys(chapter ?? {})).toEqual(['title', 'summary', 'about', 'status', 'notes', 'facts', 'path'])
+    for (const chapter of Object.values(data.chapters)) {
+      const p = featured(content.projects).find((f) => f.title === chapter.title)
+      expect(chapter.about).toBe(p?.about)
+      expect(Object.keys(chapter)).toEqual(['title', 'summary', 'about', 'status', 'notes', 'facts', 'path'])
     }
   })
 })

@@ -68,15 +68,19 @@ function chapter(
 const STUDY_NOTES: Record<string, { short: string; why: string }> = {
   'figma-canvas': {
     short: 'Figma canvas',
-    why: 'Smooth dragging and zooming is the hardest part of any canvas, and Figma manages it with many people on screen at once.',
+    why: 'Bezl’s preview canvas needs dragging and zooming as smooth as Figma’s, with many people on screen at once.',
   },
-  'map-labels': {
-    short: 'Map labels',
-    why: 'Labels that make room without flickering are one of the hardest parts of a map, and few people explain how it’s done.',
+  'terminal-speed': {
+    short: 'Fast terminal',
+    why: 'Bezl puts each AI assistant in its own terminal, so the terminal has to stay smooth however much they print.',
   },
-  'benefits-application': {
-    short: 'Benefits form',
-    why: 'A form millions of people have to fill in, rebuilt to work on a phone and survive a dropped signal.',
+  'design-rules': {
+    short: 'Design rules',
+    why: 'kbui’s next step is checking screens against its rules, which Primer and Polaris have done at scale for years.',
+  },
+  'fighter-editor': {
+    short: 'Fighter editor',
+    why: 'Mugen Arena stands or falls on how easy a fighter is to tune, and the old editors show what to fix.',
   },
 }
 
