@@ -49,7 +49,7 @@ jobs:
 
       # A build without the ledger must never reach the deploy artifact.
       - name: Check the live ledger
-        run: grep -q 'id="progress"' build/work/bezl.html && grep -q 'id="progress"' build/work/kbui.html
+        run: grep -q 'id="progress"' build/work/bezl.html && grep -q 'id="progress"' build/work/kbui.html && grep -q 'id="progress"' build/work/mugen-arena.html
 
       - name: Keep the build for deploy
         uses: actions/upload-artifact@v4

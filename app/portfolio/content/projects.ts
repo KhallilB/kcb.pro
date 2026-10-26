@@ -242,6 +242,8 @@ export const projects: Project[] = [
     startsOn: '2026-10-23',
     order: 3,
     rank: 3,
+    repo: 'KhallilB/arena-mugen-3d',
+    goal: 'A 3D arena fighter where each fighter is a folder you drop in and every match plays out the same way twice.',
     role: 'Design and engineering',
     stack: ['TypeScript', 'Three.js', 'Vite', 'Python', 'Blender'],
     domain:
