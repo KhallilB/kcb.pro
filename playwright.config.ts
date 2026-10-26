@@ -11,8 +11,7 @@ export default defineConfig({
     headless: true,
   },
   webServer: {
-    command:
-      'bun run build && bun run preview',
+    command: 'PROGRESS_OFFLINE=1 bun run build && bun run preview',
     url: 'http://127.0.0.1:4173',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

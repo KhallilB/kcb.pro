@@ -122,11 +122,11 @@ export function tomeData(asOf: IsoDay): TomeData {
           ],
           [
             'One writer',
-            'On each task, one assistant can change the code and the rest can only read it. Each tool’s own sandbox enforces that.',
+            'On each task, one assistant can change the code and the rest can only read it. Each tool’s own sandbox is meant to enforce that; Codex’s is proven so far.',
           ],
           [
             'Proven so far',
-            'Three terminals each took a 20 MB stream without losing a byte, and typing stayed at 2 ms. Memory use is still an open question.',
+            'No terminal output was dropped on the way to the window, and typing echoes with no noticeable delay. Memory use is still an open question.',
           ],
         ],
         [
@@ -154,7 +154,7 @@ export function tomeData(asOf: IsoDay): TomeData {
         ],
         [
           ['Built with', 'CSS · React · Base UI'],
-          ['Used by', 'One other app; Bezl next'],
+          ['Used by', 'One other app; Bezl, in progress'],
           ['Started', 'Oct 2026'],
         ]
       ),

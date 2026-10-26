@@ -13,6 +13,7 @@ const {
   content,
   validateCatalog,
   buildDay,
+  builtProgress,
   escapeAttr,
   socialTags,
 } = server
@@ -24,13 +25,16 @@ if (errors.length > 0) {
   process.exit(1)
 }
 
+// Throws on a build-data file that breaks the contract.
+const progress = builtProgress(buildDay)
+
 const template = await readFile(join(BUILD, 'index.html'), 'utf8')
 if (!template.includes('<!--app-->')) {
   throw new Error('build/index.html lost its <!--app--> marker')
 }
 
 function page(path: string): string {
-  const { html, title, description } = renderPage(path, buildDay)
+  const { html, title, description } = renderPage(path, buildDay, progress)
   const social = socialTags(path)
   return template
     .replace(/<title>.*?<\/title>/s, `<title>${escapeAttr(title)}</title>`)

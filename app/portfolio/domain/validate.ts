@@ -1,8 +1,11 @@
 import type { BriefSection, Catalog, Media } from './types'
+import { isShortLine } from './text'
 
 // Placeholder copy is a launch blocker: the site must never show it.
 const PLACEHOLDER =
   /\b(tbd|todo|lorem ipsum|your name|coming soon|placeholder)\b/i
+
+const REPO = /^[A-Za-z0-9-]+\/[A-Za-z0-9._-]+$/
 
 export const hasPlaceholder = (text: string) => PLACEHOLDER.test(text)
 
@@ -45,6 +48,7 @@ export function validateCatalog(catalog: Catalog): string[] {
       [
         p.title,
         p.summary,
+        p.goal,
         p.about,
         p.role,
         p.domain,
@@ -68,7 +72,31 @@ export function validateCatalog(catalog: Catalog): string[] {
         errors.push(`"${p.slug}" has a link with no destination: ${link.label}`)
       }
     }
+    if (p.repo !== undefined && !REPO.test(p.repo)) {
+      errors.push(`"${p.slug}" has a repo that is not owner/name: ${p.repo}`)
+    }
+    if (p.repo !== undefined && p.goal === undefined) {
+      errors.push(`"${p.slug}" has a repo, so it needs a goal sentence`)
+    } else if (p.goal !== undefined && !isShortLine(p.goal)) {
+      errors.push(`"${p.slug}" needs a goal of one line, 1 to 140 characters`)
+    }
+    if (p.rank !== undefined && (p.kind !== 'endeavor' || p.listed === false)) {
+      errors.push(`"${p.slug}" has a rank but is not a listed endeavor`)
+    }
     if (p.media) errors.push(...mediaErrors(p.slug, p.media))
+  }
+
+  const byRank = new Map<number, string[]>()
+  for (const p of catalog.projects) {
+    if (p.rank !== undefined)
+      byRank.set(p.rank, [...(byRank.get(p.rank) ?? []), p.slug])
+  }
+  for (const [rank, rankSlugs] of byRank) {
+    if (rankSlugs.length > 1) {
+      errors.push(
+        `Rank ${rank} is used by ${rankSlugs.map((s) => `"${s}"`).join(' and ')}`
+      )
+    }
   }
 
   const projectSlugs = new Set(catalog.projects.map((p) => p.slug))

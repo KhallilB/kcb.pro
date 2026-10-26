@@ -1,11 +1,12 @@
 import { render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
+import { fixtureProgress } from '@app/portfolio/progress/fixture-progress'
 import { AppRoutes } from './AppRoutes'
 import { SiteProvider } from './site-context'
 
 function visit(path: string) {
   return render(
-    <SiteProvider asOf="2026-10-21">
+    <SiteProvider asOf="2026-10-21" progress={fixtureProgress}>
       <MemoryRouter initialEntries={[path]}>
         <AppRoutes />
       </MemoryRouter>
@@ -34,7 +35,7 @@ describe('home', () => {
     expect(live).toHaveTextContent('as of 21 Oct 2026')
   })
 
-  it('features the three endeavors with dated status', () => {
+  it('features ranked work by rank, then links to all of it', () => {
     visit('/')
     const work = screen.getByRole('region', { name: 'Selected work' })
     const cards = within(work).getAllByRole('article')
@@ -46,6 +47,9 @@ describe('home', () => {
     for (const card of cards) {
       expect(card).toHaveTextContent('In progress · as of 21 Oct 2026')
     }
+    const last = within(work).getAllByRole('link').at(-1)
+    expect(last).toHaveAccessibleName('All work')
+    expect(last).toHaveAttribute('href', '/work')
   })
 
   it('describes each project in words, with no picture', () => {
@@ -144,6 +148,76 @@ describe('project page', () => {
     expect(spec).toHaveTextContent('In progress · as of 21 Oct 2026')
   })
 
+  it("shows Bezl's progress under the header and above the brief", () => {
+    visit('/work/bezl')
+    const card = screen.getByRole('region', { name: 'Progress' })
+    expect(card).toHaveTextContent(
+      'One window that runs AI coding assistants side by side, with one writer per task.'
+    )
+    expect(card).toHaveTextContent('3 of 6 done, 1 in progress, 2 planned')
+    expect(card).toHaveTextContent(
+      'Next up: A Claude Code reviewer cannot write'
+    )
+    expect(card).toHaveTextContent('Updated 21 Oct 2026')
+    expect(within(card).getAllByRole('img')).toHaveLength(6)
+    const brief = screen.getByRole('heading', { level: 2, name: 'The problem' })
+    expect(
+      card.compareDocumentPosition(brief) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy()
+  })
+
+  it('keeps Full history closed after the brief, every step anchored in journey order', () => {
+    visit('/work/bezl')
+    const record = document.getElementById('record') as HTMLDetailsElement
+    expect(record).not.toHaveAttribute('open')
+    const last = screen.getByRole('heading', { level: 2, name: 'Use of AI' })
+    expect(
+      last.compareDocumentPosition(record) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy()
+    expect(
+      Array.from(record.querySelectorAll('.record__row'), (r) => r.id)
+    ).toEqual([
+      '2026-10-20-libghostty-vt',
+      '2026-10-20-reviewer-readonly-codex',
+      '2026-10-21-scaffold',
+      '2026-10-20-pty-throughput',
+      '2026-10-20-reviewer-readonly-claude',
+      '2026-10-21-pty-memory',
+    ])
+  })
+
+  it('shows commit activity inside the record', () => {
+    visit('/work/bezl')
+    const record = document.getElementById('record') as HTMLDetailsElement
+    record.open = true
+    expect(
+      within(record).getByRole('region', { name: 'Activity' })
+    ).toHaveTextContent('11 commits in the last 12 weeks')
+  })
+
+  it('shows outcomes only: no pass mark, measurement, evidence or link into Bezl’s repository', () => {
+    const { container } = visit('/work/bezl')
+    expect(container).not.toHaveTextContent('No lost bytes, echo under 100 ms')
+    expect(container).not.toHaveTextContent('Surplus bytes per pane')
+    expect(container).not.toHaveTextContent('RESULT.md')
+    expect(screen.queryByRole('group', { name: 'Filter entries' })).toBeNull()
+    const hrefs = Array.from(
+      container.querySelectorAll('a'),
+      (a) => a.getAttribute('href') ?? ''
+    )
+    expect(
+      hrefs.filter((href) => href.includes('github.com/KhallilB/bezl'))
+    ).toEqual([])
+  })
+
+  it('shows nothing in place of progress for a project without it', () => {
+    visit('/work/gallery')
+    expect(screen.queryByRole('region', { name: 'Build log' })).toBeNull()
+    expect(screen.getByRole('main')).not.toHaveTextContent('Nothing here yet')
+    expect(screen.queryByRole('region', { name: 'Progress' })).toBeNull()
+    expect(document.getElementById('record')).toBeNull()
+  })
+
   it('shows no empty placeholders', () => {
     visit('/work/kbui')
     expect(screen.queryByRole('region', { name: 'Build log' })).toBeNull()
@@ -162,14 +236,18 @@ describe('project page', () => {
     )
   })
 
-  it.each([
-    ['bezl', 'https://github.com/KhallilB/bezl'],
-    ['kbui', 'https://github.com/KhallilB/kbui'],
-  ])('links %s to its public source', (slug, href) => {
-    visit(`/work/${slug}`)
+  it('links kbui to its public source', () => {
+    visit('/work/kbui')
     expect(
       within(screen.getByRole('main')).getByRole('link', { name: /Source/ })
-    ).toHaveAttribute('href', href)
+    ).toHaveAttribute('href', 'https://github.com/KhallilB/kbui')
+  })
+
+  it('offers no Source link for Bezl, whose repository goes private', () => {
+    visit('/work/bezl')
+    expect(
+      within(screen.getByRole('main')).queryByRole('link', { name: /Source/ })
+    ).toBeNull()
   })
 
   it('shows source only where it is public', () => {

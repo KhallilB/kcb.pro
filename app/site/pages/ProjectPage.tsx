@@ -2,6 +2,8 @@ import { Link, useParams } from 'react-router'
 import { findProject } from '@app/portfolio/domain/catalog'
 import { Brief } from '../components/Brief'
 import { BuildLog } from '../components/BuildLog'
+import { FullRecord } from '../components/FullRecord'
+import { Journey } from '../components/Journey'
 import { ProjectMedia } from '../components/ProjectMedia'
 import { StatusChip } from '../components/StatusChip'
 import { useSite } from '../site'
@@ -9,9 +11,11 @@ import { NotFound } from './NotFound'
 
 export function ProjectPage() {
   const { slug = '' } = useParams()
-  const { catalog } = useSite()
+  const { catalog, progress } = useSite()
   const project = findProject(catalog.projects, slug)
   if (!project) return <NotFound />
+  // Registered but not yet fetched (a fresh dev clone) keeps the empty log.
+  const ledger = project.repo ? progress[project.slug] : undefined
 
   return (
     <article>
@@ -57,8 +61,13 @@ export function ProjectPage() {
         </div>
       </header>
       {project.media && <ProjectMedia media={project.media} />}
-      <BuildLog />
+      {ledger ? (
+        <Journey goal={project.goal} progress={ledger} />
+      ) : (
+        <BuildLog />
+      )}
       <Brief sections={project.brief} />
+      {ledger && <FullRecord key={project.slug} progress={ledger} />}
     </article>
   )
 }
