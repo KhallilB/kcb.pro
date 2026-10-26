@@ -98,13 +98,12 @@ The 2D site picks up new content automatically: a new project gets its own page 
 a row in the work index on the next build. The book doesn't, because each of its
 pages is laid out by hand.
 
-- **Projects:** the book has exactly two chapters, for `bezl` and `kbui`. Mugen Arena
-  is listed on the site but has no chapter yet. The two chapters'
-  notes and facts are written in
+- **Projects:** the book has exactly three chapters, for `bezl`, `kbui` and
+  `mugen-arena`. Their notes and facts are written in
   `app/tome/copy.ts`, and the page layout lives in the `SHEETS` list in
   `app/tome/engine.js`. Editing those projects' titles, summaries, `about` text or
   status in `projects.ts` updates the book. A new project does not appear in the book
-  until a chapter is added in both files. Renaming or hiding one of those two slugs
+  until a chapter is added in both files. Renaming or hiding one of those three slugs
   breaks its chapter.
 - **Studies:** every study needs an entry in `STUDY_NOTES` in `app/tome/copy.ts`: a
   short name for the book's study list and one sentence on why it matters. Without
