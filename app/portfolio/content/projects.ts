@@ -5,44 +5,44 @@ export const projects: Project[] = [
     slug: 'gallery',
     kind: 'site',
     title: 'The Gallery',
-    summary: 'This site: my work as a plain list and as a 3D book drawn entirely in code.',
+    summary: 'This site. My work as a simple list, or as a 3D book drawn in code.',
     about:
-      'My work as a plain list and as a 3D book, both built from the same content. The book has no 3D models and no image files: every cover, page and texture is painted in code when it loads.',
+      'You’re looking at it. The same pages come in two forms: a plain list, and a 3D book you can flip through. The book uses no 3D models or images. Everything in it, down to the paper grain, is drawn in code.',
     status: 'in-progress',
     startsOn: '2026-10-19',
     order: 0,
     role: 'Design and engineering',
     stack: ['React 19', 'Vite', 'React Router', 'Three.js', 'Cloudflare Pages'],
-    domain: 'Content checked at build time, published as static pages.',
-    signature: 'A date next to every status, so nothing looks finished before it is.',
+    domain: 'Static sites, 3D on the web and page speed.',
+    signature: 'Every status has a date next to it, so you can tell how current it is.',
     links: [{ label: 'Source', href: 'https://github.com/KhallilB/kcb.pro' }],
     brief: [
       {
         heading: 'Why it exists',
         body: [
-          'I wanted a portfolio that shows real work in progress, not just finished screenshots, and one you could read like a book without being locked out if your browser can’t draw it.',
+          'I wanted a portfolio that shows work while it’s still happening, and I wanted it to feel like something. So the home page is a book you can open and leaf through. If your browser can’t draw it, you get the same pages as a plain list.',
         ],
       },
       {
         heading: 'The book',
         body: [
-          'About 1,600 lines of JavaScript on top of Three.js. There are no 3D models and no image files: the cover, the paper grain and every page of text are painted onto canvases as the book loads, from the same content files as the rest of the site.',
-          'Its own code is 30 KB gzipped, 159 KB with Three.js. It only downloads when the book is about to show, or in the background while you read the list, so the first switch to 3D only has to build the scene.',
-          'On kcb.pro the book is on screen about 2 seconds after the page opens, measured on my laptop. It used to take nearly 4. Most of the wait was painting the cloth weave as about 40,000 tiny squares; it is now one small image scaled up, and the book paints each page at most twice on load instead of three times.',
+          'The book is about 1,600 lines of JavaScript on top of Three.js. There are no models or image files. When it loads, it paints the cover, the paper and every page of text onto canvases, using the same content as the rest of the site.',
+          'Its own code comes to 30 KB gzipped, or 159 KB with Three.js. It doesn’t download until it’s needed. If you start on the list, it loads quietly in the background, so switching to 3D only has to set up the scene.',
+          'On my laptop, the book shows up about 2 seconds after the page opens. It used to take almost 4. Most of that time went into painting the cloth texture as roughly 40,000 tiny squares. Now it’s one small image, scaled up, and each page is painted at most twice on load instead of three times.',
         ],
       },
       {
         heading: 'The plain site',
         body: [
-          'Every page is turned into plain HTML when the site is built, so it reads fine with JavaScript off and shows up fast: the home page is under 2 KB of HTML gzipped, and the whole page, book included, is about 400 KB over the wire. React then takes over in the browser. A browser without WebGL never sees a broken book; it gets the list.',
-          'All the content lives in a few typed files, and the build checks them first: a missing field, leftover filler text, or a study pointing at a hidden project stops the build instead of reaching the site.',
-          'The look comes from the book: Cinzel for headings, EB Garamond for reading, warm parchment, and one deep green for links and highlights. All of it is hand-written CSS driven by a single file of design tokens.',
+          'Every page is turned into plain HTML when the site is built. It loads fast and reads fine with JavaScript turned off. The home page is under 2 KB of HTML gzipped, and the whole thing, book included, is about 400 KB. Once it reaches your browser, React takes over. If your browser can’t do WebGL, you get the list, never a broken book.',
+          'All the content lives in a few typed files, and the build checks them before anything goes live. If a field is missing, filler text was left in, or a study points at a hidden project, the build stops.',
+          'The look comes from the book: Cinzel for headings, EB Garamond for reading, warm parchment, and one deep green for links. The CSS is written by hand and runs off a single file of design tokens.',
         ],
       },
       {
         heading: 'What comes next',
         body: [
-          'Proof that updates itself. Each project will publish a small file of results from its own test runs, and its card here will show those numbers, or say clearly when they are missing. After that: live demos you can try on the page, a map of how the projects connect, and a way to scroll back through each project’s history.',
+          'I want the site to keep its own proof up to date. Each project will publish a small file of results from its test runs, and its card here will show those numbers, or say so when they’re missing. After that, I’d like to add live demos you can try on the page, a map of how the projects connect, and a way to scroll back through each project’s history.',
         ],
       },
     ],
@@ -51,9 +51,9 @@ export const projects: Project[] = [
     slug: 'bezl',
     kind: 'endeavor',
     title: 'Bezl',
-    summary: 'AI coding assistants side by side, with a record of who did what.',
+    summary: 'Run a few AI coding assistants on one task, and see who did what.',
     about:
-      'A desktop app that runs Codex, Claude Code and Gemini CLI as separate workers on one task. One of them may change the code, the others may only read and review it, and every step is written to a local log that is only ever added to.',
+      'A desktop app for running Codex, Claude Code and Gemini CLI on the same task. Only one of them is allowed to change the code. The others read and review. Everything they do goes into a log on your machine that only ever grows.',
     status: 'in-progress',
     startsOn: '2026-10-22',
     order: 1,
@@ -62,43 +62,44 @@ export const projects: Project[] = [
     goal: 'One window that runs AI coding assistants side by side, with one writer per task.',
     role: 'Design and engineering',
     stack: ['Tauri 2', 'Rust', 'React 19', 'TypeScript', 'xterm.js'],
-    domain:
-      'Running other programs from a desktop app: live terminals inside one window, permissions enforced by the tools themselves rather than requested in a prompt, and a record you can check afterwards.',
+    domain: 'Desktop apps, embedded terminals and sandboxed permissions.',
     signature:
-      'One writer per task: reviewers held read-only by each assistant’s own sandbox, not by a polite request. Proven for Codex so far.',
+      'Only one assistant per task can write. The others are kept read-only by their own sandbox, so the rule holds even if a model ignores what it’s told. Proven for Codex so far.',
     links: [],
     brief: [
       {
         heading: 'The problem',
         body: [
-          'Running more than one AI coding assistant on the same code gets messy quickly. Two of them edit the same file, a reviewer starts making changes of its own, and afterwards nobody can say who did what. Bezl gives each task one assistant that may write, any number that may only read, and a record of everything that happened.',
+          'I started running two or three AI assistants on the same codebase, and it got messy fast. Two of them would edit the same file. A reviewer would decide to fix something on its own. By the end, I couldn’t tell who had changed what.',
+          'Bezl fixes that with one rule. Each task gets one assistant that can write, and as many as you like that can only read. Everything they do is recorded.',
         ],
       },
       {
         heading: 'How it works',
         body: [
-          'Bezl opens the official command-line tools in terminals inside one window, each signed in with its own account. It never calls a provider’s API, never holds anyone’s credentials, and never passes one assistant’s output to another. Each task gets its own copy of the repository, and the rules for what each assistant may do travel with the task.',
+          'Bezl doesn’t connect to any AI provider itself. It opens each assistant’s official command-line tool in a terminal inside one window, and each one signs in to its own account. So Bezl never touches your credentials, and it never passes one assistant’s output to another.',
+          'Each task works on its own copy of the repository, and the rules for who can do what are attached to the task.',
         ],
       },
       {
-        heading: 'What is proven so far',
+        heading: 'What I’ve proven so far',
         body: [
-          'Three short experiments ran on 22 Oct 2026, each measured against a stated bar for success.',
-          'No terminal output was dropped on the way to the window, and typing echoes with no noticeable delay. Memory during heavy bursts missed the original limit, so it has been replaced by two: one at rest and one during heavy output.',
-          'Ghostty’s terminal engine builds within its time budget and captures a text snapshot of a live vim screen that matches what was typed. For now it needs one specific build of its compiler.',
-          'A Codex probe running read-only was stopped by the operating system when it tried to change a file, and said so. The same check for Claude Code and Gemini CLI has not run yet.',
+          'On 22 Oct 2026 I ran three quick experiments. Before each one, I wrote down what would count as a pass.',
+          'The first was about the terminals. No output went missing on its way to the window, and I couldn’t notice any lag when typing. Memory was the one miss. Under heavy output it went over the limit I’d set, so I split that limit in two: one for quiet periods and one for heavy bursts.',
+          'The second was Ghostty’s terminal engine. It built within the time I’d allowed, and it captured a text snapshot of a live vim screen that matched what I’d typed. For now, it only works with one specific build of its compiler.',
+          'The third was the sandbox. I ran Codex in read-only mode and had it try to change a file. The operating system blocked it, and Codex said so. I haven’t run the same test on Claude Code or Gemini CLI yet.',
         ],
       },
       {
         heading: 'What comes next',
         body: [
-          'The core in Rust: tasks, workers and the permissions each one holds, with the log stored as events that are only ever added to. The interface is being built on kbui.',
+          'Next up is the core, written in Rust. It keeps track of tasks, the assistants working on them, and what each one is allowed to do. The log is stored as a list of events that only ever grows. The interface is being built on kbui.',
         ],
       },
       {
         heading: 'Use of AI',
         body: [
-          'Bezl directs AI assistants but adds none of its own. It starts the tools you already use and records what they do.',
+          'Bezl manages AI assistants, but there’s no AI inside it. It launches the tools you already use and keeps a record of what they do.',
         ],
       },
     ],
@@ -107,51 +108,52 @@ export const projects: Project[] = [
     slug: 'kbui',
     kind: 'endeavor',
     title: 'kbui',
-    summary: 'One design system for all my projects: tokens, CSS and React.',
+    summary: 'The design system all my projects share, from tokens to React.',
     about:
-      'A small design system that keeps every value in one token file, all styling in plain CSS that any framework can use, and behaviour in a thin React layer. Tests check that the pieces stay in agreement.',
+      'A small design system that all my projects share. Colours, spacing and type live in one token file. The styling is plain CSS, so any framework can use it, and React adds the behaviour on top. Tests make sure the three never drift apart.',
     status: 'in-progress',
     startsOn: '2026-10-16',
     order: 2,
     rank: 2,
     repo: 'KhallilB/kbui',
-    goal: 'One design system every project shares, with the rules checked by the build.',
+    goal: 'One design system every project shares, with its rules checked by the build.',
     role: 'Design and engineering',
     stack: ['TypeScript', 'CSS', 'React 19', 'Base UI', 'Storybook'],
-    domain:
-      'Design tokens, accessible components, and rules that a build checks instead of a reviewer having to remember them.',
+    domain: 'Design tokens, accessible components and automated design checks.',
     signature:
-      'The anatomy line: one comment at the top of each stylesheet that names a component’s classes and attributes, so any framework can render it the same way.',
+      'Every stylesheet starts with an anatomy line, a single comment listing the component’s classes and attributes. Any framework that follows it renders the component the same way.',
     links: [{ label: 'Source', href: 'https://github.com/KhallilB/kbui' }],
     brief: [
       {
         heading: 'The problem',
         body: [
-          'Every project needs buttons, fields and dialogs, and each one tends to grow its own slightly different set. kbui is one shared set, so a fix or an accessibility improvement reaches every project at once.',
+          'Every project needs buttons, form fields and dialogs. Left alone, each one ends up with its own slightly different version. kbui gives them one shared set, so when I fix a bug or improve accessibility, every project gets the fix.',
         ],
       },
       {
         heading: 'How it works',
         body: [
-          'Colours, spacing and type live in one file in the W3C design tokens format, with light and dark values side by side. Styling is plain CSS keyed on class names and data attributes, so it does not depend on React. The React layer uses Base UI for focus, keyboard and screen-reader behaviour, and adds only the right classes and attributes.',
+          'All the colours, spacing and type sizes live in one file, written in the W3C design tokens format. Light and dark values sit side by side.',
+          'The styling is plain CSS that hooks onto class names and data attributes. It doesn’t depend on React at all.',
+          'The React layer is thin. It uses Base UI to handle focus, keyboard support and screen readers, and its only other job is to put the right classes and attributes on each element.',
         ],
       },
       {
-        heading: 'How it stays honest',
+        heading: 'How it stays consistent',
         body: [
-          'The build fails if a token points at one that does not exist, if a stylesheet uses a raw colour, or if a component is missing its test or its story. Every story is also rendered in a real browser and scanned for accessibility problems. The last recorded run passed every component test and every story.',
+          'The build checks the rules, so I don’t have to remember them. It fails if a token points to one that doesn’t exist, if a stylesheet uses a raw colour, or if a component is missing its test or its story. Every story is also opened in a real browser and checked for accessibility problems. On the last recorded run, everything passed.',
         ],
       },
       {
         heading: 'Who uses it',
         body: [
-          'One other app uses it today, and Bezl’s first screen is being built on it. Each release is published as downloadable packages, so a project that builds in the cloud can install a fixed version.',
+          'One other app uses it today, and Bezl’s first screen is being built on it. Each release is published as packages you can download, so a project that builds in the cloud can lock to a specific version.',
         ],
       },
       {
         heading: 'What comes next',
         body: [
-          'About twenty more components, including layout and text, each with a complete anatomy line. After that, the plan is to let people describe a screen in plain language and have kbui check the result against its own design rules. None of that is built yet.',
+          'About twenty more components are on the list, including layout and text, each with a full anatomy line. Further out, I’d like you to be able to describe a screen in plain English and have kbui check it against its own design rules. None of that exists yet.',
         ],
       },
     ],
@@ -235,21 +237,21 @@ export const projects: Project[] = [
     slug: 'mugen-arena',
     kind: 'endeavor',
     title: 'Mugen Arena',
-    summary: 'A 3D arena fighting game where every fighter drops in as a folder.',
+    summary: 'A 3D fighting game where each fighter is a folder you drop in.',
     about:
-      'A 3D fighting game in the browser where every fighter is a folder: its model, its moves and how the computer plays it. Drop one in and it can fight any other, whatever its height.',
+      'A 3D fighting game that runs in your browser. Each fighter is a folder holding its model, its moves and how the computer plays it. Drop a new one in and it can fight anyone on the roster, however tall either of them is.',
     status: 'in-progress',
     startsOn: '2026-10-23',
     order: 3,
     rank: 3,
     repo: 'KhallilB/arena-mugen-3d',
-    goal: 'A 3D arena fighter where each fighter is a folder you drop in and every match plays out the same way twice.',
+    goal: 'A 3D arena fighter where each fighter is a folder you drop in, and the same inputs always play out the same match.',
     role: 'Design and engineering',
     stack: ['TypeScript', 'Three.js', 'Vite', 'Python', 'Blender'],
     domain:
-      'A fighting game that plays out the same way every time: a fixed clock of 60 ticks a second, hit detection on the model’s own bones, and one set of shared animations that fits fighters from 1.15 m to 2.45 m tall.',
+      'Game simulation that plays out the same way every time. It runs on a fixed clock of 60 ticks a second, detects hits on the model’s own bones, and shares one set of animations across fighters from 1.15 m to 2.45 m tall.',
     signature:
-      'The Fighter Factory: pause any match, step through a move frame by frame with its hit areas drawn on the model, change the numbers and save them straight back to the fighter’s files.',
+      'The Fighter Factory. Pause a match, step through a move one frame at a time with its hit areas drawn on the model, then tweak the numbers and save them straight back to the fighter’s files.',
     links: [
       { label: 'Source', href: 'https://github.com/KhallilB/arena-mugen-3d' },
     ],
@@ -257,31 +259,35 @@ export const projects: Project[] = [
       {
         heading: 'The problem',
         body: [
-          'M.U.G.E.N showed that people love building fighters as much as playing them. But its fighters are 2D sprites in hard-to-read files tuned by trial and error, and many use art nobody had the right to use. Mugen Arena keeps the core idea, a fighter you can drop in as a folder, and moves it to 3D.',
+          'M.U.G.E.N proved that people enjoy building fighters as much as playing them. But its fighters are 2D sprites described in hard-to-read files, and getting a move right takes a lot of trial and error. Many of them also use art nobody had permission to use.',
+          'Mugen Arena keeps the part that worked, a fighter you can drop in as a folder, and brings it into 3D.',
         ],
       },
       {
         heading: 'How it works',
         body: [
-          'Each fighter folder holds one 3D model and three plain files: its stats, its moves with their frame timing and hit areas, and how the computer plays it. A shared library of 27 animations gives every fighter movement, blocks and knockdowns from the start, and adjusts them so a small fighter and a giant can still hit and grab each other.',
+          'Each fighter’s folder holds one 3D model and three plain files. One sets its stats. One describes its moves, with their frame timing and hit areas. The last one describes how the computer plays it.',
+          'Every fighter also gets a shared library of 27 animations, covering walking, blocking and getting knocked down. The animations adjust to each fighter’s size, so a small fighter and a giant can still hit and grab each other.',
         ],
       },
       {
         heading: 'The key piece',
         body: [
-          'The Fighter Factory. Press Tab during any match to pause it and step through the current move one frame at a time. Its wind-up, hitting and recovery frames are colour-coded, and where it can hit and be hit is drawn on the model. Change its timing, damage or reach, or how the computer plays, and save it straight back to the fighter’s files.',
+          'The Fighter Factory. Press Tab during a match and the game pauses, so you can step through the current move one frame at a time. The wind-up, the hit and the recovery are colour-coded, and the areas where the fighter can hit and be hit are drawn right on the model.',
+          'From there, you can change the move’s timing, damage or reach, or adjust how the computer plays. Save, and the change goes straight back into the fighter’s files.',
         ],
       },
       {
         heading: 'What comes next',
         body: [
-          'First, a one-day test with three fighters of very different heights: does a hit land in both directions, and does the game hold 60 frames a second? Then the arena and camera, the full set of moves, the Fighter Factory, and six launch fighters, each with its own computer opponent.',
+          'First comes a one-day test with three fighters of very different heights. I want to know two things: does a hit land in both directions, and can the game hold 60 frames a second?',
+          'After that come the arena and camera, the full set of moves, the Fighter Factory, and six launch fighters, each with its own computer opponent.',
         ],
       },
       {
         heading: 'Use of AI',
         body: [
-          'New fighters can be drafted by AI: a language model writes the files and a 3D generator makes the model. None joins the roster until a validator checks it and I approve it.',
+          'AI can draft new fighters. A language model writes the files and a 3D generator makes the model. Nothing joins the roster until it passes a validator and I’ve signed off on it.',
         ],
       },
     ],

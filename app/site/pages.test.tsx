@@ -57,9 +57,9 @@ describe('home', () => {
     const cards = within(screen.getByRole('region', { name: 'Selected work' })).getAllByRole(
       'article'
     )
-    expect(cards[0]).toHaveTextContent('runs Codex, Claude Code and Gemini CLI')
-    expect(cards[1]).toHaveTextContent('keeps every value in one token file')
-    expect(cards[2]).toHaveTextContent('every fighter is a folder')
+    expect(cards[0]).toHaveTextContent('running Codex, Claude Code and Gemini CLI on the same task')
+    expect(cards[1]).toHaveTextContent('Colours, spacing and type live in one token file')
+    expect(cards[2]).toHaveTextContent('Each fighter is a folder')
     expect(container.querySelector('.card svg, .card img, .wip')).toBeNull()
   })
 
@@ -121,9 +121,9 @@ describe('work index', () => {
   it('describes every project in its row', () => {
     visit('/work')
     const rows = within(screen.getByRole('main')).getAllByRole('listitem')
-    expect(rows[1]).toHaveTextContent('runs Codex, Claude Code and Gemini CLI')
-    expect(rows[2]).toHaveTextContent('keeps every value in one token file')
-    expect(rows[3]).toHaveTextContent('every fighter is a folder')
+    expect(rows[1]).toHaveTextContent('running Codex, Claude Code and Gemini CLI on the same task')
+    expect(rows[2]).toHaveTextContent('Colours, spacing and type live in one token file')
+    expect(rows[3]).toHaveTextContent('Each fighter is a folder')
   })
 
   it('lists live work first, then what is next', () => {
@@ -228,7 +228,7 @@ describe('project page', () => {
     visit('/work/bezl')
     const headings = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)
     expect(headings).toContain('The problem')
-    expect(headings).toContain('What is proven so far')
+    expect(headings).toContain('What I’ve proven so far')
     const toc = screen.getByRole('navigation', { name: 'On this page' })
     expect(within(toc).getByRole('link', { name: 'The problem' })).toHaveAttribute(
       'href',
@@ -324,7 +324,7 @@ describe('studies', () => {
 
   it('says what a study is, with no empty placeholders', () => {
     visit('/studies/figma-canvas')
-    expect(screen.getByRole('main')).toHaveTextContent('rebuild of its panning, zooming')
+    expect(screen.getByRole('main')).toHaveTextContent('rebuilding the panning, zooming')
     expect(screen.getByRole('main')).not.toHaveTextContent('Nothing here yet')
   })
 
