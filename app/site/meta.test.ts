@@ -14,7 +14,7 @@ describe('pageMeta', () => {
   it('titles a project page with its name and summary', () => {
     expect(pageMeta('/work/kbui')).toEqual({
       title: 'kbui · Khallil Bailey',
-      description: 'One design system for all my projects: tokens, CSS and React.',
+      description: 'The design system all my projects share, from tokens to React.',
       status: 200,
     })
   })
@@ -46,7 +46,7 @@ describe('socialTags', () => {
     const html = socialTags('/work/kbui')
     expect(tag(html, 'og:title')).toBe('kbui · Khallil Bailey')
     expect(tag(html, 'og:description')).toBe(
-      'One design system for all my projects: tokens, CSS and React.'
+      'The design system all my projects share, from tokens to React.'
     )
     expect(tag(html, 'og:url')).toBe('https://kcb.pro/work/kbui')
     expect(tag(html, 'og:image')).toBe('https://kcb.pro/og.png')

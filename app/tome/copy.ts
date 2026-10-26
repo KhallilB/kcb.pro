@@ -69,19 +69,19 @@ function chapter(
 const STUDY_NOTES: Record<string, { short: string; why: string }> = {
   'figma-canvas': {
     short: 'Figma canvas',
-    why: 'Bezl’s preview canvas needs dragging and zooming as smooth as Figma’s, with many people on screen at once.',
+    why: 'Bezl’s preview canvas has to pan and zoom as smoothly as Figma’s, even with lots of people on screen.',
   },
   'terminal-speed': {
     short: 'Fast terminal',
-    why: 'Bezl puts each AI assistant in its own terminal, so the terminal has to stay smooth however much they print.',
+    why: 'Every AI assistant in Bezl gets its own terminal, so that terminal has to stay smooth however much they print.',
   },
   'design-rules': {
     short: 'Design rules',
-    why: 'kbui’s next step is checking screens against its rules, which Primer and Polaris have done at scale for years.',
+    why: 'kbui’s next step is checking screens against its own rules. Primer and Polaris have been doing that at scale for years.',
   },
   'fighter-editor': {
     short: 'Fighter editor',
-    why: 'Mugen Arena stands or falls on how easy a fighter is to tune, and the old editors show what to fix.',
+    why: 'Mugen Arena lives or dies on how easy it is to tune a fighter, and the old editors show exactly what needs fixing.',
   },
 }
 
@@ -118,20 +118,20 @@ export function tomeData(asOf: IsoDay): TomeData {
         [
           [
             'The problem',
-            'Several AI coding assistants on one codebase step on each other, and afterwards nobody can say who changed what.',
+            'Put a few AI coding assistants on one codebase and they get in each other’s way. Afterwards, nobody can tell who changed what.',
           ],
           [
             'One writer',
-            'On each task, one assistant can change the code and the rest can only read it. Each tool’s own sandbox is meant to enforce that; Codex’s is proven so far.',
+            'On every task, one assistant can change the code and the rest can only read it. Each tool’s own sandbox is meant to enforce that. So far I’ve confirmed it for Codex.',
           ],
           [
-            'Proven so far',
-            'No terminal output was dropped on the way to the window, and typing echoes with no noticeable delay. Memory use is still an open question.',
+            'So far',
+            'No terminal output went missing on its way to the window, and I couldn’t notice any lag when typing. Memory use is still the open question.',
           ],
         ],
         [
           ['Built with', 'Tauri · Rust · React'],
-          ['Data', 'On your machine'],
+          ['Data', 'Stays on your machine'],
           ['Started', 'Oct 2026'],
         ]
       ),
@@ -141,15 +141,15 @@ export function tomeData(asOf: IsoDay): TomeData {
         [
           [
             'The idea',
-            'Every design value lives in one file, the styles are plain CSS any framework can use, and React only adds behaviour.',
+            'Every design value lives in one file. The styles are plain CSS that any framework can use, and React just adds the behaviour.',
           ],
           [
-            'Kept honest',
-            'Every stylesheet starts with a line listing the classes it uses, and the build fails if that line is missing.',
+            'The contract',
+            'Each stylesheet starts with a line listing the classes it uses. If that line is missing, the build fails.',
           ],
           [
             'Checked',
-            'Every component is opened in a real browser and checked for accessibility problems on each run.',
+            'Every component is opened in a real browser and checked for accessibility problems on every run.',
           ],
         ],
         [
@@ -164,15 +164,15 @@ export function tomeData(asOf: IsoDay): TomeData {
         [
           [
             'The problem',
-            'M.U.G.E.N showed that people love building fighters as much as playing them, but its fighters are 2D sprites in hard-to-read files. Mugen Arena keeps the drop-in folder and moves it to 3D.',
+            'M.U.G.E.N proved people love building fighters as much as playing them. But its fighters are 2D sprites in hard-to-read files. Mugen Arena keeps the drop-in folder and moves it into 3D.',
           ],
           [
             'The key piece',
-            'The Fighter Factory: pause any match, step through a move one frame at a time with its hit areas drawn on the model, and save changes straight back to the fighter’s files.',
+            'The Fighter Factory. Pause a match, step through a move frame by frame with its hit areas drawn on the model, and save your changes straight back to the fighter.',
           ],
           [
             'Next',
-            'A one-day test with three fighters of very different heights comes first: does a hit land in both directions, and does the game hold 60 frames a second?',
+            'First, a one-day test with three fighters of very different heights. Does a hit land both ways, and can the game hold 60 frames a second?',
           ],
         ],
         [
