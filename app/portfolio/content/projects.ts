@@ -58,7 +58,7 @@ export const projects: Project[] = [
     startsOn: '2026-10-22',
     order: 1,
     rank: 1,
-    repo: 'KhallilB/bezl',
+    repo: 'KhallilB/bezl-internal',
     goal: 'One window that runs AI coding assistants side by side, with one writer per task.',
     role: 'Design and engineering',
     stack: ['Tauri 2', 'Rust', 'React 19', 'TypeScript', 'xterm.js', 'Ollama'],
