@@ -53,7 +53,7 @@ export const projects: Project[] = [
     title: 'Bezl',
     summary: 'Run a few AI coding assistants on one task, and see who did what.',
     about:
-      'A desktop app for running Codex, Claude Code and Gemini CLI on the same task. Only one of them is allowed to change the code. The others read and review. Everything they do goes into a log on your machine that only ever grows.',
+      'A desktop app for running Codex and Claude Code on the same task. One of them may change the code while the other reviews. Local models run through Ollama for jobs that don’t need tools, and every step is logged on your machine.',
     status: 'in-progress',
     startsOn: '2026-10-22',
     order: 1,
@@ -61,8 +61,8 @@ export const projects: Project[] = [
     repo: 'KhallilB/bezl',
     goal: 'One window that runs AI coding assistants side by side, with one writer per task.',
     role: 'Design and engineering',
-    stack: ['Tauri 2', 'Rust', 'React 19', 'TypeScript', 'xterm.js'],
-    domain: 'Desktop apps, embedded terminals and sandboxed permissions.',
+    stack: ['Tauri 2', 'Rust', 'React 19', 'TypeScript', 'xterm.js', 'Ollama'],
+    domain: 'Desktop apps, embedded terminals, sandboxed permissions and local models.',
     signature:
       'Only one assistant per task can write. The others are kept read-only by their own sandbox, so the rule holds even if a model ignores what it’s told. Proven for Codex so far.',
     links: [],
@@ -77,7 +77,8 @@ export const projects: Project[] = [
       {
         heading: 'How it works',
         body: [
-          'Bezl doesn’t connect to any AI provider itself. It opens each assistant’s official command-line tool in a terminal inside one window, and each one signs in to its own account. So Bezl never touches your credentials, and it never passes one assistant’s output to another.',
+          'Bezl doesn’t connect to any AI provider itself. It opens Codex and Claude Code through their official command-line tools, each in a terminal inside one window, and each keeps its own sign-in. Local models run through Ollama, on your machine by default. So Bezl never holds a key.',
+          'Between assistants, Bezl only passes along what it made or checked itself: the diff, its own check results and findings it has verified. It never hands one assistant another’s conversation.',
           'Each task works on its own copy of the repository, and the rules for who can do what are attached to the task.',
         ],
       },
@@ -87,7 +88,7 @@ export const projects: Project[] = [
           'On 22 Oct 2026 I ran three quick experiments. Before each one, I wrote down what would count as a pass.',
           'The first was about the terminals. No output went missing on its way to the window, and I couldn’t notice any lag when typing. Memory was the one miss. Under heavy output it went over the limit I’d set, so I split that limit in two: one for quiet periods and one for heavy bursts.',
           'The second was Ghostty’s terminal engine. It built within the time I’d allowed, and it captured a text snapshot of a live vim screen that matched what I’d typed. For now, it only works with one specific build of its compiler.',
-          'The third was the sandbox. I ran Codex in read-only mode and had it try to change a file. The operating system blocked it, and Codex said so. I haven’t run the same test on Claude Code or Gemini CLI yet.',
+          'The third was the sandbox. I ran Codex in read-only mode and had it try to change a file. The operating system blocked it, and Codex said so. I haven’t run the same test on Claude Code yet.',
         ],
       },
       {
@@ -99,7 +100,7 @@ export const projects: Project[] = [
       {
         heading: 'Use of AI',
         body: [
-          'Bezl manages AI assistants, but there’s no AI inside it. It launches the tools you already use and keeps a record of what they do.',
+          'Bezl doesn’t ship a model of its own. It launches the coding agents you already use, hands jobs that need no tools to models you run through Ollama, and keeps a record of all of it.',
         ],
       },
     ],

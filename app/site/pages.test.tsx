@@ -57,7 +57,7 @@ describe('home', () => {
     const cards = within(screen.getByRole('region', { name: 'Selected work' })).getAllByRole(
       'article'
     )
-    expect(cards[0]).toHaveTextContent('running Codex, Claude Code and Gemini CLI on the same task')
+    expect(cards[0]).toHaveTextContent('running Codex and Claude Code on the same task')
     expect(cards[1]).toHaveTextContent('Colours, spacing and type live in one token file')
     expect(cards[2]).toHaveTextContent('Each fighter is a folder')
     expect(container.querySelector('.card svg, .card img, .wip')).toBeNull()
@@ -121,7 +121,7 @@ describe('work index', () => {
   it('describes every project in its row', () => {
     visit('/work')
     const rows = within(screen.getByRole('main')).getAllByRole('listitem')
-    expect(rows[1]).toHaveTextContent('running Codex, Claude Code and Gemini CLI on the same task')
+    expect(rows[1]).toHaveTextContent('running Codex and Claude Code on the same task')
     expect(rows[2]).toHaveTextContent('Colours, spacing and type live in one token file')
     expect(rows[3]).toHaveTextContent('Each fighter is a folder')
   })
