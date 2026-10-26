@@ -37,6 +37,7 @@ export interface TomeData {
   chapters: {
     bezl: Chapter
     kbui: Chapter
+    mugenArena: Chapter
   }
 }
 
@@ -68,15 +69,19 @@ function chapter(
 const STUDY_NOTES: Record<string, { short: string; why: string }> = {
   'figma-canvas': {
     short: 'Figma canvas',
-    why: 'Smooth dragging and zooming is the hardest part of any canvas, and Figma manages it with many people on screen at once.',
+    why: 'Bezl’s preview canvas needs dragging and zooming as smooth as Figma’s, with many people on screen at once.',
   },
-  'map-labels': {
-    short: 'Map labels',
-    why: 'Labels that make room without flickering are one of the hardest parts of a map, and few people explain how it’s done.',
+  'terminal-speed': {
+    short: 'Fast terminal',
+    why: 'Bezl puts each AI assistant in its own terminal, so the terminal has to stay smooth however much they print.',
   },
-  'benefits-application': {
-    short: 'Benefits form',
-    why: 'A form millions of people have to fill in, rebuilt to work on a phone and survive a dropped signal.',
+  'design-rules': {
+    short: 'Design rules',
+    why: 'kbui’s next step is checking screens against its rules, which Primer and Polaris have done at scale for years.',
+  },
+  'fighter-editor': {
+    short: 'Fighter editor',
+    why: 'Mugen Arena stands or falls on how easy a fighter is to tune, and the old editors show what to fix.',
   },
 }
 
@@ -88,7 +93,7 @@ export function tomeData(asOf: IsoDay): TomeData {
     asOf: formatLongDay(asOf),
     nowBuilding: live?.title ?? 'Between projects',
     about: [
-      'I’m a frontend engineer in Los Angeles, and I’ve spent more than five years building product interfaces. This book is my side work: Bezl, a desktop app that runs AI coding assistants side by side, and kbui, the design system my projects share.',
+      'I’m a frontend engineer in Los Angeles, and I’ve spent more than five years building product interfaces. This book is my side work: Bezl, a desktop app that runs AI coding assistants side by side; kbui, the design system my projects share; and Mugen Arena, a 3D fighting game in the browser.',
     ],
     contactLine:
       'Email is the best way to reach me. My résumé has the full story.',
@@ -150,6 +155,29 @@ export function tomeData(asOf: IsoDay): TomeData {
         [
           ['Built with', 'CSS · React · Base UI'],
           ['Used by', 'One other app; Bezl next'],
+          ['Started', 'Oct 2026'],
+        ]
+      ),
+      mugenArena: chapter(
+        'mugen-arena',
+        asOf,
+        [
+          [
+            'The problem',
+            'M.U.G.E.N showed that people love building fighters as much as playing them, but its fighters are 2D sprites in hard-to-read files. Mugen Arena keeps the drop-in folder and moves it to 3D.',
+          ],
+          [
+            'The key piece',
+            'The Fighter Factory: pause any match, step through a move one frame at a time with its hit areas drawn on the model, and save changes straight back to the fighter’s files.',
+          ],
+          [
+            'Next',
+            'A one-day test with three fighters of very different heights comes first: does a hit land in both directions, and does the game hold 60 frames a second?',
+          ],
+        ],
+        [
+          ['Built with', 'TypeScript · Three.js'],
+          ['Runs in', 'The browser'],
           ['Started', 'Oct 2026'],
         ]
       ),

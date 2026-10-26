@@ -61,7 +61,7 @@ Studies work the same way, in `studies.ts`. They differ from projects in a few f
 
 | Field        | What it's for                                                                      |
 | ------------ | ---------------------------------------------------------------------------------- |
-| `format`     | `'teardown'` (pulling apart a real system) or `'legacy'` (shown as "Reimagining"). |
+| `format`     | `'teardown'` (pulling apart a real system) or `'legacy'` (shown as "Redesign").    |
 | `question`   | The one question the study answers.                                                |
 | `builtSlice` | What gets built in the study's week.                                               |
 | `kitPiece`   | The reusable piece it hands to a project.                                          |
@@ -85,9 +85,10 @@ The checks run on every entry, hidden ones included, so a hidden project can com
 by deleting its `listed: false` line.
 
 `app/portfolio/content/content.test.ts` runs the same checks in `bun run test`, so you
-find out before you build. That file also pins the current lineup on purpose: exactly
-two endeavors in season order (Bezl, then kbui), Bezl as "now building", the three
-earlier endeavors kept but hidden, and three studies.
+find out before you build. That file also pins the current lineup on purpose: three
+endeavors in season order (Bezl, kbui, then Mugen Arena), Bezl as "now building", the
+two earlier endeavors kept but hidden, and four studies. Every study must feed a listed
+project, and every endeavor must be fed by at least one study.
 When you add, remove or reorder projects or studies, update those expectations in the
 same change.
 
@@ -97,12 +98,12 @@ The 2D site picks up new content automatically: a new project gets its own page 
 a row in the work index on the next build. The book doesn't, because each of its
 pages is laid out by hand.
 
-- **Projects:** the book has exactly two chapters, for `bezl` and `kbui`. Their
-  notes and facts are written in
+- **Projects:** the book has exactly three chapters, for `bezl`, `kbui` and
+  `mugen-arena`. Their notes and facts are written in
   `app/tome/copy.ts`, and the page layout lives in the `SHEETS` list in
   `app/tome/engine.js`. Editing those projects' titles, summaries, `about` text or
   status in `projects.ts` updates the book. A new project does not appear in the book
-  until a chapter is added in both files. Renaming or hiding one of those two slugs
+  until a chapter is added in both files. Renaming or hiding one of those three slugs
   breaks its chapter.
 - **Studies:** every study needs an entry in `STUDY_NOTES` in `app/tome/copy.ts`: a
   short name for the book's study list and one sentence on why it matters. Without

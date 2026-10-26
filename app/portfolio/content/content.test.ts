@@ -7,10 +7,11 @@ describe('published content', () => {
     expect(validateCatalog(catalog)).toEqual([])
   })
 
-  it('features exactly Bezl and kbui, in season order', () => {
+  it('features Bezl, kbui and Mugen Arena, in season order', () => {
     expect(featured(content.projects).map((p) => p.title)).toEqual([
       'Bezl',
       'kbui',
+      'Mugen Arena',
     ])
   })
 
@@ -26,18 +27,30 @@ describe('published content', () => {
   })
 
   it('keeps the earlier endeavors in the catalog but off the site', () => {
-    const hidden = ['deck-workshop', 'mugen-arena', 'wander']
+    const hidden = ['deck-workshop', 'wander']
     const all = catalog.projects.map((p) => p.slug)
     const shown = content.projects.map((p) => p.slug)
     expect(all).toEqual(expect.arrayContaining(hidden))
     expect(shown.filter((slug) => hidden.includes(slug))).toEqual([])
   })
 
-  it('carries exactly three work studies', () => {
+  it('carries four work studies, in the order they start', () => {
     expect(content.studies.map((s) => s.slug)).toEqual([
       'figma-canvas',
-      'map-labels',
-      'benefits-application',
+      'terminal-speed',
+      'design-rules',
+      'fighter-editor',
     ])
+  })
+
+  it('aims every study at a listed project, and leaves no endeavor without one', () => {
+    const shown = content.projects.map((p) => p.slug)
+    for (const s of content.studies) {
+      expect(s.feeds.length, s.slug).toBeGreaterThan(0)
+      for (const fed of s.feeds) expect(shown, s.slug).toContain(fed)
+    }
+    const fed = new Set(content.studies.flatMap((s) => s.feeds))
+    const unfed = featured(content.projects).filter((p) => !fed.has(p.slug))
+    expect(unfed.map((p) => p.title)).toEqual([])
   })
 })
