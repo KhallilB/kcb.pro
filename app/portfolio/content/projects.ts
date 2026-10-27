@@ -65,7 +65,10 @@ export const projects: Project[] = [
     domain: 'Desktop apps, embedded terminals, sandboxed permissions and local models.',
     signature:
       'Only one assistant per task can write. The others are kept read-only by their own sandbox, so the rule holds even if a model ignores what it’s told. Proven for Codex so far.',
-    links: [],
+    links: [
+      { label: 'Source', href: 'https://github.com/KhallilB/bezl' },
+      { label: 'Download', href: 'https://github.com/KhallilB/bezl/releases' },
+    ],
     brief: [
       {
         heading: 'The problem',

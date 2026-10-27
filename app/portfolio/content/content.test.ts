@@ -57,6 +57,14 @@ describe('published content', () => {
     expect(bezl.signature).toContain('Proven for Codex so far.')
   })
 
+  it('links Bezl to its public source and downloads, never its private repo', () => {
+    const bezl = content.projects.find((p) => p.slug === 'bezl')!
+    expect(bezl.links).toEqual([
+      { label: 'Source', href: 'https://github.com/KhallilB/bezl' },
+      { label: 'Download', href: 'https://github.com/KhallilB/bezl/releases' },
+    ])
+  })
+
   it('says Bezl is built on kbui, and names no release that will go stale', () => {
     const copy = (slug: string) =>
       content.projects
