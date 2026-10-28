@@ -341,7 +341,12 @@ test('the pages and the bundle ship outcomes only', () => {
     for (const secret of secrets)
       expect(text.includes(secret), `${secret} in ${file}`).toBe(false)
   }
-  expect(readFileSync('build/work/bezl.html', 'utf8')).not.toContain(
-    'github.com/KhallilB/bezl'
+  // Bezl's page links its public source and downloads, nothing else in its repos.
+  const bezlLinks =
+    readFileSync('build/work/bezl.html', 'utf8').match(
+      /github\.com\/KhallilB\/bezl[^"'\s<]*/g
+    ) ?? []
+  expect(new Set(bezlLinks)).toEqual(
+    new Set(['github.com/KhallilB/bezl', 'github.com/KhallilB/bezl/releases'])
   )
 })
