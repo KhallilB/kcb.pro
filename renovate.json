@@ -1,0 +1,79 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "enabledManagers": [
+    "bun",
+    "npm",
+    "custom.regex"
+  ],
+  "dependencyDashboard": true,
+  "automerge": false,
+  "automergeType": "pr",
+  "platformAutomerge": false,
+  "ignoreTests": false,
+  "separateMinorPatch": true,
+  "rangeStrategy": "pin",
+  "packageRules": [
+    {
+      "matchPackageNames": [
+        "*"
+      ],
+      "enabled": false
+    },
+    {
+      "matchPackageNames": [
+        "@kb.ui/react",
+        "@kb.ui/css",
+        "@kb.ui/tokens"
+      ],
+      "enabled": true,
+      "groupName": "kbui",
+      "groupSlug": "kbui"
+    },
+    {
+      "matchManagers": [
+        "bun",
+        "npm"
+      ],
+      "matchPackageNames": [
+        "@kb.ui/react",
+        "@kb.ui/css",
+        "@kb.ui/tokens"
+      ],
+      "matchUpdateTypes": [
+        "patch"
+      ],
+      "automerge": true
+    },
+    {
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchPackageNames": [
+        "@kb.ui/react",
+        "@kb.ui/css",
+        "@kb.ui/tokens"
+      ],
+      "automerge": false,
+      "prBodyNotes": [
+        "This migrates legacy @kbui/* tarballs to @kb.ui/* npm packages. Update application imports and check-versions paths, then run bun install to regenerate bun.lock before merging. This migration requires review."
+      ]
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Offer legacy scope migration as a reviewed update; npm/Bun handles subsequent releases.",
+      "managerFilePatterns": [
+        "/(^|/)package\\.json$/"
+      ],
+      "matchStrings": [
+        "\"@kbui/(?<package>react|css|tokens)\"\\s*:\\s*\"https://github\\.com/KhallilB/kbui/releases/download/v(?<currentValue>\\d+\\.\\d+\\.\\d+)/kbui-(?:react|css|tokens)-\\d+\\.\\d+\\.\\d+\\.tgz\""
+      ],
+      "depNameTemplate": "@kb.ui/{{{package}}}",
+      "datasourceTemplate": "npm",
+      "versioningTemplate": "npm",
+      "autoReplaceStringTemplate": "\"{{{depName}}}\": \"{{{newValue}}}\"",
+      "packageNameTemplate": "@kb.ui/{{{package}}}"
+    }
+  ]
+}
