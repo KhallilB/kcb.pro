@@ -195,7 +195,7 @@ describe('project page', () => {
     ).toHaveTextContent('11 commits in the last 12 weeks')
   })
 
-  it('shows outcomes only: no pass mark, measurement, evidence or link into Bezl’s repository', () => {
+  it('shows outcomes only: no pass mark, measurement, evidence or repository link beyond source and downloads', () => {
     const { container } = visit('/work/bezl')
     expect(container).not.toHaveTextContent('No lost bytes, echo under 100 ms')
     expect(container).not.toHaveTextContent('Surplus bytes per pane')
@@ -207,7 +207,10 @@ describe('project page', () => {
     )
     expect(
       hrefs.filter((href) => href.includes('github.com/KhallilB/bezl'))
-    ).toEqual([])
+    ).toEqual([
+      'https://github.com/KhallilB/bezl',
+      'https://github.com/KhallilB/bezl/releases',
+    ])
   })
 
   it('shows nothing in place of progress for a project without it', () => {
@@ -243,11 +246,17 @@ describe('project page', () => {
     ).toHaveAttribute('href', 'https://github.com/KhallilB/kbui')
   })
 
-  it('offers no Source link for Bezl, whose repository goes private', () => {
+  it('offers Bezl’s public source and its downloads', () => {
     visit('/work/bezl')
-    expect(
-      within(screen.getByRole('main')).queryByRole('link', { name: /Source/ })
-    ).toBeNull()
+    const main = within(screen.getByRole('main'))
+    expect(main.getByRole('link', { name: /Source/ })).toHaveAttribute(
+      'href',
+      'https://github.com/KhallilB/bezl'
+    )
+    expect(main.getByRole('link', { name: /Download/ })).toHaveAttribute(
+      'href',
+      'https://github.com/KhallilB/bezl/releases'
+    )
   })
 
   it('shows source only where it is public', () => {
