@@ -410,3 +410,36 @@ describe('about', () => {
     }
   })
 })
+
+describe('shared portfolio layout', () => {
+  it('keeps each shared project card an article with one title link', () => {
+    const { container } = visit('/')
+    const work = screen.getByRole('region', { name: 'Selected work' })
+    const cards = within(work).getAllByRole('article')
+    expect(container.querySelector('.cards')).toHaveClass('kb-grid')
+    for (const card of cards) {
+      expect(card).toHaveClass('kb-card')
+      expect(within(card).getAllByRole('link')).toHaveLength(1)
+      expect(within(card).queryByRole('button')).toBeNull()
+      expect(card).not.toHaveAttribute('tabindex')
+      expect(within(card).getByRole('link')).toHaveClass('card__link')
+    }
+  })
+
+  it.each(['/work', '/studies'])(
+    'preserves native ruled lists on %s',
+    (path) => {
+      visit(path)
+      const main = within(screen.getByRole('main'))
+      const list = main.getByRole('list')
+      expect(list.tagName).toBe('UL')
+      expect(list).toHaveClass('kb-grid', 'rows')
+      expect(list).toHaveAttribute('data-layout', 'stack')
+      for (const row of main.getAllByRole('listitem')) {
+        expect(row).toHaveClass('kb-card', 'row')
+        expect(row).toHaveAttribute('data-appearance', 'plain')
+        expect(within(row).getAllByRole('link')).toHaveLength(1)
+      }
+    }
+  )
+})

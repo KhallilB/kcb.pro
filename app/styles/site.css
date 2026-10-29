@@ -256,18 +256,7 @@ a {
   margin-block-start: var(--space-4);
 }
 
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
-  gap: var(--gutter);
-}
-
 .card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  border: var(--rule) solid var(--hairline);
-  border-radius: var(--radius-card);
   overflow: hidden;
   transition: border-color var(--fast) var(--ease);
 }
@@ -309,7 +298,16 @@ a {
   font-size: var(--text-meta);
   line-height: var(--lh-meta);
   font-variant-numeric: tabular-nums;
+  font-weight: inherit;
   color: var(--secondary);
+}
+
+.status .kb-status-text {
+  white-space: normal;
+}
+
+.status .kb-status-icon {
+  display: contents;
 }
 
 .status__mark {
@@ -331,6 +329,7 @@ a {
 
 /* Ruled index rows with the label rail. */
 .rows {
+  --kb-grid-gap: 0;
   border-block-start: var(--rule) solid var(--hairline);
 }
 

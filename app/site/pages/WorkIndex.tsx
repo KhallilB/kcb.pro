@@ -1,3 +1,4 @@
+import { Card, Grid } from '@kbui/react'
 import { Link } from 'react-router'
 import { workIndex } from '@app/portfolio/domain/catalog'
 import { formatMonth } from '@app/portfolio/domain/dates'
@@ -14,9 +15,14 @@ export function WorkIndex() {
         <h1 className="h1">Work</h1>
         <p className="mono secondary">{projects.length} projects</p>
       </header>
-      <ul className="rows">
+      <Grid as="ul" layout="stack" className="rows">
         {projects.map((project) => (
-          <li key={project.slug} className="row row--tall">
+          <Card
+            as="li"
+            appearance="plain"
+            key={project.slug}
+            className="row row--tall"
+          >
             <span className="row__rail mono secondary">
               {formatMonth(project.startsOn)}
             </span>
@@ -29,9 +35,9 @@ export function WorkIndex() {
             <span className="row__meta">
               <StatusChip item={project} />
             </span>
-          </li>
+          </Card>
         ))}
-      </ul>
+      </Grid>
     </>
   )
 }

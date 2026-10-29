@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "PROGRESS_OFFLINE=1 bun run progress && vite",
     "progress": "bun scripts/progress-fetch.ts",
-    "build": "bun scripts/build.ts",
+    "build": "bun run check:kbui && bun scripts/build.ts",
     "preview": "bun scripts/serve-build.ts",
     "lint": "eslint .",
     "typecheck": "tsc -b",
@@ -13,11 +13,14 @@
     "test:integration": "vitest run --config vitest.config.ts integration",
     "test:e2e": "playwright test --config=playwright.config.ts",
     "check": "bun run lint && bun run build && bun run test && bun run test:integration && bun run test:e2e",
-    "deploy": "wrangler pages deploy ./build --project-name kcb-pro"
+    "deploy": "wrangler pages deploy ./build --project-name kcb-pro",
+    "check:kbui": "bun node_modules/@kbui/react/dist/check-versions.js"
   },
   "dependencies": {
     "@fontsource/cinzel": "5",
     "@fontsource/eb-garamond": "5",
+    "@kbui/css": "https://github.com/KhallilB/kbui/releases/download/v0.5.0/kbui-css-0.5.0.tgz",
+    "@kbui/react": "https://github.com/KhallilB/kbui/releases/download/v0.5.0/kbui-react-0.5.0.tgz",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-router": "^7.13.1",

@@ -1,3 +1,4 @@
+import { Card, Grid } from '@kbui/react'
 import { Link, useParams } from 'react-router'
 import { findProject } from '@app/portfolio/domain/catalog'
 import { formatMonth } from '@app/portfolio/domain/dates'
@@ -21,9 +22,14 @@ export function StudiesIndex() {
           my projects.
         </p>
       </header>
-      <ul className="rows">
+      <Grid as="ul" layout="stack" className="rows">
         {catalog.studies.map((study) => (
-          <li key={study.slug} className="row row--tall">
+          <Card
+            as="li"
+            appearance="plain"
+            key={study.slug}
+            className="row row--tall"
+          >
             <span className="row__rail mono secondary">
               {formatMonth(study.startsOn)}
             </span>
@@ -33,10 +39,12 @@ export function StudiesIndex() {
               </Link>
               <span className="row__summary">{study.about}</span>
             </span>
-            <span className="row__meta secondary">{formatLabel(study.format)}</span>
-          </li>
+            <span className="row__meta secondary">
+              {formatLabel(study.format)}
+            </span>
+          </Card>
         ))}
-      </ul>
+      </Grid>
     </>
   )
 }
