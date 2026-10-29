@@ -1,0 +1,35 @@
+name: kbui checks
+
+on:
+  pull_request:
+    paths:
+      - package.json
+      - bun.lock
+      - renovate.json
+      - tests/renovate-config.test.ts
+      - .github/workflows/kbui-checks.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kbui-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  policy:
+    name: kbui update policy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.11
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - name: Validate Renovate configuration
+        run: npx --yes --package=renovate@44.192.2 renovate-config-validator --strict --no-global renovate.json
+      - name: Check update and migration policies
+        run: npm exec --yes --package=renovate@44.192.2 -- bun test tests/renovate-config.test.ts
