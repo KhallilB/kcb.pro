@@ -83,7 +83,6 @@ The book is built once and then kept. Switching to 2D doesn't destroy it:
   | About             | `/about`                   |
   | Bezl              | `/work/bezl`               |
   | kbui              | `/work/kbui`               |
-  | Mugen Arena       | `/work/mugen-arena`        |
   | Work studies      | `/studies` and every study |
   | Contents, Contact | stay where you are         |
 

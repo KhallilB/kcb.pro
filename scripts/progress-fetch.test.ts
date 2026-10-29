@@ -77,7 +77,6 @@ describe('progress-fetch', () => {
     expect(Object.keys(written).sort()).toEqual([
       'bezl.json',
       'kbui.json',
-      'mugen-arena.json',
     ])
     const bezl = written['bezl.json'] as {
       entries: Record<string, unknown>[]

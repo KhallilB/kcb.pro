@@ -114,42 +114,4 @@ export const studies: Study[] = [
       },
     ],
   },
-  {
-    slug: 'fighter-editor',
-    title: 'The M.U.G.E.N fighter editor, reimagined in 3D',
-    format: 'legacy',
-    question:
-      'How do you make tuning a fighter’s moves feel like editing, not trial and error?',
-    about:
-      'People build M.U.G.E.N fighters with tools like Fighter Factory, and tuning a move still takes a lot of guesswork. I’m redesigning that for a 3D game in the browser, with a working editor that shows every frame of a move on the model as you change it.',
-    builtSlice:
-      'A frame-by-frame editor. Scrub through a move, see where it can hit and be hit on the 3D model, change its timing or damage, and save it back to the fighter’s file.',
-    kitPiece:
-      'The frame strip and hit-area overlay that will become Mugen Arena’s Fighter Factory.',
-    feeds: ['mugen-arena'],
-    status: 'planned',
-    startsOn: '2026-12-14',
-    brief: [
-      {
-        heading: 'Who it’s for',
-        body: [
-          'Two groups. People who already build M.U.G.E.N fighters, who are used to editing text files and testing by playing. And newcomers who want to change one move without learning the whole format.',
-          'Every fighter I use is either free to use or made for this project.',
-        ],
-      },
-      {
-        heading: 'What I’d change',
-        body: [
-          'Show each move as a strip of frames marked wind-up, hit and recovery, rather than as numbers in a file. Draw the hit areas on the model at whatever frame you’re on. Check the file while you edit, and point to the exact problem when something’s wrong. Then save straight back to the fighter’s files, so the next match uses the change.',
-        ],
-      },
-      {
-        heading: 'How I’ll prove it',
-        body: [
-          'Five people who’ve built fighters before will make the same change, a faster jab, in both Fighter Factory and the new editor. I’ll compare how long each one takes and how many mistakes they make.',
-          'The editor will work with just a keyboard, and tests will check that a saved change plays back exactly, frame for frame. This feeds Mugen Arena’s Fighter Factory milestone.',
-        ],
-      },
-    ],
-  },
 ]

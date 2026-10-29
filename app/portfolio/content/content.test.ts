@@ -19,11 +19,10 @@ describe('published content', () => {
     expect(validateCatalog(catalog)).toEqual([])
   })
 
-  it('features Bezl, kbui and Mugen Arena, by rank', () => {
+  it('features Bezl and kbui, by rank', () => {
     expect(featured(content.projects).map((p) => p.title)).toEqual([
       'Bezl',
       'kbui',
-      'Mugen Arena',
     ])
   })
 
@@ -76,11 +75,10 @@ describe('published content', () => {
     expect(copy('kbui')).not.toMatch(/\b\d+\.\d+\.\d+\b/)
   })
 
-  it('registers Bezl by its private progress repo, kbui and Mugen Arena by their public ones', () => {
+  it('registers Bezl by its private progress repo, kbui by its public one', () => {
     expect(registered(content.projects)).toEqual([
       { slug: 'bezl', repo: 'KhallilB/bezl-internal' },
       { slug: 'kbui', repo: 'KhallilB/kbui' },
-      { slug: 'mugen-arena', repo: 'KhallilB/arena-mugen-3d' },
     ])
   })
 
@@ -96,19 +94,18 @@ describe('published content', () => {
   })
 
   it('keeps the earlier endeavors in the catalog but off the site', () => {
-    const hidden = ['deck-workshop', 'wander']
+    const hidden = ['deck-workshop', 'mugen-arena', 'wander']
     const all = catalog.projects.map((p) => p.slug)
     const shown = content.projects.map((p) => p.slug)
     expect(all).toEqual(expect.arrayContaining(hidden))
     expect(shown.filter((slug) => hidden.includes(slug))).toEqual([])
   })
 
-  it('carries four work studies, in the order they start', () => {
+  it('carries three work studies, in the order they start', () => {
     expect(content.studies.map((s) => s.slug)).toEqual([
       'figma-canvas',
       'terminal-speed',
       'design-rules',
-      'fighter-editor',
     ])
   })
 
