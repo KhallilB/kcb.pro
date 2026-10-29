@@ -173,3 +173,11 @@ hand in a real browser. [the-tome.md](the-tome.md#debugging-the-3d-scene) explai
 | Change what the book says              | `app/tome/copy.ts`                                                            |
 | Change how the book looks or moves     | `app/tome/engine.js`                                                          |
 | Change how deploys work                | `.github/workflows/ci.yml` ([guide](deploying.md))                            |
+
+## Shared interface primitives
+
+The 2D site uses `Status`, `Card` and `Grid` from synchronized KBUI release tarballs. The build runs `bun run check:kbui` before compiling and rejects mixed installed package versions. Upgrade React and CSS URLs together, then commit the generated lockfile.
+
+`app/portfolio/domain` still owns status text and dates. `StatusChip` maps those states to display tones. Product colors, typography and surface values stay in `app/styles/tokens.css`; standalone KBUI component styles load before local styles so the shared reset does not alter the book skin.
+
+Home cards retain their single stretched title link and `data-place` chapter anchor. Work/study indexes retain native ruled lists, using stacked Grid and plain Card list items. The Tome, view toggle, engine loading and focus lifecycle remain portfolio-owned.

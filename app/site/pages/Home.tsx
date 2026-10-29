@@ -1,5 +1,10 @@
+import { Card, Grid } from '@kbui/react'
 import { Link } from 'react-router'
-import { featured, finishedStudies, nowBuilding } from '@app/portfolio/domain/catalog'
+import {
+  featured,
+  finishedStudies,
+  nowBuilding,
+} from '@app/portfolio/domain/catalog'
 import { formatLabel } from '@app/portfolio/domain/status'
 import { formatDay, formatMonth } from '@app/portfolio/domain/dates'
 import { StatusChip } from '../components/StatusChip'
@@ -16,9 +21,9 @@ export function Home() {
       <section className="masthead">
         <h1 className="display">{profile.headline}</h1>
         <p className="lede">
-          More than five years of building product interfaces, much of it as
-          an early engineer at startups. Here’s what I’m building in my spare
-          time, half-finished parts and all.
+          More than five years of building product interfaces, much of it as an
+          early engineer at startups. Here’s what I’m building in my spare time,
+          half-finished parts and all.
         </p>
         {live && (
           <p className="live" data-testid="now-building">
@@ -38,9 +43,9 @@ export function Home() {
             Selected work
           </h2>
         </div>
-        <div className="cards">
+        <Grid className="cards">
           {work.map((project) => (
-            <article key={project.slug} className="card" data-place={project.slug}>
+            <Card key={project.slug} className="card" data-place={project.slug}>
               <div className="card__body">
                 <h3 className="card__title">
                   <Link to={`/work/${project.slug}`} className="card__link">
@@ -51,9 +56,9 @@ export function Home() {
                 <p className="card__about">{project.about}</p>
                 <StatusChip item={project} />
               </div>
-            </article>
+            </Card>
           ))}
-        </div>
+        </Grid>
         <p className="section__more">
           <Link to="/work" className="link">
             All work <span aria-hidden="true">→</span>
@@ -62,7 +67,11 @@ export function Home() {
       </section>
 
       {studies.length > 0 && (
-        <section className="section" aria-labelledby="work-studies" data-place="studies">
+        <section
+          className="section"
+          aria-labelledby="work-studies"
+          data-place="studies"
+        >
           <div className="section__head">
             <h2 id="work-studies" className="h3">
               Work studies
@@ -71,9 +80,9 @@ export function Home() {
               All studies <span aria-hidden="true">→</span>
             </Link>
           </div>
-          <ul className="rows">
+          <Grid as="ul" layout="stack" className="rows">
             {studies.map((study) => (
-              <li key={study.slug} className="row">
+              <Card as="li" appearance="plain" key={study.slug} className="row">
                 <span className="row__rail mono secondary">
                   {formatMonth(study.shippedOn ?? study.startsOn)}
                 </span>
@@ -83,9 +92,9 @@ export function Home() {
                 <span className="row__meta secondary">
                   {formatLabel(study.format)}
                 </span>
-              </li>
+              </Card>
             ))}
-          </ul>
+          </Grid>
         </section>
       )}
     </>

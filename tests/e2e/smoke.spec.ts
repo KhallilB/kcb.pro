@@ -350,3 +350,73 @@ test('the pages and the bundle ship outcomes only', () => {
     new Set(['github.com/KhallilB/bezl', 'github.com/KhallilB/bezl/releases'])
   )
 })
+
+test('shared project cards keep the whole-card click target', async ({
+  page,
+}) => {
+  await preferList(page)
+  await page.goto('/')
+  const card = page
+    .getByRole('region', { name: 'Selected work' })
+    .getByRole('article')
+    .first()
+  await expect(card).toHaveClass(/kb-card/)
+  await expect(card.getByRole('link')).toHaveCount(1)
+  await card.scrollIntoViewIfNeeded()
+  const box = await card.boundingBox()
+  if (!box) throw new Error('Project card missing')
+  await page.mouse.click(box.x + box.width - 12, box.y + box.height - 12)
+  await expect(page).toHaveURL(/\/work\/bezl$/)
+})
+
+test('shared layouts remain usable without JavaScript', async ({ browser }) => {
+  const context = await browser.newContext({
+    javaScriptEnabled: false,
+    viewport: { width: 320, height: 700 },
+  })
+  const page = await context.newPage()
+  try {
+    await page.goto('/')
+    const cards = page
+      .getByRole('region', { name: 'Selected work' })
+      .getByRole('article')
+    await expect(cards).toHaveCount(3)
+    await expect(cards.first()).toHaveClass(/kb-card/)
+    await expect(cards.first().getByRole('link')).toBeVisible()
+    await cards.first().getByRole('link').click()
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Bezl' })
+    ).toBeVisible()
+    for (const [route, count] of [['/work', 4], ['/studies', 4]] as const) {
+      await page.goto(route)
+      const list = page.getByRole('main').getByRole('list')
+      await expect(list).toHaveClass(/kb-grid/)
+      await expect(list.getByRole('listitem')).toHaveCount(count)
+      const overflow = await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth -
+          document.documentElement.clientWidth
+      )
+      expect(overflow, route).toBeLessThanOrEqual(0)
+    }
+  } finally {
+    await context.close()
+  }
+})
+
+test('status skin preserves each domain marker color', async ({ page }) => {
+  await page.goto('/work')
+  const status = page.locator('.status').first()
+  const mark = status.locator('.status__mark')
+  for (const [state, background, border] of [
+    ['planned', 'rgba(0, 0, 0, 0)', 'rgb(111, 93, 69)'],
+    ['in-progress', 'rgb(158, 108, 24)', 'rgb(158, 108, 24)'],
+    ['shipped', 'rgb(23, 120, 92)', 'rgb(23, 120, 92)'],
+  ]) {
+    await status.evaluate((element, value) => {
+      element.dataset.status = value
+    }, state)
+    await expect(mark).toHaveCSS('background-color', background)
+    await expect(mark).toHaveCSS('border-color', border)
+  }
+})

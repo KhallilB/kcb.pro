@@ -89,6 +89,23 @@
   --ring: 1.5px;
   --anchor-rule: 3px;
 
+  --kb-card-background: var(--paper);
+  --kb-card-color: var(--ink);
+  --kb-card-border: var(--hairline);
+  --kb-card-border-width: var(--rule);
+  --kb-card-radius: var(--radius-card);
+  --kb-card-padding: 0;
+  --kb-grid-gap: var(--gutter);
+  --kb-grid-min-item-width: 300px;
+
+  --kb-space-2: var(--space-2);
+  --kb-size-sm: var(--text-meta);
+  --kb-status-neutral: var(--secondary);
+  --kb-status-running: var(--secondary);
+  --kb-status-success: var(--secondary);
+  --nudge: 2px;
+  --dot: 0.32em;
+
   --ease: cubic-bezier(0.2, 0, 0, 1);
   --fast: 150ms;
   --slow: 600ms;
