@@ -7,8 +7,8 @@
       "dependencies": {
         "@fontsource/cinzel": "5",
         "@fontsource/eb-garamond": "5",
-        "@kbui/css": "https://github.com/KhallilB/kbui/releases/download/v0.5.0/kbui-css-0.5.0.tgz",
-        "@kbui/react": "https://github.com/KhallilB/kbui/releases/download/v0.5.0/kbui-react-0.5.0.tgz",
+        "@kb.ui/css": "0.10.2",
+        "@kb.ui/react": "0.10.2",
         "react": "^19.2.4",
         "react-dom": "^19.2.4",
         "react-router": "^7.13.1",
@@ -232,9 +232,9 @@
 
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.9", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.0.3", "@jridgewell/sourcemap-codec": "^1.4.10" } }, "sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ=="],
 
-    "@kbui/css": ["@kbui/css@https://github.com/KhallilB/kbui/releases/download/v0.5.0/kbui-css-0.5.0.tgz", {}, "sha512-KsL8KXT0f1+xUdX7rRYfPsHrA8dgwRQjIfPL2MkjDfhhTWjmOGKUR5TPgd089Bhj/MAxD63Biaw1dg7cDBVEww=="],
+    "@kb.ui/css": ["@kb.ui/css@0.10.2", "", {}, "sha512-yTdH9fEsfoopjHzE78Nl5pGSh0soid0JTDnxoCpSPLgDzMNyBLvT8oL/kiNdy/P6BK+gYzSvcvYuE4smV7x5mA=="],
 
-    "@kbui/react": ["@kbui/react@https://github.com/KhallilB/kbui/releases/download/v0.5.0/kbui-react-0.5.0.tgz", { "dependencies": { "@base-ui/react": "1.9.0", "clsx": "^2.1.1" }, "peerDependencies": { "react": ">=19", "react-dom": ">=19" } }, "sha512-j0DbJy53Bcb1VNQtojP5hCJ4V2Aqn76lrh2GbFUzX6NHRNjmZkhEFR/PZnbyZsu7fQanWL6fYz3EDNRjBX8FQw=="],
+    "@kb.ui/react": ["@kb.ui/react@0.10.2", "", { "dependencies": { "@base-ui/react": "1.9.0", "clsx": "^2.1.1" }, "peerDependencies": { "react": ">=19", "react-dom": ">=19" } }, "sha512-rhqG6uyofnQrOIdtinA6nrmhSYc1cxmdJfPTV180ab93qLfVb556TdZNhPCuVU41GTLQHmW+pTIMtDc3oIlFGg=="],
 
     "@playwright/test": ["@playwright/test@1.58.2", "", { "dependencies": { "playwright": "1.58.2" }, "bin": { "playwright": "cli.js" } }, "sha512-akea+6bHYBBfA9uQqSYmlJXn61cTa+jbO87xVLCWbTqbWadRVmhxlXATaOjOgcBaWU4ePo0wB41KMFv3o35IXA=="],
 
