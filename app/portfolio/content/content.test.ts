@@ -6,6 +6,8 @@ import { featured, nowBuilding, registered } from '../domain/catalog'
 const MEASUREMENT =
   /\d[\s-]?(?:(?:ms|[kmgt]i?b|s|secs?|seconds?|mins?|minutes?|x)\b|%)/i
 const TEST_COUNT = /\d+ (component )?(tests|stories)\b/i
+// Studies stand on their own; the project they help is never named in them.
+const PROJECT_NAMES = /bezl|kbui|live ?league|mugen|deck workshop/i
 // Wording that claimed more than the experiments showed.
 const OVERCLAIMS = [
   'instantly',
@@ -101,20 +103,36 @@ describe('published content', () => {
     expect(shown.filter((slug) => hidden.includes(slug))).toEqual([])
   })
 
-  it('carries three work studies, in the order they start', () => {
+  it('carries seven work studies, in the order they start', () => {
     expect(content.studies.map((s) => s.slug)).toEqual([
-      'figma-canvas',
       'terminal-speed',
-      'design-rules',
+      'review-signal',
+      'safe-fixes',
+      'read-only',
+      'trusted-checker',
+      'decision-or-luck',
+      'merge-queue',
     ])
   })
 
-  it('aims every study at a listed project, and leaves no endeavor without one', () => {
+  it('names no project in a study, so each reads as its own problem', () => {
+    for (const s of content.studies) {
+      const text = [s.title, s.question, s.about, s.builtSlice, s.kitPiece]
+        .concat(s.brief.flatMap((b) => [b.heading, ...b.body]))
+        .join('\n')
+      expect(text, s.slug).not.toMatch(PROJECT_NAMES)
+    }
+  })
+
+  it('aims every attached study at a listed project, and leaves no endeavor without one', () => {
     const shown = content.projects.map((p) => p.slug)
     for (const s of content.studies) {
-      expect(s.feeds.length, s.slug).toBeGreaterThan(0)
       for (const fed of s.feeds) expect(shown, s.slug).toContain(fed)
     }
+    // Feeds work that has no page here.
+    expect(
+      content.studies.filter((s) => s.feeds.length === 0).map((s) => s.slug)
+    ).toEqual(['decision-or-luck'])
     const fed = new Set(content.studies.flatMap((s) => s.feeds))
     const unfed = featured(content.projects).filter((p) => !fed.has(p.slug))
     expect(unfed.map((p) => p.title)).toEqual([])

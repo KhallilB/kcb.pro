@@ -2,7 +2,10 @@ import { escapeAttr, pageMeta, socialTags } from './meta'
 
 describe('pageMeta', () => {
   it('titles the home page with the name alone', () => {
-    expect(pageMeta('/')).toMatchObject({ title: 'Khallil Bailey', status: 200 })
+    expect(pageMeta('/')).toMatchObject({
+      title: 'Khallil Bailey',
+      status: 200,
+    })
   })
 
   it('describes the site by who I am, not by how it is dated', () => {
@@ -14,14 +17,15 @@ describe('pageMeta', () => {
   it('titles a project page with its name and summary', () => {
     expect(pageMeta('/work/kbui')).toEqual({
       title: 'kbui · Khallil Bailey',
-      description: 'The design system all my projects share, from tokens to React.',
+      description:
+        'The design system all my projects share, from tokens to React.',
       status: 200,
     })
   })
 
   it('titles a study page with the study', () => {
-    expect(pageMeta('/studies/figma-canvas').title).toBe(
-      'How Figma’s canvas stays smooth with everyone on it · Khallil Bailey'
+    expect(pageMeta('/studies/safe-fixes').title).toBe(
+      'How Clippy and ESLint decide which fixes are safe to apply · Khallil Bailey'
     )
   })
 
@@ -71,6 +75,8 @@ describe('socialTags', () => {
 
 describe('escapeAttr', () => {
   it('keeps text from ending an attribute or opening a tag', () => {
-    expect(escapeAttr('Tom & "Jerry" <b>')).toBe('Tom &amp; &quot;Jerry&quot; &lt;b>')
+    expect(escapeAttr('Tom & "Jerry" <b>')).toBe(
+      'Tom &amp; &quot;Jerry&quot; &lt;b>'
+    )
   })
 })

@@ -22,9 +22,10 @@ Two projects I'm working on:
 Deck Workshop, Mugen Arena and Wander are still in the content files, hidden from the
 site for now.
 
-There are also three "work studies". In each one I spend a week figuring out how
-something works (Figma's canvas, map labels) or how it should work (a state benefits
-form).
+There are also seven "work studies". In each one I spend a week pulling apart how a
+well-known tool solves a hard problem (a terminal that keeps up, code review worth
+reading, a sandbox that really is read-only) and build a small piece I can reuse. The
+studies never name my projects, so each one stands on its own.
 
 Everything has a date on it. If something isn't done yet, it says so.
 

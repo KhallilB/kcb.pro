@@ -28,7 +28,7 @@ export function mountTome(host, opts) {
   // ---------- palette and type ----------
   const P = { parch: '#f1e5c8', parchEdge: '#d9c497', ink: '#33261a', muted: '#7b6649', rule: '#c5ad82', accent: '#17785c', accentSoft: 'rgba(23,120,92,0.16)', gold: '#caa24c', goldDark: '#7d5f22', leather: '#3c4c66', leatherDark: '#26324a' };
   const SECT = ['#7b2a33', '#8a5a1e', '#9b2f2a', '#1e6b58', '#2f4d80', '#5e3a66'];
-  const FACE_COLOR = { contents: SECT[0], about: SECT[0], bezl: SECT[1], bezlNotes: SECT[1], kbui: SECT[2], kbuiNotes: SECT[2], studies: SECT[4], studyNotes: SECT[4], contact: SECT[5], more: SECT[5] };
+  const FACE_COLOR = { contents: SECT[0], about: SECT[0], bezl: SECT[1], bezlNotes: SECT[1], kbui: SECT[2], kbuiNotes: SECT[2], studies: SECT[4], studyNotes: SECT[4], studiesMore: SECT[4], studyNotesMore: SECT[4], contact: SECT[5], more: SECT[5] };
   let curColor = null;
   const HEAD = '"Cinzel", "Trajan Pro", Georgia, serif';
   const BODY = '"EB Garamond", Garamond, Georgia, serif';
@@ -182,6 +182,30 @@ export function mountTome(host, opts) {
     const cw = m.w / 3;
     d.facts.forEach(([k, v], i) => { smallcaps(ctx, k, m.L + i * cw, y + 60); ctx.fillStyle = P.ink; ctx.font = font(30, 600); wrap(ctx, v, m.L + i * cw, y + 104, cw - 16, 36); });
   };
+  // Four two-line titles fill a page; the rest go on the next sheet.
+  const STUDIES_PER_PAGE = 4;
+  const studyList = (ctx, hs, folio, title, list, last = false) => {
+    const m = parchment(ctx, 'R', 'Studies', folio);
+    heading(ctx, m, title, 260, 64);
+    let y = 360;
+    for (const s of list) {
+      rule(ctx, m, y);
+      smallcaps(ctx, `${s.when} · ${s.format}`, m.L, y + 50);
+      ctx.fillStyle = P.ink; ctx.font = font(36, 600);
+      const yy = wrap(ctx, s.title, m.L, y + 102, m.w, 44);
+      ctx.fillStyle = P.accent; ctx.font = font(27, 400, BODY, true); ctx.fillText('Read the plan →', m.L, yy + 4);
+      hs.push({ x: m.L, y, w: m.w, h: yy + 20 - y, act: () => onNavigate(s.path) });
+      y = yy + 52;
+    }
+    rule(ctx, m, y);
+    if (last) para(ctx, m, 'Each is a one-week investigation that ends in a small piece of working code I can reuse.', y + 56, 28, 38);
+  };
+  const studyWhy = (ctx, folio, title, list) => {
+    const m = parchment(ctx, 'L', 'Notes', folio);
+    heading(ctx, m, title, 262, 56);
+    let y = 350;
+    for (const s of list) { smallcaps(ctx, s.short, m.L, y); y = para(ctx, m, s.why, y + 50, 30, 42) + 34; }
+  };
 
   const faces = {
     exlibris(ctx) {
@@ -214,7 +238,7 @@ export function mountTome(host, opts) {
     contents(ctx, hs) {
       const m = parchment(ctx, 'R', 'Contents', 'i');
       heading(ctx, m, 'Contents', 260);
-      const rows = [['About', 'Who I am', 'ii', 2, 0], [D.bezl.title, 'A desktop app for AI coding assistants', '1', 2, 1], [D.kbui.title, 'My design system', '3', 3, 2], ['Work studies', 'Short investigations I have planned', '5', 4, 4], ['Contact', 'Email, LinkedIn, résumé', '7', 5, 5]];
+      const rows = [['About', 'Who I am', 'ii', 2, 0], [D.bezl.title, 'A desktop app for AI coding assistants', '1', 2, 1], [D.kbui.title, 'My design system', '3', 3, 2], ['Work studies', 'Short investigations I have planned', '5', 4, 4], ['Contact', 'Email, LinkedIn, résumé', '9', 6, 5]];
       let y = 360;
       for (const [t, s, n, go, ci] of rows) {
         ctx.fillStyle = SECT[ci]; ctx.globalAlpha = 0.9; ctx.beginPath(); ctx.roundRect(m.L, y + 10, 14, 68, 4); ctx.fill(); ctx.globalAlpha = 1;
@@ -247,30 +271,12 @@ export function mountTome(host, opts) {
     kbui(ctx, hs) { chapterPage(ctx, 'Chapter II', '3', D.kbui, hs); },
     kbuiNotes(ctx) { notesPage(ctx, 'L', D.kbui.title, '4', D.kbui); },
 
-    studies(ctx, hs) {
-      const m = parchment(ctx, 'R', 'Studies', '5');
-      heading(ctx, m, 'Work studies', 260, 64);
-      let y = 360;
-      for (const s of data.studies) {
-        rule(ctx, m, y);
-        smallcaps(ctx, `${s.when} · ${s.format}`, m.L, y + 50);
-        ctx.fillStyle = P.ink; ctx.font = font(36, 600);
-        const yy = wrap(ctx, s.title, m.L, y + 102, m.w, 44);
-        ctx.fillStyle = P.accent; ctx.font = font(27, 400, BODY, true); ctx.fillText('Read the plan →', m.L, yy + 4);
-        hs.push({ x: m.L, y, w: m.w, h: yy + 20 - y, act: () => onNavigate(s.path) });
-        y = yy + 52;
-      }
-      rule(ctx, m, y);
-      para(ctx, m, 'Each is a one-week investigation that ends in a small piece of working code I can reuse.', y + 56, 28, 38);
-    },
-    studyNotes(ctx) {
-      const m = parchment(ctx, 'L', 'Notes', '6');
-      heading(ctx, m, 'Why I picked them', 262, 56);
-      let y = 350;
-      for (const s of data.studies) { smallcaps(ctx, s.short, m.L, y); y = para(ctx, m, s.why, y + 50, 30, 42) + 34; }
-    },
+    studies(ctx, hs) { studyList(ctx, hs, '5', 'Work studies', data.studies.slice(0, STUDIES_PER_PAGE)); },
+    studyNotes(ctx) { studyWhy(ctx, '6', 'Why I picked them', data.studies.slice(0, STUDIES_PER_PAGE)); },
+    studiesMore(ctx, hs) { studyList(ctx, hs, '7', 'More studies', data.studies.slice(STUDIES_PER_PAGE), true); },
+    studyNotesMore(ctx) { studyWhy(ctx, '8', 'And these', data.studies.slice(STUDIES_PER_PAGE)); },
     contact(ctx, hs) {
-      const m = parchment(ctx, 'R', 'Contact', '7');
+      const m = parchment(ctx, 'R', 'Contact', '9');
       heading(ctx, m, 'Find me', 280, 70);
       let y = para(ctx, m, data.contactLine, 400, 34, 48) + 30;
       rule(ctx, m, y);
@@ -284,7 +290,7 @@ export function mountTome(host, opts) {
     },
     // The last left-hand page: how to read it all as a plain website, and where to go next.
     more(ctx, hs) {
-      const m = parchment(ctx, 'L', 'Keep reading', '8');
+      const m = parchment(ctx, 'L', 'Keep reading', '10');
       heading(ctx, m, 'Keep reading', 270);
       let y = para(ctx, m, 'Everything in this book is also a plain website. Press L, or use the 3D/2D switch at the top, to read it that way.', 400, 32, 46) + 30;
       for (const [label, path] of [['See all my work →', '/work'], ['Read more about me →', '/about']]) {
@@ -1144,11 +1150,11 @@ export function mountTome(host, opts) {
   }
 
   // ---------- sheets ----------
-  const SHEETS = [['contents', 'about'], ['bezl', 'bezlNotes'], ['kbui', 'kbuiNotes'], ['studies', 'studyNotes'], ['contact', 'more']];
+  const SHEETS = [['contents', 'about'], ['bezl', 'bezlNotes'], ['kbui', 'kbuiNotes'], ['studies', 'studyNotes'], ['studiesMore', 'studyNotesMore'], ['contact', 'more']];
   const N = SHEETS.length;
   SHEETS.forEach(([f, b]) => { PARTNER[f] = b; PARTNER[b] = f; });
   // A chapter starts at a sheet and owns every sheet up to the next chapter; its ribbon is tucked at its first sheet.
-  const CHAPTERS = [{ label: 'Contents', color: SECT[0], sheet: 0 }, { label: 'Bezl', color: SECT[1], sheet: 1 }, { label: 'kbui', color: SECT[2], sheet: 2 }, { label: 'Studies', color: SECT[4], sheet: 3 }, { label: 'Contact', color: '#e6d9b8', sheet: 4 }];
+  const CHAPTERS = [{ label: 'Contents', color: SECT[0], sheet: 0 }, { label: 'Bezl', color: SECT[1], sheet: 1 }, { label: 'kbui', color: SECT[2], sheet: 2 }, { label: 'Studies', color: SECT[4], sheet: 3 }, { label: 'Contact', color: '#e6d9b8', sheet: 5 }];
   const chapterOf = (st) => { let c = 0; for (let i = 0; i < CHAPTERS.length; i++) if (st - 1 >= CHAPTERS[i].sheet) c = i; return st === 0 ? -1 : c; };
   const tabTex = (labelText, color, flip) => paint(160, 256, (ctx, w, h) => {
     ctx.fillStyle = color; ctx.fillRect(0, 0, w, h); seed = 11 + labelText.length;
@@ -1386,7 +1392,7 @@ export function mountTome(host, opts) {
 
   // ---------- navigation ----------
   // state 0 = closed; 1 = cover open; 1 + k = k sheets turned.
-  const SPREADS = ['The closed book', 'Title page and contents', `About and chapter one, ${D.bezl.title}`, `${D.bezl.title} notes and chapter two, ${D.kbui.title}`, `${D.kbui.title} notes and the work studies`, 'Why I picked these studies, and contact', 'Keep reading, and the last page'];
+  const SPREADS = ['The closed book', 'Title page and contents', `About and chapter one, ${D.bezl.title}`, `${D.bezl.title} notes and chapter two, ${D.kbui.title}`, `${D.kbui.title} notes and the work studies`, 'Why I picked them, and more studies', 'Why I picked those, and contact', 'Keep reading, and the last page'];
   let current = 0, focus = 'right', ribbonHinted = false;
   const portrait = () => camera.aspect < 0.85;
   function goTo(target, fromFocus) {
@@ -1411,8 +1417,8 @@ export function mountTome(host, opts) {
     else hint.classList.add('gone');
   }
   // Site places (see place.ts) to spreads, and the face being read back to its place.
-  const PLACE_AT = { contents: [1, 'right'], about: [2, 'left'], bezl: [2, 'right'], kbui: [3, 'right'], studies: [4, 'right'], contact: [5, 'right'] };
-  const FACE_PLACE = { contents: 'contents', about: 'about', bezl: 'bezl', bezlNotes: 'bezl', kbui: 'kbui', kbuiNotes: 'kbui', studies: 'studies', studyNotes: 'studies', contact: 'contact', more: 'contact' };
+  const PLACE_AT = { contents: [1, 'right'], about: [2, 'left'], bezl: [2, 'right'], kbui: [3, 'right'], studies: [4, 'right'], contact: [6, 'right'] };
+  const FACE_PLACE = { contents: 'contents', about: 'about', bezl: 'bezl', bezlNotes: 'bezl', kbui: 'kbui', kbuiNotes: 'kbui', studies: 'studies', studyNotes: 'studies', studiesMore: 'studies', studyNotesMore: 'studies', contact: 'contact', more: 'contact' };
   function placeNow() {
     if (current === 0) return null;
     if (current === 1) return 'contents';

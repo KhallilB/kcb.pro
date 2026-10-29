@@ -203,13 +203,13 @@ fail without one.
 
 Studies work the same way, in `studies.ts`. They differ from projects in a few fields:
 
-| Field        | What it's for                                                                   |
-| ------------ | ------------------------------------------------------------------------------- |
-| `format`     | `'teardown'` (pulling apart a real system) or `'legacy'` (shown as "Redesign"). |
-| `question`   | The one question the study answers.                                             |
-| `builtSlice` | What gets built in the study's week.                                            |
-| `kitPiece`   | The reusable piece it hands to a project.                                       |
-| `feeds`      | Slugs of the projects that piece is for. Each must be a real project slug.      |
+| Field        | What it's for                                                                                                                      |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `format`     | `'teardown'` (pulling apart a real system) or `'legacy'` (shown as "Redesign").                                                    |
+| `question`   | The one question the study answers.                                                                                                |
+| `builtSlice` | What gets built in the study's week.                                                                                               |
+| `kitPiece`   | The reusable piece it hands to a project.                                                                                          |
+| `feeds`      | Slugs of the listed projects that piece is for. Empty when it helps work with no page here; the page then shows no "Used by" line. |
 
 ## What the build checks
 
@@ -237,8 +237,10 @@ by deleting its `listed: false` line.
 find out before you build. That file also pins the current lineup on purpose: two
 ranked endeavors (Bezl rank 1, kbui rank 2), both registered by `repo`, Bezl as
 "now building", three hidden endeavors (Deck Workshop, Mugen Arena, Wander) kept in
-the catalog, and three studies. Every study must feed a listed project, and every endeavor must be fed
-by at least one study.
+the catalog, and seven studies. One of them, `decision-or-luck`, feeds no listed
+project; every other study feeds a listed one, and every endeavor must be fed by at
+least one study. No study names a project in its own words: the "Used by" line does
+that.
 When you add, remove or reorder projects or studies, update those expectations in the
 same change.
 
@@ -257,7 +259,9 @@ pages is laid out by hand.
   breaks its chapter.
 - **Studies:** every study needs an entry in `STUDY_NOTES` in `app/tome/copy.ts`: a
   short name for the book's study list and one sentence on why it matters. Without
-  one, the book's study page shows blank lines for it.
+  one, the book's study page shows blank lines for it. The book lists four studies
+  per page across two sheets, so it holds eight; a ninth needs another sheet in
+  `engine.js`.
 - **Switching views:** `app/tome/place.ts` lists the places the book and the site
   share, so pressing 2D on a chapter opens that chapter's page. A new chapter needs
   an entry there too.

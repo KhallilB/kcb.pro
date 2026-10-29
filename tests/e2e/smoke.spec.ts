@@ -387,7 +387,7 @@ test('shared layouts remain usable without JavaScript', async ({ browser }) => {
     await expect(
       page.getByRole('heading', { level: 1, name: 'Bezl' })
     ).toBeVisible()
-    for (const [route, count] of [['/work', 3], ['/studies', 3]] as const) {
+    for (const [route, count] of [['/work', 3], ['/studies', 7]] as const) {
       await page.goto(route)
       const list = page.getByRole('main').getByRole('list')
       await expect(list).toHaveClass(/kb-grid/)
