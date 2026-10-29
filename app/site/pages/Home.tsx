@@ -1,4 +1,4 @@
-import { Card, Grid } from '@kbui/react'
+import { Card, Grid } from '@kb.ui/react'
 import { Link } from 'react-router'
 import {
   featured,

@@ -14,13 +14,13 @@
     "test:e2e": "playwright test --config=playwright.config.ts",
     "check": "bun run lint && bun run build && bun run test && bun run test:integration && bun run test:e2e",
     "deploy": "wrangler pages deploy ./build --project-name kcb-pro",
-    "check:kbui": "bun node_modules/@kbui/react/dist/check-versions.js"
+    "check:kbui": "bun node_modules/@kb.ui/react/dist/check-versions.js"
   },
   "dependencies": {
     "@fontsource/cinzel": "5",
     "@fontsource/eb-garamond": "5",
-    "@kbui/css": "https://github.com/KhallilB/kbui/releases/download/v0.5.0/kbui-css-0.5.0.tgz",
-    "@kbui/react": "https://github.com/KhallilB/kbui/releases/download/v0.5.0/kbui-react-0.5.0.tgz",
+    "@kb.ui/css": "0.10.2",
+    "@kb.ui/react": "0.10.2",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-router": "^7.13.1",

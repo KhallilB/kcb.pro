@@ -1,4 +1,4 @@
-import { Card, Grid } from '@kbui/react'
+import { Card, Grid } from '@kb.ui/react'
 import { Link, useParams } from 'react-router'
 import { findProject } from '@app/portfolio/domain/catalog'
 import { formatMonth } from '@app/portfolio/domain/dates'

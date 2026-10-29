@@ -1,4 +1,4 @@
-import { Status, type StatusTone } from '@kbui/react'
+import { Status, type StatusTone } from '@kb.ui/react'
 import { statusLine } from '@app/portfolio/domain/status'
 import type { Dated } from '@app/portfolio/domain/types'
 import { useSite } from '../site'
