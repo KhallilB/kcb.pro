@@ -6,6 +6,8 @@ import config from "../renovate.json";
 // Run with Renovate 44.192.2 binaries on PATH; use npm exec --package=renovate@44.192.2.
 const binary = Bun.which("renovate-config-validator");
 if (!binary) throw new Error("Run tests with Renovate 44.192.2 on PATH");
+// Bun cannot load V8 addons; the Node validator checks RE2 syntax.
+process.env.RENOVATE_X_IGNORE_RE2 = "true";
 const root = new URL("./", pathToFileURL(realpathSync(binary)));
 const { applyPackageRules } = await import(new URL("util/package-rules/index.js", root).href);
 const { extractPackageFile } = await import(new URL("modules/manager/custom/regex/index.js", root).href);
