@@ -66,17 +66,33 @@ function chapter(
 
 // Page-sized copy: the briefs say it in full on each project page.
 const STUDY_NOTES: Record<string, { short: string; why: string }> = {
-  'figma-canvas': {
-    short: 'Figma canvas',
-    why: 'Bezl’s preview canvas has to pan and zoom as smoothly as Figma’s, even with lots of people on screen.',
-  },
   'terminal-speed': {
     short: 'Fast terminal',
-    why: 'Every AI assistant in Bezl gets its own terminal, so that terminal has to stay smooth however much they print.',
+    why: 'Each AI assistant gets a terminal of its own, so a terminal has to stay smooth and small however much it prints.',
   },
-  'design-rules': {
-    short: 'Design rules',
-    why: 'kbui’s next step is checking screens against its own rules. Primer and Polaris have been doing that at scale for years.',
+  'review-signal': {
+    short: 'Review triage',
+    why: 'AI reviewers are right often enough to help and wrong often enough to waste time. Showing less may be the fix.',
+  },
+  'safe-fixes': {
+    short: 'Safe fixes',
+    why: 'A design rule only helps an agent if the agent knows which fixes it can apply without asking.',
+  },
+  'read-only': {
+    short: 'Read-only',
+    why: 'A reviewer told not to edit can still edit. I want a limit the operating system enforces.',
+  },
+  'trusted-checker': {
+    short: 'Trusted checks',
+    why: 'A rule that’s wrong too often gets ignored, and then the right ones get ignored with it.',
+  },
+  'decision-or-luck': {
+    short: 'Choice or luck',
+    why: 'In a simulation, a result only feels fair if you can see whether the choice or the dice decided it.',
+  },
+  'merge-queue': {
+    short: 'Merge queue',
+    why: 'Splitting work across assistants only pays off if their changes can land together safely.',
   },
 }
 

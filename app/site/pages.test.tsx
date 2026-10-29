@@ -39,10 +39,9 @@ describe('home', () => {
     visit('/')
     const work = screen.getByRole('region', { name: 'Selected work' })
     const cards = within(work).getAllByRole('article')
-    expect(cards.map((c) => within(c).getByRole('heading').textContent)).toEqual([
-      'Bezl',
-      'kbui',
-    ])
+    expect(
+      cards.map((c) => within(c).getByRole('heading').textContent)
+    ).toEqual(['Bezl', 'kbui'])
     for (const card of cards) {
       expect(card).toHaveTextContent('In progress · as of 21 Oct 2026')
     }
@@ -53,11 +52,15 @@ describe('home', () => {
 
   it('describes each project in words, with no picture', () => {
     const { container } = visit('/')
-    const cards = within(screen.getByRole('region', { name: 'Selected work' })).getAllByRole(
-      'article'
+    const cards = within(
+      screen.getByRole('region', { name: 'Selected work' })
+    ).getAllByRole('article')
+    expect(cards[0]).toHaveTextContent(
+      'running Codex and Claude Code on the same task'
     )
-    expect(cards[0]).toHaveTextContent('running Codex and Claude Code on the same task')
-    expect(cards[1]).toHaveTextContent('Colours, spacing and type live in one token file')
+    expect(cards[1]).toHaveTextContent(
+      'Colours, spacing and type live in one token file'
+    )
     expect(container.querySelector('.card svg, .card img, .wip')).toBeNull()
   })
 
@@ -71,10 +74,9 @@ describe('home', () => {
 describe('layout', () => {
   it('offers a skip link to the main content', () => {
     visit('/')
-    expect(screen.getByRole('link', { name: 'Skip to content' })).toHaveAttribute(
-      'href',
-      '#content'
-    )
+    expect(
+      screen.getByRole('link', { name: 'Skip to content' })
+    ).toHaveAttribute('href', '#content')
     expect(screen.getByRole('main')).toHaveAttribute('id', 'content')
   })
 
@@ -85,9 +87,9 @@ describe('layout', () => {
       'aria-current',
       'page'
     )
-    expect(within(nav).getByRole('link', { name: 'Studies' })).not.toHaveAttribute(
-      'aria-current'
-    )
+    expect(
+      within(nav).getByRole('link', { name: 'Studies' })
+    ).not.toHaveAttribute('aria-current')
   })
 
   it('puts every way to reach me in the footer', () => {
@@ -119,8 +121,12 @@ describe('work index', () => {
   it('describes every project in its row', () => {
     visit('/work')
     const rows = within(screen.getByRole('main')).getAllByRole('listitem')
-    expect(rows[1]).toHaveTextContent('running Codex and Claude Code on the same task')
-    expect(rows[2]).toHaveTextContent('Colours, spacing and type live in one token file')
+    expect(rows[1]).toHaveTextContent(
+      'running Codex and Claude Code on the same task'
+    )
+    expect(rows[2]).toHaveTextContent(
+      'Colours, spacing and type live in one token file'
+    )
     expect(rows).toHaveLength(3)
   })
 
@@ -138,7 +144,9 @@ describe('work index', () => {
 describe('project page', () => {
   it('leads with the spec header', () => {
     visit('/work/bezl')
-    expect(screen.getByRole('heading', { level: 1, name: 'Bezl' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Bezl' })
+    ).toBeInTheDocument()
     const spec = screen.getByRole('group', { name: 'Spec' })
     expect(spec).toHaveTextContent('Role')
     expect(spec).toHaveTextContent('Tauri 2')
@@ -226,14 +234,15 @@ describe('project page', () => {
 
   it('renders every brief section as a heading with a contents link', () => {
     visit('/work/bezl')
-    const headings = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)
+    const headings = screen
+      .getAllByRole('heading', { level: 2 })
+      .map((h) => h.textContent)
     expect(headings).toContain('The problem')
     expect(headings).toContain('What I’ve proven so far')
     const toc = screen.getByRole('navigation', { name: 'On this page' })
-    expect(within(toc).getByRole('link', { name: 'The problem' })).toHaveAttribute(
-      'href',
-      '#the-problem'
-    )
+    expect(
+      within(toc).getByRole('link', { name: 'The problem' })
+    ).toHaveAttribute('href', '#the-problem')
   })
 
   it('links kbui to its public source', () => {
@@ -265,22 +274,30 @@ describe('project page', () => {
     )
   })
 
-  it.each(['/work/wander', '/work/mugen-arena'])('sends hidden project %s to the not-found page', (path) => {
-    visit(path)
-    expect(
-      screen.getByRole('heading', { level: 1, name: 'There’s nothing at this address.' })
-    ).toBeInTheDocument()
-  })
+  it.each(['/work/wander', '/work/mugen-arena'])(
+    'sends hidden project %s to the not-found page',
+    (path) => {
+      visit(path)
+      expect(
+        screen.getByRole('heading', {
+          level: 1,
+          name: 'There’s nothing at this address.',
+        })
+      ).toBeInTheDocument()
+    }
+  )
 
   it('sends an unknown project to the not-found page', () => {
     visit('/work/nope')
     expect(
-      screen.getByRole('heading', { level: 1, name: 'There’s nothing at this address.' })
+      screen.getByRole('heading', {
+        level: 1,
+        name: 'There’s nothing at this address.',
+      })
     ).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /See all my work/ })).toHaveAttribute(
-      'href',
-      '/work'
-    )
+    expect(
+      screen.getByRole('link', { name: /See all my work/ })
+    ).toHaveAttribute('href', '/work')
   })
 })
 
@@ -303,27 +320,40 @@ describe('studies', () => {
   })
 
   it('says plainly what each study leaves behind', () => {
-    visit('/studies/figma-canvas')
+    visit('/studies/safe-fixes')
     expect(screen.getByText('What I’ll reuse')).toBeInTheDocument()
     expect(screen.queryByText('What it gives the projects')).toBeNull()
   })
 
   it('says what a study is, with no empty placeholders', () => {
-    visit('/studies/figma-canvas')
-    expect(screen.getByRole('main')).toHaveTextContent('rebuilding the panning, zooming')
+    visit('/studies/safe-fixes')
+    expect(screen.getByRole('main')).toHaveTextContent(
+      'which fixes a tool may apply on its own'
+    )
     expect(screen.getByRole('main')).not.toHaveTextContent('Nothing here yet')
   })
 
   it('says on the index that each study serves a project', () => {
     visit('/studies')
     const lede = screen.getByRole('main').querySelector('.lede')
-    expect(lede).toHaveTextContent('redesigns an older tool people still rely on')
+    expect(lede).toHaveTextContent(
+      'redesigns an older tool people still rely on'
+    )
     expect(lede).toHaveTextContent('a planned feature in one of my projects')
   })
 
-  it('lists all three studies on the index', () => {
+  it('lists all seven studies on the index', () => {
     visit('/studies')
-    expect(within(screen.getByRole('main')).getAllByRole('listitem')).toHaveLength(3)
+    expect(
+      within(screen.getByRole('main')).getAllByRole('listitem')
+    ).toHaveLength(7)
+  })
+
+  it('names no user for a study that feeds work without a page here', () => {
+    visit('/studies/decision-or-luck')
+    const spec = screen.getByRole('group', { name: 'Spec' })
+    expect(spec).not.toHaveTextContent('Used by')
+    expect(within(spec).queryByRole('link')).toBeNull()
   })
 })
 
@@ -335,14 +365,19 @@ describe('about', () => {
       ['Bezl', '/work/bezl'],
       ['kbui', '/work/kbui'],
     ]) {
-      expect(within(main).getByRole('link', { name })).toHaveAttribute('href', href)
+      expect(within(main).getByRole('link', { name })).toHaveAttribute(
+        'href',
+        href
+      )
     }
     expect(main).not.toHaveTextContent('Mugen Arena')
   })
 
   it('links out to the code', () => {
     visit('/about')
-    expect(screen.getByRole('heading', { level: 1, name: 'About' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'About' })
+    ).toBeInTheDocument()
     expect(
       within(screen.getByRole('main')).getByRole('link', { name: /GitHub/ })
     ).toHaveAttribute('href', 'https://github.com/KhallilB')
@@ -353,16 +388,20 @@ describe('about', () => {
     const text = screen.getByRole('main').textContent ?? ''
     expect(text).not.toContain('You’ll see dates on everything here')
     expect(text).not.toContain('This site is the third')
-    expect(text).toContain('side by side, and kbui, the design system my projects share')
+    expect(text).toContain(
+      'side by side, and kbui, the design system my projects share'
+    )
   })
 
   it('lists past roles, newest first', () => {
     visit('/about')
-    expect(screen.getByRole('heading', { level: 2, name: 'Experience' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'Experience' })
+    ).toBeInTheDocument()
     const main = screen.getByRole('main')
     const text = main.textContent ?? ''
-    const order = ['Databricks', 'Panther', 'Datable', 'Presidio Identity'].map((c) =>
-      text.indexOf(c)
+    const order = ['Databricks', 'Panther', 'Datable', 'Presidio Identity'].map(
+      (c) => text.indexOf(c)
     )
     expect(order.every((i) => i >= 0)).toBe(true)
     expect([...order].sort((a, b) => a - b)).toEqual(order)
@@ -370,11 +409,17 @@ describe('about', () => {
 
   it('says what each company does, then what I did there', () => {
     visit('/about')
-    const rows = within(screen.getByRole('list', { name: 'Experience' })).getAllByRole('listitem')
+    const rows = within(
+      screen.getByRole('list', { name: 'Experience' })
+    ).getAllByRole('listitem')
     expect(rows).toHaveLength(4)
     const panther = rows[1].textContent ?? ''
-    const company = panther.indexOf('A security platform that helps teams spot and stop attacks')
-    const did = panther.indexOf('I built the interface for Panther’s AI features')
+    const company = panther.indexOf(
+      'A security platform that helps teams spot and stop attacks'
+    )
+    const did = panther.indexOf(
+      'I built the interface for Panther’s AI features'
+    )
     expect(company).toBeGreaterThan(-1)
     expect(did).toBeGreaterThan(company)
   })

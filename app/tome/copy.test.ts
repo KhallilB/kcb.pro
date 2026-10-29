@@ -8,7 +8,8 @@ const data = tomeData('2026-10-21')
 function strings(value: unknown): string[] {
   if (typeof value === 'string') return [value]
   if (Array.isArray(value)) return value.flatMap(strings)
-  if (value && typeof value === 'object') return Object.values(value).flatMap(strings)
+  if (value && typeof value === 'object')
+    return Object.values(value).flatMap(strings)
   return []
 }
 
@@ -68,19 +69,23 @@ describe('tome data', () => {
   it('introduces the book in plain words, without narrating its dates', () => {
     expect(data.about).toHaveLength(1)
     expect(data.about[0]).toContain('This book is my side work')
-    for (const c of Object.values(data.chapters)) expect(data.about[0]).toContain(c.title)
+    for (const c of Object.values(data.chapters))
+      expect(data.about[0]).toContain(c.title)
   })
 
   it('links every study to a page the site prerenders', () => {
     const paths = sitePaths(content)
-    expect(data.studies).toHaveLength(3)
+    expect(data.studies).toHaveLength(7)
     for (const s of data.studies) expect(paths).toContain(s.path)
   })
 
-  it('gives every study a short name and a reason on the notes page', () => {
+  it('gives every study a short name and a reason on the notes page, naming no project', () => {
     for (const s of data.studies) {
       expect(s.short, s.slug).toBeTruthy()
       expect(s.why, s.slug).toBeTruthy()
+      expect(`${s.short} ${s.why}`, s.slug).not.toMatch(
+        /bezl|kbui|live ?league|mugen|deck workshop/i
+      )
     }
   })
 
@@ -88,11 +93,17 @@ describe('tome data', () => {
     const paths = sitePaths(content)
     expect(data.chapters.bezl.path).toBe('/work/bezl')
     expect(data.chapters.kbui.path).toBe('/work/kbui')
-    for (const c of Object.values(data.chapters)) expect(paths).toContain(c.path)
+    for (const c of Object.values(data.chapters))
+      expect(paths).toContain(c.path)
   })
 
   it('offers email, LinkedIn, GitHub and résumé on the contact page', () => {
-    expect(data.contact.map((c) => c.label)).toEqual(['Email', 'LinkedIn', 'GitHub', 'Résumé'])
+    expect(data.contact.map((c) => c.label)).toEqual([
+      'Email',
+      'LinkedIn',
+      'GitHub',
+      'Résumé',
+    ])
     expect(data.contact[0].href).toBe('mailto:hi@kcb.pro')
   })
 
@@ -104,7 +115,8 @@ describe('tome data', () => {
     for (const chapter of Object.values(data.chapters)) {
       expect(chapter.facts).toHaveLength(3)
       expect(chapter.notes.length).toBeLessThanOrEqual(3)
-      for (const [, note] of chapter.notes) expect(note.length).toBeLessThanOrEqual(190)
+      for (const [, note] of chapter.notes)
+        expect(note.length).toBeLessThanOrEqual(190)
       // The chapter page sets the summary on one italic line; longer clips at both edges.
       expect(chapter.summary.length, chapter.title).toBeLessThanOrEqual(70)
     }
@@ -112,9 +124,19 @@ describe('tome data', () => {
 
   it('says what each chapter is in the catalog’s own words, with no sample data', () => {
     for (const chapter of Object.values(data.chapters)) {
-      const p = featured(content.projects).find((f) => f.title === chapter.title)
+      const p = featured(content.projects).find(
+        (f) => f.title === chapter.title
+      )
       expect(chapter.about).toBe(p?.about)
-      expect(Object.keys(chapter)).toEqual(['title', 'summary', 'about', 'status', 'notes', 'facts', 'path'])
+      expect(Object.keys(chapter)).toEqual([
+        'title',
+        'summary',
+        'about',
+        'status',
+        'notes',
+        'facts',
+        'path',
+      ])
     }
   })
 })
