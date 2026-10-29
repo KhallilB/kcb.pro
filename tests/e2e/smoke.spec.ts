@@ -85,7 +85,7 @@ test('the tome opens over the home page and steps aside for the list', async ({ 
   await expect(view.getByRole('button', { name: '3D book' })).toHaveAttribute('aria-pressed', 'true')
   await expect(page.locator('.tome[data-ready] canvas')).toHaveAttribute(
     'data-chapters',
-    'bezl,kbui,mugenArena'
+    'bezl,kbui'
   )
 
   await view.getByRole('button', { name: '2D list' }).click()
@@ -159,7 +159,7 @@ test('home names the work and what is being built now', async ({ page }) => {
   await expect(page.getByTestId('now-building')).toContainText('Now building Bezl')
   await expect(
     page.getByRole('region', { name: 'Selected work' }).getByRole('article')
-  ).toHaveCount(3)
+  ).toHaveCount(2)
   expect(errors, 'hydration must not log errors').toEqual([])
 })
 
@@ -380,14 +380,14 @@ test('shared layouts remain usable without JavaScript', async ({ browser }) => {
     const cards = page
       .getByRole('region', { name: 'Selected work' })
       .getByRole('article')
-    await expect(cards).toHaveCount(3)
+    await expect(cards).toHaveCount(2)
     await expect(cards.first()).toHaveClass(/kb-card/)
     await expect(cards.first().getByRole('link')).toBeVisible()
     await cards.first().getByRole('link').click()
     await expect(
       page.getByRole('heading', { level: 1, name: 'Bezl' })
     ).toBeVisible()
-    for (const [route, count] of [['/work', 4], ['/studies', 4]] as const) {
+    for (const [route, count] of [['/work', 3], ['/studies', 3]] as const) {
       await page.goto(route)
       const list = page.getByRole('main').getByRole('list')
       await expect(list).toHaveClass(/kb-grid/)

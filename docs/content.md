@@ -234,10 +234,10 @@ The checks run on every entry, hidden ones included, so a hidden project can com
 by deleting its `listed: false` line.
 
 `app/portfolio/content/content.test.ts` runs the same checks in `bun run test`, so you
-find out before you build. That file also pins the current lineup on purpose: three
-ranked endeavors (Bezl rank 1, kbui rank 2, Mugen Arena rank 3), all three
-registered by `repo`, Bezl as "now building", the two earlier endeavors kept but hidden,
-and four studies. Every study must feed a listed project, and every endeavor must be fed
+find out before you build. That file also pins the current lineup on purpose: two
+ranked endeavors (Bezl rank 1, kbui rank 2), both registered by `repo`, Bezl as
+"now building", three hidden endeavors (Deck Workshop, Mugen Arena, Wander) kept in
+the catalog, and three studies. Every study must feed a listed project, and every endeavor must be fed
 by at least one study.
 When you add, remove or reorder projects or studies, update those expectations in the
 same change.
@@ -248,12 +248,12 @@ The 2D site picks up new content automatically: a new project gets its own page 
 a row in the work index on the next build. The book doesn't, because each of its
 pages is laid out by hand.
 
-- **Projects:** the book has exactly three chapters, for `bezl`, `kbui` and
-  `mugen-arena`. Their notes and facts are written in
+- **Projects:** the book has exactly two chapters, for `bezl` and `kbui`.
+  Their notes and facts are written in
   `app/tome/copy.ts`, and the page layout lives in the `SHEETS` list in
   `app/tome/engine.js`. Editing those projects' titles, summaries, `about` text or
   status in `projects.ts` updates the book. A new project does not appear in the book
-  until a chapter is added in both files. Renaming or hiding one of those three slugs
+  until a chapter is added in both files. Renaming or hiding one of those two slugs
   breaks its chapter.
 - **Studies:** every study needs an entry in `STUDY_NOTES` in `app/tome/copy.ts`: a
   short name for the book's study list and one sentence on why it matters. Without

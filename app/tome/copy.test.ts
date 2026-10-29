@@ -36,8 +36,9 @@ describe('tome data', () => {
   })
 
   it('titles its chapters after the featured endeavors, in order', () => {
-    const { bezl, kbui, mugenArena } = data.chapters
-    expect([bezl.title, kbui.title, mugenArena.title]).toEqual(
+    const { bezl, kbui } = data.chapters
+    expect(Object.keys(data.chapters)).toEqual(['bezl', 'kbui'])
+    expect([bezl.title, kbui.title]).toEqual(
       featured(content.projects).map((p) => p.title)
     )
   })
@@ -45,7 +46,6 @@ describe('tome data', () => {
   it('dates each chapter with the same status line the site shows', () => {
     expect(data.chapters.bezl.status).toBe('In progress · as of 21 Oct 2026')
     expect(data.chapters.kbui.status).toBe('In progress · as of 21 Oct 2026')
-    expect(data.chapters.mugenArena.status).toBe('In progress · as of 21 Oct 2026')
     expect(data.asOf).toBe('21 October 2026')
   })
 
@@ -55,7 +55,7 @@ describe('tome data', () => {
 
   it('never names a hidden project', () => {
     const text = strings(data).join(' ')
-    for (const name of ['Deck Workshop', 'Wander']) {
+    for (const name of ['Deck Workshop', 'Mugen Arena', 'Wander']) {
       expect(text).not.toContain(name)
     }
   })
@@ -73,7 +73,7 @@ describe('tome data', () => {
 
   it('links every study to a page the site prerenders', () => {
     const paths = sitePaths(content)
-    expect(data.studies).toHaveLength(4)
+    expect(data.studies).toHaveLength(3)
     for (const s of data.studies) expect(paths).toContain(s.path)
   })
 
@@ -88,7 +88,6 @@ describe('tome data', () => {
     const paths = sitePaths(content)
     expect(data.chapters.bezl.path).toBe('/work/bezl')
     expect(data.chapters.kbui.path).toBe('/work/kbui')
-    expect(data.chapters.mugenArena.path).toBe('/work/mugen-arena')
     for (const c of Object.values(data.chapters)) expect(paths).toContain(c.path)
   })
 

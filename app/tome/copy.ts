@@ -37,7 +37,6 @@ export interface TomeData {
   chapters: {
     bezl: Chapter
     kbui: Chapter
-    mugenArena: Chapter
   }
 }
 
@@ -79,10 +78,6 @@ const STUDY_NOTES: Record<string, { short: string; why: string }> = {
     short: 'Design rules',
     why: 'kbui’s next step is checking screens against its own rules. Primer and Polaris have been doing that at scale for years.',
   },
-  'fighter-editor': {
-    short: 'Fighter editor',
-    why: 'Mugen Arena lives or dies on how easy it is to tune a fighter, and the old editors show exactly what needs fixing.',
-  },
 }
 
 export function tomeData(asOf: IsoDay): TomeData {
@@ -93,7 +88,7 @@ export function tomeData(asOf: IsoDay): TomeData {
     asOf: formatLongDay(asOf),
     nowBuilding: live?.title ?? 'Between projects',
     about: [
-      'I’m a frontend engineer in Los Angeles, and I’ve spent more than five years building product interfaces. This book is my side work: Bezl, a desktop app that runs AI coding assistants side by side; kbui, the design system my projects share; and Mugen Arena, a 3D fighting game in the browser.',
+      'I’m a frontend engineer in Los Angeles, and I’ve spent more than five years building product interfaces. This book is my side work: Bezl, a desktop app that runs AI coding assistants side by side, and kbui, the design system my projects share.',
     ],
     contactLine:
       'Email is the best way to reach me. My résumé has the full story.',
@@ -155,29 +150,6 @@ export function tomeData(asOf: IsoDay): TomeData {
         [
           ['Built with', 'CSS · React · Base UI'],
           ['Used by', 'One other app; Bezl, in progress'],
-          ['Started', 'Oct 2026'],
-        ]
-      ),
-      mugenArena: chapter(
-        'mugen-arena',
-        asOf,
-        [
-          [
-            'The problem',
-            'M.U.G.E.N proved people love building fighters as much as playing them. But its fighters are 2D sprites in hard-to-read files. Mugen Arena keeps the drop-in folder and moves it into 3D.',
-          ],
-          [
-            'The key piece',
-            'The Fighter Factory. Pause a match, step through a move frame by frame with its hit areas drawn on the model, and save your changes straight back to the fighter.',
-          ],
-          [
-            'Next',
-            'First, a one-day test with three fighters of very different heights. Does a hit land both ways, and can the game hold 60 frames a second?',
-          ],
-        ],
-        [
-          ['Built with', 'TypeScript · Three.js'],
-          ['Runs in', 'The browser'],
           ['Started', 'Oct 2026'],
         ]
       ),

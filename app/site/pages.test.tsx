@@ -42,7 +42,6 @@ describe('home', () => {
     expect(cards.map((c) => within(c).getByRole('heading').textContent)).toEqual([
       'Bezl',
       'kbui',
-      'Mugen Arena',
     ])
     for (const card of cards) {
       expect(card).toHaveTextContent('In progress · as of 21 Oct 2026')
@@ -59,7 +58,6 @@ describe('home', () => {
     )
     expect(cards[0]).toHaveTextContent('running Codex and Claude Code on the same task')
     expect(cards[1]).toHaveTextContent('Colours, spacing and type live in one token file')
-    expect(cards[2]).toHaveTextContent('Each fighter is a folder')
     expect(container.querySelector('.card svg, .card img, .wip')).toBeNull()
   })
 
@@ -123,7 +121,7 @@ describe('work index', () => {
     const rows = within(screen.getByRole('main')).getAllByRole('listitem')
     expect(rows[1]).toHaveTextContent('running Codex and Claude Code on the same task')
     expect(rows[2]).toHaveTextContent('Colours, spacing and type live in one token file')
-    expect(rows[3]).toHaveTextContent('Each fighter is a folder')
+    expect(rows).toHaveLength(3)
   })
 
   it('lists live work first, then what is next', () => {
@@ -133,7 +131,6 @@ describe('work index', () => {
       'The Gallery',
       'Bezl',
       'kbui',
-      'Mugen Arena',
     ])
   })
 })
@@ -268,19 +265,8 @@ describe('project page', () => {
     )
   })
 
-  it('gives Mugen Arena its own page, linked to its source', () => {
-    visit('/work/mugen-arena')
-    expect(
-      screen.getByRole('heading', { level: 1, name: 'Mugen Arena' })
-    ).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Source/ })).toHaveAttribute(
-      'href',
-      'https://github.com/KhallilB/arena-mugen-3d'
-    )
-  })
-
-  it('sends a hidden project to the not-found page', () => {
-    visit('/work/wander')
+  it.each(['/work/wander', '/work/mugen-arena'])('sends hidden project %s to the not-found page', (path) => {
+    visit(path)
     expect(
       screen.getByRole('heading', { level: 1, name: 'There’s nothing at this address.' })
     ).toBeInTheDocument()
@@ -316,15 +302,6 @@ describe('studies', () => {
     )
   })
 
-  it('sends Mugen Arena its reimagined fighter editor', () => {
-    visit('/studies/fighter-editor')
-    const spec = screen.getByRole('group', { name: 'Spec' })
-    expect(spec).toHaveTextContent('Redesign')
-    expect(
-      within(spec).getByRole('link', { name: 'Mugen Arena' })
-    ).toHaveAttribute('href', '/work/mugen-arena')
-  })
-
   it('says plainly what each study leaves behind', () => {
     visit('/studies/figma-canvas')
     expect(screen.getByText('What I’ll reuse')).toBeInTheDocument()
@@ -344,23 +321,23 @@ describe('studies', () => {
     expect(lede).toHaveTextContent('a planned feature in one of my projects')
   })
 
-  it('lists all four studies on the index', () => {
+  it('lists all three studies on the index', () => {
     visit('/studies')
-    expect(within(screen.getByRole('main')).getAllByRole('listitem')).toHaveLength(4)
+    expect(within(screen.getByRole('main')).getAllByRole('listitem')).toHaveLength(3)
   })
 })
 
 describe('about', () => {
-  it('names all three projects under what I am building', () => {
+  it('names both projects under what I am building, and no hidden one', () => {
     visit('/about')
     const main = screen.getByRole('main')
     for (const [name, href] of [
       ['Bezl', '/work/bezl'],
       ['kbui', '/work/kbui'],
-      ['Mugen Arena', '/work/mugen-arena'],
     ]) {
       expect(within(main).getByRole('link', { name })).toHaveAttribute('href', href)
     }
+    expect(main).not.toHaveTextContent('Mugen Arena')
   })
 
   it('links out to the code', () => {
@@ -376,7 +353,7 @@ describe('about', () => {
     const text = screen.getByRole('main').textContent ?? ''
     expect(text).not.toContain('You’ll see dates on everything here')
     expect(text).not.toContain('This site is the third')
-    expect(text).toContain('the design system my projects share; and Mugen Arena')
+    expect(text).toContain('side by side, and kbui, the design system my projects share')
   })
 
   it('lists past roles, newest first', () => {
