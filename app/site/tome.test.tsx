@@ -146,6 +146,18 @@ describe('the tome on the home page', () => {
     scroll.mockRestore()
   })
 
+  // Home only cards what it shows; a chapter it never cards still has a page.
+  it('lands on the chapter’s own page when home has no card for it', async () => {
+    const { hooks } = fakeEngine('mount', 'studies')
+    const view = await visit('/', hooks)
+    fireEvent.click(option('List'))
+    await waitFor(() =>
+      expect(
+        view.getByRole('heading', { level: 1, name: 'Work studies' })
+      ).toBeInTheDocument()
+    )
+  })
+
   it('lets go of the book when the site closes', async () => {
     const { hooks, log } = fakeEngine()
     const view = await visit('/', hooks)

@@ -213,8 +213,8 @@ describe('project page', () => {
     expect(
       hrefs.filter((href) => href.includes('github.com/KhallilB/bezl'))
     ).toEqual([
-      'https://github.com/KhallilB/bezl',
       'https://github.com/KhallilB/bezl/releases',
+      'https://github.com/KhallilB/bezl',
     ])
   })
 

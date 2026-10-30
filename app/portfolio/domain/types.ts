@@ -18,6 +18,8 @@ export interface Media {
   alt: string
   width: number
   height: number
+  // Shown under the shot; says what it is and when, since alt is for screen readers.
+  caption?: string
 }
 
 export interface BriefSection {
@@ -38,7 +40,8 @@ export interface Project extends Dated {
   summary: string
   // What it is, in a short paragraph; the only picture when media is absent.
   about: string
-  media?: Media
+  // Shots of the real thing, in reading order; the first one is the book's plate.
+  media?: Media[]
   // Season sequence; lower ships first.
   order: number
   role: string

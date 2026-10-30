@@ -46,9 +46,10 @@ flowchart LR
     html --> host[("Cloudflare Pages")]
 ```
 
-There are no 3D models or images in the book. The leather, the brass, the gem and
-every page are drawn by code when it loads. Depending on who you ask, that's either
-very cool or slightly unhinged.
+There are no 3D models in the book. The leather, the brass, the gem and every page
+are drawn by code when it loads. The only pictures are the project screenshots, tipped
+into their chapters as plates. Depending on who you ask, that's either very cool or
+slightly unhinged.
 
 Switching to 2D doesn't throw the book away. It zooms into the page you were on and
 goes to sleep, so it isn't eating your battery in the background. Switch back and it

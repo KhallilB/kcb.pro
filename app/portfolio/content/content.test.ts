@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs'
 import { catalog, content } from './index'
 import { validateCatalog } from '../domain/validate'
 import { featured, nowBuilding, registered } from '../domain/catalog'
@@ -61,8 +62,18 @@ describe('published content', () => {
   it('links Bezl to its public source and downloads, never its private repo', () => {
     const bezl = content.projects.find((p) => p.slug === 'bezl')!
     expect(bezl.links).toEqual([
-      { label: 'Source', href: 'https://github.com/KhallilB/bezl' },
       { label: 'Download', href: 'https://github.com/KhallilB/bezl/releases' },
+      { label: 'Source', href: 'https://github.com/KhallilB/bezl' },
+    ])
+  })
+
+  // The thing you can use comes first, then the source behind it.
+  it('links kbui to the components you can try, the package and the source', () => {
+    const kbui = content.projects.find((p) => p.slug === 'kbui')!
+    expect(kbui.links).toEqual([
+      { label: 'Components', href: 'https://kbui.kcb.pro' },
+      { label: 'Package', href: 'https://www.npmjs.com/package/@kb.ui/react' },
+      { label: 'Source', href: 'https://github.com/KhallilB/kbui' },
     ])
   })
 
@@ -72,9 +83,31 @@ describe('published content', () => {
         .find((p) => p.slug === slug)!
         .brief.flatMap((s) => s.body)
         .join('\n')
-    expect(copy('bezl')).toContain('being built on kbui')
-    expect(copy('kbui')).toContain('Bezl’s first screen is being built on it')
+    expect(copy('bezl')).toContain('built on kbui')
+    expect(copy('kbui')).toContain('Bezl’s task screen')
     expect(copy('kbui')).not.toMatch(/\b\d+\.\d+\.\d+\b/)
+  })
+
+  // A named build is a dated fact, so the date has to travel with it.
+  it('dates the Bezl release it names', () => {
+    const copy = content.projects
+      .find((p) => p.slug === 'bezl')!
+      .brief.flatMap((s) => s.body)
+      .join('\n')
+    const release = copy.split('\n').filter((line) => line.includes('v0.1.0'))
+    expect(release.length).toBeGreaterThan(0)
+    for (const line of release) expect(line).toMatch(/\b\d{1,2} \w{3} \d{4}\b/)
+  })
+
+  // A src that points at nothing ships a broken image; only the file proves it.
+  it('ships every screenshot it names', () => {
+    for (const p of content.projects) {
+      for (const shot of p.media ?? []) {
+        expect(existsSync(`public${shot.src}`), `${p.slug}: ${shot.src}`).toBe(
+          true
+        )
+      }
+    }
   })
 
   it('registers Bezl by its private progress repo, kbui by its public one', () => {

@@ -2,7 +2,7 @@ import { content, profile } from '@app/portfolio/content'
 import { findProject, nowBuilding } from '@app/portfolio/domain/catalog'
 import { formatLongDay, formatMonth } from '@app/portfolio/domain/dates'
 import { formatLabel, statusLine } from '@app/portfolio/domain/status'
-import type { IsoDay, Project } from '@app/portfolio/domain/types'
+import type { IsoDay, Link, Project } from '@app/portfolio/domain/types'
 
 type Pair = [string, string]
 
@@ -10,9 +10,14 @@ interface Chapter {
   title: string
   summary: string
   about: string
+  // One line, for the contents page.
+  shelf: string
   status: string
   notes: Pair[]
   facts: Pair[]
+  links: Link[]
+  // First shot, tipped into the chapter page; absent until the project has one.
+  plate?: { src: string; caption?: string }
   // The project's page in 2D.
   path: string
 }
@@ -49,17 +54,23 @@ function project(slug: string): Project {
 function chapter(
   slug: string,
   asOf: IsoDay,
+  shelf: string,
   notes: Pair[],
   facts: Pair[]
 ): Chapter {
   const p = project(slug)
+  // Videos have no still to print, so only an image becomes a plate.
+  const shot = p.media?.find((m) => m.kind === 'image')
   return {
     title: p.title,
     summary: p.summary,
     about: p.about,
+    shelf,
     status: statusLine(p, asOf),
     notes,
     facts,
+    links: p.links,
+    plate: shot && { src: shot.src, caption: shot.caption },
     path: `/work/${p.slug}`,
   }
 }
@@ -126,6 +137,7 @@ export function tomeData(asOf: IsoDay): TomeData {
       bezl: chapter(
         'bezl',
         asOf,
+        'A desktop app for AI coding assistants',
         [
           [
             'The problem',
@@ -137,18 +149,19 @@ export function tomeData(asOf: IsoDay): TomeData {
           ],
           [
             'So far',
-            'No terminal output went missing on its way to the window, and I couldn’t notice any lag when typing. Memory use is still the open question.',
+            'The first build is out: the window, a live terminal and the task screen, on sample data. No assistant runs inside it yet.',
           ],
         ],
         [
           ['Built with', 'Tauri · Rust · React'],
           ['Data', 'Stays on your machine'],
-          ['Started', 'Oct 2026'],
+          ['To try', 'Download the build'],
         ]
       ),
       kbui: chapter(
         'kbui',
         asOf,
+        'The design system behind my projects',
         [
           [
             'The idea',
@@ -165,8 +178,8 @@ export function tomeData(asOf: IsoDay): TomeData {
         ],
         [
           ['Built with', 'CSS · React · Base UI'],
-          ['Used by', 'One other app; Bezl, in progress'],
-          ['Started', 'Oct 2026'],
+          ['Used by', 'This site and Bezl'],
+          ['To try', 'Open the component site'],
         ]
       ),
     },

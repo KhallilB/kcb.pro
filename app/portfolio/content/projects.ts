@@ -7,7 +7,7 @@ export const projects: Project[] = [
     title: 'The Gallery',
     summary: 'This site. My work as a simple list, or as a 3D book drawn in code.',
     about:
-      'You’re looking at it. The same pages come in two forms: a plain list, and a 3D book you can flip through. The book uses no 3D models or images. Everything in it, down to the paper grain, is drawn in code.',
+      'You’re looking at it. The same pages come in two forms: a plain list, and a 3D book you can flip through. Nothing in the book is a 3D model: the leather, the brass, the gem and the paper grain are all drawn in code, and the only pictures are the screenshots tipped into the project chapters.',
     status: 'in-progress',
     startsOn: '2026-10-19',
     order: 0,
@@ -26,7 +26,8 @@ export const projects: Project[] = [
       {
         heading: 'The book',
         body: [
-          'The book is about 1,600 lines of JavaScript on top of Three.js. There are no models or image files. When it loads, it paints the cover, the paper and every page of text onto canvases, using the same content as the rest of the site.',
+          'The book is about 1,600 lines of JavaScript on top of Three.js. Nothing arrives as a 3D model. When it loads, it paints the cover, the paper and every page of text onto canvases, using the same content as the rest of the site.',
+          'The one exception is the screenshots. A project chapter tips its first shot in as a plate, framed and ruled like a printed one, and the page waits for it rather than showing a gap. A project with no screenshot yet simply has no plate.',
           'Its own code comes to 30 KB gzipped, or 159 KB with Three.js. It doesn’t download until it’s needed. If you start on the list, it loads quietly in the background, so switching to 3D only has to set up the scene.',
           'On my laptop, the book shows up about 2 seconds after the page opens. It used to take almost 4. Most of that time went into painting the cloth texture as roughly 40,000 tiny squares. Now it’s one small image, scaled up, and each page is painted at most twice on load instead of three times.',
         ],
@@ -42,7 +43,8 @@ export const projects: Project[] = [
       {
         heading: 'What comes next',
         body: [
-          'I want the site to keep its own proof up to date. Each project will publish a small file of results from its test runs, and its card here will show those numbers, or say so when they’re missing. After that, I’d like to add live demos you can try on the page, a map of how the projects connect, and a way to scroll back through each project’s history.',
+          'Each project now publishes a small file of its own results, and this site reads it: the journey across the top of a project page, and the full record underneath, both come from that file rather than from anything I typed here. A project that stops publishing says so instead of showing an old number.',
+          'Next I want demos you can try on the page itself, a map of how the projects feed each other, and a way to scroll back through a project’s history rather than only seeing where it stands today.',
         ],
       },
     ],
@@ -66,8 +68,19 @@ export const projects: Project[] = [
     signature:
       'Only one assistant per task can write. The others are kept read-only by their own sandbox, so the rule holds even if a model ignores what it’s told. Proven for Codex so far.',
     links: [
-      { label: 'Source', href: 'https://github.com/KhallilB/bezl' },
       { label: 'Download', href: 'https://github.com/KhallilB/bezl/releases' },
+      { label: 'Source', href: 'https://github.com/KhallilB/bezl' },
+    ],
+    media: [
+      {
+        kind: 'image',
+        src: '/media/bezl-task.webp',
+        alt: 'Bezl’s task screen: one worker marked writes and running, two reviewers marked reads, and a terminal printing build output.',
+        width: 1440,
+        height: 900,
+        caption:
+          'The task screen in v0.1.0: one writer, two readers, on sample data.',
+      },
     ],
     brief: [
       {
@@ -95,9 +108,16 @@ export const projects: Project[] = [
         ],
       },
       {
+        heading: 'The first build',
+        body: [
+          'On 27 Oct 2026 I put out v0.1.0, the first version you can download and open. It gives you the window, a live terminal and the task screen, which runs on sample data for now. The assistants don’t run inside it yet, so what you’re looking at is the shape of the thing rather than the thing.',
+          'The builds aren’t signed, so macOS and Windows will both stop you the first time. The release page says what to click.',
+        ],
+      },
+      {
         heading: 'What comes next',
         body: [
-          'Next up is the core, written in Rust. It keeps track of tasks, the assistants working on them, and what each one is allowed to do. The log is stored as a list of events that only ever grows. The interface is being built on kbui.',
+          'The core comes next, written in Rust. It holds the tasks, the assistants working on them and what each one may do, and it writes the log as a list of events that only ever grows. Once it exists, the terminals stop being a prototype and a real assistant runs inside a task. The interface is built on kbui.',
         ],
       },
       {
@@ -126,7 +146,40 @@ export const projects: Project[] = [
     domain: 'Design tokens, accessible components and automated design checks.',
     signature:
       'Every stylesheet starts with an anatomy line, a single comment listing the component’s classes and attributes. Any framework that follows it renders the component the same way.',
-    links: [{ label: 'Source', href: 'https://github.com/KhallilB/kbui' }],
+    links: [
+      { label: 'Components', href: 'https://kbui.kcb.pro' },
+      { label: 'Package', href: 'https://www.npmjs.com/package/@kb.ui/react' },
+      { label: 'Source', href: 'https://github.com/KhallilB/kbui' },
+    ],
+    media: [
+      {
+        kind: 'image',
+        src: '/media/kbui-overview.webp',
+        alt: 'The kbui site: a headline reading “Click around. Make something.” beside a day-planner card built from kbui components.',
+        width: 1440,
+        height: 900,
+        caption:
+          'kbui.kcb.pro. The planner on the right is built from the library itself.',
+      },
+      {
+        kind: 'image',
+        src: '/media/kbui-components.webp',
+        alt: 'A grid of component cards, each with a name, a sentence, a category and a count of examples.',
+        width: 1440,
+        height: 900,
+        caption:
+          'Every component in the library, filed by what you would use it for.',
+      },
+      {
+        kind: 'image',
+        src: '/media/kbui-example.webp',
+        alt: 'A Button example: a row of states, a live preview on the left, and the code for it on the right.',
+        width: 1440,
+        height: 711,
+        caption:
+          'Each component page runs its own examples, and shows the code for the state you picked.',
+      },
+    ],
     brief: [
       {
         heading: 'The problem',
@@ -149,15 +202,21 @@ export const projects: Project[] = [
         ],
       },
       {
+        heading: 'See it running',
+        body: [
+          'Every component has a page you can open: a live example you can click through its states, the code behind whichever state you picked, and the full list of its properties underneath. The planner on the front page is built the same way, out of the same parts.',
+        ],
+      },
+      {
         heading: 'Who uses it',
         body: [
-          'One other app uses it today, and Bezl’s first screen is being built on it. Each release is published as packages you can download, so a project that builds in the cloud can lock to a specific version.',
+          'Three things run on it today: this site, Bezl’s task screen, and the component site that documents it. Each release goes out as packages on npm, so a project can pin the exact version it was built against and upgrade when it suits.',
         ],
       },
       {
         heading: 'What comes next',
         body: [
-          'About twenty more components are on the list, including layout and text, each with a full anatomy line. Further out, I’d like you to be able to describe a screen in plain English and have kbui check it against its own design rules. None of that exists yet.',
+          'The library now covers most of what an ordinary app asks for, so the next stretch is less about adding components and more about the rules that hold them together: one shared way to lay a page out, and documentation that can’t fall behind the code. Further out, I’d like to describe a screen in plain English and have kbui check it against its own design rules. That last part doesn’t exist yet.',
         ],
       },
     ],
