@@ -428,18 +428,36 @@ a {
   margin-block-start: var(--space-5);
 }
 
+/* The first shot carries the project; the rest pair up beside it. */
 .project-media {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
   margin: 0 0 var(--space-7);
 }
 
+.shot {
+  margin: 0;
+}
+
+.shot:first-child {
+  grid-column: 1 / -1;
+}
+
 /* Intrinsic width and height keep the aspect ratio while it scales down. */
-.project-media img,
-.project-media video {
+.shot img,
+.shot video {
   display: block;
   inline-size: 100%;
   block-size: auto;
   border: var(--rule) solid var(--hairline);
   border-radius: var(--radius-card);
+}
+
+.shot__caption {
+  margin-block-start: var(--space-3);
+  color: var(--secondary);
+  font-size: var(--text-small);
 }
 
 /* Reading layout: contents in the rail, prose in the column. */
@@ -513,6 +531,10 @@ a {
 }
 
 @media (max-width: 760px) {
+  .project-media {
+    grid-template-columns: 1fr;
+  }
+
   .header {
     flex-direction: column;
     gap: var(--space-3);

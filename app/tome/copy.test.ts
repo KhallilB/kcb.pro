@@ -33,7 +33,7 @@ describe('tome data', () => {
   })
 
   it('lists Bezl as a current user of kbui', () => {
-    expect(strings(data.chapters)).toContain('One other app; Bezl, in progress')
+    expect(strings(data.chapters)).toContain('This site and Bezl')
   })
 
   it('titles its chapters after the featured endeavors, in order', () => {
@@ -89,6 +89,39 @@ describe('tome data', () => {
     }
   })
 
+  it('carries each project’s own links, so the book leaves for the real thing', () => {
+    for (const chapter of Object.values(data.chapters)) {
+      const p = featured(content.projects).find(
+        (f) => f.title === chapter.title
+      )
+      expect(chapter.links).toEqual(p?.links)
+      expect(chapter.links.length).toBeGreaterThan(0)
+      // Four lines are all the notes page has room for.
+      expect(chapter.links.length).toBeLessThanOrEqual(4)
+    }
+  })
+
+  it('plates each chapter with the project’s first screenshot', () => {
+    for (const chapter of Object.values(data.chapters)) {
+      const p = featured(content.projects).find(
+        (f) => f.title === chapter.title
+      )
+      const shot = p?.media?.find((m) => m.kind === 'image')
+      expect(chapter.plate?.src).toBe(shot?.src)
+      expect(chapter.plate?.caption).toBe(shot?.caption)
+      // The plate prints its caption on two lines; a third would reach the button.
+      expect(chapter.plate?.caption?.length ?? 0, chapter.title).toBeLessThanOrEqual(90)
+    }
+  })
+
+  it('gives each chapter a contents line of its own', () => {
+    for (const chapter of Object.values(data.chapters)) {
+      expect(chapter.shelf, chapter.title).toBeTruthy()
+      // The contents row sets it on one line beside the title.
+      expect(chapter.shelf.length, chapter.title).toBeLessThanOrEqual(46)
+    }
+  })
+
   it('links each chapter to its project page in 2D', () => {
     const paths = sitePaths(content)
     expect(data.chapters.bezl.path).toBe('/work/bezl')
@@ -132,9 +165,12 @@ describe('tome data', () => {
         'title',
         'summary',
         'about',
+        'shelf',
         'status',
         'notes',
         'facts',
+        'links',
+        'plate',
         'path',
       ])
     }

@@ -60,7 +60,7 @@ export function ProjectPage() {
           )}
         </div>
       </header>
-      {project.media && <ProjectMedia media={project.media} />}
+      {project.media?.length ? <ProjectMedia media={project.media} /> : null}
       {ledger ? (
         <Journey goal={project.goal} progress={ledger} />
       ) : (

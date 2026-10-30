@@ -13,14 +13,15 @@ const DESTINATION = /^(https?:\/\/|\/)\S+/
 
 const isSize = (n: number) => Number.isInteger(n) && n > 0
 
-function mediaErrors(slug: string, media: Media): string[] {
+function mediaErrors(slug: string, media: Media, index: number): string[] {
   const errors: string[] = []
+  const shot = `"${slug}" shot ${index + 1}`
   // Content is typed, but alt may still arrive empty or missing from hand edits.
-  if (!media.alt?.trim()) errors.push(`"${slug}" media needs alt text`)
+  if (!media.alt?.trim()) errors.push(`${shot} needs alt text`)
   if (!isSize(media.width) || !isSize(media.height)) {
-    errors.push(`"${slug}" media needs a width and height`)
+    errors.push(`${shot} needs a width and height`)
   }
-  if (!DESTINATION.test(media.src)) errors.push(`"${slug}" media has no source`)
+  if (!DESTINATION.test(media.src)) errors.push(`${shot} has no source`)
   return errors
 }
 
@@ -53,7 +54,7 @@ export function validateCatalog(catalog: Catalog): string[] {
         p.role,
         p.domain,
         p.signature,
-        p.media?.alt,
+        ...(p.media ?? []).flatMap((m) => [m.alt, m.caption]),
         ...p.stack,
       ],
       p.brief
@@ -83,7 +84,7 @@ export function validateCatalog(catalog: Catalog): string[] {
     if (p.rank !== undefined && (p.kind !== 'endeavor' || p.listed === false)) {
       errors.push(`"${p.slug}" has a rank but is not a listed endeavor`)
     }
-    if (p.media) errors.push(...mediaErrors(p.slug, p.media))
+    p.media?.forEach((m, i) => errors.push(...mediaErrors(p.slug, m, i)))
   }
 
   const byRank = new Map<number, string[]>()

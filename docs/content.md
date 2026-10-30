@@ -21,7 +21,7 @@ Each project is one object in the `projects` array. The fields are typed in
 | `kind`                    | `'endeavor'` for real projects. `'site'` is only for this site's own entry.                                                                                                                                               |
 | `title`, `summary`        | The name, and a one-line pitch shown on cards and in the index.                                                                                                                                                           |
 | `about`                   | A short paragraph saying what it is. The only picture when there's no `media`, so it can't be empty.                                                                                                                      |
-| `media`                   | Optional. One image or video under the header. See [Media](#media).                                                                                                                                                       |
+| `media`                   | Optional. The shots under the header, in reading order. See [Media](#media).                                                                                                                                              |
 | `status`                  | `'planned'`, `'in-progress'` or `'shipped'`.                                                                                                                                                                              |
 | `startsOn`, `shippedOn`   | Calendar days, `YYYY-MM-DD`. `shippedOn` is required once `status` is `'shipped'`.                                                                                                                                        |
 | `order`                   | Season order. Lower numbers come first on the home page.                                                                                                                                                                  |
@@ -36,15 +36,27 @@ Each project is one object in the `projects` array. The fields are typed in
 
 ### Media
 
-`media` is one `{ kind, src, alt, width, height }`:
+`media` is a list of `{ kind, src, alt, width, height, caption? }`:
 
 - `kind` is `'image'` or `'video'`.
-- `src` is a site path. Put the file in `public/media/` and write `/media/bezl.png`.
+- `src` is a site path. Put the file in `public/media/` and write `/media/bezl.webp`.
 - `alt` says what the picture shows. For a video it becomes the player's label.
 - `width` and `height` are the file's pixel size. They reserve the space, so the page
   doesn't jump when it loads.
+- `caption` is optional and is printed under the shot, so write it for a reader:
+  what this is, and anything that would otherwise be taken for more than it is
+  ("on sample data").
 
-Images load lazily and videos download nothing until played.
+The project page sets the first shot full width and pairs the rest beside it, one
+column on a phone. Images load lazily and videos download nothing until played.
+
+Shots are of the real thing, taken at 1280×800 with a retina pixel ratio, scaled to
+1440 wide and saved as WebP. A shot of a running app says in its caption that it is
+sample data if it is.
+
+The book prints the first image as a plate on that project's chapter page, so its
+caption has to fit two lines: keep it to 90 characters. A project with no image gets
+no plate, and its chapter page simply has none.
 
 ### How status shows up
 
@@ -222,7 +234,8 @@ with a list of problems if any fail:
 - **Every project and study has an `about` paragraph.**
 - **A shipped project has a `shippedOn` date.**
 - **Every link has a real destination.**
-- **Project media has alt text, a source, and a whole-number width and height.**
+- **Every shot has alt text, a source, and a whole-number width and height.** Errors
+  name the shot by its place in the list, as `"kbui" shot 2`.
 - **Every study's `feeds` point at projects that exist and are listed.**
 - **`repo` is `owner/name`.**
 - **A project with a `repo` has a `goal`** of one line, 1 to 140 characters.
@@ -250,13 +263,13 @@ The 2D site picks up new content automatically: a new project gets its own page 
 a row in the work index on the next build. The book doesn't, because each of its
 pages is laid out by hand.
 
-- **Projects:** the book has exactly two chapters, for `bezl` and `kbui`.
-  Their notes and facts are written in
-  `app/tome/copy.ts`, and the page layout lives in the `SHEETS` list in
-  `app/tome/engine.js`. Editing those projects' titles, summaries, `about` text or
-  status in `projects.ts` updates the book. A new project does not appear in the book
-  until a chapter is added in both files. Renaming or hiding one of those two slugs
-  breaks its chapter.
+- **Projects:** the book has exactly two chapters, for `bezl` and `kbui`. Each one
+  takes its title, summary, `about` text, status, links and plate straight from
+  `projects.ts`; only its contents line, its three notes and its three facts are
+  written by hand, in `app/tome/copy.ts`. The page layout lives in the `SHEETS` list
+  in `app/tome/engine.js`. A new project does not appear in the book until a chapter
+  is added in both files. Renaming or hiding one of those two slugs breaks its
+  chapter.
 - **Studies:** every study needs an entry in `STUDY_NOTES` in `app/tome/copy.ts`: a
   short name for the book's study list and one sentence on why it matters. Without
   one, the book's study page shows blank lines for it. The book lists four studies

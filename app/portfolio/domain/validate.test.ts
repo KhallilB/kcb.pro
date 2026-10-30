@@ -55,26 +55,44 @@ describe('validateCatalog', () => {
   })
 
   it('accepts a project with complete media', () => {
-    const errors = validateCatalog(catalog([project({ media: image() })]))
+    const errors = validateCatalog(catalog([project({ media: [image()] })]))
     expect(errors).toEqual([])
   })
 
   it.each(['', '   '])('refuses media with no alt text: "%s"', (alt) => {
     const errors = validateCatalog(
-      catalog([project({ media: image({ alt }) })])
+      catalog([project({ media: [image({ alt })] })])
     )
-    expect(errors).toContain('"alpha" media needs alt text')
+    expect(errors).toContain('"alpha" shot 1 needs alt text')
   })
 
   it('refuses media with no alt field at all', () => {
     const noAlt = { ...image(), alt: undefined } as unknown as Media
-    const errors = validateCatalog(catalog([project({ media: noAlt })]))
-    expect(errors).toContain('"alpha" media needs alt text')
+    const errors = validateCatalog(catalog([project({ media: [noAlt] })]))
+    expect(errors).toContain('"alpha" shot 1 needs alt text')
+  })
+
+  it('names the shot that is wrong, so a long list stays findable', () => {
+    const errors = validateCatalog(
+      catalog([
+        project({
+          media: [image(), image({ src: '/media/two.png', alt: '' })],
+        }),
+      ])
+    )
+    expect(errors).toContain('"alpha" shot 2 needs alt text')
   })
 
   it('finds placeholder text in media alt text', () => {
     const errors = validateCatalog(
-      catalog([project({ media: image({ alt: 'TODO describe' }) })])
+      catalog([project({ media: [image({ alt: 'TODO describe' })] })])
+    )
+    expect(errors.join('\n')).toMatch(/placeholder/i)
+  })
+
+  it('finds placeholder text in a caption', () => {
+    const errors = validateCatalog(
+      catalog([project({ media: [image({ caption: 'Coming soon' })] })])
     )
     expect(errors.join('\n')).toMatch(/placeholder/i)
   })
@@ -84,15 +102,15 @@ describe('validateCatalog', () => {
     { width: 1600, height: -1 },
     { width: 1600.5, height: 900 },
   ])('refuses media without a whole width and height: %o', (size) => {
-    const errors = validateCatalog(catalog([project({ media: image(size) })]))
-    expect(errors).toContain('"alpha" media needs a width and height')
+    const errors = validateCatalog(catalog([project({ media: [image(size)] })]))
+    expect(errors).toContain('"alpha" shot 1 needs a width and height')
   })
 
   it('refuses media with no source', () => {
     const errors = validateCatalog(
-      catalog([project({ media: image({ src: '' }) })])
+      catalog([project({ media: [image({ src: '' })] })])
     )
-    expect(errors).toContain('"alpha" media has no source')
+    expect(errors).toContain('"alpha" shot 1 has no source')
   })
 
   it('refuses a study that feeds a project that does not exist', () => {

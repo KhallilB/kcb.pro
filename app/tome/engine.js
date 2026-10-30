@@ -154,16 +154,49 @@ export function mountTome(host, opts) {
   function para(ctx, m, text, y, size = 32, lh = 44, x = m.L, w = m.w) { ctx.fillStyle = P.ink; ctx.font = font(size, 400); return wrap(ctx, text, x, y, w, lh); }
 
   const D = data.chapters;
+  // The book's only pictures. One fails to load, that chapter just has no plate.
+  const plates = {};
+  const platesReady = Promise.all(Object.values(D).filter((d) => d.plate).map((d) => new Promise((done) => {
+    const img = new Image();
+    img.onload = () => { plates[d.plate.src] = img; done(); };
+    img.onerror = () => done();
+    img.src = d.plate.src;
+  })));
   const centered = (ctx, text, x, y) => { ctx.textAlign = 'center'; ctx.fillText(text, x, y); ctx.textAlign = 'left'; };
   const chapterHead = (ctx, m, d) => {
     heading(ctx, m, d.title, 250, 72);
     ctx.fillStyle = P.muted; ctx.font = font(30, 400, BODY, true); centered(ctx, d.summary, m.cx, 345);
   };
   const footnote = (ctx, m, text, y = TH - 160) => { ctx.fillStyle = P.muted; ctx.font = font(26, 400, BODY, true); centered(ctx, text, m.cx, y); };
+  // A tipped-in plate: the shot fitted to the space left, ruled in gold, captioned under it.
+  const plate = (ctx, m, img, caption, top, bottom) => {
+    const capH = caption ? 76 : 0, box = bottom - top - capH;
+    if (box < 160) return top;
+    const scale = Math.min(m.w / img.width, box / img.height);
+    const w = Math.round(img.width * scale), h = Math.round(img.height * scale);
+    const x = Math.round(m.cx - w / 2), y = Math.round(top + (box - h) / 2);
+    ctx.save();
+    ctx.shadowColor = 'rgba(40,30,10,0.4)'; ctx.shadowBlur = 16; ctx.shadowOffsetX = 2; ctx.shadowOffsetY = 5;
+    ctx.fillStyle = P.parch; ctx.fillRect(x - 10, y - 10, w + 20, h + 20);
+    ctx.restore();
+    ctx.drawImage(img, x, y, w, h);
+    // A warm wash so the screen sits in the paper instead of on top of it.
+    ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.globalAlpha = 0.14; ctx.fillStyle = '#d8c69c'; ctx.fillRect(x, y, w, h); ctx.restore();
+    ctx.strokeStyle = P.goldDark; ctx.lineWidth = 2.5; ctx.strokeRect(x - 10.5, y - 10.5, w + 21, h + 21);
+    ctx.strokeStyle = P.rule; ctx.lineWidth = 1; ctx.strokeRect(x - 3.5, y - 3.5, w + 7, h + 7);
+    if (faceTex[curName]) faceTex[curName].plateRect = [x - 12, y - 12, w + 24, h + 24];
+    if (!caption) return y + h + 18;
+    ctx.fillStyle = P.muted; ctx.font = font(25, 400, BODY, true); ctx.textAlign = 'center';
+    const end = wrap(ctx, caption, m.cx, y + h + 46, Math.max(w, 520), 34);
+    ctx.textAlign = 'left';
+    return end + 8;
+  };
   const chapterPage = (ctx, title, folio, d, hs) => {
     const m = parchment(ctx, 'R', title, folio);
     chapterHead(ctx, m, d);
-    para(ctx, m, d.about, 450, 34, 50);
+    const read = para(ctx, m, d.about, 450, 34, 50);
+    const shot = d.plate && plates[d.plate.src];
+    if (shot) plate(ctx, m, shot, d.plate.caption, read + 30, TH - 318);
     // The way out to the project's 2D page: an outlined button in the accent colour.
     const bw = 440, bh = 76, bx = m.cx - bw / 2, by = TH - 300;
     ctx.fillStyle = P.accentSoft; ctx.strokeStyle = P.accent; ctx.lineWidth = 2;
@@ -173,7 +206,7 @@ export function mountTome(host, opts) {
     hs.push({ x: bx, y: by, w: bw, h: bh, act: () => onNavigate(d.path) });
     footnote(ctx, m, d.status, TH - 158);
   };
-  const notesPage = (ctx, side, title, folio, d) => {
+  const notesPage = (ctx, side, title, folio, d, hs) => {
     const m = parchment(ctx, side, title, folio);
     heading(ctx, m, 'Notes', 262, 56);
     let y = 350;
@@ -181,6 +214,21 @@ export function mountTome(host, opts) {
     rule(ctx, m, y);
     const cw = m.w / 3;
     d.facts.forEach(([k, v], i) => { smallcaps(ctx, k, m.L + i * cw, y + 60); ctx.fillStyle = P.ink; ctx.font = font(30, 600); wrap(ctx, v, m.L + i * cw, y + 104, cw - 16, 36); });
+    links(ctx, m, d.links, hs);
+  };
+  // Where the project really lives. Each line opens in a new tab, so the book stays put.
+  const links = (ctx, m, list, hs) => {
+    if (!list.length) return;
+    // Pinned to the foot, so every chapter keeps its links in the same place.
+    const top = TH - 150 - list.length * 58;
+    rule(ctx, m, top);
+    smallcaps(ctx, 'Elsewhere', m.L, top + 46);
+    list.forEach(({ label, href }, i) => {
+      const y = top + 96 + i * 58;
+      ctx.fillStyle = P.accent; ctx.font = font(32, 600);
+      ctx.fillText(`${label} \u2197`, m.L, y);
+      hs.push({ x: m.L, y: y - 38, w: m.w, h: 52, act: () => window.open(href, '_blank', 'noopener') });
+    });
   };
   // Four two-line titles fill a page; the rest go on the next sheet.
   const STUDIES_PER_PAGE = 4;
@@ -238,7 +286,7 @@ export function mountTome(host, opts) {
     contents(ctx, hs) {
       const m = parchment(ctx, 'R', 'Contents', 'i');
       heading(ctx, m, 'Contents', 260);
-      const rows = [['About', 'Who I am', 'ii', 2, 0], [D.bezl.title, 'A desktop app for AI coding assistants', '1', 2, 1], [D.kbui.title, 'My design system', '3', 3, 2], ['Work studies', 'Short investigations I have planned', '5', 4, 4], ['Contact', 'Email, LinkedIn, résumé', '9', 6, 5]];
+      const rows = [['About', 'Who I am', 'ii', 2, 0], [D.bezl.title, D.bezl.shelf, '1', 2, 1], [D.kbui.title, D.kbui.shelf, '3', 3, 2], ['Work studies', 'Short investigations I have planned', '5', 4, 4], ['Contact', 'Email, LinkedIn, résumé', '9', 6, 5]];
       let y = 360;
       for (const [t, s, n, go, ci] of rows) {
         ctx.fillStyle = SECT[ci]; ctx.globalAlpha = 0.9; ctx.beginPath(); ctx.roundRect(m.L, y + 10, 14, 68, 4); ctx.fill(); ctx.globalAlpha = 1;
@@ -264,12 +312,12 @@ export function mountTome(host, opts) {
       ctx.fillStyle = P.muted; ctx.font = font(28, 400, BODY, true); ctx.fillText(`as of ${data.asOf}`, m.L + 36, y + 176);
     },
 
-    // Chapters say what each project is; images wait for real screenshots.
+    // Chapters: what the project is, its plate, and where to go for the real thing.
     bezl(ctx, hs) { chapterPage(ctx, 'Chapter I', '1', D.bezl, hs); },
-    bezlNotes(ctx) { notesPage(ctx, 'L', D.bezl.title, '2', D.bezl); },
+    bezlNotes(ctx, hs) { notesPage(ctx, 'L', D.bezl.title, '2', D.bezl, hs); },
 
     kbui(ctx, hs) { chapterPage(ctx, 'Chapter II', '3', D.kbui, hs); },
-    kbuiNotes(ctx) { notesPage(ctx, 'L', D.kbui.title, '4', D.kbui); },
+    kbuiNotes(ctx, hs) { notesPage(ctx, 'L', D.kbui.title, '4', D.kbui, hs); },
 
     studies(ctx, hs) { studyList(ctx, hs, '5', 'Work studies', data.studies.slice(0, STUDIES_PER_PAGE)); },
     studyNotes(ctx) { studyWhy(ctx, '6', 'Why I picked them', data.studies.slice(0, STUDIES_PER_PAGE)); },
@@ -326,6 +374,7 @@ export function mountTome(host, opts) {
     const { canvas, tex } = faceTex[name]; const ctx = canvas.getContext('2d');
     seed = 7 + name.length * 31; ctx.clearRect(0, 0, TW, TH);
     curColor = FACE_COLOR[name] || null; curName = name; curSide = null;
+    faceTex[name].plateRect = null;
     faceHs[name] = []; faces[name](ctx, faceHs[name]);
     // Ink sits in the fibres: a last pass of fine tooth over the type, so print reads pressed into the sheet rather than laid on it.
     pulp(ctx, TW, TH, 4, 0.085);
@@ -335,6 +384,9 @@ export function mountTome(host, opts) {
       const img = gc.getImageData(0, 0, 256, 348), d = img.data;
       for (let i = 0; i < d.length; i += 4) { const lum = (d[i] * 0.3 + d[i + 1] * 0.59 + d[i + 2] * 0.11) / 255; d[i] = 60; d[i + 1] = 40; d[i + 2] = 20; d[i + 3] = Math.max(0, Math.min(1, (0.62 - lum) / 0.35)) * 255; }
       gc.putImageData(img, 0, 0);
+      // A plate is on heavier stock than the page: nothing of it shows through.
+      const r = faceTex[name].plateRect;
+      if (r) gc.clearRect(r[0] * 256 / TW, r[1] * 348 / TH, r[2] * 256 / TW, r[3] * 348 / TH);
     }
     if (name !== 'exlibris') deckle(ctx, curSide, name === 'finis' ? P.parchEdge : null);
     tex.needsUpdate = true;
@@ -1622,7 +1674,15 @@ export function mountTome(host, opts) {
   }
 
   const fontsReady = Promise.all([document.fonts.load('700 60px "Cinzel"'), document.fonts.load('500 20px "Cinzel"'), document.fonts.load('400 30px "EB Garamond"'), document.fonts.load('italic 400 30px "EB Garamond"'), document.fonts.load('600 30px "EB Garamond"')]).catch(() => {});
-  Promise.race([fontsReady, new Promise((r) => setTimeout(r, 2500))]).then(() => {
+  // A slow plate must not hold the book back; its page is repainted when it lands.
+  platesReady.then(() => {
+    if (!alive || !started) return;
+    for (const name of Object.keys(D)) {
+      if (!D[name].plate || !plates[D[name].plate.src] || !faceTex[name]) continue;
+      redraw(name); if (PARTNER[name]) redraw(PARTNER[name]);
+    }
+  });
+  Promise.race([Promise.all([fontsReady, platesReady]), new Promise((r) => setTimeout(r, 2500))]).then(() => {
     // Second pass gives each page its verso's finished ink; pages without one are already final.
     const names = Object.keys(faceTex); names.forEach(redraw); names.filter((n) => PARTNER[n]).forEach(redraw);
     if (!alive) return;

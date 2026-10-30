@@ -69,10 +69,13 @@ export function Layout() {
     const place = engine.current?.place()
     setView('list')
     setTomePath(null)
-    const page = !isHome && place && place !== placeOfPath(pathname) && pathOfPlace(place)
+    // Home cards only what it lists, so a chapter with no card goes to its page.
+    const carded = isHome && place && document.querySelector(`[data-place="${place}"]`)
+    const page =
+      !carded && place && place !== placeOfPath(pathname) && pathOfPlace(place)
     if (page) navigate(page)
     requestAnimationFrame(() => {
-      const spot = isHome && place && document.querySelector(`[data-place="${place}"]`)
+      const spot = carded && document.querySelector(`[data-place="${place}"]`)
       if (spot) spot.scrollIntoView({ block: 'center' })
       else if (isHome || page) window.scrollTo(0, 0)
       document.getElementById('content')?.focus({ preventScroll: true })

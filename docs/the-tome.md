@@ -10,7 +10,9 @@ The Tome is the 3D book on the home page. It's built with Three.js r128 and live
 - Pull a coloured ribbon to jump to a chapter. Home closes the book; End jumps to
   the last page.
 - Each project's chapter page has an "Open the project page" button that leaves the book
-  for that project's 2D page.
+  for that project's 2D page, and a plate: the project's first screenshot, framed and
+  captioned. Its notes page lists the project's own links under "Elsewhere", each
+  opening in a new tab.
 - Rows on the contents page jump to their chapter. The study links and "All my work"
   open the matching site page; "Code" opens GitHub in a new tab.
 - L or Escape switches to the 2D site.
@@ -22,9 +24,13 @@ The Tome is the 3D book on the home page. It's built with Three.js r128 and live
    calls `mountTome(host, options)`. While the 2D site is open, the engine file is
    downloaded in the background during idle time, so the first switch to 3D only
    has to build the scene.
-3. The engine paints every cover and texture onto canvases (nothing is loaded from
-   image files). Then it waits up to 2.5 seconds for the Cinzel and EB Garamond fonts,
-   paints the pages so their text uses the right typeface, and starts drawing.
+3. The engine paints every cover and texture onto canvases. The only files it loads
+   are the chapter plates, the screenshots named by `media` in `projects.ts`. Then it
+   waits up to 2.5 seconds for those and for the Cinzel and EB Garamond fonts, paints
+   the pages so their text uses the right typeface, and starts drawing. A plate that
+   arrives after that repaints its own page and the page behind it; one that never
+   arrives leaves the chapter without a plate. Nothing of a plate shows through to the
+   next leaf: a plate is on heavier stock than the page it sits on.
 
 While it loads, home shows the book's mist from the first frame: an inline script in
 `index.html` flags the page before React runs, and `Layout.tsx` keeps that flag until it
@@ -87,8 +93,10 @@ The book is built once and then kept. Switching to 2D doesn't destroy it:
   | Contents, Contact | stay where you are         |
 
   Press 3D on `/work/kbui` and the book opens at kbui. Turn to Bezl and press 2D,
-  and you land on `/work/bezl`. On the home page, 2D scrolls the list
-  to the card for the chapter you were reading instead.
+  and you land on `/work/bezl`. On the home page, 2D scrolls the list to the card for
+  the chapter you were reading; where home has no card for it, such as the work
+  studies, it goes to that chapter's page instead, so leaving the book never loses
+  your place.
 
 With "reduce motion" turned on, every transition is instant.
 
