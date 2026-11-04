@@ -53,20 +53,20 @@ export const projects: Project[] = [
     slug: 'bezl',
     kind: 'endeavor',
     title: 'Bezl',
-    summary: 'Run a few AI coding assistants on one task, and see who did what.',
+    summary: 'A side project to make my coding agent reviews easier to follow.',
     about:
-      'A desktop app for running Codex and Claude Code on the same task. One of them may change the code while the other reviews. Local models run through Ollama for jobs that don’t need tools, and every step is logged on your machine.',
+      'I started Bezl after a coding agent I’d asked for a review edited the patch itself. I wanted an easier way to see who changed what and which checks had run. So far, the desktop prototype has a live terminal and a task screen with sample data.',
     status: 'in-progress',
     startsOn: '2026-10-22',
     order: 1,
     rank: 1,
     repo: 'KhallilB/bezl-internal',
-    goal: 'One window that runs AI coding assistants side by side, with one writer per task.',
+    goal: 'Let one agent write the patch and another review it, with the diff and check results in one place.',
     role: 'Design and engineering',
     stack: ['Tauri 2', 'Rust', 'React 19', 'TypeScript', 'xterm.js', 'Ollama'],
     domain: 'Desktop apps, embedded terminals, sandboxed permissions and local models.',
     signature:
-      'Only one assistant per task can write. The others are kept read-only by their own sandbox, so the rule holds even if a model ignores what it’s told. Proven for Codex so far.',
+      'In a separate test, Codex’s read-only mode blocked a write to a scratch repo.',
     links: [
       { label: 'Download', href: 'https://github.com/KhallilB/bezl/releases' },
       { label: 'Source', href: 'https://github.com/KhallilB/bezl' },
@@ -79,51 +79,40 @@ export const projects: Project[] = [
         width: 1440,
         height: 900,
         caption:
-          'The task screen in v0.1.0: one writer, two readers, on sample data.',
+          'The task screen in v0.1.0 shows one writer and two reviewers using sample data.',
       },
     ],
     brief: [
       {
         heading: 'The problem',
         body: [
-          'I started running two or three AI assistants on the same codebase, and it got messy fast. Two of them would edit the same file. A reviewer would decide to fix something on its own. By the end, I couldn’t tell who had changed what.',
-          'Bezl fixes that with one rule. Each task gets one assistant that can write, and as many as you like that can only read. Everything they do is recorded.',
+          'I was using one coding agent to make a change and another to review it. Sometimes the reviewer would edit the same files. I’d have to work out which version it had reviewed and whether the checks still applied. I started Bezl to see how much of that handoff I could automate.',
         ],
       },
       {
-        heading: 'How it works',
+        heading: 'What you can try',
         body: [
-          'Bezl doesn’t connect to any AI provider itself. It opens Codex and Claude Code through their official command-line tools, each in a terminal inside one window, and each keeps its own sign-in. Local models run through Ollama, on your machine by default. So Bezl never holds a key.',
-          'Between assistants, Bezl only passes along what it made or checked itself: the diff, its own check results and findings it has verified. It never hands one assistant another’s conversation.',
-          'Each task works on its own copy of the repository, and the rules for who can do what are attached to the task.',
+          'I released v0.1.0 on 27 Oct 2026. You can open the app, use the live terminal, and explore the task screen, which is built on kbui and uses sample data. The writer and reviewer workflow is still in development.',
+          'The builds are unsigned. The release page has steps for opening them on macOS and Windows.',
         ],
       },
       {
-        heading: 'What I’ve proven so far',
+        heading: 'What I’ve tested',
         body: [
-          'On 22 Oct 2026 I ran three quick experiments. Before each one, I wrote down what would count as a pass.',
-          'The first was about the terminals. No output went missing on its way to the window, and I couldn’t notice any lag when typing. Memory was the one miss. Under heavy output it went over the limit I’d set, so I split that limit in two: one for quiet periods and one for heavy bursts.',
-          'The second was Ghostty’s terminal engine. It built within the time I’d allowed, and it captured a text snapshot of a live vim screen that matched what I’d typed. For now, it only works with one specific build of its compiler.',
-          'The third was the sandbox. I ran Codex in read-only mode and had it try to change a file. The operating system blocked it, and Codex said so. I haven’t run the same test on Claude Code yet.',
+          'I tested parts of the workflow separately. The terminal stayed responsive while printing a lot of output, but memory use went over my target. I also used Ghostty’s terminal engine to capture text from a running Vim session. That test needed a specific compiler build.',
+          'In a separate test, I asked Codex in read-only mode to change a file in a scratch repo. The sandbox blocked the write.',
         ],
       },
       {
-        heading: 'The first build',
+        heading: 'What I’m working on',
         body: [
-          'On 27 Oct 2026 I put out v0.1.0, the first version you can download and open. It gives you the window, a live terminal and the task screen, which runs on sample data for now. The assistants don’t run inside it yet, so what you’re looking at is the shape of the thing rather than the thing.',
-          'The builds aren’t signed, so macOS and Windows will both stop you the first time. The release page says what to click.',
-        ],
-      },
-      {
-        heading: 'What comes next',
-        body: [
-          'The core comes next, written in Rust. It holds the tasks, the assistants working on them and what each one may do, and it writes the log as a list of events that only ever grows. Once it exists, the terminals stop being a prototype and a real assistant runs inside a task. The interface is built on kbui.',
+          'I’m working on connecting those pieces. The idea is to give one agent a separate checkout to edit, let a reviewer inspect the patch, and show me the Git diff and check results in one place.',
         ],
       },
       {
         heading: 'Use of AI',
         body: [
-          'Bezl doesn’t ship a model of its own. It launches the coding agents you already use, hands jobs that need no tools to models you run through Ollama, and keeps a record of all of it.',
+          'I plan to use the official Codex and Claude Code command-line tools. Each would keep its own sign-in. I’m also exploring Ollama for jobs that don’t need access to the repo.',
         ],
       },
     ],

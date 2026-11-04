@@ -54,9 +54,9 @@ describe('published content', () => {
     }
   })
 
-  it('scopes the Bezl sandbox claim to the one assistant checked', () => {
+  it('describes the Bezl sandbox result as a separate test', () => {
     const bezl = content.projects.find((p) => p.slug === 'bezl')!
-    expect(bezl.signature).toContain('Proven for Codex so far.')
+    expect(bezl.signature).toContain('Codex’s read-only mode blocked a write')
   })
 
   it('links Bezl to its public source and downloads, never its private repo', () => {
