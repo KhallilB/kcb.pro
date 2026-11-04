@@ -132,9 +132,9 @@ export const projects: Project[] = [
     slug: 'kbui',
     kind: 'endeavor',
     title: 'kbui',
-    summary: 'The design system all my projects share, from tokens to React.',
+    summary: 'Shared buttons, forms, and dialogs for my projects.',
     about:
-      'A small design system that all my projects share. Colours, spacing and type live in one token file. The styling is plain CSS, so any framework can use it, and React adds the behaviour on top. Tests make sure the three never drift apart.',
+      'I kept rebuilding the same buttons and forms for each project. I built kbui so my apps could share how those pieces behave and pick up fixes when I update them.',
     status: 'in-progress',
     startsOn: '2026-10-16',
     order: 2,
@@ -145,7 +145,7 @@ export const projects: Project[] = [
     stack: ['TypeScript', 'CSS', 'React 19', 'Base UI', 'Storybook'],
     domain: 'Design tokens, accessible components and automated design checks.',
     signature:
-      'Every stylesheet starts with an anatomy line, a single comment listing the component’s classes and attributes. Any framework that follows it renders the component the same way.',
+      'If a bulk action fails, the shared table keeps your selection so you can try again.',
     links: [
       { label: 'Components', href: 'https://kbui.kcb.pro' },
       { label: 'Package', href: 'https://www.npmjs.com/package/@kb.ui/react' },
@@ -184,21 +184,21 @@ export const projects: Project[] = [
       {
         heading: 'The problem',
         body: [
-          'Every project needs buttons, form fields and dialogs. Left alone, each one ends up with its own slightly different version. kbui gives them one shared set, so when I fix a bug or improve accessibility, every project gets the fix.',
+          'Say you select a few projects and click Archive. If the request fails, you should be able to try again without finding and selecting those projects all over again. I put that behaviour in kbui’s shared table. Each app decides what archiving means and makes the request. The table keeps the selection on failure and clears only the rows you submitted when it succeeds.',
         ],
       },
       {
         heading: 'How it works',
         body: [
-          'All the colours, spacing and type sizes live in one file, written in the W3C design tokens format. Light and dark values sit side by side.',
-          'The styling is plain CSS that hooks onto class names and data attributes. It doesn’t depend on React at all.',
-          'The React layer is thin. It uses Base UI to handle focus, keyboard support and screen readers, and its only other job is to put the right classes and attributes on each element.',
+          'I keep shared values like button colours, spacing and text sizes in one file. These named settings are called design tokens.',
+          'The styles are plain CSS. An app can use them with React or supply the same markup itself.',
+          'The React components pair those styles with native controls and Base UI for behaviour like keyboard navigation and focus management.',
         ],
       },
       {
         heading: 'How it stays consistent',
         body: [
-          'The build checks the rules, so I don’t have to remember them. It fails if a token points to one that doesn’t exist, if a stylesheet uses a raw colour, or if a component is missing its test or its story. Every story is also opened in a real browser and checked for accessibility problems. On the last recorded run, everything passed.',
+          'I test the table with a request that fails and one that succeeds. The tests check that a second click while the request is running can’t send it twice, a failure keeps your selection, and a success clears only the rows you sent.',
         ],
       },
       {

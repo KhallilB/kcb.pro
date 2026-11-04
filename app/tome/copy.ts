@@ -161,19 +161,19 @@ export function tomeData(asOf: IsoDay): TomeData {
       kbui: chapter(
         'kbui',
         asOf,
-        'The design system behind my projects',
+        'Shared components for my projects',
         [
           [
-            'The idea',
-            'Every design value lives in one file. The styles are plain CSS that any framework can use, and React just adds the behaviour.',
+            'Why I built it',
+            'I kept rebuilding the same buttons and forms. With kbui, I can fix a component once and share it across apps.',
           ],
           [
-            'The contract',
-            'Each stylesheet starts with a line listing the classes it uses. If that line is missing, the build fails.',
+            'When Archive fails',
+            'In the shared table, a failed archive request keeps the rows selected so you can try again.',
           ],
           [
-            'Checked',
-            'Every component is opened in a real browser and checked for accessibility problems on every run.',
+            'What I check',
+            'I test that a second click can’t send the request twice and that success clears only the rows you sent.',
           ],
         ],
         [
