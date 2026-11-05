@@ -208,7 +208,7 @@ test('a project page leads with progress, then the brief, then the closed record
   await page.goto('/work/bezl')
   const card = page.getByRole('region', { name: 'Progress', exact: true })
   await expect(card).toContainText(
-    'One window that runs AI coding assistants side by side'
+    'Let one agent write the patch and another review it'
   )
   await expect(card.getByRole('img', { name: /^Step \d of 6: / })).toHaveCount(
     6

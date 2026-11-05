@@ -59,8 +59,8 @@ export function About() {
         <p>
           Outside work I build things to learn the parts of engineering my job
           doesn’t cover. Right now that’s{' '}
-          <Link to="/work/bezl">Bezl</Link>, a desktop app for running AI coding
-          assistants side by side, and <Link to="/work/kbui">kbui</Link>, the
+          <Link to="/work/bezl">Bezl</Link>, a prototype for handing patches
+          between coding agents, and <Link to="/work/kbui">kbui</Link>, the
           design system my projects share. Plus this site.
         </p>
         <p>
