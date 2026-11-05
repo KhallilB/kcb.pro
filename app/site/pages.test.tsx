@@ -56,7 +56,7 @@ describe('home', () => {
       screen.getByRole('region', { name: 'Selected work' })
     ).getAllByRole('article')
     expect(cards[0]).toHaveTextContent(
-      'running Codex and Claude Code on the same task'
+      'a live terminal and a task screen with sample data'
     )
     expect(cards[1]).toHaveTextContent(
       'Colours, spacing and type live in one token file'
@@ -122,7 +122,7 @@ describe('work index', () => {
     visit('/work')
     const rows = within(screen.getByRole('main')).getAllByRole('listitem')
     expect(rows[1]).toHaveTextContent(
-      'running Codex and Claude Code on the same task'
+      'a live terminal and a task screen with sample data'
     )
     expect(rows[2]).toHaveTextContent(
       'Colours, spacing and type live in one token file'
@@ -157,7 +157,7 @@ describe('project page', () => {
     visit('/work/bezl')
     const card = screen.getByRole('region', { name: 'Progress' })
     expect(card).toHaveTextContent(
-      'One window that runs AI coding assistants side by side, with one writer per task.'
+      'Let one agent write the patch and another review it, with the diff and check results in one place.'
     )
     expect(card).toHaveTextContent('3 of 6 done, 1 in progress, 2 planned')
     expect(card).toHaveTextContent(
@@ -238,7 +238,7 @@ describe('project page', () => {
       .getAllByRole('heading', { level: 2 })
       .map((h) => h.textContent)
     expect(headings).toContain('The problem')
-    expect(headings).toContain('What I’ve proven so far')
+    expect(headings).toContain('What I’ve tested')
     const toc = screen.getByRole('navigation', { name: 'On this page' })
     expect(
       within(toc).getByRole('link', { name: 'The problem' })
@@ -389,7 +389,7 @@ describe('about', () => {
     expect(text).not.toContain('You’ll see dates on everything here')
     expect(text).not.toContain('This site is the third')
     expect(text).toContain(
-      'side by side, and kbui, the design system my projects share'
+      'between coding agents, and kbui, the design system my projects share'
     )
   })
 

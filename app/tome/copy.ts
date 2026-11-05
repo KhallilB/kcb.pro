@@ -115,7 +115,7 @@ export function tomeData(asOf: IsoDay): TomeData {
     asOf: formatLongDay(asOf),
     nowBuilding: live?.title ?? 'Between projects',
     about: [
-      'I’m a frontend engineer in Los Angeles, and I’ve spent more than five years building product interfaces. This book is my side work: Bezl, a desktop app that runs AI coding assistants side by side, and kbui, the design system my projects share.',
+      'I’m a frontend engineer in Los Angeles, and I’ve spent more than five years building product interfaces. This book is my side work: Bezl, a prototype for handing a patch between coding agents, and kbui, the design system my projects share.',
     ],
     contactLine:
       'Email is the best way to reach me. My résumé has the full story.',
@@ -137,24 +137,24 @@ export function tomeData(asOf: IsoDay): TomeData {
       bezl: chapter(
         'bezl',
         asOf,
-        'A desktop app for AI coding assistants',
+        'A prototype for handing off a patch',
         [
           [
-            'The problem',
-            'Put a few AI coding assistants on one codebase and they get in each other’s way. Afterwards, nobody can tell who changed what.',
+            'Why I built it',
+            'A coding agent I’d asked for a review edited the patch itself. I wanted to see who changed what and which checks had run.',
           ],
           [
-            'One writer',
-            'On every task, one assistant can change the code and the rest can only read it. Each tool’s own sandbox is meant to enforce that. So far I’ve confirmed it for Codex.',
+            'What works',
+            'The first build has a live terminal and a task screen with sample data.',
           ],
           [
-            'So far',
-            'The first build is out: the window, a live terminal and the task screen, on sample data. No assistant runs inside it yet.',
+            'What I’m testing',
+            'I’m working on letting one agent write and another review. In a separate test, Codex’s read-only mode blocked a write.',
           ],
         ],
         [
           ['Built with', 'Tauri · Rust · React'],
-          ['Data', 'Stays on your machine'],
+          ['Stage', 'Desktop prototype'],
           ['To try', 'Download the build'],
         ]
       ),
