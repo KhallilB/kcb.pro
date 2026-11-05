@@ -59,7 +59,7 @@ describe('home', () => {
       'a live terminal and a task screen with sample data'
     )
     expect(cards[1]).toHaveTextContent(
-      'Colours, spacing and type live in one token file'
+      'I kept rebuilding the same buttons and forms'
     )
     expect(container.querySelector('.card svg, .card img, .wip')).toBeNull()
   })
@@ -125,7 +125,7 @@ describe('work index', () => {
       'a live terminal and a task screen with sample data'
     )
     expect(rows[2]).toHaveTextContent(
-      'Colours, spacing and type live in one token file'
+      'I kept rebuilding the same buttons and forms'
     )
     expect(rows).toHaveLength(3)
   })
