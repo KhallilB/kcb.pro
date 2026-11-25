@@ -17,7 +17,7 @@ Each project is one object in the `projects` array. The fields are typed in
 
 | Field                     | What it's for                                                                                                                                                                                                             |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `slug`                    | The URL: `bezl` becomes `/work/bezl`. Must be unique across projects **and** studies.                                                                                                                                     |
+| `slug`                    | The URL: `kbui` becomes `/work/kbui`. Must be unique across projects **and** studies.                                                                                                                                     |
 | `kind`                    | `'endeavor'` for real projects. `'site'` is only for this site's own entry.                                                                                                                                               |
 | `title`, `summary`        | The name, and a one-line pitch shown on cards and in the index.                                                                                                                                                           |
 | `about`                   | A short paragraph saying what it is. The only picture when there's no `media`, so it can't be empty.                                                                                                                      |
@@ -31,7 +31,7 @@ Each project is one object in the `projects` array. The fields are typed in
 | `brief`                   | The write-up: a list of `{ heading, body: [paragraphs] }` sections.                                                                                                                                                       |
 | `listed`                  | Optional. `false` keeps the entry valid but off the site and out of the book. Leave it out to list it.                                                                                                                    |
 | `rank`                    | Optional. `1`, `2` or `3`: the project's place in "Selected work" on the home page. Each rank once, and only on a listed endeavor.                                                                                        |
-| `repo`                    | Optional. The GitHub repository as `owner/name`, such as `KhallilB/bezl`. Registers the project's progress (below). A private repository needs `PROGRESS_TOKEN` ([deploying](deploying.md#reading-private-repositories)). |
+| `repo`                    | Optional. The GitHub repository as `owner/name`, such as `KhallilB/kbui`. Registers the project's progress (below). A private repository needs `PROGRESS_TOKEN` ([deploying](deploying.md#reading-private-repositories)). |
 | `goal`                    | Required with `repo`. One sentence on where the project is heading: 1 to 140 characters once trimmed, no line breaks. It opens the project's Progress card.                                                               |
 
 ### Media
@@ -39,7 +39,7 @@ Each project is one object in the `projects` array. The fields are typed in
 `media` is a list of `{ kind, src, alt, width, height, caption? }`:
 
 - `kind` is `'image'` or `'video'`.
-- `src` is a site path. Put the file in `public/media/` and write `/media/bezl.webp`.
+- `src` is a site path. Put the file in `public/media/` and write `/media/kbui-overview.webp`.
 - `alt` says what the picture shows. For a video it becomes the player's label.
 - `width` and `height` are the file's pixel size. They reserve the space, so the page
   doesn't jump when it loads.
@@ -82,22 +82,20 @@ repository's default branch, plus the last 12 weeks (84 days) of that branch's c
 ```json
 {
   "schema": 1,
-  "project": "bezl",
+  "project": "kbui",
   "entries": [
     {
-      "id": "2026-10-22-pty-throughput",
-      "subject": "pty-throughput",
-      "date": "2026-10-22",
-      "kind": "experiment",
-      "title": "Terminal output into the window",
-      "passMark": "No lost bytes, echo under 100 ms, memory under 300 MB",
-      "result": "partial",
-      "summary": "No bytes lost and typing keeps up; memory runs high, so two tighter limits come next.",
-      "measured": [{ "label": "Echo latency, median", "value": "2 ms" }],
+      "id": "2026-10-16-first-components",
+      "subject": "first-components",
+      "date": "2026-10-16",
+      "kind": "milestone",
+      "title": "Button, Input and Dialog",
+      "result": "pass",
+      "measured": [],
       "evidence": [
-        { "label": "RESULT.md", "path": "spikes/01-pty-throughput/RESULT.md" }
+        { "label": "Button", "path": "packages/react/src/components/Button" }
       ],
-      "commit": "2230356"
+      "commit": "2384527"
     }
   ]
 }
@@ -107,7 +105,7 @@ repository's default branch, plus the last 12 weeks (84 days) of that branch's c
 | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | `schema`   | `1`, the current version. kcb.pro also reads the one before it, once there is one.                                                            |
 | `project`  | The kcb.pro slug.                                                                                                                             |
-| `id`       | Unique in the file, no spaces. It is the entry's anchor: `/work/bezl#2026-10-22-pty-throughput`.                                              |
+| `id`       | Unique in the file, no spaces. It is the entry's anchor: `/work/kbui#2026-10-16-first-components`.                                              |
 | `subject`  | Groups entries about the same thing over time.                                                                                                |
 | `date`     | `YYYY-MM-DD`, not after the build day. Entries go oldest first.                                                                               |
 | `kind`     | `experiment`, `tests`, `release` or `milestone`.                                                                                              |
@@ -158,11 +156,11 @@ jobs:
   progress:
     uses: KhallilB/kcb.pro/.github/workflows/progress-check.yml@main
     with:
-      slug: bezl
+      slug: kbui
 ```
 
 The same check runs locally from a project's root:
-`bun ../kcb.pro/scripts/progress-check.ts --slug bezl --base origin/main`.
+`bun ../kcb.pro/scripts/progress-check.ts --slug kbui --base origin/main`.
 
 ### What the page shows
 
@@ -187,7 +185,7 @@ carries it:
 - **Full history** (`<details id="record">`), closed until opened: one row per subject
   in the same order, with its mark and word, title, summary and date, then that
   subject's earlier entries, newest first. Every entry keeps its `id` as an anchor. A
-  link such as `/work/bezl#2026-10-22-pty-throughput` (or `#record`) opens the section
+  link such as `/work/kbui#2026-10-16-first-components` (or `#record`) opens the section
   at that spot once the page has loaded; without JavaScript it stays closed. At the
   bottom, a 12-week table of commit squares with its total.
 
@@ -248,11 +246,10 @@ by deleting its `listed: false` line.
 
 `app/portfolio/content/content.test.ts` runs the same checks in `bun run test`, so you
 find out before you build. That file also pins the current lineup on purpose: two
-ranked endeavors (Bezl rank 1, kbui rank 2), both registered by `repo`, Bezl as
-"now building", three hidden endeavors (Deck Workshop, Mugen Arena, Wander) kept in
-the catalog, and seven studies. One of them, `decision-or-luck`, feeds no listed
-project; every other study feeds a listed one, and every endeavor must be fed by at
-least one study. No study names a project in its own words: the "Used by" line does
+ranked endeavors (Waveboard rank 1 and kbui rank 2), with Waveboard as
+"now building" and kbui registered for progress. The catalog also has three hidden
+endeavors (Deck Workshop, Mugen Arena, and Wander) and seven studies. Studies can
+stand alone or link to a listed project. No study names a project in its own words: the "Used by" line does
 that.
 When you add, remove or reorder projects or studies, update those expectations in the
 same change.
@@ -263,7 +260,7 @@ The 2D site picks up new content automatically: a new project gets its own page 
 a row in the work index on the next build. The book doesn't, because each of its
 pages is laid out by hand.
 
-- **Projects:** the book has exactly two chapters, for `bezl` and `kbui`. Each one
+- **Projects:** the book has exactly two chapters, for `waveboard` and `kbui`. Each one
   takes its title, summary, `about` text, status, links and plate straight from
   `projects.ts`; only its contents line, its three notes and its three facts are
   written by hand, in `app/tome/copy.ts`. The page layout lives in the `SHEETS` list

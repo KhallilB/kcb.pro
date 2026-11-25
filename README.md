@@ -14,8 +14,8 @@ website with the same stuff on it.
 
 Two projects I'm working on:
 
-- Bezl runs several AI coding assistants on the same task in one window. One of them
-  may write, the others may only review, and everything they do is logged.
+- Waveboard helps me see which tasks can start, what blocks them, and which
+  worktrees and pull requests are already in flight.
 - kbui is the design system my projects share: one set of tokens, plain CSS, and
   React components on top.
 

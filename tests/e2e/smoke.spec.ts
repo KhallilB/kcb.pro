@@ -85,7 +85,7 @@ test('the tome opens over the home page and steps aside for the list', async ({ 
   await expect(view.getByRole('button', { name: '3D book' })).toHaveAttribute('aria-pressed', 'true')
   await expect(page.locator('.tome[data-ready] canvas')).toHaveAttribute(
     'data-chapters',
-    'bezl,kbui'
+    'waveboard,kbui'
   )
 
   await view.getByRole('button', { name: '2D list' }).click()
@@ -156,7 +156,7 @@ test('home names the work and what is being built now', async ({ page }) => {
   await expect(
     page.getByRole('heading', { level: 1, name: 'Frontend engineer who makes complicated products simple.' })
   ).toBeVisible()
-  await expect(page.getByTestId('now-building')).toContainText('Now building Bezl')
+  await expect(page.getByTestId('now-building')).toContainText('Now building Waveboard')
   await expect(
     page.getByRole('region', { name: 'Selected work' }).getByRole('article')
   ).toHaveCount(2)
@@ -184,7 +184,7 @@ test('a keyboard user reaches a project page and back to the index', async ({ pa
 })
 
 test('every project page is served as prerendered HTML', async ({ request }) => {
-  for (const slug of ['bezl', 'kbui', 'gallery']) {
+  for (const slug of ['waveboard', 'kbui', 'gallery']) {
     // No redirect: Pages 308s a folder index to a trailing-slash URL the site never links.
     const response = await request.get(`/work/${slug}`, { maxRedirects: 0 })
     expect(response.status(), `/work/${slug}`).toBe(200)
@@ -196,25 +196,22 @@ test('every project page is served as prerendered HTML', async ({ request }) => 
 test('the journey card and the record are in the prerendered project page', async ({
   request,
 }) => {
-  const html = await (await request.get('/work/bezl')).text()
+  const html = await (await request.get('/work/kbui')).text()
   expect(html).toContain('id="progress"')
   expect(html).toContain('<details id="record" class="record">')
-  expect(html).toContain('id="2026-10-20-pty-throughput"')
+  expect(html).toContain('id="2026-10-16-first-components"')
 })
 
 test('a project page leads with progress, then the brief, then the closed record', async ({
   page,
 }) => {
-  await page.goto('/work/bezl')
+  await page.goto('/work/kbui')
   const card = page.getByRole('region', { name: 'Progress', exact: true })
   await expect(card).toContainText(
-    'Let one agent write the patch and another review it'
+    'One design system every project shares'
   )
-  await expect(card.getByRole('img', { name: /^Step \d of 6: / })).toHaveCount(
-    6
-  )
-  await expect(card).toContainText(
-    'Next up: A Claude Code reviewer cannot write'
+  await expect(card.getByRole('img', { name: /^Step \d of 3: / })).toHaveCount(
+    3
   )
   const inOrder = await page.evaluate(() => {
     const follows = (a: string, b: string) =>
@@ -235,10 +232,10 @@ test('a project page leads with progress, then the brief, then the closed record
 test('a link to an entry opens the record at that entry', async ({ page }) => {
   const errors: string[] = []
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text()))
-  await page.goto('/work/bezl#2026-10-20-pty-throughput')
+  await page.goto('/work/kbui#2026-10-16-first-components')
   await expect(page.locator('details#record')).toHaveAttribute('open', '')
   await expect(
-    page.locator('[id="2026-10-20-pty-throughput"]')
+    page.locator('[id="2026-10-16-first-components"]')
   ).toBeInViewport()
   expect(errors, 'hydration must not log errors').toEqual([])
 })
@@ -249,17 +246,17 @@ test.describe('with JavaScript off', () => {
   test('the record is in the page, closed, with every step', async ({
     page,
   }) => {
-    await page.goto('/work/bezl')
+    await page.goto('/work/kbui')
     const record = page.locator('details#record')
     await expect(record).not.toHaveAttribute('open')
-    await expect(record.locator('.record__row')).toHaveCount(6)
+    await expect(record.locator('.record__row')).toHaveCount(3)
   })
 })
 
 for (const size of [{ width: 1280, height: 800 }, { width: 375, height: 700 }]) {
   test(`the activity squares are square at ${size.width}px`, async ({ page }) => {
     await page.setViewportSize(size)
-    await page.goto('/work/bezl')
+    await page.goto('/work/kbui')
     await page.locator('#record > summary').click()
     const cells = page.locator('.activity__grid td[data-level]')
     await expect(cells).toHaveCount(84)
@@ -274,7 +271,7 @@ for (const size of [{ width: 1280, height: 800 }, { width: 375, height: 700 }]) 
 }
 
 test('the activity table corner is blank, not an outlined square', async ({ page }) => {
-  await page.goto('/work/bezl')
+  await page.goto('/work/kbui')
   await page.locator('#record > summary').click()
   const corner = page.locator('.activity__grid thead tr > :first-child')
   expect(await corner.evaluate((el) => getComputedStyle(el).outlineStyle)).toBe('none')
@@ -302,9 +299,9 @@ test('an unknown or hidden path gets the 404 page with a 404 status', async ({ p
 test('the phone layout has no horizontal scroll at 320 px', async ({ page }) => {
   await preferList(page)
   await page.setViewportSize({ width: 320, height: 700 })
-  for (const path of ['/', '/work', '/work/bezl', '/studies/terminal-speed']) {
+  for (const path of ['/', '/work', '/work/waveboard', '/work/kbui', '/studies/terminal-speed']) {
     await page.goto(path)
-    if (path === '/work/bezl') await page.locator('#record > summary').click()
+    if (path === '/work/kbui') await page.locator('#record > summary').click()
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth
     )
@@ -325,29 +322,27 @@ test('the pages and the bundle ship outcomes only', () => {
   expect(
     texts.some(
       ({ file, text }) =>
-        file.endsWith('.js') && text.includes('Terminal output into the window')
+        file.endsWith('.js') && text.includes('Button, Input and Dialog')
     ),
     'the bundle carries the shipped progress'
   ).toBe(true)
   const secrets = privateValues()
   expect(secrets).toEqual(
     expect.arrayContaining([
-      '01e47db',
-      'spikes/01-pty-throughput/RESULT.md',
-      '789 MB',
+      '2384527',
+      'packages/react/src/components/Button',
+      '28 passed',
     ])
   )
   for (const { file, text } of texts) {
     for (const secret of secrets)
       expect(text.includes(secret), `${secret} in ${file}`).toBe(false)
   }
-  // Bezl's page links its public source and downloads, nothing else in its repos.
-  const bezlLinks =
-    readFileSync('build/work/bezl.html', 'utf8').match(
-      /github\.com\/KhallilB\/bezl[^"'\s<]*/g
-    ) ?? []
-  expect(new Set(bezlLinks)).toEqual(
-    new Set(['github.com/KhallilB/bezl', 'github.com/KhallilB/bezl/releases'])
+  for (const { file, text } of texts) {
+    expect(text, file).not.toMatch(/\bbezl\b/i)
+  }
+  expect(readFileSync('build/_redirects', 'utf8')).toContain(
+    '/work/bezl /work/waveboard 302'
   )
 })
 
@@ -366,7 +361,7 @@ test('shared project cards keep the whole-card click target', async ({
   const box = await card.boundingBox()
   if (!box) throw new Error('Project card missing')
   await page.mouse.click(box.x + box.width - 12, box.y + box.height - 12)
-  await expect(page).toHaveURL(/\/work\/bezl$/)
+  await expect(page).toHaveURL(/\/work\/waveboard$/)
 })
 
 test('shared layouts remain usable without JavaScript', async ({ browser }) => {
@@ -385,7 +380,7 @@ test('shared layouts remain usable without JavaScript', async ({ browser }) => {
     await expect(cards.first().getByRole('link')).toBeVisible()
     await cards.first().getByRole('link').click()
     await expect(
-      page.getByRole('heading', { level: 1, name: 'Bezl' })
+      page.getByRole('heading', { level: 1, name: 'Waveboard' })
     ).toBeVisible()
     for (const [route, count] of [['/work', 3], ['/studies', 7]] as const) {
       await page.goto(route)

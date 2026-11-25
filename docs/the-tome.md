@@ -87,13 +87,13 @@ The book is built once and then kept. Switching to 2D doesn't destroy it:
   | Book chapter      | Site page                  |
   | ----------------- | -------------------------- |
   | About             | `/about`                   |
-  | Bezl              | `/work/bezl`               |
+  | Waveboard         | `/work/waveboard`               |
   | kbui              | `/work/kbui`               |
   | Work studies      | `/studies` and every study |
   | Contents, Contact | stay where you are         |
 
-  Press 3D on `/work/kbui` and the book opens at kbui. Turn to Bezl and press 2D,
-  and you land on `/work/bezl`. On the home page, 2D scrolls the list to the card for
+  Press 3D on `/work/kbui` and the book opens at kbui. Turn to Waveboard and press 2D,
+  and you land on `/work/waveboard`. On the home page, 2D scrolls the list to the card for
   the chapter you were reading; where home has no card for it, such as the work
   studies, it goes to that chapter's page instead, so leaving the book never loses
   your place.

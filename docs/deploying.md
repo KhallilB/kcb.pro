@@ -8,9 +8,8 @@ don't deploy by hand: GitHub Actions does it.
 The workflow in `.github/workflows/ci.yml` has two jobs:
 
 1. **gate** builds the site once, fetching each registered project's `progress.json`
-   from GitHub with `PROGRESS_TOKEN` (or, when that secret is empty, the workflow's own
-   `GITHUB_TOKEN`), then runs lint, the typecheck, and the unit, integration and
-   browser tests. It also checks that the Bezl and kbui pages built with their
+   from GitHub with the workflow’s `GITHUB_TOKEN`, then runs lint, the typecheck, and the unit, integration and
+   browser tests. It also checks that the kbui page built with its
    Progress card (`id="progress"`), so a build without progress never reaches the
    deploy artifact.
 2. **deploy** uploads that same `build/` folder to Pages, but only if the gate passed.
@@ -56,8 +55,8 @@ To create `PROGRESS_TOKEN` and make a project repository private, in this order:
    tokens** → Generate new token.
 2. Resource owner `KhallilB`. Pick an expiry and put the date in your calendar: the
    build fails the day it lapses.
-3. Repository access: only `KhallilB/bezl-internal`, where Bezl's `progress.json`
-   lives. Add `KhallilB/kbui` if you like; it is public, so it does not need it.
+3. Repository access: only the private repository that publishes the project’s
+   `progress.json`.
 4. Permissions: Repository → **Contents: Read-only** and **Metadata: Read-only**.
    Nothing else.
 5. Save it as the repo secret `PROGRESS_TOKEN` (the command prompts for the value):
@@ -66,7 +65,8 @@ To create `PROGRESS_TOKEN` and make a project repository private, in this order:
    gh secret set PROGRESS_TOKEN --repo KhallilB/kcb.pro
    ```
 
-6. Run the workflow by hand on `main` (see above) and check it passes.
+6. Add the secret to the Build step’s environment, then run the workflow on
+   `main` and check it passes.
 7. Make the project repository private, then run the workflow again.
 
 When it goes wrong, the Build step names the project and the variable, never its
@@ -128,7 +128,7 @@ Then spot-check one:
 
 ```bash
 URL=https://www.kcb.pro   # or a <hash>.kcb-pro.pages.dev deploy URL
-for p in / /work/bezl /definitely-not-a-page; do
+for p in / /work/waveboard /definitely-not-a-page; do
   printf '%-24s ' "$p"; curl -s -o /dev/null -w '%{http_code}\n' "$URL$p"
 done
 ```
@@ -136,7 +136,7 @@ done
 | Path            | Expect | Why                                                   |
 | --------------- | ------ | ----------------------------------------------------- |
 | `/`             | 200    | The home page.                                        |
-| `/work/bezl`    | 200    | A prerendered project page.                           |
+| `/work/waveboard` | 200  | A prerendered project page.                           |
 | an unknown path | 404    | Pages serves `build/404.html` with a real 404 status. |
 
 To confirm the page is the real site rather than an error page:

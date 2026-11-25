@@ -2,7 +2,7 @@
 export const TOME_PLACES = [
   'contents',
   'about',
-  'bezl',
+  'waveboard',
   'kbui',
   'studies',
   'contact',

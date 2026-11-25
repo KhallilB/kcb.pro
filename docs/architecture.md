@@ -123,7 +123,7 @@ things in order:
 4. **Build a server bundle** of `app/entry-server.tsx` into `build-ssr/`.
 5. **Prerender** (`scripts/prerender.ts`). This checks the content first and stops
    the build if anything is wrong. Then it renders every page path to its own HTML
-   file, such as `build/work/bezl.html`, plus `build/404.html`, and deletes
+   file, such as `build/work/waveboard.html`, plus `build/404.html`, and deletes
    `build-ssr/`.
 
 Pages are written as `<path>.html` rather than `<path>/index.html` because Cloudflare

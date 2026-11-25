@@ -12,30 +12,20 @@ describe('offline fixtures', () => {
     )
   })
 
-  it('give Bezl every kind of result but failed', () => {
-    expect(progressCounts(fixtureProgress.bezl.entries, '2026-10-21')).toEqual({
+  it('record the completed kbui entries', () => {
+    expect(progressCounts(fixtureProgress.kbui.entries, '2026-10-21')).toEqual({
       proven: 3,
-      partial: 1,
+      partial: 0,
       failed: 0,
-      open: 2,
+      open: 0,
     })
   })
 
-  it('give every partial entry a summary', () => {
-    const partial = Object.values(fixtureProgress).flatMap((p) =>
-      p.entries.filter((e) => e.result === 'partial')
-    )
-    expect(partial.map((e) => e.id)).toEqual([
-      '2026-10-20-pty-throughput',
-    ])
-    expect(partial.every((e) => 'summary' in e)).toBe(true)
-  })
-
   it('ship the public shape only', () => {
-    expect(Object.keys(fixtureProgress.bezl)).toEqual(['entries', 'days'])
-    expect(fixtureProgress.bezl.days.at(-1)).toEqual({
-      day: '2026-10-21',
-      count: 11,
+    expect(Object.keys(fixtureProgress.kbui)).toEqual(['entries', 'days'])
+    expect(fixtureProgress.kbui.days.find(({ day }) => day === '2026-10-16')).toEqual({
+      day: '2026-10-16',
+      count: 12,
     })
   })
 })

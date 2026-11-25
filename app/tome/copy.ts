@@ -40,7 +40,7 @@ export interface TomeData {
     path: string
   }[]
   chapters: {
-    bezl: Chapter
+    waveboard: Chapter
     kbui: Chapter
   }
 }
@@ -115,7 +115,7 @@ export function tomeData(asOf: IsoDay): TomeData {
     asOf: formatLongDay(asOf),
     nowBuilding: live?.title ?? 'Between projects',
     about: [
-      'I’m a frontend engineer in Los Angeles, and I’ve spent more than five years building product interfaces. This book is my side work: Bezl, a prototype for handing a patch between coding agents, and kbui, the design system my projects share.',
+      'I’m a frontend engineer in Los Angeles, and I’ve spent more than five years building product interfaces. This book is my side work: Waveboard, a local board for work across Git branches, and kbui, the design system my projects share.',
     ],
     contactLine:
       'Email is the best way to reach me. My résumé has the full story.',
@@ -134,28 +134,19 @@ export function tomeData(asOf: IsoDay): TomeData {
       path: `/studies/${s.slug}`,
     })),
     chapters: {
-      bezl: chapter(
-        'bezl',
+      waveboard: chapter(
+        'waveboard',
         asOf,
-        'A prototype for handing off a patch',
+        'What’s ready to start?',
         [
-          [
-            'Why I built it',
-            'A coding agent I’d asked for a review edited the patch itself. I wanted to see who changed what and which checks had run.',
-          ],
-          [
-            'What works',
-            'The first build has a live terminal and a task screen with sample data.',
-          ],
-          [
-            'What I’m testing',
-            'I’m working on letting one agent write and another review. In a separate test, Codex’s read-only mode blocked a write.',
-          ],
+          ['Why I built it', 'A ticket can look ready while its dependencies are unfinished.'],
+          ['What it shows', 'Ready tasks, dependencies, worktrees, and pull requests in one place.'],
+          ['Where I use it', 'I use it to plan Waveboard itself and LiveLeague.'],
         ],
         [
-          ['Built with', 'Tauri · Rust · React'],
-          ['Stage', 'Desktop prototype'],
-          ['To try', 'Download the build'],
+          ['Built with', 'TypeScript · Node.js · React'],
+          ['Runs on', 'My machine'],
+          ['Interfaces', 'Board · CLI · MCP'],
         ]
       ),
       kbui: chapter(
@@ -178,7 +169,7 @@ export function tomeData(asOf: IsoDay): TomeData {
         ],
         [
           ['Built with', 'CSS · React · Base UI'],
-          ['Used by', 'This site and Bezl'],
+          ['Used by', 'This site and the component site'],
           ['To try', 'Open the component site'],
         ]
       ),

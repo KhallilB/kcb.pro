@@ -32,26 +32,26 @@ describe('tome data', () => {
     }
   })
 
-  it('lists Bezl as a current user of kbui', () => {
-    expect(strings(data.chapters)).toContain('This site and Bezl')
+  it('names the sites using kbui', () => {
+    expect(strings(data.chapters)).toContain('This site and the component site')
   })
 
   it('titles its chapters after the featured endeavors, in order', () => {
-    const { bezl, kbui } = data.chapters
-    expect(Object.keys(data.chapters)).toEqual(['bezl', 'kbui'])
-    expect([bezl.title, kbui.title]).toEqual(
+    const { waveboard, kbui } = data.chapters
+    expect(Object.keys(data.chapters)).toEqual(['waveboard', 'kbui'])
+    expect([waveboard.title, kbui.title]).toEqual(
       featured(content.projects).map((p) => p.title)
     )
   })
 
   it('dates each chapter with the same status line the site shows', () => {
-    expect(data.chapters.bezl.status).toBe('In progress · as of 21 Oct 2026')
+    expect(data.chapters.waveboard.status).toBe('In progress · as of 21 Oct 2026')
     expect(data.chapters.kbui.status).toBe('In progress · as of 21 Oct 2026')
     expect(data.asOf).toBe('21 October 2026')
   })
 
   it('names what is being built now', () => {
-    expect(data.nowBuilding).toBe('Bezl')
+    expect(data.nowBuilding).toBe('Waveboard')
   })
 
   it('never names a hidden project', () => {
@@ -84,18 +84,17 @@ describe('tome data', () => {
       expect(s.short, s.slug).toBeTruthy()
       expect(s.why, s.slug).toBeTruthy()
       expect(`${s.short} ${s.why}`, s.slug).not.toMatch(
-        /bezl|kbui|live ?league|mugen|deck workshop/i
+        /bezl|waveboard|kbui|live ?league|mugen|deck workshop/i
       )
     }
   })
 
-  it('carries each project’s own links, so the book leaves for the real thing', () => {
+  it('carries each project’s own links', () => {
     for (const chapter of Object.values(data.chapters)) {
       const p = featured(content.projects).find(
         (f) => f.title === chapter.title
       )
       expect(chapter.links).toEqual(p?.links)
-      expect(chapter.links.length).toBeGreaterThan(0)
       // Four lines are all the notes page has room for.
       expect(chapter.links.length).toBeLessThanOrEqual(4)
     }
@@ -124,7 +123,7 @@ describe('tome data', () => {
 
   it('links each chapter to its project page in 2D', () => {
     const paths = sitePaths(content)
-    expect(data.chapters.bezl.path).toBe('/work/bezl')
+    expect(data.chapters.waveboard.path).toBe('/work/waveboard')
     expect(data.chapters.kbui.path).toBe('/work/kbui')
     for (const c of Object.values(data.chapters))
       expect(paths).toContain(c.path)

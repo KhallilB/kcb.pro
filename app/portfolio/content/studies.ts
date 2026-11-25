@@ -13,7 +13,7 @@ export const studies: Study[] = [
       'A terminal pane that draws on the GPU, updates the screen at most once a frame, tells a noisy program to wait instead of holding everything in memory, and still works with a screen reader.',
     kitPiece:
       'A terminal pane with a fixed memory ceiling, for an app that runs several command-line programs side by side.',
-    feeds: ['bezl'],
+    feeds: [],
     status: 'planned',
     startsOn: '2026-11-02',
     brief: [
@@ -51,7 +51,7 @@ export const studies: Study[] = [
       'A triage step that sorts each review finding by whether it quotes the code it’s about or only describes what the code might do, folds minor ones away, and marks where two reviewers found the same thing on their own.',
     kitPiece:
       'A finding triage that shows a person only the review comments worth their time, for any setup where AI assistants review each other’s code.',
-    feeds: ['bezl'],
+    feeds: [],
     status: 'planned',
     startsOn: '2026-11-09',
     brief: [
@@ -126,7 +126,7 @@ export const studies: Study[] = [
       'A launcher that starts a command-line program in an operating-system sandbox with no write access, plus a check that tries every way to write it can find and reports any that get through.',
     kitPiece:
       'A read-only launcher and preflight check for AI assistants that are meant to review code, never change it.',
-    feeds: ['bezl'],
+    feeds: [],
     status: 'planned',
     startsOn: '2026-11-23',
     brief: [
@@ -239,7 +239,7 @@ export const studies: Study[] = [
       'A queue that takes several finished changes, tests each one on top of the ones ahead of it, and drops only the change that breaks things, not the whole batch.',
     kitPiece:
       'A landing queue for work split across several AI assistants at once, each owning its own files.',
-    feeds: ['bezl'],
+    feeds: [],
     status: 'planned',
     startsOn: '2026-12-14',
     brief: [
