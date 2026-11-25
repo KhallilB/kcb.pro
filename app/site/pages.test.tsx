@@ -28,10 +28,11 @@ describe('home', () => {
   it('names what is being built now, dated by the build', () => {
     visit('/')
     const live = screen.getByTestId('now-building')
-    expect(within(live).getByRole('link', { name: 'Bezl' })).toHaveAttribute(
+    expect(within(live).getByRole('link', { name: 'Waveboard' })).toHaveAttribute(
       'href',
-      '/work/bezl'
+      '/work/waveboard'
     )
+    expect(screen.queryByRole('link', { name: 'Bezl' })).toBeNull()
     expect(live).toHaveTextContent('as of 21 Oct 2026')
   })
 
@@ -41,7 +42,7 @@ describe('home', () => {
     const cards = within(work).getAllByRole('article')
     expect(
       cards.map((c) => within(c).getByRole('heading').textContent)
-    ).toEqual(['Bezl', 'kbui'])
+    ).toEqual(['Waveboard', 'kbui'])
     for (const card of cards) {
       expect(card).toHaveTextContent('In progress · as of 21 Oct 2026')
     }
@@ -56,7 +57,7 @@ describe('home', () => {
       screen.getByRole('region', { name: 'Selected work' })
     ).getAllByRole('article')
     expect(cards[0]).toHaveTextContent(
-      'a live terminal and a task screen with sample data'
+      'Waveboard puts tasks, dependencies, worktrees, and pull requests in one place.'
     )
     expect(cards[1]).toHaveTextContent(
       'I kept rebuilding the same buttons and forms'
@@ -93,7 +94,7 @@ describe('layout', () => {
   })
 
   it('puts every way to reach me in the footer', () => {
-    visit('/work/bezl')
+    visit('/work/waveboard')
     const footer = within(screen.getByRole('contentinfo'))
     expect(footer.getByRole('link', { name: 'hi@kcb.pro' })).toHaveAttribute(
       'href',
@@ -122,7 +123,7 @@ describe('work index', () => {
     visit('/work')
     const rows = within(screen.getByRole('main')).getAllByRole('listitem')
     expect(rows[1]).toHaveTextContent(
-      'a live terminal and a task screen with sample data'
+      'Waveboard puts tasks, dependencies, worktrees, and pull requests in one place.'
     )
     expect(rows[2]).toHaveTextContent(
       'I kept rebuilding the same buttons and forms'
@@ -135,91 +136,73 @@ describe('work index', () => {
     const rows = within(screen.getByRole('main')).getAllByRole('listitem')
     expect(rows.map((r) => within(r).getByRole('link').textContent)).toEqual([
       'The Gallery',
-      'Bezl',
+      'Waveboard',
       'kbui',
     ])
   })
 })
 
 describe('project page', () => {
-  it('leads with the spec header', () => {
-    visit('/work/bezl')
+  it('leads with the Waveboard spec header', () => {
+    visit('/work/waveboard')
     expect(
-      screen.getByRole('heading', { level: 1, name: 'Bezl' })
+      screen.getByRole('heading', { level: 1, name: 'Waveboard' })
     ).toBeInTheDocument()
     const spec = screen.getByRole('group', { name: 'Spec' })
     expect(spec).toHaveTextContent('Role')
-    expect(spec).toHaveTextContent('Tauri 2')
+    expect(spec).toHaveTextContent('Node.js')
     expect(spec).toHaveTextContent('In progress · as of 21 Oct 2026')
   })
 
-  it("shows Bezl's progress under the header and above the brief", () => {
-    visit('/work/bezl')
+  it('shows kbui progress above the brief', () => {
+    visit('/work/kbui')
     const card = screen.getByRole('region', { name: 'Progress' })
     expect(card).toHaveTextContent(
-      'Let one agent write the patch and another review it, with the diff and check results in one place.'
-    )
-    expect(card).toHaveTextContent('3 of 6 done, 1 in progress, 2 planned')
-    expect(card).toHaveTextContent(
-      'Next up: A Claude Code reviewer cannot write'
+      'One design system every project shares, with its rules checked by the build.'
     )
     expect(card).toHaveTextContent('Updated 21 Oct 2026')
-    expect(within(card).getAllByRole('img')).toHaveLength(6)
+    expect(within(card).getAllByRole('img')).toHaveLength(3)
     const brief = screen.getByRole('heading', { level: 2, name: 'The problem' })
     expect(
       card.compareDocumentPosition(brief) & Node.DOCUMENT_POSITION_FOLLOWING
     ).toBeTruthy()
   })
 
-  it('keeps Full history closed after the brief, every step anchored in journey order', () => {
-    visit('/work/bezl')
+  it('keeps Full history closed after the brief, every step anchored', () => {
+    visit('/work/kbui')
     const record = document.getElementById('record') as HTMLDetailsElement
     expect(record).not.toHaveAttribute('open')
-    const last = screen.getByRole('heading', { level: 2, name: 'Use of AI' })
+    const last = screen.getByRole('heading', { level: 2, name: 'What comes next' })
     expect(
       last.compareDocumentPosition(record) & Node.DOCUMENT_POSITION_FOLLOWING
     ).toBeTruthy()
     expect(
       Array.from(record.querySelectorAll('.record__row'), (r) => r.id)
     ).toEqual([
-      '2026-10-20-libghostty-vt',
-      '2026-10-20-reviewer-readonly-codex',
-      '2026-10-21-scaffold',
-      '2026-10-20-pty-throughput',
-      '2026-10-20-reviewer-readonly-claude',
-      '2026-10-21-pty-memory',
+      '2026-10-16-first-components',
+      '2026-10-16-component-checks',
+      '2026-10-21-release-0-1-0',
     ])
   })
 
   it('shows commit activity inside the record', () => {
-    visit('/work/bezl')
+    visit('/work/kbui')
     const record = document.getElementById('record') as HTMLDetailsElement
     record.open = true
     expect(
       within(record).getByRole('region', { name: 'Activity' })
-    ).toHaveTextContent('11 commits in the last 12 weeks')
+    ).toHaveTextContent('12 commits in the last 12 weeks')
   })
 
-  it('shows outcomes only: no pass mark, measurement, evidence or repository link beyond source and downloads', () => {
-    const { container } = visit('/work/bezl')
-    expect(container).not.toHaveTextContent('No lost bytes, echo under 100 ms')
-    expect(container).not.toHaveTextContent('Surplus bytes per pane')
-    expect(container).not.toHaveTextContent('RESULT.md')
+  it('keeps raw progress evidence out of the kbui page', () => {
+    const { container } = visit('/work/kbui')
+    expect(container).not.toHaveTextContent('28 passed')
+    expect(container).not.toHaveTextContent('packages/react/src/components/Button')
     expect(screen.queryByRole('group', { name: 'Filter entries' })).toBeNull()
-    const hrefs = Array.from(
-      container.querySelectorAll('a'),
-      (a) => a.getAttribute('href') ?? ''
-    )
-    expect(
-      hrefs.filter((href) => href.includes('github.com/KhallilB/bezl'))
-    ).toEqual([
-      'https://github.com/KhallilB/bezl/releases',
-      'https://github.com/KhallilB/bezl',
-    ])
   })
 
   it('shows nothing in place of progress for a project without it', () => {
-    visit('/work/gallery')
+    visit('/work/waveboard')
     expect(screen.queryByRole('region', { name: 'Build log' })).toBeNull()
     expect(screen.getByRole('main')).not.toHaveTextContent('Nothing here yet')
     expect(screen.queryByRole('region', { name: 'Progress' })).toBeNull()
@@ -233,12 +216,12 @@ describe('project page', () => {
   })
 
   it('renders every brief section as a heading with a contents link', () => {
-    visit('/work/bezl')
+    visit('/work/waveboard')
     const headings = screen
       .getAllByRole('heading', { level: 2 })
       .map((h) => h.textContent)
     expect(headings).toContain('The problem')
-    expect(headings).toContain('What I’ve tested')
+    expect(headings).toContain('Where I use it')
     const toc = screen.getByRole('navigation', { name: 'On this page' })
     expect(
       within(toc).getByRole('link', { name: 'The problem' })
@@ -250,19 +233,6 @@ describe('project page', () => {
     expect(
       within(screen.getByRole('main')).getByRole('link', { name: /Source/ })
     ).toHaveAttribute('href', 'https://github.com/KhallilB/kbui')
-  })
-
-  it('offers Bezl’s public source and its downloads', () => {
-    visit('/work/bezl')
-    const main = within(screen.getByRole('main'))
-    expect(main.getByRole('link', { name: /Source/ })).toHaveAttribute(
-      'href',
-      'https://github.com/KhallilB/bezl'
-    )
-    expect(main.getByRole('link', { name: /Download/ })).toHaveAttribute(
-      'href',
-      'https://github.com/KhallilB/bezl/releases'
-    )
   })
 
   it('shows source only where it is public', () => {
@@ -303,19 +273,12 @@ describe('project page', () => {
 
 describe('studies', () => {
   it('links a study to the project it feeds', () => {
-    visit('/studies/terminal-speed')
-    expect(
-      screen.getByRole('heading', {
-        level: 1,
-        name: 'How VS Code’s terminal keeps up with a flood of output',
-      })
-    ).toBeInTheDocument()
-    expect(screen.getByText('Teardown')).toBeInTheDocument()
+    visit('/studies/safe-fixes')
     const spec = screen.getByRole('group', { name: 'Spec' })
     expect(spec).toHaveTextContent('Used by')
-    expect(within(spec).getByRole('link', { name: 'Bezl' })).toHaveAttribute(
+    expect(within(spec).getByRole('link', { name: 'kbui' })).toHaveAttribute(
       'href',
-      '/work/bezl'
+      '/work/kbui'
     )
   })
 
@@ -339,7 +302,7 @@ describe('studies', () => {
     expect(lede).toHaveTextContent(
       'redesigns an older tool people still rely on'
     )
-    expect(lede).toHaveTextContent('a planned feature in one of my projects')
+    expect(lede).toHaveTextContent('a small working piece I can reuse')
   })
 
   it('lists all seven studies on the index', () => {
@@ -349,8 +312,8 @@ describe('studies', () => {
     ).toHaveLength(7)
   })
 
-  it('names no user for a study that feeds work without a page here', () => {
-    visit('/studies/decision-or-luck')
+  it.each(['terminal-speed', 'decision-or-luck'])('keeps %s independent of featured projects', (slug) => {
+    visit(`/studies/${slug}`)
     const spec = screen.getByRole('group', { name: 'Spec' })
     expect(spec).not.toHaveTextContent('Used by')
     expect(within(spec).queryByRole('link')).toBeNull()
@@ -362,7 +325,7 @@ describe('about', () => {
     visit('/about')
     const main = screen.getByRole('main')
     for (const [name, href] of [
-      ['Bezl', '/work/bezl'],
+      ['Waveboard', '/work/waveboard'],
       ['kbui', '/work/kbui'],
     ]) {
       expect(within(main).getByRole('link', { name })).toHaveAttribute(
@@ -389,7 +352,7 @@ describe('about', () => {
     expect(text).not.toContain('You’ll see dates on everything here')
     expect(text).not.toContain('This site is the third')
     expect(text).toContain(
-      'between coding agents, and kbui, the design system my projects share'
+      'across Git branches, and kbui, the design system my projects share'
     )
   })
 

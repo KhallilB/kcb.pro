@@ -3,7 +3,7 @@ import { pathOfPlace, placeOfPath, TOME_PLACES } from './place'
 describe('the book page a site page belongs to', () => {
   it.each([
     ['/about', 'about'],
-    ['/work/bezl', 'bezl'],
+    ['/work/waveboard', 'waveboard'],
     ['/work/kbui', 'kbui'],
     ['/studies', 'studies'],
     ['/studies/terminal-speed', 'studies'],

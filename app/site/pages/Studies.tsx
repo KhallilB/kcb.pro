@@ -18,8 +18,7 @@ export function StudiesIndex() {
         <p className="lede">
           Short, one-week deep dives. Each one either takes apart how a
           well-known app works, or redesigns an older tool people still rely on.
-          Each ends with a small working piece for a planned feature in one of
-          my projects.
+          Each ends with a small working piece I can reuse.
         </p>
       </header>
       <Grid as="ul" layout="stack" className="rows">

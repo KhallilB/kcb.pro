@@ -50,69 +50,38 @@ export const projects: Project[] = [
     ],
   },
   {
-    slug: 'bezl',
+    slug: 'waveboard',
     kind: 'endeavor',
-    title: 'Bezl',
-    summary: 'A side project to make my coding agent reviews easier to follow.',
+    title: 'Waveboard',
+    summary: 'A local board for what’s ready to start and what’s blocked.',
     about:
-      'I started Bezl after a coding agent I’d asked for a review edited the patch itself. I wanted an easier way to see who changed what and which checks had run. So far, the desktop prototype has a live terminal and a task screen with sample data.',
+      'When several people or coding agents work across Git branches, it’s easy to lose track of what can start safely. Waveboard puts tasks, dependencies, worktrees, and pull requests in one place.',
     status: 'in-progress',
-    startsOn: '2026-10-22',
+    startsOn: '2026-11-19',
     order: 1,
     rank: 1,
-    repo: 'KhallilB/bezl-internal',
-    goal: 'Let one agent write the patch and another review it, with the diff and check results in one place.',
     role: 'Design and engineering',
-    stack: ['Tauri 2', 'Rust', 'React 19', 'TypeScript', 'xterm.js', 'Ollama'],
-    domain: 'Desktop apps, embedded terminals, sandboxed permissions and local models.',
-    signature:
-      'In a separate test, Codex’s read-only mode blocked a write to a scratch repo.',
-    links: [
-      { label: 'Download', href: 'https://github.com/KhallilB/bezl/releases' },
-      { label: 'Source', href: 'https://github.com/KhallilB/bezl' },
-    ],
-    media: [
-      {
-        kind: 'image',
-        src: '/media/bezl-task.webp',
-        alt: 'Bezl’s task screen: one worker marked writes and running, two reviewers marked reads, and a terminal printing build output.',
-        width: 1440,
-        height: 900,
-        caption:
-          'The task screen in v0.1.0 shows one writer and two reviewers using sample data.',
-      },
-    ],
+    stack: ['TypeScript', 'Node.js', 'React', 'Git', 'MCP'],
+    domain: 'Developer tools, dependency graphs, and local workflows.',
+    signature: 'See which tasks can run in parallel and which one is holding up the rest.',
+    links: [],
     brief: [
       {
         heading: 'The problem',
         body: [
-          'I was using one coding agent to make a change and another to review it. Sometimes the reviewer would edit the same files. I’d have to work out which version it had reviewed and whether the checks still applied. I started Bezl to see how much of that handoff I could automate.',
+          'A ticket can look ready while a dependency is still open or someone is already changing the same files. I built Waveboard to make those constraints visible before I hand off work.',
         ],
       },
       {
-        heading: 'What you can try',
+        heading: 'How it works',
         body: [
-          'I released v0.1.0 on 27 Oct 2026. You can open the app, use the live terminal, and explore the task screen, which is built on kbui and uses sample data. The writer and reviewer workflow is still in development.',
-          'The builds are unsigned. The release page has steps for opening them on macOS and Windows.',
+          'Waveboard reads task files from the repository, follows their dependencies, and groups ready work into waves. It shows open worktrees and pull requests alongside the plan. Coding agents can read the same plan and task briefs through an MCP server.',
         ],
       },
       {
-        heading: 'What I’ve tested',
+        heading: 'Where I use it',
         body: [
-          'I tested parts of the workflow separately. The terminal stayed responsive while printing a lot of output, but memory use went over my target. I also used Ghostty’s terminal engine to capture text from a running Vim session. That test needed a specific compiler build.',
-          'In a separate test, I asked Codex in read-only mode to change a file in a scratch repo. The sandbox blocked the write.',
-        ],
-      },
-      {
-        heading: 'What I’m working on',
-        body: [
-          'I’m working on connecting those pieces. The idea is to give one agent a separate checkout to edit, let a reviewer inspect the patch, and show me the Git diff and check results in one place.',
-        ],
-      },
-      {
-        heading: 'Use of AI',
-        body: [
-          'I plan to use the official Codex and Claude Code command-line tools. Each would keep its own sign-in. I’m also exploring Ollama for jobs that don’t need access to the repo.',
+          'I use it to plan Waveboard itself and LiveLeague, a basketball simulation project. I’m working on packaging it so other developers can try it.',
         ],
       },
     ],
@@ -199,7 +168,7 @@ export const projects: Project[] = [
       {
         heading: 'Who uses it',
         body: [
-          'Three things run on it today: this site, Bezl’s task screen, and the component site that documents it. Each release goes out as packages on npm, so a project can pin the exact version it was built against and upgrade when it suits.',
+          'This portfolio and the component site both use it. Each release goes out as packages on npm, so a project can pin the exact version it was built against and upgrade when it suits.',
         ],
       },
       {

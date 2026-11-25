@@ -85,7 +85,7 @@ describe('the tome on the home page', () => {
     const { hooks, calls } = fakeEngine()
     await visit('/', hooks)
     expect(calls[0].data.chapters.kbui.title).toBe('kbui')
-    expect(Object.keys(calls[0].data.chapters)).toEqual(['bezl', 'kbui'])
+    expect(Object.keys(calls[0].data.chapters)).toEqual(['waveboard', 'kbui'])
     expect(calls[0].data.asOf).toBe('21 October 2026')
   })
 
@@ -349,11 +349,11 @@ describe('the tome on the home page', () => {
   })
 
   it('leaves the book for the page of the chapter being read', async () => {
-    const { hooks } = fakeEngine('mount', 'bezl')
+    const { hooks } = fakeEngine('mount', 'waveboard')
     await visit('/work/kbui', hooks)
     fireEvent.click(option('Tome'))
     await act(async () => {})
     fireEvent.click(option('List'))
-    expect(screen.getByRole('heading', { level: 1, name: 'Bezl' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Waveboard' })).toBeInTheDocument()
   })
 })
